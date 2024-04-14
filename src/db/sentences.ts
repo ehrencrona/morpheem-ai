@@ -3,15 +3,17 @@ import { db } from './client';
 
 export function addSentence({
 	sentenceString,
+	english,
 	words
 }: {
 	sentenceString: string;
+	english: string;
 	words: { id: number; word: string | null }[];
 }) {
 	return db.transaction().execute(async (trx) => {
 		const sentence = await trx
 			.insertInto('sentences')
-			.values({ sentence: sentenceString })
+			.values({ sentence: sentenceString, english })
 			.returning('id')
 			.onConflict((oc) => oc.column('sentence').doNothing())
 			.executeTakeFirst();
@@ -42,6 +44,10 @@ export function addSentence({
 
 export function getSentences() {
 	return db.selectFrom('sentences').select(['id', 'sentence']).execute();
+}
+
+export function getSentenceIds() {
+	return db.selectFrom('sentences').select(['id']).execute();
 }
 
 export async function getSentence(id: number) {

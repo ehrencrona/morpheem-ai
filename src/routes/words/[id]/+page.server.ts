@@ -1,8 +1,7 @@
 import { type ServerLoad } from '@sveltejs/kit';
-import { db } from '../../../db/client';
-import { getWordById } from '../../../db/words';
-import { getSentencesWithWord } from '../../../db/sentences';
 import { getForms } from '../../../db/lemmas';
+import { getSentencesWithWord } from '../../../db/sentences';
+import { getWordById } from '../../../db/words';
 
 export const load = (async ({ params }) => {
 	const wordId = parseInt(params.id!);

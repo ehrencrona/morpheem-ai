@@ -1,13 +1,14 @@
 import { error } from '@sveltejs/kit';
 import { db } from './client';
 
-export async function addWord(lemma: string, encounteredForm: string | undefined) {
+export async function addWord(lemma: string, english: string, encounteredForm: string | undefined) {
 	console.log(`Adding word ${lemma}...`);
 
 	const result = await db
 		.insertInto('words')
 		.values({
 			word: lemma,
+			english,
 			json: encounteredForm ? { forms: [encounteredForm] } : undefined
 		})
 		.returning(['id', 'word'])
@@ -45,4 +46,14 @@ export async function getWordById(wordId: number) {
 	}
 
 	return word;
+}
+
+export async function getWordsOfSentence(sentenceId: number) {
+	return db
+		.selectFrom('word_sentences')
+		.leftJoin('words', 'word_id', 'id')
+		.select(['word', 'word_index', 'id', 'english'])
+		.where('sentence_id', '=', sentenceId)
+		.orderBy('word_index')
+		.execute();
 }

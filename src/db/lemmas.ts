@@ -24,16 +24,6 @@ export async function addWordToLemma(lemma: string, encounteredForm: string) {
 		.execute();
 }
 
-export async function getLemmasInSentence(sentenceId: number) {
-	return db
-		.selectFrom('word_sentences')
-		.leftJoin('words', 'word_id', 'id')
-		.select(['word', 'word_index', 'id', 'english'])
-		.where('sentence_id', '=', sentenceId)
-		.orderBy('word_index')
-		.execute();
-}
-
 export function getForms(wordId: number) {
 	return db.selectFrom('word_lemma').select(['word']).where('lemma_id', '=', wordId).execute();
 }

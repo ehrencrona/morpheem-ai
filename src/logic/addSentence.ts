@@ -3,8 +3,9 @@ import { addWord, getMultipleWords } from '../db/words';
 import { toWords } from './toWords';
 
 import * as sentences from '../db/sentences';
+import { translate } from '../ai/translate';
 
-export async function addSentence(sentenceString: string, lemmas: string[]) {
+export async function addSentence(sentenceString: string, english: string, lemmas: string[]) {
 	console.log(`Adding sentence "${sentenceString}"...`);
 
 	const sentenceWords = toWords(sentenceString);
@@ -26,10 +27,16 @@ export async function addSentence(sentenceString: string, lemmas: string[]) {
 		.map((lemma, i) => [lemma, sentenceWords[i]])
 		.filter(([lemma]) => !words.some((word) => word.word === lemma));
 
+	const englishMissingWords = await translate(missingWords.map(([lemma]) => lemma));
+
 	const addedWords = await Promise.all(
 		missingWords.map(
-			async ([lemma, encounteredForm]) =>
-				(await addWord(lemma, encounteredForm != lemma ? encounteredForm : undefined))!
+			async ([lemma, encounteredForm], index) =>
+				(await addWord(
+					lemma,
+					englishMissingWords[index],
+					encounteredForm != lemma ? encounteredForm : undefined
+				))!
 		)
 	);
 
@@ -51,6 +58,7 @@ export async function addSentence(sentenceString: string, lemmas: string[]) {
 
 	const sentence = await sentences.addSentence({
 		sentenceString,
+		english,
 		words: (words as { id: number; word: string | null }[])
 			.concat(addedWords)
 			.sort((a, b) => indexOfWord(a.word!) - indexOfWord(b.word!))
