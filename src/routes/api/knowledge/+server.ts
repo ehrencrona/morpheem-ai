@@ -1,4 +1,4 @@
-import type { ServerLoad } from '@sveltejs/kit';
+import { json, type ServerLoad } from '@sveltejs/kit';
 import { z } from 'zod';
 import { getAggregateKnowledgeForUser } from '../../../db/knowledge';
 import { addKnowledge, getBeginnerKnowledge } from '../../../logic/knowledge';
@@ -10,11 +10,7 @@ export const POST: ServerLoad = async ({ request }) => {
 
 	await addKnowledge(words);
 
-	return new Response(JSON.stringify({}), {
-		headers: {
-			'content-type': 'application/json'
-		}
-	});
+	return json({});
 };
 
 export const GET: ServerLoad = async ({}) => {
@@ -24,9 +20,5 @@ export const GET: ServerLoad = async ({}) => {
 		knowledge = await getBeginnerKnowledge();
 	}
 
-	return new Response(JSON.stringify(knowledge), {
-		headers: {
-			'content-type': 'application/json'
-		}
-	});
+	return json(knowledge);
 };

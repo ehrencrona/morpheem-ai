@@ -7,5 +7,9 @@ export function toWords(sentence: string) {
 }
 
 export function toWordsWithSeparators(sentence: string) {
-	return sentence.split(/([^a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻ]+)/).filter((word) => word.length > 0);
+	return sentence.split(/([^a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻ-]+)/).filter((word) => word.length > 0);
+}
+
+export function isSeparator(word: string) {
+	return word.match(/[^a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻ-]/);
 }

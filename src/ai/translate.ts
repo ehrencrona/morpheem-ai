@@ -1,5 +1,31 @@
 import { z } from 'zod';
 import { promptForJson } from './promptForJson';
+import { openai } from './client';
+
+export async function explain(word: string) {
+	const completion = await openai.chat.completions.create({
+		model: 'gpt-3.5-turbo',
+		messages: [
+			{
+				role: 'user',
+				content: `Very briefly explain the Polish word "${word}". What meanings does it have? If it can be broken down into parts, please explain them. What similar words exist in terms of stem or similar etymology?`
+			}
+		],
+		temperature: 1
+	});
+
+	return (completion.choices[0].message.content || '').split(`\n\n`);
+}
+
+export async function translateWordInContext(word: string, sentence: string) {
+	return promptForJson({
+		instruction: `Return a JSON in the form { english: "", lemma: "" } with the definition and the dictionary form of the word.`,
+		prompt: `What does the Polish word "${word}" mean in the sentence "${sentence}"?`,
+		temperature: 0.5,
+		max_tokens: 30,
+		schema: z.object({ english: z.string(), lemma: z.string() })
+	});
+}
 
 export async function translateWords(words: string[]) {
 	return translateSentences(words, {

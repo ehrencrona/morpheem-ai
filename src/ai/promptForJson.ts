@@ -11,7 +11,7 @@ export async function promptForJson<T>({
 	max_tokens,
 	schema
 }: {
-	instruction: string;
+	instruction?: string;
 	prompt: string;
 	temperature: number;
 	max_tokens: number;
@@ -22,13 +22,14 @@ export async function promptForJson<T>({
 	try {
 		completion = await openai.chat.completions.create({
 			model: 'gpt-3.5-turbo',
-			messages: (
-				[
-					{
-						role: 'system',
-						content: instruction
-					}
-				] as ChatCompletionMessageParam[]
+			messages: (instruction
+				? ([
+						{
+							role: 'system',
+							content: instruction
+						}
+					] as ChatCompletionMessageParam[])
+				: []
 			).concat({
 				role: 'user',
 				content: prompt

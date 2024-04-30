@@ -7,5 +7,4 @@ export interface Sentence {
 export interface Word {
 	word: string;
 	id: number;
-	english: string | null;
 }

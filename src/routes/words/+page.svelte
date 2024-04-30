@@ -7,7 +7,7 @@
 <main>
 	{#each data.words as word}
 		<p>
-			<a href="/words/{word.id}">{word.word}</a> ({word.english})
+			<a href="/words/{word.id}">{word.word}</a>
 		</p>
 	{/each}
 </main>

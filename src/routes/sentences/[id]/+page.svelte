@@ -12,7 +12,7 @@
 	<ul>
 		{#each data.lemmas as word}
 			<li>
-				<a href="/words/{word.id}">{word.word}</a> ({word.english})
+				<a href="/words/{word.id}">{word.word}</a>
 			</li>
 		{/each}
 	</ul>

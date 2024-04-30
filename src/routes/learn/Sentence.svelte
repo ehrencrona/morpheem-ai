@@ -1,44 +1,30 @@
 <script lang="ts">
 	import type * as DB from '../../db/types';
-	import { toWords, toWordsWithSeparators } from '../../logic/toWords';
+	import { isSeparator, toWordsWithSeparators } from '../../logic/toWords';
+	import type { UnknownWordResponse } from '../api/word/unknown/+server';
 
 	export let sentence: DB.Sentence;
 
-	export let words: DB.Word[];
+	export let revealed: (UnknownWordResponse & { explanation?: string[] })[];
 
-	export let onReveal: (word: DB.Word) => void;
+	export let onUnknown: (word: string) => Promise<any>;
+	export let onExplain: (word: string) => Promise<any>;
 
-	$: wordStrings = toWords(sentence.sentence);
 	$: wordsWithSeparators = toWordsWithSeparators(sentence.sentence);
 
 	let revealTranslation = false;
 
-	let revealedWords: DB.Word[] = [];
-
 	$: if (sentence) {
-		revealedWords = [];
 		revealTranslation = false;
-	}
-
-	async function reveal(index: number) {
-		if (!words || !sentence) {
-			throw new Error('Invalid state');
-		}
-
-		if (!revealedWords.includes(words[index])) {
-			revealedWords = revealedWords.concat(words[index]);
-
-			onReveal(words[index]);
-		}
 	}
 </script>
 
 <h1>
-	{#each wordsWithSeparators as word, index}{#if wordStrings.includes(word.toLowerCase())}<span
+	{#each wordsWithSeparators as word, index}{#if !isSeparator(word)}<span
 				style="cursor: pointer"
-				on:click={() =>
-					reveal(words.findIndex((w) => w.word_index == wordStrings.indexOf(word.toLowerCase())))}
-				>{word}</span
+				role="button"
+				tabindex={index}
+				on:click={() => onUnknown(word)}>{word}</span
 			>{:else}{word}{/if}{/each}
 </h1>
 
@@ -49,9 +35,16 @@
 {/if}
 
 <ul>
-	{#each revealedWords as word}
+	{#each revealed as word}
 		<li>
-			<a href="/words/{word.id}">{word.word}</a>: {word.english}
+			<a href="/words/{word.id}">{word.lemma}</a>: {word.english}
+			{#if word.explanation}
+				{#each word.explanation as explanation}
+					<p>{explanation}</p>
+				{/each}
+			{:else}
+				<button on:click={() => onExplain(word.lemma)}>More...</button>
+			{/if}
 		</li>
 	{/each}
 </ul>

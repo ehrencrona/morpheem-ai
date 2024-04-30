@@ -7,8 +7,6 @@
 <main>
 	<h1>{data.word?.word}</h1>
 
-	<p><i>{data.word?.english}</i></p>
-
 	{#each data.sentences as sentence}
 		<p>
 			<a href="/sentences/{sentence.id}">{sentence.sentence}</a>
