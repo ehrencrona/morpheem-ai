@@ -2,8 +2,8 @@ import { addWordToLemma } from '../db/lemmas';
 import { addWord, getMultipleWords } from '../db/words';
 import { toWords } from './toWords';
 
+import { translateWords } from '../ai/translate';
 import * as sentences from '../db/sentences';
-import { translate } from '../ai/translate';
 
 export async function addSentence(sentenceString: string, english: string, lemmas: string[]) {
 	console.log(`Adding sentence "${sentenceString}"...`);
@@ -27,7 +27,7 @@ export async function addSentence(sentenceString: string, english: string, lemma
 		.map((lemma, i) => [lemma, sentenceWords[i]])
 		.filter(([lemma]) => !words.some((word) => word.word === lemma));
 
-	const englishMissingWords = await translate(missingWords.map(([lemma]) => lemma));
+	const englishMissingWords = await translateWords(missingWords.map(([lemma]) => lemma));
 
 	const addedWords = await Promise.all(
 		missingWords.map(

@@ -1,3 +1,5 @@
+import { dateToTime } from '../logic/isomorphic/knowledge';
+import type { AggKnowledgeForUser } from '../logic/types';
 import { db } from './client';
 
 export function addKnowledge({
@@ -20,4 +22,70 @@ export function addKnowledge({
 			knew: isKnown
 		})
 		.execute();
+}
+
+export async function transformAggregateKnowledge(
+	{ wordId, userId }: { wordId: number; userId: number },
+
+	transform: (opts: { alpha: number; beta: number; time: number } | undefined) => {
+		alpha: number;
+		beta: number;
+	}
+) {
+	return db.transaction().execute(async (transaction) => {
+		const aggregateKnowledge = await transaction
+			.selectFrom('aggregate_knowledge')
+			.select(['alpha', 'beta', 'time'])
+			.where('word_id', '=', wordId)
+			.where('user_id', '=', userId)
+			.executeTakeFirst();
+
+		if (!aggregateKnowledge) {
+			const values = transform(undefined);
+
+			await transaction
+				.insertInto('aggregate_knowledge')
+				.values({
+					word_id: wordId,
+					user_id: userId,
+					...values,
+					time: new Date()
+				})
+				.execute();
+		} else {
+			const { alpha, beta, time: date } = aggregateKnowledge;
+
+			const values = transform({
+				alpha,
+				beta,
+				time: dateToTime(date)
+			});
+
+			await transaction
+				.updateTable('aggregate_knowledge')
+				.set({ ...values, time: new Date() })
+				.where('word_id', '=', wordId)
+				.where('user_id', '=', userId)
+				.execute();
+		}
+	});
+}
+
+export async function getAggregateKnowledgeForUser({
+	userId
+}: {
+	userId: number;
+}): Promise<AggKnowledgeForUser[]> {
+	const raw = await db
+		.selectFrom('aggregate_knowledge')
+		.select(['word_id', 'alpha', 'beta', 'time'])
+		.where('user_id', '=', userId)
+		.execute();
+
+	return raw.map(({ word_id: wordId, alpha, beta, time }) => ({
+		wordId,
+		alpha,
+		beta,
+		time: dateToTime(time)
+	}));
 }

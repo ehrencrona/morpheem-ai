@@ -1,5 +1,7 @@
 import { error } from '@sveltejs/kit';
 import { db } from './client';
+import type * as DB from './types';
+import type { NotNull } from 'kysely';
 
 export async function addWord(lemma: string, english: string, encounteredForm: string | undefined) {
 	console.log(`Adding word ${lemma}...`);
@@ -48,12 +50,13 @@ export async function getWordById(wordId: number) {
 	return word;
 }
 
-export async function getWordsOfSentence(sentenceId: number) {
+export async function getWordsOfSentence(sentenceId: number): Promise<DB.Word[]> {
 	return db
 		.selectFrom('word_sentences')
-		.leftJoin('words', 'word_id', 'id')
+		.innerJoin('words', 'word_id', 'id')
 		.select(['word', 'word_index', 'id', 'english'])
 		.where('sentence_id', '=', sentenceId)
 		.orderBy('word_index')
+		.$narrowType<{ word: NotNull }>()
 		.execute();
 }

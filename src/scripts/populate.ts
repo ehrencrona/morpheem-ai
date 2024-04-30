@@ -1,26 +1,16 @@
-import { getExampleSentences } from '../ai/getExampleSentences';
-import { sentencesToLemmas } from '../ai/sentencesToLemmas';
-import { addWord } from '../db/words';
-import { addSentence } from '../logic/addSentence';
 import { getWordsMissingExamples } from '../db/getWordsMissingExamples';
-import { translate } from '../ai/translate';
+import { addSentencesForWord } from '../logic/addSentencesForWord';
+import { parallelize } from '../logic/knowledge';
 
 export async function recursivelyAddWords() {
 	//	await addWord('piękny', 'pretty', undefined);
 
-	const words = await getWordsMissingExamples(4);
+	const words = await getWordsMissingExamples(20);
 
-	for (const word of words) {
-		const sentences = await getExampleSentences(word);
-		const englishes = await translate(sentences);
-		const lemmatized = await sentencesToLemmas(sentences);
-
-		await Promise.all(
-			sentences.map(async (sentence, i) => {
-				await addSentence(sentence, englishes[i], lemmatized[i]);
-			})
-		);
-	}
+	await parallelize(
+		words.map((word) => () => addSentencesForWord(word)),
+		4
+	);
 }
 
 recursivelyAddWords();

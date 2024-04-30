@@ -1,5 +1,6 @@
 import { error } from '@sveltejs/kit';
 import { db } from './client';
+import type { Sentence } from './types';
 
 export function addSentence({
 	sentenceString,
@@ -64,11 +65,11 @@ export async function getSentence(id: number) {
 	return sentence;
 }
 
-export async function getSentencesWithWord(wordId: number) {
+export async function getSentencesWithWord(wordId: number): Promise<Sentence[]> {
 	return db
 		.selectFrom('word_sentences')
-		.leftJoin('sentences', 'sentence_id', 'id')
-		.select(['sentence', 'id'])
+		.innerJoin('sentences', 'sentence_id', 'id')
+		.select(['id', 'sentence', 'english'])
 		.where('word_id', '=', wordId)
 		.execute();
 }

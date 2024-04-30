@@ -53,5 +53,11 @@ export async function promptForJson<T>({
 
 	const response = choice.message.content;
 
-	return zodParse(response!, schema);
+	try {
+		return zodParse(response!, schema);
+	} catch (error) {
+		throw new Error(
+			`Failed to parse response: ${error}\nResponse: ${response}\nPrompt: ${prompt}\nInstruction: ${instruction}`
+		);
+	}
 }
