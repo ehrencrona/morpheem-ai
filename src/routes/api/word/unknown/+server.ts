@@ -2,20 +2,18 @@ import { json, type ServerLoad } from '@sveltejs/kit';
 import { z } from 'zod';
 import { translateWordInContext } from '../../../../ai/translate';
 import { getSentence } from '../../../../db/sentences';
-import { getWordByLemma } from '../../../../db/words';
+import { getWordInSentence } from '../../../../logic/getWordInSentence';
 import { addKnowledge } from '../../../../logic/knowledge';
 import { userId } from '../../../../logic/user';
+import * as DB from '../../../../db/types';
 
 const postSchema = z.object({
 	word: z.string(),
 	sentenceId: z.number()
 });
 
-export interface UnknownWordResponse {
-	word: string;
-	lemma: string;
+export interface UnknownWordResponse extends DB.Word {
 	english: string;
-	id: number;
 }
 
 export const POST: ServerLoad = async ({ request }) => {
@@ -23,9 +21,11 @@ export const POST: ServerLoad = async ({ request }) => {
 
 	const sentence = await getSentence(sentenceId);
 
-	const { lemma, english } = await translateWordInContext(wordString, sentence.sentence);
+	const word = await getWordInSentence(wordString, sentenceId);
 
-	let word = await getWordByLemma(lemma);
+	const { english } = await translateWordInContext(word.word, sentence);
+
+	console.log(`Unknown: ${wordString} (${word.word}) -> ${english}`);
 
 	await addKnowledge([
 		{
@@ -36,5 +36,5 @@ export const POST: ServerLoad = async ({ request }) => {
 		}
 	]);
 
-	return json({ ...word, lemma, english } as UnknownWordResponse);
+	return json({ ...word, english } as UnknownWordResponse);
 };

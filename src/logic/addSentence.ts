@@ -1,16 +1,16 @@
 import { addWordToLemma } from '../db/lemmas';
-import { addWord, getMultipleWords } from '../db/words';
+import { addWord, getMultipleWordsByLemmas } from '../db/words';
 import { toWords } from './toWords';
 
 import * as sentences from '../db/sentences';
 
 export async function addSentence(sentenceString: string, english: string, lemmas: string[]) {
-	console.log(`Adding sentence "${sentenceString}"...`);
+	console.log(`Adding sentence "${sentenceString}" (lemmas: ${lemmas.join(' ')})...`);
 
-	const sentenceWords = toWords(sentenceString);
+	const wordStrings = toWords(sentenceString);
 
-	if (sentenceWords.length !== lemmas.length) {
-		console.warn(
+	if (wordStrings.length !== lemmas.length) {
+		console.error(
 			'Number of words does not match number of lemmas:\n',
 			sentenceString,
 			'\n',
@@ -20,21 +20,18 @@ export async function addSentence(sentenceString: string, english: string, lemma
 		return;
 	}
 
-	const words = await getMultipleWords(lemmas);
+	const words = await getMultipleWordsByLemmas(lemmas);
 
-	const missingWords = lemmas
-		.map((lemma, i) => [lemma, sentenceWords[i]])
-		.filter(([lemma]) => !words.some((word) => word.word === lemma));
+	const missingWords = lemmas.filter((lemma) => !words.some((word) => word.word == lemma));
 
-	const addedWords = await Promise.all(
-		missingWords.map(async ([lemma, encounteredForm], index) => (await addWord(lemma))!)
-	);
+	words.push(...(await Promise.all(missingWords.map(async (lemma) => (await addWord(lemma))!))));
 
 	await Promise.all(
 		lemmas
-			.map((lemma, i) => [lemma, sentenceWords[i]])
-			.filter(([lemma, encounteredForm]) => lemma != encounteredForm)
-			.map(([lemma, encounteredForm]) => addWordToLemma(lemma, encounteredForm))
+			.map((lemma, i) => [lemma, wordStrings[i]])
+			.map(([lemma, wordString]) =>
+				addWordToLemma(wordString, words.find((word) => word.word === lemma)!)
+			)
 	);
 
 	const indexOfWord = (word: string) => {
@@ -46,13 +43,9 @@ export async function addSentence(sentenceString: string, english: string, lemma
 		return result;
 	};
 
-	const sentence = await sentences.addSentence({
+	return sentences.addSentence({
 		sentenceString,
 		english,
-		words: (words as { id: number; word: string | null }[])
-			.concat(addedWords)
-			.sort((a, b) => indexOfWord(a.word!) - indexOfWord(b.word!))
+		words: words.sort((a, b) => indexOfWord(a.word!) - indexOfWord(b.word!))
 	});
-
-	return sentence;
 }

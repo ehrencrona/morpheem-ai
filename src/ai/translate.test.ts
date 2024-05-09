@@ -15,12 +15,16 @@ it('translates words', async () => {
 
 it('translates word in context', async () => {
 	const [peace, world] = await Promise.all([
-		translateWordInContext('miru', 'Pragniemy miru na całym świecie.'),
-		translateWordInContext('miru', 'Odkrywanie nowych kultur poszerza nasz mir.')
+		translateWordInContext('miru', {
+			sentence: 'Pragniemy miru na całym świecie.',
+			english: 'We want peace all over the world.'
+		}),
+		translateWordInContext('miru', {
+			sentence: 'Odkrywanie nowych kultur poszerza nasz mir.',
+			english: 'Discovering new cultures broadens our worldview.'
+		})
 	]);
 
-	expect(peace.lemma).toEqual('mir');
-
-	expect(peace.english).toContain('peace');
-	expect(world.english).toContain('world');
+	expect(peace.english).toMatch(/peace/i);
+	expect(world.english).toMatch(/world/i);
 });

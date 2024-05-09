@@ -7,4 +7,6 @@ export interface Sentence {
 export interface Word {
 	word: string;
 	id: number;
+	level: number;
+	cognate: boolean | null;
 }

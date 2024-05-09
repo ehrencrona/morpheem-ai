@@ -1,7 +1,7 @@
 import type { AggKnowledgeForUser, WordKnowledge } from './types';
 
 import { addKnowledge as addKnowledgeToDb, transformAggregateKnowledge } from '../db/knowledge';
-import { getWords } from '../db/words';
+import { getWords, getWordsBelowLevel } from '../db/words';
 import { didNotKnow, didNotKnowFirst, knew, knewFirst, now } from './isomorphic/knowledge';
 
 export async function addKnowledge(words: WordKnowledge[]) {
@@ -27,10 +27,11 @@ export async function addKnowledge(words: WordKnowledge[]) {
 
 /** TODO */
 export async function getBeginnerKnowledge(): Promise<AggKnowledgeForUser[]> {
-	const words = await getWords();
+	const words = await getWordsBelowLevel(10);
 
 	return words.slice(0, 4).map((word) => ({
 		wordId: word.id,
+		level: word.level,
 		time: now(),
 		alpha: 1,
 		beta: 1

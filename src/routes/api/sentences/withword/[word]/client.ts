@@ -1,4 +1,5 @@
 import type { SentencesWithWords } from './+server';
+import { addSentencesForWord as addSentencesForWordLogic } from '../../../../../logic/addSentencesForWord';
 
 export async function fetchSentencesWithWord(wordId: number): Promise<SentencesWithWords> {
 	const res = await fetch(`/api/sentences/withword/${wordId}`);
@@ -10,7 +11,9 @@ export async function fetchSentencesWithWord(wordId: number): Promise<SentencesW
 	return await res.json();
 }
 
-export async function addSentencesForWord(wordId: number): Promise<void> {
+export async function addSentencesForWord(
+	wordId: number
+): ReturnType<typeof addSentencesForWordLogic> {
 	const res = await fetch(`/api/sentences/withword/${wordId}`, {
 		method: 'POST'
 	});
@@ -18,4 +21,6 @@ export async function addSentencesForWord(wordId: number): Promise<void> {
 	if (!res.ok) {
 		throw new Error('Failed to add sentences');
 	}
+
+	return await res.json();
 }

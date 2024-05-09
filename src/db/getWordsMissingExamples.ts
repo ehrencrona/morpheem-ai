@@ -1,15 +1,27 @@
 import { sql } from 'kysely';
 import { db } from './client';
+import * as DB from './types';
 
-export async function getWordsMissingExamples(minSentenceCount: number) {
-	const words = await sql<{ id: number; word: string }>`SELECT w.id, w.word
-FROM words w
-LEFT JOIN (
-    SELECT word_id, COUNT(sentence_id) AS sentence_count
-    FROM word_sentences
-    GROUP BY word_id
-) AS ws ON w.id = ws.word_id
-WHERE ws.sentence_count < ${minSentenceCount} OR ws.sentence_count IS NULL;`.execute(db);
+export async function getWordsMissingExamples({
+	minSentenceCount = 10,
+	limit = 10
+}: {
+	minSentenceCount?: number;
+	limit?: number;
+}): Promise<DB.Word[]> {
+	const words = await sql<{
+		id: number;
+		word: string;
+		level: number;
+		cognate: boolean | null;
+		frequency: number;
+	}>`SELECT w.id, w.word, w.level, w.cognate COUNT(ws.word_id) AS frequency
+    FROM word_sentences ws
+    JOIN words w ON ws.word_id = w.id
+    GROUP BY w.id, w.word
+    HAVING COUNT(ws.word_id) < ${minSentenceCount}
+    ORDER BY frequency DESC
+    LIMIT ${limit};`.execute(db);
 
-	return words.rows.map((w) => w.word);
+	return words.rows;
 }

@@ -14,11 +14,13 @@
 	import type { UnknownWordResponse } from '../api/word/unknown/+server';
 	import { lookupUnknownWord } from '../api/word/unknown/client';
 	import Sentence from './Sentence.svelte';
+	import { CodedError } from '../../CodedError';
 
 	let knowledge: AggKnowledgeForUser[] = [];
 
 	let current:
 		| {
+				wordId: number;
 				sentence: DB.Sentence;
 				words: DB.Word[];
 				revealed: (UnknownWordResponse & { explanation?: string[] })[];
@@ -30,27 +32,83 @@
 
 		console.log(`Loaded ${knowledge.length} knowledge entries`);
 
-		next();
+		showNextSentence();
 	}
 
-	async function next() {
-		const nextWords = getNextWords(knowledge);
+	let nextPromise: ReturnType<typeof calculateNextSentence>;
+	let isCalculatingNext = false;
 
-		const nextWord = nextWords[0];
+	async function calculateNextSentence(wordIds: number[] = [], excludeWordId?: number) {
+		if (!wordIds.length) {
+			wordIds = getNextWords(knowledge).filter((id) => id !== excludeWordId);
+		}
 
-		addSentencesForWord(nextWords[1]).catch(console.error);
+		const wordId = wordIds[0];
 
-		const sentences = await fetchSentencesWithWord(nextWord);
+		try {
+			let sentences = await fetchSentencesWithWord(wordId);
+			let nextSentence = getNextSentence(sentences, knowledge, wordId);
 
-		const nextSentence = getNextSentence(sentences, knowledge, nextWord);
+			if (!nextSentence || nextSentence.score < 0.9) {
+				sentences = sentences.concat(await addSentencesForWord(wordId));
 
-		markSentenceSeen(nextSentence.id).catch(console.error);
+				console.log(
+					`Added ${sentences.length} sentences for word ${wordId}: ${sentences.map((s) => s.sentence) + '\n'}`
+				);
 
-		current = {
-			sentence: nextSentence,
-			words: nextSentence.words,
-			revealed: []
-		};
+				nextSentence = getNextSentence(sentences, knowledge, wordId);
+
+				if (!nextSentence) {
+					console.error(`No sentences found for word ${wordId}`);
+
+					return calculateNextSentence(wordIds.slice(1), wordId);
+				}
+			}
+
+			const { sentence, score } = nextSentence;
+
+			return {
+				sentence,
+				wordId,
+				getNextPromise: () => calculateNextSentence(wordIds.slice(1), wordId)
+			};
+		} catch (e: any) {
+			if (e instanceof CodedError && e.code == 'wrongLemma') {
+				knowledge = knowledge.filter((k) => wordId != k.wordId);
+			} else {
+				error = e.message;
+			}
+
+			return calculateNextSentence(wordIds.slice(1), wordId);
+		}
+	}
+
+	async function showNextSentence() {
+		isCalculatingNext = true;
+
+		try {
+			const {
+				sentence,
+				wordId,
+				getNextPromise: getNext
+			} = await (nextPromise || calculateNextSentence());
+
+			nextPromise = getNext();
+
+			markSentenceSeen(sentence.id).catch(console.error);
+
+			current = {
+				wordId: wordId,
+				sentence: sentence,
+				words: sentence.words,
+				revealed: []
+			};
+			error = undefined;
+
+			console.log({ current });
+		} finally {
+			isCalculatingNext = false;
+		}
 	}
 
 	onMount(init);
@@ -63,7 +121,7 @@
 		const explanation = await explainWord(lemma);
 
 		current.revealed = current.revealed.map((r) => {
-			if (r.lemma.toLowerCase() === lemma.toLowerCase()) {
+			if (r.word === lemma) {
 				r.explanation = explanation;
 			}
 
@@ -76,16 +134,12 @@
 			throw new Error('Invalid state');
 		}
 
-		if (current.revealed.find((r) => r.word.toLowerCase() === word.toLowerCase())) {
-			return;
-		}
-
 		const unknownWord = await lookupUnknownWord(word, current.sentence.id);
 
 		current.revealed = [...current.revealed, unknownWord];
 	}
 
-	let error: string;
+	let error: string | undefined = undefined;
 
 	async function store() {
 		if (!current) {
@@ -108,7 +162,7 @@
 
 			knowledge = await fetchAggregateKnowledge();
 
-			await next();
+			await showNextSentence();
 		} catch (e: any) {
 			console.error(e);
 
@@ -123,8 +177,15 @@
 	{/if}
 
 	{#if current}
-		<Sentence sentence={current.sentence} revealed={current.revealed} {onUnknown} {onExplain} />
+		<Sentence
+			word={current.words.find(({ id }) => id == current?.wordId)}
+			sentence={current.sentence}
+			revealed={current.revealed}
+			{onUnknown}
+			{onExplain}
+			{knowledge}
+		/>
 
-		<button on:click|preventDefault={store}> Next </button>
+		<button on:click|preventDefault={store} disabled={isCalculatingNext}> Next </button>
 	{/if}
 </main>

@@ -6,19 +6,22 @@ export function getNextWord(knowledge: AggKnowledgeForUser[]) {
 	return getNextWords(knowledge)[0];
 }
 
-export function getNextWords(knowledge: AggKnowledgeForUser[]) {
-	const score = knowledge.map((k) =>
-		knowledgeGain(k, {
-			now: now(),
-			lastTime: k.time
-		})
+export function getNextWords(knowledge: AggKnowledgeForUser[], count = 5) {
+	const score = knowledge.map(
+		(k) =>
+			knowledgeGain(k, {
+				now: now(),
+				lastTime: k.time
+			}) *
+			(2 - k.level / 100) *
+			(2 - k.level / 100)
 	);
 
 	// return the five words with highest scores
 	const indexes = score
 		.map((s, i) => ({ s, i }))
 		.sort((a, b) => b.s - a.s)
-		.slice(0, 5)
+		.slice(0, count)
 		.map((x) => x.i);
 
 	const word = knowledge[indexes[0]];
@@ -28,7 +31,7 @@ export function getNextWords(knowledge: AggKnowledgeForUser[]) {
 	);
 
 	console.log(
-		'next five words:',
+		'next words:',
 		indexes.map((i) => knowledge[i].wordId)
 	);
 
@@ -38,35 +41,61 @@ export function getNextWords(knowledge: AggKnowledgeForUser[]) {
 export function getNextSentence(
 	sentences: SentencesWithWords,
 	knowledge: AggKnowledgeForUser[],
-	word_studied: number
+	wordStudied: number
 ) {
-	const score = sentences.map((sentence) => {
-		const sentenceScore = sentence.words.map((word) => {
-			if (word.id === word_studied) {
+	const scores = sentences.map((sentence) => {
+		let message = `${sentence.sentence}: `;
+
+		const wordScore = sentence.words.map((word) => {
+			if (word.id === wordStudied) {
 				return 1;
 			}
 
-			const wordScore = knowledge.find((k) => k.wordId === word.id);
+			message += `, ${word.word}`;
 
-			if (!wordScore) {
-				// TODO: this should be estimated based on how hard the word is
-				// and what level the user is at.
-				return 0.2;
+			const wordKnowledge = knowledge.find((k) => k.wordId === word.id);
+
+			if (!wordKnowledge) {
+				if (word.cognate) {
+					message += ' (cognate)';
+					return 1;
+				} else {
+					message += ` (${Math.round(100 - word.level)}% level)`;
+
+					// TODO: this should consider what level the user is at.
+					return (100 - word.level) / 100;
+				}
 			}
 
-			return expectedKnowledge(wordScore, {
+			const score = expectedKnowledge(wordKnowledge, {
 				now: now(),
-				lastTime: wordScore.time
+				lastTime: wordKnowledge.time
 			});
+
+			message += ` (${Math.round(score * 100)}% known)`;
+
+			return score;
 		});
 
-		return (
-			(Math.log(sentenceScore.reduce((a, b) => a * b, 1)) / sentence.words.length) *
-			(sentence.lastSeen ? 1 : 2)
+		if (sentence.lastSeen) {
+			message += '. Has been seen.';
+		}
+
+		const score = Math.pow(
+			wordScore.reduce((a, b) => a * b, 1) * (sentence.lastSeen ? 0.7 : 1),
+			1 / (sentence.words.length + 1)
 		);
+
+		console.log(message + ` => ${Math.round(score * 100)}%`);
+
+		return score;
 	});
 
-	const maxIndex = score.indexOf(Math.min(...score));
+	if (scores.length === 0) {
+		return null;
+	}
 
-	return sentences[maxIndex];
+	const maxIndex = scores.indexOf(Math.max(...scores));
+
+	return { sentence: sentences[maxIndex], score: scores[maxIndex] };
 }

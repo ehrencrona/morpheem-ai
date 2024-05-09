@@ -78,12 +78,38 @@ export async function getAggregateKnowledgeForUser({
 }): Promise<AggKnowledgeForUser[]> {
 	const raw = await db
 		.selectFrom('aggregate_knowledge')
-		.select(['word_id', 'alpha', 'beta', 'time'])
+		.innerJoin('words', 'word_id', 'id')
+		.select(['word_id', 'alpha', 'beta', 'time', 'level'])
 		.where('user_id', '=', userId)
 		.execute();
 
-	return raw.map(({ word_id: wordId, alpha, beta, time }) => ({
+	return raw.map(({ word_id: wordId, level, alpha, beta, time }) => ({
 		wordId,
+		level,
+		alpha,
+		beta,
+		time: dateToTime(time)
+	}));
+}
+
+export async function getAggregateKnowledgeForUserWords({
+	userId,
+	wordIds
+}: {
+	userId: number;
+	wordIds: number[];
+}): Promise<AggKnowledgeForUser[]> {
+	const raw = await db
+		.selectFrom('aggregate_knowledge')
+		.innerJoin('words', 'word_id', 'id')
+		.select(['word_id', 'alpha', 'beta', 'time', 'level'])
+		.where('user_id', '=', userId)
+		.where('word_id', 'in', wordIds)
+		.execute();
+
+	return raw.map(({ word_id: wordId, level, alpha, beta, time }) => ({
+		wordId,
+		level,
 		alpha,
 		beta,
 		time: dateToTime(time)

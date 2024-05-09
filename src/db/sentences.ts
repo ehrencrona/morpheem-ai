@@ -2,7 +2,7 @@ import { error } from '@sveltejs/kit';
 import { db } from './client';
 import type { Sentence } from './types';
 
-export function addSentence({
+export async function addSentence({
 	sentenceString,
 	english,
 	words
@@ -10,22 +10,22 @@ export function addSentence({
 	sentenceString: string;
 	english: string;
 	words: { id: number; word: string | null }[];
-}) {
-	return db.transaction().execute(async (trx) => {
+}): Promise<Sentence | undefined> {
+	const sentence = await db.transaction().execute(async (trx) => {
 		const sentence = await trx
 			.insertInto('sentences')
 			.values({ sentence: sentenceString, english })
-			.returning('id')
+			.returning(['id', 'sentence', 'english'])
 			.onConflict((oc) => oc.column('sentence').doNothing())
 			.executeTakeFirst();
 
 		if (!sentence) {
 			console.warn(`Sentence "${sentenceString}" already exists`);
 
-			return;
+			return undefined;
 		}
 
-		const { id } = sentence!;
+		const { id } = sentence;
 
 		const wordSentences = words.map((word, index) => ({
 			word_id: word.id,
@@ -39,8 +39,10 @@ export function addSentence({
 			.onConflict((oc) => oc.columns(['word_id', 'sentence_id']).doNothing())
 			.execute();
 
-		return id;
+		return sentence;
 	});
+
+	return sentence;
 }
 
 export function getSentences() {

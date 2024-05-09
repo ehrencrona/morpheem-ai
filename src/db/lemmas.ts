@@ -1,29 +1,36 @@
 import { db } from './client';
+import type * as DB from './types';
 
-export async function addWordToLemma(lemma: string, encounteredForm: string) {
-	console.log(`Adding lemma of ${encounteredForm} -> ${lemma}`);
-
-	const res = await db
-		.selectFrom('words')
-		.select(['id'])
-		.where('word', '=', lemma)
-		.executeTakeFirst();
-
-	if (!res) {
-		console.warn(`Word ${lemma} not found when adding form ${encounteredForm}`);
-		return;
-	}
-
-	const { id: lemmaId } = res;
-
+export async function addWordToLemma(wordString: string, word: DB.Word) {
 	// insert into word_lemma unless it already exists
-	await db
+	const result = await db
 		.insertInto('word_lemma')
-		.values({ lemma_id: lemmaId, word: encounteredForm })
+		.values({ lemma_id: word.id, word: wordString })
 		.onConflict((oc) => oc.columns(['lemma_id', 'word']).doNothing())
 		.execute();
+
+	if (result[0]?.numInsertedOrUpdatedRows) {
+		console.log(`Adding lemma of ${wordString} -> ${word.word}`);
+	}
 }
 
 export function getForms(wordId: number) {
 	return db.selectFrom('word_lemma').select(['word']).where('lemma_id', '=', wordId).execute();
+}
+
+export function getLemmasOfWord(word: string) {
+	return db
+		.selectFrom('word_lemma')
+		.where('word_lemma.word', '=', word.toLowerCase())
+		.innerJoin('words', 'word_lemma.lemma_id', 'words.id')
+		.select(['words.word', 'words.id'])
+		.execute();
+}
+
+export function getLemmaIdsOfWord(word: string) {
+	return db
+		.selectFrom('word_lemma')
+		.select(['lemma_id'])
+		.where('word', '=', word.toLowerCase())
+		.execute();
 }

@@ -1,14 +1,15 @@
 import { z } from 'zod';
-import { promptForJson } from './promptForJson';
-import { openai } from './client';
+import { askForJson } from './askForJson';
+import { openai } from './openai-client';
+import { Message, ask, toMessages } from './ask';
 
 export async function explain(word: string) {
 	const completion = await openai.chat.completions.create({
-		model: 'gpt-3.5-turbo',
+		model: 'gpt-4-turbo',
 		messages: [
 			{
 				role: 'user',
-				content: `Very briefly explain the Polish word "${word}". What meanings does it have? If it can be broken down into parts, please explain them. What similar words exist in terms of stem or similar etymology?`
+				content: `Very briefly explain the Polish word "${word}". What meanings does it have? Can it be broken down into meaningful parts? If yes, please explain them, otherwise don't mention it. What similar words exist in terms of stem or similar etymology?`
 			}
 		],
 		temperature: 1
@@ -17,14 +18,31 @@ export async function explain(word: string) {
 	return (completion.choices[0].message.content || '').split(`\n\n`);
 }
 
-export async function translateWordInContext(word: string, sentence: string) {
-	return promptForJson({
-		instruction: `Return a JSON in the form { english: "", lemma: "" } with the definition and the dictionary form of the word.`,
-		prompt: `What does the Polish word "${word}" mean in the sentence "${sentence}"?`,
+export async function translateWordInContext(
+	lemma: string,
+	sentence: { sentence: string; english: string | null }
+) {
+	const definition = await ask({
+		messages: [
+			...(sentence.english
+				? ([
+						{
+							role: 'user',
+							content: `Translate the Polish sentence "${sentence.sentence}" into English.`
+						},
+						{ role: 'assistant', content: sentence.english }
+					] as Message[])
+				: []),
+			{
+				role: 'user',
+				content: `What's the meaning of the word "${lemma}"? Only answer with the definition.`
+			}
+		],
 		temperature: 0.5,
-		max_tokens: 30,
-		schema: z.object({ english: z.string(), lemma: z.string() })
+		max_tokens: 30
 	});
+
+	return { english: definition };
 }
 
 export async function translateWords(words: string[]) {
@@ -48,12 +66,15 @@ export async function translateSentences(
 	}
 
 	const englishes = (
-		await promptForJson({
-			instruction: instruction || `Translate the JSON from Polish to English.`,
-			prompt: JSON.stringify({ [variableName]: polishes }),
+		await askForJson({
+			messages: toMessages({
+				instruction: instruction || `Translate the JSON from Polish to English.`,
+				prompt: JSON.stringify({ [variableName]: polishes })
+			}),
 			temperature,
 			max_tokens: 100 + polishes.reduce((sum, sentence) => sum + 4 * sentence.length, 0),
-			schema: z.object({ [variableName]: z.array(z.string()) })
+			schema: z.object({ [variableName]: z.array(z.string()) }),
+			model: 'gpt-3.5-turbo'
 		})
 	)[variableName];
 

@@ -1,8 +1,8 @@
 import type { ServerLoad } from '@sveltejs/kit';
 import { getWords } from '../../db/words';
 
-export const load = (async ({ params }) => {
+export const load = (async ({}) => {
 	return {
-		words: await getWords()
+		words: await getWords('word asc')
 	};
 }) satisfies ServerLoad;

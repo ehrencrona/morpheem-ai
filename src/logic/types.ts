@@ -14,11 +14,10 @@ export const wordKnowledgeSchema = z.object({
 
 export type WordKnowledge = z.infer<typeof wordKnowledgeSchema>;
 
-export const aggKnowledgeForUserSchema = z.object({
-	wordId: z.number(),
-	alpha: z.number(),
-	beta: z.number(),
-	time: z.number()
-});
-
-export type AggKnowledgeForUser = z.infer<typeof aggKnowledgeForUserSchema>;
+export interface AggKnowledgeForUser {
+	wordId: number;
+	alpha: number;
+	beta: number;
+	time: number;
+	level: number;
+}
