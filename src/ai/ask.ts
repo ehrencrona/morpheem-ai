@@ -23,7 +23,8 @@ export async function ask<T>({
 	max_tokens,
 	model = defaultModel,
 	retriesLeft = 2,
-	format = 'text'
+	format = 'text',
+	logResponse = false
 }: {
 	messages: Message[];
 	temperature: number;
@@ -31,6 +32,7 @@ export async function ask<T>({
 	retriesLeft?: number;
 	model?: Model;
 	format?: 'json_object' | 'text';
+	logResponse?: boolean;
 }) {
 	let completion;
 
@@ -73,7 +75,11 @@ export async function ask<T>({
 			);
 		}
 
-		return completion.choices[0].message.content;
+		const response = completion.choices[0].message.content;
+
+		console.debug(`${requestCount}. [assistant] ${response?.replaceAll(/[\n\t ]+/g, ' ')}`);
+
+		return response;
 	} catch (error) {
 		const message = `Failed to prompt for ${format}: ${error}\n${messages.map((message) => `[${message.role}] ${message.content}`).join('\n')}`;
 

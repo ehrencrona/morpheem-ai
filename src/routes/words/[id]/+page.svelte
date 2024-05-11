@@ -7,6 +7,10 @@
 <main>
 	<h1>{data.word?.word}</h1>
 
+	<div>
+		<a href="/words/{data.word.id}/delete">delete</a>
+	</div>
+
 	<p><b>Level: {data.word.level}%</b></p>
 	<p><b>Cognate: {data.word.cognate}</b></p>
 	<p><b>Knowledge: {Math.round(100 * data.wordKnowledge)}%</b></p>

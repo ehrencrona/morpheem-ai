@@ -2,11 +2,17 @@ import { z } from 'zod';
 import { toMessages } from './ask';
 import { askForJson } from './askForJson';
 
-export async function inventExampleSentences(lemma: string, count: number = 10) {
+export async function inventExampleSentences(
+	lemma: string,
+	level: 'beginner' | 'easy' | 'normal' = 'normal',
+	count: number = 10
+) {
 	let { examples } = await askForJson({
 		messages: toMessages({
 			instruction: `Return JSON in the format { "examples": [ ... ]}. Do not translate. Use simple words.`,
-			prompt: `Give ${count} Polish sentences illustrating the use of the word "${lemma}".`
+			prompt:
+				`Give ${count} Polish sentences illustrating the use of the word "${lemma}".` +
+				(level != 'normal' ? ` Use only simple words.` : ' Use only beginner words.')
 		}),
 		temperature: 1,
 		max_tokens: 6 * 200,
@@ -28,16 +34,17 @@ export async function inventExampleSentences(lemma: string, count: number = 10) 
 	}
 
 	console.log(
-		`Got example sentences for ${lemma}: ${examples.map((sentence) => '\n  * ' + sentence.slice(0, 100)).join('')}`
+		`Got example sentences for ${lemma}: ${examples.map((sentence, i) => `\n ${i}) ` + sentence.slice(0, 100)).join('')}`
 	);
 
 	return examples;
 }
 
-export async function simplifySentences(sentences: string[], hardWords: string[], lemma: string) {
-	if (hardWords.length === 0) {
-		return sentences;
-	}
+export async function simplifySentences(
+	sentences: { sentence: string; hard: string[]; lemmas: string[] }[],
+	lemma: string
+) {
+	sentences = sentences.filter(({ hard }) => hard.length);
 
 	const { examples: simplified } = await askForJson({
 		messages: [
@@ -47,15 +54,21 @@ export async function simplifySentences(sentences: string[], hardWords: string[]
 			},
 			{
 				role: 'user',
-				content: `Give ${sentences.length} Polish sentences illustrating the use of the word "${lemma}".`
+				content: `Give ${Math.max(sentences.length, 2)} Polish sentences illustrating the use of the word "${lemma}".`
 			},
 			{
 				role: 'assistant',
-				content: JSON.stringify(sentences, null, 2)
+				content: JSON.stringify(
+					sentences.map(({ sentence }) => sentence),
+					null,
+					2
+				)
 			},
 			{
 				role: 'user',
-				content: `The following words are difficult: ${hardWords.join(', ')}.
+				content: `The following words are too difficult: ${dedup(
+					sentences.flatMap(({ hard }) => hard)
+				).join(', ')}.
 				Can you simplify the Polish sentences and replace them by an easier word? Keep the word "${lemma}".`
 			}
 		],
@@ -71,4 +84,8 @@ export async function simplifySentences(sentences: string[], hardWords: string[]
 	);
 
 	return simplified;
+}
+
+function dedup(array: string[]) {
+	return [...new Set(array)];
 }

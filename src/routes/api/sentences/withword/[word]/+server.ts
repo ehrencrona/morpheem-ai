@@ -1,4 +1,4 @@
-import type { ServerLoad } from '@sveltejs/kit';
+import { json, type ServerLoad } from '@sveltejs/kit';
 import { getWordById } from '../../../../../db/words';
 import { addSentencesForWord } from '../../../../../logic/addSentencesForWord';
 import { getSentencesWithWord } from '../../../../../logic/getSentencesWithWord';
@@ -35,13 +35,9 @@ export const POST: ServerLoad = async ({ params }) => {
 
 	console.log(`Add sentences with word: ${word.word} (${wordId})`);
 
-	const sentences = await addSentencesForWord(word, { count: 4 }).then(() => {
+	const sentences = await addSentencesForWord(word).then(() => {
 		console.log(`Done adding sentences with word: ${word.word} (${wordId})`);
 	});
 
-	return new Response(JSON.stringify(sentences), {
-		headers: {
-			'content-type': 'application/json'
-		}
-	});
+	return json(sentences);
 };

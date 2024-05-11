@@ -3,7 +3,7 @@ import { db } from './client';
 import type * as DB from './types';
 import type { NotNull } from 'kysely';
 
-export async function addWord(lemma: string) {
+export async function addWord(lemma: string, isCognate?: boolean) {
 	if (lemma == 'the') {
 		throw new Error('"the" is English');
 	}
@@ -12,6 +12,7 @@ export async function addWord(lemma: string) {
 		.insertInto('words')
 		.values({
 			word: lemma.toLowerCase(),
+			cognate: isCognate,
 			json: undefined
 		})
 		.returning(['id', 'word', 'level', 'cognate'])
@@ -25,7 +26,9 @@ export async function addWord(lemma: string) {
 			.where('word', '=', lemma.toLowerCase())
 			.executeTakeFirst();
 	} else {
-		console.log(`Added word "${lemma}" (${result.id})`);
+		console.log(
+			`Added word "${lemma}" (${result.id})${isCognate != undefined ? (isCognate ? ' (cognate)' : ' (not cognate)') : ''}`
+		);
 	}
 
 	return result!;

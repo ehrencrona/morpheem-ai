@@ -11,7 +11,8 @@ export async function askForJson<T>({
 	max_tokens,
 	schema,
 	model = defaultModel,
-	retriesLeft = 1
+	retriesLeft = 1,
+	logResponse = false
 }: {
 	instruction?: string;
 	messages: Message[];
@@ -25,13 +26,15 @@ export async function askForJson<T>({
 		| 'llama3-70b-8192'
 		| 'mixtral-8x7b-32768';
 	retriesLeft?: number;
+	logResponse?: boolean;
 }) {
 	const response = await ask({
 		messages,
 		model,
 		format: 'json_object',
 		temperature,
-		max_tokens
+		max_tokens,
+		logResponse
 	});
 
 	try {
@@ -49,7 +52,8 @@ export async function askForJson<T>({
 				max_tokens,
 				schema,
 				model,
-				retriesLeft: retriesLeft - 1
+				retriesLeft: retriesLeft - 1,
+				logResponse
 			});
 		} else {
 			throw new Error(message);

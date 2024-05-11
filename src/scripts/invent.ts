@@ -1,7 +1,7 @@
 import { inventExampleSentences } from '../logic/inventExampleSentences';
 
 async function invent() {
-	const sentences = await inventExampleSentences('popełnić', undefined, 6);
+	const sentences = await inventExampleSentences('popełnić', undefined);
 
 	//	console.log(sentences);
 }

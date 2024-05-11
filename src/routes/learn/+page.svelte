@@ -15,6 +15,7 @@
 	import { lookupUnknownWord } from '../api/word/unknown/client';
 	import Sentence from './Sentence.svelte';
 	import { CodedError } from '../../CodedError';
+	import { expectedKnowledge, now } from '../../logic/isomorphic/knowledge';
 
 	let knowledge: AggKnowledgeForUser[] = [];
 
@@ -50,7 +51,11 @@
 			let nextSentence = getNextSentence(sentences, knowledge, wordId);
 
 			if (!nextSentence || nextSentence.score < 0.9) {
-				sentences = sentences.concat(await addSentencesForWord(wordId));
+				try {
+					sentences = sentences.concat(await addSentencesForWord(wordId));
+				} catch (e) {
+					console.error(`While adding sentences for ${wordId}: ${e}`);
+				}
 
 				console.log(
 					`Added ${sentences.length} sentences for word ${wordId}: ${sentences.map((s) => s.sentence) + '\n'}`
@@ -73,6 +78,8 @@
 				getNextPromise: () => calculateNextSentence(wordIds.slice(1), wordId)
 			};
 		} catch (e: any) {
+			console.log(e);
+
 			if (e instanceof CodedError && e.code == 'wrongLemma') {
 				knowledge = knowledge.filter((k) => wordId != k.wordId);
 			} else {
@@ -169,6 +176,17 @@
 			error = e.message;
 		}
 	}
+
+	function calculateWordsKnown(knowledge: AggKnowledgeForUser[]) {
+		const n = now();
+
+		const wordsKnown = knowledge.reduce(
+			(acc, wk) => acc + expectedKnowledge(wk, { now: n, lastTime: wk.time }),
+			0
+		);
+
+		return Math.round(wordsKnown);
+	}
 </script>
 
 <main>
@@ -188,4 +206,8 @@
 
 		<button on:click|preventDefault={store} disabled={isCalculatingNext}> Next </button>
 	{/if}
+
+	<p>
+		Words known: {calculateWordsKnown(knowledge)}
+	</p>
 </main>

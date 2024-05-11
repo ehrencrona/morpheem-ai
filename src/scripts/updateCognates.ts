@@ -28,7 +28,7 @@ async function doubleCheckCognates() {
 	for (let i = 0; i < words.length; i += 30) {
 		const wordsToCheck = words.slice(i, i + 30).map(({ word }) => word);
 
-		const cognates = await findCognates(wordsToCheck, 0.3);
+		const cognates = await findCognates(wordsToCheck, 0);
 
 		for (const word of wordsToCheck) {
 			if (!cognates.includes(word)) {

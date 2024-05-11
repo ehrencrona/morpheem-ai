@@ -9,15 +9,11 @@ import { inventExampleSentences } from './inventExampleSentences';
 
 export async function addSentencesForWord(
 	word: DB.Word,
-	{ count = 5, retriesLeft = 1 }: { count?: number; retriesLeft?: number } = {}
+	{ retriesLeft = 1 }: { retriesLeft?: number } = {}
 ): ReturnType<typeof getSentencesWithWord> {
-	if (count < 1) {
-		throw new Error('count must be at least 1');
-	}
-
 	async function getSentences(retriesLeft = 1) {
 		try {
-			const sentences = await inventExampleSentences(word.word, word.level, count);
+			const sentences = await inventExampleSentences(word.word, word.level);
 
 			return sentences;
 		} catch (e: any) {
@@ -34,20 +30,18 @@ export async function addSentencesForWord(
 	const result = filterUndefineds(
 		await Promise.all(
 			(await getSentences())
-				.filter(({ sentence, lemmatized }) => {
-					const hasWord = lemmatized.some((lemma) => lemma === word.word);
+				.filter(({ sentence, lemmas }) => {
+					const hasWord = lemmas.some((lemma) => lemma === word.word);
 
 					if (!hasWord) {
 						console.warn(
-							`Word ${word.word} not found in sentence ${sentence}, only ${lemmatized.join(', ')}`
+							`Word ${word.word} not found in sentence ${sentence}, only ${lemmas.join(', ')}`
 						);
 					}
 
 					return hasWord;
 				})
-				.map(async ({ sentence, english, lemmatized }) =>
-					addSentence(sentence, english, lemmatized)
-				)
+				.map(async ({ sentence, english, lemmas }) => addSentence(sentence, english, lemmas))
 		)
 	);
 
@@ -68,7 +62,7 @@ export async function addSentencesForWord(
 		if (retriesLeft > 0) {
 			console.error(message + ', retrying...');
 
-			return addSentencesForWord(word, { count, retriesLeft: retriesLeft - 1 });
+			return addSentencesForWord(word, { retriesLeft: retriesLeft - 1 });
 		} else {
 			throw new CodedError(message, 'noValidSentencesFound');
 		}

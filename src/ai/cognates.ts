@@ -16,6 +16,7 @@ książka: b o o k, no
 gdansk: G d a n s k, name
 botanik: b o t a n i s t, cognate
 antywirusowy: a n t i v i r u s, cognate
+mariusz: m a r i u s, name
 chwila: m o m e n t, no
 armia: a r m y, cognate
 mój: m y, cognate
@@ -24,10 +25,9 @@ spotkanie: m e e t i n g, no`
 			{ role: 'user', content: words.join('\n') }
 		],
 		model: 'llama3-70b-8192',
-		temperature
+		temperature,
+		logResponse: true
 	});
-
-	console.log({ response });
 
 	const lines = response!.split('\n').map((word) => word.trim());
 
@@ -37,7 +37,8 @@ spotkanie: m e e t i n g, no`
 	for (const line of lines) {
 		if (line.includes(':')) {
 			const [word, rest] = line.split(':');
-			const [translation, type] = rest.split(', ');
+			let [translation, type] = rest.split(', ');
+			translation = translation.replaceAll(' ', '');
 
 			if (!words.includes(word)) {
 				if (!word.startsWith('Here')) {
@@ -52,7 +53,11 @@ spotkanie: m e e t i n g, no`
 				continue;
 			}
 
-			if (type == 'cognate' || type == 'name') {
+			if (type == 'cognate' && isPlausibleCognate(word, translation)) {
+				cognates.push(word);
+			}
+
+			if (type == 'name') {
 				cognates.push(word);
 			}
 
@@ -67,4 +72,25 @@ spotkanie: m e e t i n g, no`
 	}
 
 	return cognates;
+}
+
+function isPlausibleCognate(word: string, translation: string) {
+	const wordLetters = word.split('');
+	const translationLetters = translation.split('');
+
+	let commonLetters = 0;
+
+	for (const letter of wordLetters) {
+		if (translationLetters.includes(letter)) {
+			commonLetters++;
+		}
+	}
+
+	const isPlausible = commonLetters >= Math.floor(Math.min(word.length, translation.length) / 2);
+
+	if (!isPlausible) {
+		console.log(`Not a plausible cognate: ${word} - ${translation}`);
+	}
+
+	return isPlausible;
 }
