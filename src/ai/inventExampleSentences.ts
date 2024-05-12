@@ -80,7 +80,7 @@ export async function simplifySentences(
 	});
 
 	console.log(
-		`Simplified sentences: ${sentences.map((sentence, i) => `${sentence} -> ${simplified[i]}`).join('\n')}`
+		`Simplified sentences: ${sentences.map(({ sentence }, i) => `${sentence} -> ${simplified[i]}`).join('\n')}`
 	);
 
 	return simplified;

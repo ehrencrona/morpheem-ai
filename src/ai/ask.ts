@@ -36,13 +36,13 @@ export async function ask<T>({
 }) {
 	let completion;
 
-	requestCount++;
+	const requestId = requestCount++;
 
 	console.debug(
 		messages
 			.map(
 				(message) =>
-					`${requestCount}. [${message.role}] ${message.content.replaceAll(/[\n\t ]+/g, ' ')}`
+					`${requestId}. [${message.role}] ${message.content.replaceAll(/[\n\t ]+/g, ' ')}`
 			)
 			.join('\n')
 	);
@@ -77,7 +77,9 @@ export async function ask<T>({
 
 		const response = completion.choices[0].message.content;
 
-		console.debug(`${requestCount}. [assistant] ${response?.replaceAll(/[\n\t ]+/g, ' ')}`);
+		if (logResponse) {
+			console.debug(`${requestId}. [assistant] ${response?.replaceAll(/[\n\t ]+/g, ' ')}`);
+		}
 
 		return response;
 	} catch (error) {
