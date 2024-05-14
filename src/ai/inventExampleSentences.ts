@@ -69,7 +69,7 @@ export async function simplifySentences(
 				content: `The following words are too difficult: ${dedup(
 					sentences.flatMap(({ hard }) => hard)
 				).join(', ')}.
-				Can you simplify the Polish sentences and replace them by an easier word? Keep the word "${lemma}".`
+				Can you rewrite the Polish sentences using simpler words? Keep the word "${lemma}".`
 			}
 		],
 
