@@ -6,12 +6,14 @@ export function addKnowledge({
 	wordId,
 	sentenceId,
 	userId,
-	isKnown
+	isKnown,
+	studiedWordId
 }: {
 	wordId: number;
 	sentenceId: number;
 	userId: number;
 	isKnown: boolean;
+	studiedWordId: number;
 }) {
 	return db
 		.insertInto('knowledge')
@@ -19,7 +21,8 @@ export function addKnowledge({
 			word_id: wordId,
 			sentence_id: sentenceId,
 			user_id: userId,
-			knew: isKnown
+			knew: isKnown,
+			studied_word_id: studiedWordId
 		})
 		.execute();
 }

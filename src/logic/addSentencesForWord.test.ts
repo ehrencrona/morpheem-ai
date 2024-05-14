@@ -8,7 +8,7 @@ import { toWords } from './toWords';
 test('addSentencesForWord', async ({}) => {
 	const lemma = 'odcinek';
 	const { id: sentenceId } = (
-		await addSentencesForWord({ word: lemma, id: 4711, cognate: false, level: 100 }, { count: 1 })
+		await addSentencesForWord({ word: lemma, id: 4711, cognate: false, level: 100 })
 	)[0];
 
 	if (!sentenceId) {

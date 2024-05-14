@@ -1,9 +1,15 @@
+import { isContextProvided } from '../ai/isContextProvided';
+import { getWordByLemma } from '../db/words';
 import { inventExampleSentences } from '../logic/inventExampleSentences';
 
 async function invent() {
-	const sentences = await inventExampleSentences('popełnić', undefined);
+	const word = await getWordByLemma('zjawić');
 
-	//	console.log(sentences);
+	const sentences = await inventExampleSentences(word.word, undefined);
+
+	const icp = await isContextProvided(sentences[0].sentence, word, sentences[0].lemmas);
+
+	console.log({ icp });
 }
 
 invent();

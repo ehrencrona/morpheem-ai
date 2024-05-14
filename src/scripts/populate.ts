@@ -14,7 +14,7 @@ export async function addSentencesForMissingWords() {
 	await parallelize(
 		words.map((word) => async () => {
 			try {
-				return await addSentencesForWord(word, { count: 3 });
+				return await addSentencesForWord(word);
 			} catch (e: any) {
 				if (e.code == 'wrongLemma') {
 					console.error(e.message);

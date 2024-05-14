@@ -9,7 +9,8 @@ export const wordKnowledgeSchema = z.object({
 	wordId: z.number(),
 	sentenceId: z.number(),
 	userId: z.number(),
-	isKnown: z.boolean()
+	isKnown: z.boolean(),
+	studiedWordId: z.number()
 });
 
 export type WordKnowledge = z.infer<typeof wordKnowledgeSchema>;

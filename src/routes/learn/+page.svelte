@@ -155,6 +155,7 @@
 
 		try {
 			const sentenceId = current.sentence.id;
+			const studiedWordId = current.wordId;
 
 			await sendKnowledge(
 				current.words
@@ -163,7 +164,8 @@
 						wordId: word.id,
 						sentenceId: sentenceId,
 						userId: userId,
-						isKnown: true
+						isKnown: true,
+						studiedWordId
 					}))
 			);
 

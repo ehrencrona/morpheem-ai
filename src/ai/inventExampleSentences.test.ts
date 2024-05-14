@@ -2,5 +2,5 @@ import { expect, test } from 'vitest';
 import { inventExampleSentences } from './inventExampleSentences';
 
 test('inventExampleSentences', async ({}) => {
-	expect((await inventExampleSentences('odcinek', 3)).length).toEqual(3);
+	expect((await inventExampleSentences('odcinek')).length).toBeGreaterThan(0);
 });

@@ -1,7 +1,7 @@
 import type { AggKnowledgeForUser, WordKnowledge } from './types';
 
 import { addKnowledge as addKnowledgeToDb, transformAggregateKnowledge } from '../db/knowledge';
-import { getWords, getWordsBelowLevel } from '../db/words';
+import { getWordsBelowLevel } from '../db/words';
 import { didNotKnow, didNotKnowFirst, knew, knewFirst, now } from './isomorphic/knowledge';
 
 export async function addKnowledge(words: WordKnowledge[]) {
