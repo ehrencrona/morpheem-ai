@@ -63,10 +63,10 @@ export async function getWordsBelowLevel(level: number) {
 		.execute();
 }
 
-export async function getWordByLemma(lemma: string) {
+export async function getWordByLemma(lemma: string): Promise<DB.Word> {
 	const word = await db
 		.selectFrom('words')
-		.select(['id', 'word'])
+		.select(['id', 'word', 'level', 'cognate'])
 		.where('word', '=', lemma.toLowerCase())
 		.executeTakeFirst();
 
