@@ -50,7 +50,7 @@
 			let sentences = await fetchSentencesWithWord(wordId);
 			let nextSentence = getNextSentence(sentences, knowledge, wordId);
 
-			if (!nextSentence || nextSentence.score < 0.9) {
+			if (!nextSentence || nextSentence.score < 0.93) {
 				try {
 					sentences = sentences.concat(await addSentencesForWord(wordId));
 				} catch (e) {
