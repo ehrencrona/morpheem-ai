@@ -6,7 +6,7 @@ async function exportKnowledge() {
 	let output = '';
 
 	output =
-		'knew,timesSeen,didKnowFirstTime,didKnowLastTime,timeSinceLast,timeSinceFirst,timeBetweenFirstAndLast,didKnowSecondToLastTime,timeSinceSecondToLast,timesKnown,timesNotKnew,timeSinceLastKnew,timeSinceLastNotKnew,firstKnew,level,word,cognate,hasEverNotKnown\n';
+		'knew,knewLastTime,knewSecondToLastTime,knewThirdToLastTime,timesSeen,didKnowFirstTime,didKnowLastTime,timeSinceLast,timeSinceFirst,timeBetweenFirstAndLast,didKnowSecondToLastTime,timeSinceSecondToLast,timesKnown,timesNotKnew,timeSinceLastKnew,timeSinceLastNotKnew,firstKnew,level,word,cognate,hasEverNotKnown\n';
 
 	const rows = await db
 		.selectFrom('knowledge')
@@ -26,11 +26,16 @@ async function exportKnowledge() {
 			byWord.set(row.word_id, wordRows);
 		}
 
+		const knew = row.knew;
+		const timesSeen = wordRows.length;
+
 		const lastKnew = wordRows.reverse().find((r) => r.knew);
 		const lastNotKnew = wordRows.reverse().find((r) => !r.knew);
 
-		const knew = row.knew;
-		const timesSeen = wordRows.length;
+		const knewLastTime = timesSeen > 0 ? wordRows[timesSeen - 1]?.knew : '';
+		const knewSecondToLastTime = timesSeen > 1 ? wordRows[timesSeen - 2]?.knew : '';
+		const knewThirdToLastTime = timesSeen > 2 ? wordRows[timesSeen - 3]?.knew : '';
+
 		const didKnowFirstTime = timesSeen > 0 ? wordRows[0].knew : '';
 		const didKnowLastTime = timesSeen > 0 ? wordRows[timesSeen - 1]?.knew : '';
 		const timeSinceLast =
@@ -53,7 +58,7 @@ async function exportKnowledge() {
 		const cognate = row.cognate;
 		const hasEverNotKnown = wordRows.some((r) => !r.knew);
 
-		output += `${knew},${timesSeen},${didKnowFirstTime},${didKnowLastTime},${timeSinceLast},${timeSinceFirst},${timeBetweenFirstAndLast},${didKnowSecondToLastTime},${timeSinceSecondToLast},${timesKnown},${timesNotKnew},${timeSinceLastKnew},${timeSinceLastNotKnew},${firstKnew},${level},${word},${cognate},${hasEverNotKnown}\n`;
+		output += `${knew},${knewLastTime},${knewSecondToLastTime},${knewThirdToLastTime},${timesSeen},${didKnowFirstTime},${didKnowLastTime},${timeSinceLast},${timeSinceFirst},${timeBetweenFirstAndLast},${didKnowSecondToLastTime},${timeSinceSecondToLast},${timesKnown},${timesNotKnew},${timeSinceLastKnew},${timeSinceLastNotKnew},${firstKnew},${level},${word},${cognate},${hasEverNotKnown}\n`;
 
 		wordRows.push(row);
 	}
