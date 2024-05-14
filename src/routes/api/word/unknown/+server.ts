@@ -7,9 +7,12 @@ import { addKnowledge } from '../../../../logic/knowledge';
 import { userId } from '../../../../logic/user';
 import * as DB from '../../../../db/types';
 
+export type PostSchema = z.infer<typeof postSchema>;
+
 const postSchema = z.object({
 	word: z.string(),
-	sentenceId: z.number()
+	sentenceId: z.number(),
+	studiedWordId: z.number()
 });
 
 export interface UnknownWordResponse extends DB.Word {
@@ -17,7 +20,7 @@ export interface UnknownWordResponse extends DB.Word {
 }
 
 export const POST: ServerLoad = async ({ request }) => {
-	let { word: wordString, sentenceId } = postSchema.parse(await request.json());
+	let { word: wordString, sentenceId, studiedWordId } = postSchema.parse(await request.json());
 
 	const sentence = await getSentence(sentenceId);
 
@@ -32,7 +35,8 @@ export const POST: ServerLoad = async ({ request }) => {
 			wordId: word.id,
 			sentenceId: sentenceId,
 			userId: userId,
-			isKnown: false
+			isKnown: false,
+			studiedWordId
 		}
 	]);
 
