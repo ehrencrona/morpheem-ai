@@ -1,10 +1,10 @@
 import { expect, test } from 'vitest';
-import { inventExampleSentences } from './inventExampleSentences';
+import { generateExampleSentences } from './generateExampleSentences';
 
-test('inventExampleSentences', async ({}) => {
+test('generateExampleSentences', async ({}) => {
 	const word = 'odcinek';
 
-	const sentences = await inventExampleSentences(word, undefined);
+	const sentences = await generateExampleSentences(word, undefined);
 
 	expect(sentences.length).toBeGreaterThan(2);
 

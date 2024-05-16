@@ -4,6 +4,7 @@ import { openai } from './openai-client';
 export type Model =
 	| 'gpt-3.5-turbo'
 	| 'gpt-4-turbo'
+	| 'gpt-4o'
 	| 'llama3-8b-8192'
 	| 'llama3-70b-8192'
 	| 'mixtral-8x7b-32768';
@@ -62,7 +63,7 @@ export async function ask<T>({
 			});
 		} else {
 			completion = await openai.chat.completions.create({
-				model: 'gpt-3.5-turbo',
+				model,
 				...params
 			});
 		}
@@ -75,7 +76,7 @@ export async function ask<T>({
 			);
 		}
 
-		const response = completion.choices[0].message.content;
+		const response = completion.choices[0].message.content || '';
 
 		if (logResponse) {
 			console.debug(`${requestId}. [assistant] ${response?.replaceAll(/[\n\t ]+/g, ' ')}`);

@@ -9,10 +9,14 @@
 	export let word: DB.Word | undefined;
 	export let knowledge: AggKnowledgeForUser[];
 
-	export let revealed: (UnknownWordResponse & { explanation?: string[] })[];
+	export let revealed: (UnknownWordResponse & { mnemonic?: string })[];
 
 	export let onUnknown: (word: string) => Promise<any>;
-	export let onExplain: (word: string) => Promise<any>;
+
+	let hint: string | undefined;
+
+	export let getHint: () => Promise<string>;
+	export let getMnemonic: (word: DB.Word) => Promise<any>;
 
 	$: wordsWithSeparators = toWordsWithSeparators(sentence.sentence);
 
@@ -20,6 +24,7 @@
 
 	$: if (sentence) {
 		revealTranslation = false;
+		hint = undefined;
 	}
 
 	function getExpectedKnowledge(word: DB.Word) {
@@ -54,20 +59,23 @@
 	<p><i>{sentence.english}</i></p>
 {:else}
 	<button on:click={() => (revealTranslation = !revealTranslation)}> Show translation </button>
+
+	{#if hint}
+		<p><i>{hint}</i></p>
+	{:else}
+		<button on:click={() => getHint().then((got) => (hint = got))}> Show hint </button>
+	{/if}
 {/if}
 
 <ul>
 	{#each revealed as word}
 		<li>
-			<a href="/words/{word.id}">{word.word}</a>: {word.english} <span style="font-size: 60%">({word.level}% level, {getExpectedKnowledge(
-				word
-			)})</span>
-			{#if word.explanation}
-				{#each word.explanation as explanation}
-					<p>{explanation}</p>
-				{/each}
+			<a href="/words/{word.id}">{word.word}</a>: {word.english}
+			<span style="font-size: 60%">({word.level}% level, {getExpectedKnowledge(word)})</span>
+			{#if word.mnemonic}
+				<p>{word.mnemonic}</p>
 			{:else}
-				<button on:click={() => onExplain(word.word)}>More...</button>
+				<button on:click={() => getMnemonic(word)}>Mnemonic</button>
 			{/if}
 		</li>
 	{/each}

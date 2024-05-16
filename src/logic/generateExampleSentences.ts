@@ -1,7 +1,7 @@
 import {
-	inventExampleSentences as inventExampleSentencesAi,
+	generateExampleSentences as generateExampleSentencesAi,
 	simplifySentences
-} from '../ai/inventExampleSentences';
+} from '../ai/generateExampleSentences';
 import { lemmatizeSentences } from '../ai/lemmatize';
 import { translateSentences } from '../ai/translate';
 import { getAggregateKnowledgeForUserWords } from '../db/knowledge';
@@ -12,13 +12,13 @@ import * as DB from '../db/types';
 import { AggKnowledgeForUser } from './types';
 import { findCognates } from '../ai/cognates';
 
-export async function inventExampleSentences(
+export async function generateExampleSentences(
 	lemma: string,
 	level = 60,
 	hardLevel = Math.max(Math.round((level * 2) / 3), 10),
 	retriesLeft = 1
 ) {
-	let sentences = await inventExampleSentencesAi(
+	let sentences = await generateExampleSentencesAi(
 		lemma,
 		level < 20 ? 'beginner' : level < 40 ? 'easy' : 'normal',
 		8
@@ -35,7 +35,7 @@ export async function inventExampleSentences(
 			console.log(`No simple sentences found. Retrying ${lemma} with level ${level / 2}`);
 
 			graded = graded.concat(
-				await inventExampleSentences(lemma, level / 2, hardLevel, retriesLeft - 1)
+				await generateExampleSentences(lemma, level / 2, hardLevel, retriesLeft - 1)
 			);
 		} else if (almostSimple.length) {
 			console.log(

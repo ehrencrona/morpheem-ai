@@ -1,22 +1,6 @@
 import { z } from 'zod';
-import { askForJson } from './askForJson';
-import { openai } from './openai-client';
 import { Message, ask, toMessages } from './ask';
-
-export async function explain(word: string) {
-	const completion = await openai.chat.completions.create({
-		model: 'gpt-4o',
-		messages: [
-			{
-				role: 'user',
-				content: `Very briefly explain the Polish word "${word}". What meanings does it have? Can it be broken down into meaningful parts? If yes, please explain them, otherwise don't mention it. What similar words exist in terms of stem or similar etymology?`
-			}
-		],
-		temperature: 1
-	});
-
-	return (completion.choices[0].message.content || '').split(`\n\n`);
-}
+import { askForJson } from './askForJson';
 
 export async function translateWordInContext(
 	lemma: string,

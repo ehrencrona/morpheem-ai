@@ -5,7 +5,7 @@ import * as DB from '../db/types';
 import { deleteWord } from '../db/words';
 import { addSentence } from './addSentence';
 import { addWordsToSentences, getSentencesWithWord } from './getSentencesWithWord';
-import { inventExampleSentences } from './inventExampleSentences';
+import { generateExampleSentences } from './generateExampleSentences';
 
 /** Makes up new sentences for the specified word */
 export async function addSentencesForWord(
@@ -14,7 +14,7 @@ export async function addSentencesForWord(
 ): ReturnType<typeof getSentencesWithWord> {
 	async function getSentences(retriesLeft = 1) {
 		try {
-			const sentences = await inventExampleSentences(word.word, word.level);
+			const sentences = await generateExampleSentences(word.word, word.level);
 
 			return sentences;
 		} catch (e: any) {

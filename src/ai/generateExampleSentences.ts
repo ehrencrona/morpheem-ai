@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { toMessages } from './ask';
 import { askForJson } from './askForJson';
 
-export async function inventExampleSentences(
+export async function generateExampleSentences(
 	lemma: string,
 	level: 'beginner' | 'easy' | 'normal' = 'normal',
 	count: number = 10
@@ -17,7 +17,7 @@ export async function inventExampleSentences(
 		temperature: 1,
 		max_tokens: 6 * 200,
 		schema: z.object({ examples: z.array(z.string()) }),
-		model: 'gpt-4p'
+		model: 'gpt-4o'
 	});
 
 	if (examples.length != count) {

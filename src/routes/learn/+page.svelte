@@ -1,21 +1,22 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { CodedError } from '../../CodedError';
 	import type * as DB from '../../db/types';
 	import { getNextSentence, getNextWords } from '../../logic/isomorphic/getNext';
+	import { expectedKnowledge, now } from '../../logic/isomorphic/knowledge';
 	import type { AggKnowledgeForUser } from '../../logic/types';
 	import { userId } from '../../logic/user';
 	import { fetchAggregateKnowledge, sendKnowledge } from '../api/knowledge/client';
 	import { markSentenceSeen } from '../api/sentences/[sentence]/client';
+	import { fetchHint } from '../api/sentences/[sentence]/hint/client';
 	import {
 		addSentencesForWord,
 		fetchSentencesWithWord
 	} from '../api/sentences/withword/[word]/client';
-	import { explainWord } from '../api/word/explain/client';
 	import type { UnknownWordResponse } from '../api/word/unknown/+server';
 	import { lookupUnknownWord } from '../api/word/unknown/client';
 	import Sentence from './Sentence.svelte';
-	import { CodedError } from '../../CodedError';
-	import { expectedKnowledge, now } from '../../logic/isomorphic/knowledge';
+	import { fetchMnemonic } from '../api/word/[id]/mnemonic/client';
 
 	let knowledge: AggKnowledgeForUser[] = [];
 
@@ -24,7 +25,7 @@
 				wordId: number;
 				sentence: DB.Sentence;
 				words: DB.Word[];
-				revealed: (UnknownWordResponse & { explanation?: string[] })[];
+				revealed: (UnknownWordResponse & { mnemonic?: string[] })[];
 		  }
 		| undefined;
 
@@ -120,16 +121,16 @@
 
 	onMount(init);
 
-	async function onExplain(lemma: string) {
+	async function getMnemonic(word: DB.Word) {
 		if (!current) {
 			throw new Error('Invalid state');
 		}
 
-		const explanation = await explainWord(lemma);
+		const mnemonic = await fetchMnemonic(word.id);
 
 		current.revealed = current.revealed.map((r) => {
-			if (r.word === lemma) {
-				r.explanation = explanation;
+			if (r.id === word.id) {
+				r.mnemonic = mnemonic;
 			}
 
 			return r;
@@ -189,6 +190,8 @@
 
 		return Math.round(wordsKnown);
 	}
+
+	const getHint = () => fetchHint(current!.sentence.id);
 </script>
 
 <main>
@@ -205,12 +208,15 @@
 			word={current.words.find(({ id }) => id == current?.wordId)}
 			sentence={current.sentence}
 			revealed={current.revealed}
+			{getHint}
 			{onUnknown}
-			{onExplain}
+			{getMnemonic}
 			{knowledge}
 		/>
 
 		<button on:click|preventDefault={store} disabled={isCalculatingNext}> Next </button>
+	{:else}
+		<p>Loading...</p>
 	{/if}
 
 	<p>
