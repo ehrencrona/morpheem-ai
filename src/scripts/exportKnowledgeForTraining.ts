@@ -5,13 +5,15 @@ import { writeFileSync } from 'fs';
 async function exportKnowledge() {
 	let output = '';
 
-	const rows = await db
-		.selectFrom('knowledge')
-		.innerJoin('words', 'knowledge.word_id', 'words.id')
-		.selectAll()
-		.where('time', '>', new Date('2024-05-02T16:35:00Z'))
-		.orderBy('time', 'asc')
-		.execute();
+	const rows = (
+		await db
+			.selectFrom('knowledge')
+			.innerJoin('words', 'knowledge.word_id', 'words.id')
+			.selectAll()
+			.where('time', '>', new Date('2024-05-02T16:35:00Z'))
+			.orderBy('time', 'asc')
+			.execute()
+	).map((row, index) => ({ index, ...row }));
 
 	let byWord = new Map<number, typeof rows>();
 
@@ -30,9 +32,22 @@ async function exportKnowledge() {
 		const knew = knewToValue(row.knew);
 		const timesSeen = wordRows.length;
 
+		if (timesSeen == 0) {
+			wordRows.push(row);
+			continue;
+		}
+
 		const knewLastTime = knewToValue(wordRows[timesSeen - 1]?.knew);
 		const knewSecondToLastTime = knewToValue(wordRows[timesSeen - 2]?.knew);
 		const knewThirdToLastTime = knewToValue(wordRows[timesSeen - 3]?.knew);
+
+		let slidingAverageKnew = wordRows[0].knew ? 1 : 0;
+
+		const f = 0.5;
+
+		for (let i = 1; i < timesSeen; i++) {
+			slidingAverageKnew = (1 - f) * slidingAverageKnew + f * (wordRows[i].knew ? 1 : 0);
+		}
 
 		const MAX_TIME = 2;
 
@@ -53,12 +68,12 @@ async function exportKnowledge() {
 
 		if (first) {
 			output =
-				'knew,knewLastTime,knewSecondToLastTime,knewThirdToLastTime,timesSeen,timeSinceLast,timeBetweenFirstAndLast,timesKnown,timesNotKnown,level,cognate\n';
+				'knew,knewLastTime,knewSecondToLastTime,knewThirdToLastTime,timesSeen,timeSinceLast,timeBetweenFirstAndLast,timesKnown,timesNotKnown,level,cognate,slidingAverageKnew\n';
 
 			first = false;
 		}
 
-		output += `${knew},${knewLastTime},${knewSecondToLastTime},${knewThirdToLastTime},${timesSeen},${timeSinceLast},${timeBetweenFirstAndLast},${timesKnown},${timesNotKnown},${level},${cognate}\n`;
+		output += `${knew},${knewLastTime},${knewSecondToLastTime},${knewThirdToLastTime},${timesSeen},${timeSinceLast},${timeBetweenFirstAndLast},${timesKnown},${timesNotKnown},${level},${cognate},${slidingAverageKnew}\n`;
 
 		wordRows.push(row);
 	}
@@ -66,6 +81,10 @@ async function exportKnowledge() {
 	writeFileSync('knowledge_training.csv', output);
 
 	process.exit(0);
+}
+
+function countDifferentValues(arr: number[]) {
+	return new Set(arr).size;
 }
 
 exportKnowledge();

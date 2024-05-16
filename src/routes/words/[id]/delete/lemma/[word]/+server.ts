@@ -1,5 +1,5 @@
 import { ServerLoad, redirect } from '@sveltejs/kit';
-import { deleteWord } from '../../../../db/words';
+import { deleteWordToLemma } from '../../../../../../db/lemmas';
 
 export const GET: ServerLoad = async ({ params }) => {
 	const wordId = parseInt(params.id || '');
@@ -8,7 +8,7 @@ export const GET: ServerLoad = async ({ params }) => {
 		throw new Error('Invalid word ID');
 	}
 
-	await deleteWord(wordId);
+	await deleteWordToLemma(wordId, params.word!);
 
-	return redirect(302, '/words');
+	return redirect(302, `/words/${wordId}`);
 };

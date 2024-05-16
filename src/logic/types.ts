@@ -1,8 +1,8 @@
 import { z } from 'zod';
 
-export interface Gamma {
+export interface AlphaBeta {
 	readonly alpha: number;
-	readonly beta: number;
+	readonly beta: number | null;
 }
 
 export const wordKnowledgeSchema = z.object({

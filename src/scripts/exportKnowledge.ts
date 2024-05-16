@@ -6,7 +6,7 @@ async function exportKnowledge() {
 	let output = '';
 
 	output =
-		'knew,knewLastTime,knewSecondToLastTime,knewThirdToLastTime,timesSeen,didKnowFirstTime,didKnowLastTime,timeSinceLast,timeSinceFirst,timeBetweenFirstAndLast,didKnowSecondToLastTime,timeSinceSecondToLast,timesKnown,timesNotKnew,timeSinceLastKnew,timeSinceLastNotKnew,firstKnew,level,word,cognate,hasEverNotKnown\n';
+		'knew,knewLastTime,knewSecondToLastTime,knewThirdToLastTime,timesSeen,didKnowFirstTime,didKnowLastTime,timeSinceLast,timeSinceFirst,timeBetweenFirstAndLast,didKnowSecondToLastTime,timeSinceSecondToLast,timesKnown,timesNotKnew,timeSinceLastKnew,timeSinceLastNotKnew,firstKnew,level,word,cognate,hasEverNotKnown,slidingAverageKnew\n';
 
 	const rows = await db
 		.selectFrom('knowledge')
@@ -28,6 +28,17 @@ async function exportKnowledge() {
 
 		const knew = row.knew;
 		const timesSeen = wordRows.length;
+
+		const kn = 1.1;
+		const nt = 0.2;
+		const f = 0.3;
+		let slidingAverageKnew = timesSeen > 0 ? (wordRows[0].knew ? kn : nt) : nt;
+
+		for (let i = 1; i < timesSeen; i++) {
+			slidingAverageKnew = (1 - f) * slidingAverageKnew + f * (wordRows[i].knew ? kn : nt);
+		}
+
+		slidingAverageKnew = Math.min(1, slidingAverageKnew);
 
 		const lastKnew = wordRows.reverse().find((r) => r.knew);
 		const lastNotKnew = wordRows.reverse().find((r) => !r.knew);
@@ -58,7 +69,7 @@ async function exportKnowledge() {
 		const cognate = row.cognate;
 		const hasEverNotKnown = wordRows.some((r) => !r.knew);
 
-		output += `${knew},${knewLastTime},${knewSecondToLastTime},${knewThirdToLastTime},${timesSeen},${didKnowFirstTime},${didKnowLastTime},${timeSinceLast},${timeSinceFirst},${timeBetweenFirstAndLast},${didKnowSecondToLastTime},${timeSinceSecondToLast},${timesKnown},${timesNotKnew},${timeSinceLastKnew},${timeSinceLastNotKnew},${firstKnew},${level},${word},${cognate},${hasEverNotKnown}\n`;
+		output += `${knew},${knewLastTime},${knewSecondToLastTime},${knewThirdToLastTime},${timesSeen},${didKnowFirstTime},${didKnowLastTime},${timeSinceLast},${timeSinceFirst},${timeBetweenFirstAndLast},${didKnowSecondToLastTime},${timeSinceSecondToLast},${timesKnown},${timesNotKnew},${timeSinceLastKnew},${timeSinceLastNotKnew},${firstKnew},${level},${word},${cognate},${hasEverNotKnown},${slidingAverageKnew}\n`;
 
 		wordRows.push(row);
 	}

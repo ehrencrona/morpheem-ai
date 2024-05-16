@@ -197,6 +197,10 @@
 	{/if}
 
 	{#if current}
+		<p style="font-size: 60%; text-align: right">
+			<a href={`/sentences/${current?.sentence.id}/delete`}> Delete sentence </a>
+		</p>
+
 		<Sentence
 			word={current.words.find(({ id }) => id == current?.wordId)}
 			sentence={current.sentence}

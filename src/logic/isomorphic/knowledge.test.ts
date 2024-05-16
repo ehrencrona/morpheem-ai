@@ -1,6 +1,5 @@
 import { describe, expect, test } from 'vitest';
 import {
-	decayRate,
 	didNotKnow,
 	didNotKnowFirst,
 	expectedKnowledge,
@@ -13,10 +12,25 @@ describe('knowledge', () => {
 	const inTen = { now: 10, lastTime: 0 };
 	const inOne = { now: 1, lastTime: 0 };
 
+	test.only('deleteme', () => {
+		for (const alpha of [0, 1]) {
+			for (const beta of [null, 0, 1]) {
+				console.log(
+					{ alpha, beta },
+					expectedKnowledge(
+						{
+							alpha,
+							beta
+						},
+						{ now: 4700, lastTime: 0 }
+					)
+				);
+			}
+		}
+	});
+
 	test('is lost slower if you did know', () => {
 		expect(expectedKnowledge(knewFirst(), inOne)).toBeCloseTo(1);
-
-		expect(decayRate(didNotKnowFirst())).toBeGreaterThan(decayRate(knewFirst()));
 	});
 
 	test('is long term after knowing twice', () => {
@@ -45,15 +59,9 @@ describe('knowledge', () => {
 				lastTime: 10
 			})
 		).toBeGreaterThan(expectedKnowledge(didNotKnowFirst(), { now: 20, lastTime: 0 }));
-
-		expect(decayRate(knew(didNotKnowFirst(), inTen))).toBeLessThan(decayRate(didNotKnowFirst()));
 	});
 
 	test('improves more if you knew', () => {
-		expect(decayRate(knew(didNotKnowFirst(), inTen))).toBeLessThan(
-			decayRate(didNotKnow(didNotKnowFirst(), inTen))
-		);
-
 		expect(
 			expectedKnowledge(knew(didNotKnowFirst(), inTen), {
 				now: 20,

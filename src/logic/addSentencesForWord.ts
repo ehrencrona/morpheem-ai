@@ -7,6 +7,7 @@ import { addSentence } from './addSentence';
 import { addWordsToSentences, getSentencesWithWord } from './getSentencesWithWord';
 import { inventExampleSentences } from './inventExampleSentences';
 
+/** Makes up new sentences for the specified word */
 export async function addSentencesForWord(
 	word: DB.Word,
 	{ retriesLeft = 1 }: { retriesLeft?: number } = {}

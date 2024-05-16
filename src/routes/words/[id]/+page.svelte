@@ -27,7 +27,7 @@
 		<ul>
 			{#each data.forms as form}
 				<li>
-					{form.word}
+					{form.word} <a href={`/words/${data.word.id}/delete/lemma/${form.word}`}>Delete</a>
 				</li>
 			{/each}
 		</ul>

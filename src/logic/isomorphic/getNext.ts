@@ -58,12 +58,12 @@ export function getNextSentence(
 			if (!wordKnowledge) {
 				if (word.cognate) {
 					message += ' (cognate)';
-					return 1;
+					return 0.8;
 				} else {
-					message += ` (${Math.round(100 - word.level)}% level)`;
+					message += ` (${word.level}% level)`;
 
 					// TODO: this should consider what level the user is at.
-					return (100 - word.level) / 100;
+					return (100 - word.level) / 100 / 1.5;
 				}
 			}
 
@@ -82,7 +82,7 @@ export function getNextSentence(
 		}
 
 		const score = Math.pow(
-			wordScore.reduce((a, b) => a * b, 1) * (sentence.lastSeen ? 0.7 : 1),
+			wordScore.reduce((a, b) => a * b, 1) * (sentence.lastSeen ? 0.6 : 1),
 			1 / (sentence.words.length + 1)
 		);
 

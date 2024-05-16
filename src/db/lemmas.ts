@@ -23,7 +23,7 @@ export function getLemmasOfWord(word: string) {
 		.selectFrom('word_lemma')
 		.where('word_lemma.word', '=', word.toLowerCase())
 		.innerJoin('words', 'word_lemma.lemma_id', 'words.id')
-		.select(['words.word', 'words.id'])
+		.selectAll()
 		.execute();
 }
 
@@ -32,5 +32,15 @@ export function getLemmaIdsOfWord(word: string) {
 		.selectFrom('word_lemma')
 		.select(['lemma_id'])
 		.where('word', '=', word.toLowerCase())
+		.execute();
+}
+
+export async function deleteWordToLemma(lemmaId: number, wordString: string) {
+	console.log(`Deleting lemma of ${wordString} -> ${lemmaId}`);
+
+	return db
+		.deleteFrom('word_lemma')
+		.where('lemma_id', '=', lemmaId)
+		.where('word', '=', wordString.toLowerCase())
 		.execute();
 }

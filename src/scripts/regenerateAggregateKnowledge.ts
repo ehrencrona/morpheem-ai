@@ -14,7 +14,7 @@ interface AggregateKnowledge {
 	user_id: number;
 	word_id: number;
 	alpha: number;
-	beta: number;
+	beta: number | null;
 }
 
 async function regenerateAggregateKnowledge() {
@@ -27,9 +27,7 @@ async function regenerateAggregateKnowledge() {
 
 		if (!aggWord) {
 			aggWord = {
-				time: row.time,
-				user_id: row.user_id,
-				word_id: row.word_id,
+				...row,
 				...(row.knew ? knewFirst() : didNotKnowFirst())
 			};
 		} else {
@@ -59,10 +57,23 @@ async function regenerateAggregateKnowledge() {
 
 		if (aggWord) {
 			console.log(
-				`${row.word}: alpha ${aggWord.alpha}, beta ${aggWord.beta} -> ${Math.round(100 * expectedKnowledge(row, { now: n, lastTime: dateToTime(row.time) }))}% -> ${Math.round(
+				`${row.word}: alpha ${aggWord.alpha}, beta ${aggWord.beta}, age ${
+					n - dateToTime(aggWord.time)
+				} -> ${Math.round(
 					100 * expectedKnowledge(aggWord!, { now: n, lastTime: dateToTime(aggWord!.time) })
 				)}%`
 			);
+
+			await db
+				.updateTable('aggregate_knowledge')
+				.set({
+					alpha: aggWord?.alpha,
+					beta: aggWord?.beta
+				})
+				.where('word_id', '=', row.word_id)
+				.execute();
+		} else {
+			await db.deleteFrom('aggregate_knowledge').where('word_id', '=', row.word_id).execute();
 		}
 	}
 

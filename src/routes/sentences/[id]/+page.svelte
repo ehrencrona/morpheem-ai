@@ -16,4 +16,6 @@
 			</li>
 		{/each}
 	</ul>
+
+	<a href="/sentences/{data.sentence.id}/delete">delete</a>
 </main>

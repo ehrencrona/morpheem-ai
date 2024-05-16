@@ -33,11 +33,7 @@ export async function addSentence({
 			word_index: index
 		}));
 
-		await trx
-			.insertInto('word_sentences')
-			.values(wordSentences)
-			.onConflict((oc) => oc.columns(['word_id', 'sentence_id']).doNothing())
-			.execute();
+		await trx.insertInto('word_sentences').values(wordSentences).execute();
 
 		return sentence;
 	});
@@ -46,7 +42,7 @@ export async function addSentence({
 }
 
 export function getSentences() {
-	return db.selectFrom('sentences').select(['id', 'sentence']).execute();
+	return db.selectFrom('sentences').select(['id', 'sentence']).orderBy('id asc').execute();
 }
 
 export function getSentenceIds() {
@@ -74,4 +70,8 @@ export async function getSentencesWithWord(wordId: number): Promise<Sentence[]> 
 		.select(['id', 'sentence', 'english'])
 		.where('word_id', '=', wordId)
 		.execute();
+}
+
+export async function deleteSentence(sentenceId: number) {
+	await db.deleteFrom('sentences').where('id', '=', sentenceId).execute();
 }
