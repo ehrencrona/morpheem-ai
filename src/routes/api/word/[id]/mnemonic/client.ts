@@ -1,4 +1,4 @@
-export async function fetchMnemonic(wordId: number): Promise<string[]> {
+export async function fetchMnemonic(wordId: number): Promise<string> {
 	const res = await fetch(`/api/word/${wordId}/mnemonic`, {
 		method: 'GET'
 	});

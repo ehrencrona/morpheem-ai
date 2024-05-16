@@ -7,7 +7,9 @@
 <main>
 	<h1>{data.sentence.sentence}</h1>
 
-	<p><i>{data.sentence.english}</i></p>
+	{#if data.sentence.english}
+		<p><i>{data.sentence.english}</i></p>
+	{/if}
 
 	<ul>
 		{#each data.lemmas as word}

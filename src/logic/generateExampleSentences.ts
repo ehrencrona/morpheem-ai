@@ -89,9 +89,7 @@ export async function generateExampleSentences(
 		);
 	}
 
-	const englishes = await translateSentences(graded.map(({ sentence }) => sentence));
-
-	return graded.map((g, i) => ({ ...g, english: englishes[i] }));
+	return graded;
 }
 
 async function gradeSentences(sentences: string[], lemma: string, hardLevel: number) {

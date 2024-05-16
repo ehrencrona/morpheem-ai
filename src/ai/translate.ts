@@ -1,10 +1,11 @@
 import { z } from 'zod';
 import { Message, ask, toMessages } from './ask';
 import { askForJson } from './askForJson';
+import * as DB from '../db/types';
 
 export async function translateWordInContext(
 	lemma: string,
-	sentence: { sentence: string; english: string | null }
+	sentence: { sentence: string; english: string }
 ) {
 	const definition = await ask({
 		messages: [

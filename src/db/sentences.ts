@@ -75,3 +75,7 @@ export async function getSentencesWithWord(wordId: number): Promise<Sentence[]> 
 export async function deleteSentence(sentenceId: number) {
 	await db.deleteFrom('sentences').where('id', '=', sentenceId).execute();
 }
+
+export async function storeEnglish(english: string, sentenceId: number) {
+	await db.updateTable('sentences').set({ english }).where('id', '=', sentenceId).execute();
+}

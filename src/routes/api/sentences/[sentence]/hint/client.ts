@@ -4,7 +4,7 @@ export async function fetchHint(sentenceId: number): Promise<string> {
 	});
 
 	if (!res.ok) {
-		throw new Error('Failed to generate sentence hint');
+		throw new Error('Failed to fetch sentence hint');
 	}
 
 	return (await res.json()) as string;

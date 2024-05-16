@@ -17,6 +17,7 @@
 	import { lookupUnknownWord } from '../api/word/unknown/client';
 	import Sentence from './Sentence.svelte';
 	import { fetchMnemonic } from '../api/word/[id]/mnemonic/client';
+	import { fetchTranslation } from '../api/sentences/[sentence]/english/client';
 
 	let knowledge: AggKnowledgeForUser[] = [];
 
@@ -25,7 +26,7 @@
 				wordId: number;
 				sentence: DB.Sentence;
 				words: DB.Word[];
-				revealed: (UnknownWordResponse & { mnemonic?: string[] })[];
+				revealed: (UnknownWordResponse & { mnemonic?: string })[];
 		  }
 		| undefined;
 
@@ -137,6 +138,9 @@
 		});
 	}
 
+	const getHint = () => fetchHint(current!.sentence.id);
+	const getTranslation = () => fetchTranslation(current!.sentence.id);
+
 	async function onUnknown(word: string) {
 		if (!current) {
 			throw new Error('Invalid state');
@@ -190,8 +194,6 @@
 
 		return Math.round(wordsKnown);
 	}
-
-	const getHint = () => fetchHint(current!.sentence.id);
 </script>
 
 <main>
@@ -211,6 +213,7 @@
 			{getHint}
 			{onUnknown}
 			{getMnemonic}
+			{getTranslation}
 			{knowledge}
 		/>
 

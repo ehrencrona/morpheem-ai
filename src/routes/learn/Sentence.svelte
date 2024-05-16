@@ -14,17 +14,17 @@
 	export let onUnknown: (word: string) => Promise<any>;
 
 	let hint: string | undefined;
+	let translation: string | undefined;
 
 	export let getHint: () => Promise<string>;
+	export let getTranslation: () => Promise<string>;
 	export let getMnemonic: (word: DB.Word) => Promise<any>;
 
 	$: wordsWithSeparators = toWordsWithSeparators(sentence.sentence);
 
-	let revealTranslation = false;
-
 	$: if (sentence) {
-		revealTranslation = false;
 		hint = undefined;
+		translation = undefined;
 	}
 
 	function getExpectedKnowledge(word: DB.Word) {
@@ -55,10 +55,12 @@
 			>{:else}{word}{/if}{/each}
 </h1>
 
-{#if revealTranslation}
-	<p><i>{sentence.english}</i></p>
+{#if translation}
+	<p><i>{translation}</i></p>
 {:else}
-	<button on:click={() => (revealTranslation = !revealTranslation)}> Show translation </button>
+	<button on:click={() => getTranslation().then((got) => (translation = got))}>
+		Show translation
+	</button>
 
 	{#if hint}
 		<p><i>{hint}</i></p>

@@ -6,6 +6,7 @@ import { getWordInSentence } from '../../../../logic/getWordInSentence';
 import { addKnowledge } from '../../../../logic/knowledge';
 import { userId } from '../../../../logic/user';
 import * as DB from '../../../../db/types';
+import { addEnglishToSentence } from '../../../../logic/translate';
 
 export type PostSchema = z.infer<typeof postSchema>;
 
@@ -22,7 +23,7 @@ export interface UnknownWordResponse extends DB.Word {
 export const POST: ServerLoad = async ({ request }) => {
 	let { word: wordString, sentenceId, studiedWordId } = postSchema.parse(await request.json());
 
-	const sentence = await getSentence(sentenceId);
+	const sentence = await addEnglishToSentence(await getSentence(sentenceId));
 
 	const word = await getWordInSentence(wordString, sentenceId);
 

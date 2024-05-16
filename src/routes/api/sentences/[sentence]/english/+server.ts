@@ -12,7 +12,5 @@ export const GET: ServerLoad = async ({ params }) => {
 
 	const sentence = await addEnglishToSentence(await getSentence(sentenceId));
 
-	const hint = await generateHint(sentence.english);
-
-	return json(hint);
+	return json(sentence.english);
 };
