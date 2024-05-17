@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { slide } from 'svelte/transition';
 	import { fetchAskMeAnything } from '../api/write/ama/client';
 	import SpinnerButton from './SpinnerButton.svelte';
 
@@ -15,27 +16,27 @@
 	};
 </script>
 
-<div style="margin-top: 2em">
-	<div>Ask me anything</div>
-	<form style="display: flex">
-		<input type="text" bind:value={question} />
-		<SpinnerButton on:click={onSubmit}>Help me</SpinnerButton>
+<div class="">
+	<div class="mb-2 text-xs font-lato">Ask me anything</div>
+
+	<form class="">
+		<input
+			type="text"
+			class="bg-blue-1 rounded-sm block p-2 text-base mb-1 w-full"
+			bind:value={question}
+		/>
+		<div class="text-xxs font-lato">(enter an English word to get a Polish translation)</div>
+
+		<SpinnerButton
+			onClick={onSubmit}
+			className="text-blue-1 bg-blue-3 rounded-md px-4 py-1 mt-3 mb-1 text-xs"
+			>Help me</SpinnerButton
+		>
 	</form>
-	<div style="font-size: 80%; margin-top: 1em">
-		(enter an English word to get a Polish translation)
-	</div>
 
 	{#if answer}
-		<div style="margin-top: 1em">
-			<i>{answer}</i>
+		<div class="mt-3 text-sm" transition:slide>
+			{answer}
 		</div>
 	{/if}
 </div>
-
-<style>
-	input {
-		font-size: larger;
-		width: 300px;
-		padding: 6px;
-	}
-</style>

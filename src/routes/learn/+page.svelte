@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { CodedError } from '../../CodedError';
+	import { KNOWLEDGE_TYPE_READ } from '../../db/knowledgeTypes';
 	import type * as DB from '../../db/types';
 	import { getNextSentence, getNextWords } from '../../logic/isomorphic/getNext';
 	import { expectedKnowledge, now } from '../../logic/isomorphic/knowledge';
@@ -8,19 +9,17 @@
 	import { userId } from '../../logic/user';
 	import { fetchAggregateKnowledge, sendKnowledge } from '../api/knowledge/client';
 	import { markSentenceSeen } from '../api/sentences/[sentence]/client';
+	import { fetchTranslation } from '../api/sentences/[sentence]/english/client';
 	import { fetchHint } from '../api/sentences/[sentence]/hint/client';
 	import {
 		addSentencesForWord,
 		fetchSentencesWithWord
 	} from '../api/sentences/withword/[word]/client';
+	import { fetchMnemonic } from '../api/word/[id]/mnemonic/client';
 	import type { UnknownWordResponse } from '../api/word/unknown/+server';
 	import { lookupUnknownWord } from '../api/word/unknown/client';
 	import Sentence from './Sentence.svelte';
 	import WriteSentence from './WriteSentence.svelte';
-	import { fetchMnemonic } from '../api/word/[id]/mnemonic/client';
-	import { fetchTranslation } from '../api/sentences/[sentence]/english/client';
-	import SpinnerButton from './SpinnerButton.svelte';
-	import { KNOWLEDGE_TYPE_READ } from '../../db/knowledgeTypes';
 
 	let knowledge: AggKnowledgeForUser[] = [];
 
@@ -43,7 +42,6 @@
 	}
 
 	let nextPromise: ReturnType<typeof calculateNextSentence>;
-	let isCalculatingNext = false;
 
 	async function calculateNextSentence(wordIds: number[] = [], excludeWordId?: number) {
 		if (!wordIds.length) {
@@ -97,42 +95,36 @@
 	}
 
 	async function showNextSentence() {
-		isCalculatingNext = true;
+		const {
+			sentence,
+			wordId,
+			getNextPromise: getNext
+		} = await (nextPromise || calculateNextSentence());
 
-		try {
-			const {
-				sentence,
-				wordId,
-				getNextPromise: getNext
-			} = await (nextPromise || calculateNextSentence());
+		nextPromise = getNext();
 
-			nextPromise = getNext();
+		const k = knowledge.find((k) => k.wordId === wordId)!;
+		const wordKnowledge = k ? expectedKnowledge(k, { now: now(), lastTime: k.time }) : 0;
 
-			const k = knowledge.find((k) => k.wordId === wordId)!;
-			const wordKnowledge = k ? expectedKnowledge(k, { now: now(), lastTime: k.time }) : 0;
+		const type = wordKnowledge > 0.5 ? 'write' : 'read';
 
-			const type = wordKnowledge > 0.5 ? 'write' : 'read';
-
-			if (type == 'read') {
-				markSentenceSeen(sentence.id).catch(console.error);
-			}
-
-			current = {
-				wordId: wordId,
-				sentence: sentence,
-				words: sentence.words,
-				revealed: [],
-				type
-			};
-			error = undefined;
-
-			console.log({
-				...current,
-				wordKnowledge
-			});
-		} finally {
-			isCalculatingNext = false;
+		if (type == 'read') {
+			markSentenceSeen(sentence.id).catch(console.error);
 		}
+
+		current = {
+			wordId: wordId,
+			sentence,
+			words: sentence.words,
+			revealed: [],
+			type
+		};
+		error = undefined;
+
+		console.log({
+			...current,
+			wordKnowledge
+		});
 	}
 
 	onMount(init);
@@ -144,13 +136,16 @@
 
 		const mnemonic = await fetchMnemonic(word.id);
 
-		current.revealed = current.revealed.map((r) => {
-			if (r.id === word.id) {
-				r.mnemonic = mnemonic;
-			}
+		current = {
+			...current,
+			revealed: current.revealed.map((r) => {
+				if (r.id === word.id) {
+					r.mnemonic = mnemonic;
+				}
 
-			return r;
-		});
+				return r;
+			})
+		};
 	}
 
 	const getHint = () => fetchHint(current!.sentence.id);
@@ -163,7 +158,7 @@
 
 		const unknownWord = await lookupUnknownWord(word, current.sentence.id, current.wordId);
 
-		current.revealed = [...current.revealed, unknownWord];
+		current = { ...current, revealed: [...current.revealed, unknownWord] };
 	}
 
 	let error: string | undefined = undefined;
@@ -218,15 +213,22 @@
 	}
 </script>
 
-<main>
+<main class="font-sans bold w-full">
 	{#if error}
 		<h3>{error}</h3>
 	{/if}
 
+	<div class="bg-blue-3 text-center text-blue-1 p-2 rounded-md absolute bottom-2 right-2">
+		<b class="font-sans text-3xl font-bold">{calculateWordsKnown(knowledge)}</b>
+		<div class="text-xs font-lato">words known</div>
+	</div>
+
 	{#if current}
-		<p style="font-size: 60%; text-align: right">
-			<a href={`/sentences/${current?.sentence.id}/delete`}> Delete sentence </a>
-		</p>
+		<div class="text-right font-lato text-xs flex gap-1 mb-4 flex justify-end">
+			<a href={`/sentences/${current?.sentence.id}/delete`} class="underline text-red">
+				Delete sentence
+			</a>
+		</div>
 
 		{#if current.type == 'read'}
 			<Sentence
@@ -238,8 +240,8 @@
 				{getMnemonic}
 				{getTranslation}
 				{knowledge}
+				onNext={store}
 			/>
-			<SpinnerButton on:click={store} isLoading={isCalculatingNext}>Next</SpinnerButton>
 		{:else}
 			<WriteSentence
 				word={{
@@ -250,10 +252,21 @@
 			/>
 		{/if}
 	{:else}
-		<p>Loading...</p>
+		<div class="text-center mt-12">
+			<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" class="inline-block">
+				<path
+					fill="currentColor"
+					d="M12,4a8,8,0,0,1,7.89,6.7A1.53,1.53,0,0,0,21.38,12h0a1.5,1.5,0,0,0,1.48-1.75,11,11,0,0,0-21.72,0A1.5,1.5,0,0,0,2.62,12h0a1.53,1.53,0,0,0,1.49-1.3A8,8,0,0,1,12,4Z"
+				>
+					<animateTransform
+						attributeName="transform"
+						dur="0.75s"
+						repeatCount="indefinite"
+						type="rotate"
+						values="0 12 12;360 12 12"
+					/>
+				</path>
+			</svg>
+		</div>
 	{/if}
-
-	<p>
-		Words known: {calculateWordsKnown(knowledge)}
-	</p>
 </main>

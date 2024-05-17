@@ -7,20 +7,18 @@
 	import SpinnerButton from './SpinnerButton.svelte';
 
 	export let word: { id: number; word: string };
-	export let onContinue: () => void;
+	export let onContinue: () => Promise<any>;
 
 	let feedback: string | undefined;
 	let corrected: string | undefined;
 	let sentence: string;
 
-	let isCorrecting = false;
-	let isContinuing = false;
 	let unknownWord: UnknownWordResponse | undefined;
 
 	function clear() {
 		sentence = '';
-		feedback = undefined;
-		corrected = undefined;
+		feedback = '';
+		corrected = '';
 		unknownWord = undefined;
 	}
 
@@ -29,27 +27,15 @@
 	}
 
 	const onSubmit = async () => {
-		isCorrecting = true;
+		if (!sentence) return;
 
-		try {
-			if (!sentence) return;
-
-			({ feedback, corrected } = await fetchWritingFeedback({ word: word.word, sentence }));
-		} finally {
-			isCorrecting = false;
-		}
+		({ feedback, corrected } = await fetchWritingFeedback({ word: word.word, sentence }));
 	};
 
 	const clickedContinue = async () => {
-		isContinuing = true;
+		await storeWrittenSentence({ wordId: word.id, sentence: corrected! });
 
-		try {
-			await storeWrittenSentence({ wordId: word.id, sentence: corrected! });
-
-			onContinue();
-		} finally {
-			isContinuing = false;
-		}
+		return onContinue();
 	};
 
 	const onWordUnknown = async () => {
@@ -57,52 +43,65 @@
 	};
 </script>
 
-<h1>{word.word}</h1>
-
 <div>
-	<p>Write a sentence or fragment using the word <b>{word.word}</b></p>
+	{#if !unknownWord}
+		<h1 class="mb-4">
+			{word.word}
 
-	<p>
-		{#if unknownWord}
-			<i>{unknownWord.english}</i>
-		{:else}
-			<a href="#" on:click|preventDefault={onWordUnknown}>Explain word</a>
-		{/if}
-	</p>
+			<span>
+				<a
+					href="#"
+					class="ml-1 text-xs font-lato underline"
+					on:click|preventDefault={onWordUnknown}
+				>
+					Explain word
+				</a>
+			</span>
+		</h1>
+	{/if}
+
+	{#if unknownWord}
+		<div class="bg-blue-1 rounded-md px-4 py-3 w-[48%] mb-4">
+			<div class="font-medium mb-1 text-xs flex">
+				<a href="/words/{unknownWord.id}" class="flex-1">{unknownWord.word}</a>
+			</div>
+
+			<div class="text-balance text-lg font-lato mt-2">{unknownWord.english}</div>
+		</div>
+	{/if}
 
 	{#if !feedback}
-		<form style="display: flex">
-			<input type="text" bind:value={sentence} />
+		<p class="mb-4 font-lato text-xs">
+			Write a sentence or fragment using the word <b>{word.word}</b>
+		</p>
 
-			<SpinnerButton on:click={onSubmit} isLoading={isCorrecting}>Test</SpinnerButton>
+		<form>
+			<input
+				type="text"
+				bind:value={sentence}
+				class="bg-blue-1 rounded-sm block w-full p-2 text-lg mb-2"
+			/>
+
+			<SpinnerButton onClick={onSubmit}>Submit</SpinnerButton>
 		</form>
 	{:else}
-		<p>
-			<b>{sentence}</b>
-		</p>
-		<div>
-			<i>
-				{feedback}
-				<!-- {#each feedback as line}
-					<p>{line}</p>
-				{/each} -->
-			</i>
+		<div class="text-xl font-bold mb-6 mt-4 text-balance line-through">
+			{sentence}
 		</div>
 
-		<p>
-			Corrected sentence: <b>{corrected}</b>
-		</p>
+		<div class="mb-6 font-lato text-xs">
+			{feedback}
+		</div>
 
-		<SpinnerButton on:click={clickedContinue} isLoading={isContinuing}>Continue</SpinnerButton>
+		<div class="text-xl font-bold mb-6 text-balance">{corrected}</div>
+
+		<SpinnerButton onClick={clickedContinue}>Continue</SpinnerButton>
 	{/if}
+
+	<div
+		class="absolute bottom-0 left-0 right-0 bg-[#ffffff] px-4 py-2"
+		style="box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.1);"
+	>
+		<AMA word={word.word} {sentence} />
+	</div>
 </div>
-
-<AMA word={word.word} {sentence} />
-
-<style>
-	input {
-		font-size: larger;
-		width: 300px;
-		padding: 6px;
-	}
-</style>

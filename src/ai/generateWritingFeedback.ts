@@ -17,7 +17,7 @@ export async function generateWritingFeedback(
 			{
 				role: 'system',
 				content:
-					'Briefly but friendly point out any errors in the text entered by the user. If there are grammatical mistakes, spelling mistakes, unidiomatic constructs or inappropriate word choices, point them out. If the sentence is correct, praise the user. Also return the corrected text, applying all your suggestions. Return JSON in the format {feedback: string, corrected: string}'
+					'Briefly but friendly point out any errors in the Polish text entered by the user. If there are grammatical mistakes, spelling mistakes, unidiomatic constructs or inappropriate word choices, point them out. If the sentence is correct, praise the user. Also return the corrected text, applying all your suggestions. Return JSON in the format {feedback: string, corrected: string}'
 			},
 			{
 				role: 'assistant',
