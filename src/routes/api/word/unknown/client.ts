@@ -2,7 +2,7 @@ import type { PostSchema, UnknownWordResponse } from './+server';
 
 export async function lookupUnknownWord(
 	word: string,
-	sentenceId: number,
+	sentenceId: number | undefined,
 	studiedWordId: number
 ): Promise<UnknownWordResponse> {
 	const res = await fetch(`/api/word/unknown`, {

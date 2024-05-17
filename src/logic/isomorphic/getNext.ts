@@ -43,6 +43,8 @@ export function getNextSentence(
 	knowledge: AggKnowledgeForUser[],
 	wordStudied: number
 ) {
+	const messages: { score: number; message: string }[] = [];
+
 	const scores = sentences.map((sentence) => {
 		let message = `${sentence.sentence}: `;
 
@@ -86,7 +88,7 @@ export function getNextSentence(
 			1 / (sentence.words.length + 1)
 		);
 
-		console.log(message + ` => ${Math.round(score * 100)}%`);
+		messages.push({ score, message });
 
 		return score;
 	});
@@ -96,6 +98,14 @@ export function getNextSentence(
 	}
 
 	const maxIndex = scores.indexOf(Math.max(...scores));
+
+	// print messages from five highest scores
+	messages
+		.sort((a, b) => b.score - a.score)
+		.slice(0, 5)
+		.forEach((m) => {
+			console.log(`${m.message} => ${Math.round(m.score * 100)}%`);
+		});
 
 	return { sentence: sentences[maxIndex], score: scores[maxIndex] };
 }

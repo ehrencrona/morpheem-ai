@@ -30,7 +30,7 @@ export function addKnowledge({
 export async function transformAggregateKnowledge(
 	{ wordId, userId }: { wordId: number; userId: number },
 
-	transform: (opts: { alpha: number; beta: number; time: number } | undefined) => {
+	transform: (opts: { alpha: number; beta: number | null; time: number } | undefined) => {
 		alpha: number;
 		beta: number;
 	}

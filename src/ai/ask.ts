@@ -3,7 +3,6 @@ import { openai } from './openai-client';
 
 export type Model =
 	| 'gpt-3.5-turbo'
-	| 'gpt-4-turbo'
 	| 'gpt-4o'
 	| 'llama3-8b-8192'
 	| 'llama3-70b-8192'

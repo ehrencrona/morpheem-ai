@@ -17,7 +17,7 @@ export async function askForJson<T>({
 	instruction?: string;
 	messages: Message[];
 	temperature: number;
-	max_tokens: number;
+	max_tokens?: number;
 	schema: z.ZodType<T, any>;
 	model?: Model;
 	retriesLeft?: number;

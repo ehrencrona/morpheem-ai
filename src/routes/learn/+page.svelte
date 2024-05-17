@@ -16,8 +16,11 @@
 	import type { UnknownWordResponse } from '../api/word/unknown/+server';
 	import { lookupUnknownWord } from '../api/word/unknown/client';
 	import Sentence from './Sentence.svelte';
+	import WriteSentence from './WriteSentence.svelte';
 	import { fetchMnemonic } from '../api/word/[id]/mnemonic/client';
 	import { fetchTranslation } from '../api/sentences/[sentence]/english/client';
+	import SpinnerButton from './SpinnerButton.svelte';
+	import { KNOWLEDGE_TYPE_READ } from '../../db/knowledgeTypes';
 
 	let knowledge: AggKnowledgeForUser[] = [];
 
@@ -27,6 +30,7 @@
 				sentence: DB.Sentence;
 				words: DB.Word[];
 				revealed: (UnknownWordResponse & { mnemonic?: string })[];
+				type: 'write' | 'read';
 		  }
 		| undefined;
 
@@ -104,17 +108,28 @@
 
 			nextPromise = getNext();
 
-			markSentenceSeen(sentence.id).catch(console.error);
+			const k = knowledge.find((k) => k.wordId === wordId)!;
+			const wordKnowledge = k ? expectedKnowledge(k, { now: now(), lastTime: k.time }) : 0;
+
+			const type = wordKnowledge > 0.5 ? 'write' : 'read';
+
+			if (type == 'read') {
+				markSentenceSeen(sentence.id).catch(console.error);
+			}
 
 			current = {
 				wordId: wordId,
 				sentence: sentence,
 				words: sentence.words,
-				revealed: []
+				revealed: [],
+				type
 			};
 			error = undefined;
 
-			console.log({ current });
+			console.log({
+				...current,
+				wordKnowledge
+			});
 		} finally {
 			isCalculatingNext = false;
 		}
@@ -170,7 +185,8 @@
 						sentenceId: sentenceId,
 						userId: userId,
 						isKnown: true,
-						studiedWordId
+						studiedWordId,
+						type: KNOWLEDGE_TYPE_READ
 					}))
 			);
 
@@ -194,6 +210,12 @@
 
 		return Math.round(wordsKnown);
 	}
+
+	async function continueAfterWrite() {
+		knowledge = await fetchAggregateKnowledge();
+
+		showNextSentence();
+	}
 </script>
 
 <main>
@@ -206,18 +228,27 @@
 			<a href={`/sentences/${current?.sentence.id}/delete`}> Delete sentence </a>
 		</p>
 
-		<Sentence
-			word={current.words.find(({ id }) => id == current?.wordId)}
-			sentence={current.sentence}
-			revealed={current.revealed}
-			{getHint}
-			{onUnknown}
-			{getMnemonic}
-			{getTranslation}
-			{knowledge}
-		/>
-
-		<button on:click|preventDefault={store} disabled={isCalculatingNext}> Next </button>
+		{#if current.type == 'read'}
+			<Sentence
+				word={current.words.find(({ id }) => id == current?.wordId)}
+				sentence={current.sentence}
+				revealed={current.revealed}
+				{getHint}
+				{onUnknown}
+				{getMnemonic}
+				{getTranslation}
+				{knowledge}
+			/>
+			<SpinnerButton on:click={store} isLoading={isCalculatingNext}>Next</SpinnerButton>
+		{:else}
+			<WriteSentence
+				word={{
+					word: current.words.find(({ id }) => id == current.wordId).word,
+					id: current.wordId
+				}}
+				onContinue={continueAfterWrite}
+			/>
+		{/if}
 	{:else}
 		<p>Loading...</p>
 	{/if}

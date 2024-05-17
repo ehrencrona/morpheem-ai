@@ -7,10 +7,11 @@ export interface AlphaBeta {
 
 export const wordKnowledgeSchema = z.object({
 	wordId: z.number(),
-	sentenceId: z.number(),
+	sentenceId: z.number().optional(),
 	userId: z.number(),
 	isKnown: z.boolean(),
-	studiedWordId: z.number()
+	studiedWordId: z.number(),
+	type: z.number()
 });
 
 export type WordKnowledge = z.infer<typeof wordKnowledgeSchema>;
@@ -18,7 +19,7 @@ export type WordKnowledge = z.infer<typeof wordKnowledgeSchema>;
 export interface AggKnowledgeForUser {
 	wordId: number;
 	alpha: number;
-	beta: number;
+	beta: number | null;
 	time: number;
 	level: number;
 }
