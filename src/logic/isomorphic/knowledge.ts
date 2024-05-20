@@ -66,7 +66,7 @@ export function didNotKnow(
 	{ alpha, beta }: AlphaBeta,
 	{ now, lastTime }: { now: number; lastTime: number }
 ) {
-	return { alpha: (1 - f) * alpha + nt, beta: null };
+	return { alpha: (1 - f) * alpha + f * nt, beta: null };
 }
 
 export function knew(
