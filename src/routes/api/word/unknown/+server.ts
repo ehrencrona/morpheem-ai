@@ -15,7 +15,8 @@ export type PostSchema = z.infer<typeof postSchema>;
 const postSchema = z.object({
 	word: z.string(),
 	sentenceId: z.number().optional(),
-	studiedWordId: z.number()
+	studiedWordId: z.number(),
+	updateKnowledge: z.boolean().optional()
 });
 
 export interface UnknownWordResponse extends DB.Word {
@@ -23,7 +24,12 @@ export interface UnknownWordResponse extends DB.Word {
 }
 
 export const POST: ServerLoad = async ({ request }) => {
-	let { word: wordString, sentenceId, studiedWordId } = postSchema.parse(await request.json());
+	let {
+		word: wordString,
+		sentenceId,
+		studiedWordId,
+		updateKnowledge
+	} = postSchema.parse(await request.json());
 
 	let sentence:
 		| (DB.Sentence & {
@@ -44,16 +50,18 @@ export const POST: ServerLoad = async ({ request }) => {
 
 	console.log(`Unknown: ${wordString} (${word.word}) -> ${english}`);
 
-	await addKnowledge([
-		{
-			wordId: word.id,
-			sentenceId: sentenceId,
-			userId: userId,
-			isKnown: false,
-			studiedWordId,
-			type: KNOWLEDGE_TYPE_READ
-		}
-	]);
+	if (updateKnowledge) {
+		await addKnowledge([
+			{
+				wordId: word.id,
+				sentenceId: sentenceId,
+				userId: userId,
+				isKnown: false,
+				studiedWordId,
+				type: KNOWLEDGE_TYPE_READ
+			}
+		]);
+	}
 
 	return json({ ...word, english } as UnknownWordResponse);
 };

@@ -158,6 +158,10 @@
 		revealed = [...revealed, unknownWord];
 	}
 
+	async function onRemoveUnknown(word: string) {
+		revealed = revealed.filter((r) => r.word !== word);
+	}
+
 	let error: string | undefined = undefined;
 
 	async function store() {
@@ -170,16 +174,14 @@
 			const studiedWordId = current.wordId;
 
 			await sendKnowledge(
-				current.words
-					.filter((word) => !revealed.find(({ id }) => id === word.id))
-					.map((word) => ({
-						wordId: word.id,
-						sentenceId: sentenceId,
-						userId: userId,
-						isKnown: true,
-						studiedWordId,
-						type: KNOWLEDGE_TYPE_READ
-					}))
+				current.words.map((word) => ({
+					wordId: word.id,
+					sentenceId: sentenceId,
+					userId: userId,
+					isKnown: !revealed.find(({ id }) => id === word.id),
+					studiedWordId,
+					type: KNOWLEDGE_TYPE_READ
+				}))
 			);
 
 			knowledge = await fetchAggregateKnowledge();
@@ -215,7 +217,9 @@
 		<h3>{error}</h3>
 	{/if}
 
-	<div class="bg-blue-3 text-center text-blue-1 p-2 rounded-md top-2 right-2 absolute hidden lg:block">
+	<div
+		class="bg-blue-3 text-center text-blue-1 p-2 rounded-md top-2 right-2 absolute hidden lg:block"
+	>
 		<b class="font-sans text-3xl font-bold">{calculateWordsKnown(knowledge)}</b>
 		<div class="text-xs font-lato">words known</div>
 	</div>
@@ -234,6 +238,7 @@
 				{revealed}
 				{getHint}
 				{onUnknown}
+				{onRemoveUnknown}
 				{getMnemonic}
 				{getTranslation}
 				{knowledge}

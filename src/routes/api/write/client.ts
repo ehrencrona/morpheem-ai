@@ -10,7 +10,7 @@ export async function storeWrittenSentence(params: PostSchema): Promise<void> {
 	});
 
 	if (!res.ok) {
-		throw new Error('Failed to get store written sentence');
+		throw new Error('Failed to store written sentence');
 	}
 
 	return await res.json();

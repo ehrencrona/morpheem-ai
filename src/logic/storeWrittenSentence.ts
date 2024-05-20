@@ -1,3 +1,4 @@
+import { filterUndefineds } from '$lib/filterUndefineds';
 import { KNOWLEDGE_TYPE_WRITE } from '../db/knowledgeTypes';
 import { getWordByLemma } from '../db/words';
 import { addKnowledge } from './knowledge';
@@ -13,20 +14,30 @@ export async function storeWrittenSentence({
 }): Promise<void> {
 	const [lemmatized] = await lemmatizeSentences([sentence]);
 
-	const knowledge = await Promise.all(
-		lemmatized.map(async (lemma) => {
-			const word = await getWordByLemma(lemma);
+	const knowledge = filterUndefineds(
+		await Promise.all(
+			lemmatized.map(async (lemma) => {
+				try {
+					const word = await getWordByLemma(lemma);
 
-			return {
-				wordId: word.id,
-				isKnown: true,
-				studiedWordId: wordId,
-				sentenceId: undefined,
-				type: KNOWLEDGE_TYPE_WRITE,
-				userId: userId
-			};
-		})
+					return {
+						wordId: word.id,
+						isKnown: true,
+						studiedWordId: wordId,
+						sentenceId: undefined,
+						type: KNOWLEDGE_TYPE_WRITE,
+						userId: userId
+					};
+				} catch (e) {
+					console.error(`Unknown word: ${lemma}`);
+
+					return undefined;
+				}
+			})
+		)
 	);
+
+	console.log(JSON.stringify(knowledge, null, 2));
 
 	console.log(`Writing feedback stored: ${lemmatized.join(', ')}`);
 

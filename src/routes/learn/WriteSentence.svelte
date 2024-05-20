@@ -40,7 +40,7 @@
 	};
 
 	const onWordUnknown = async () => {
-		unknownWord = await lookupUnknownWord(word.word, undefined, word.id);
+		unknownWord = await lookupUnknownWord(word.word, undefined, word.id, true);
 	};
 </script>
 
@@ -62,7 +62,7 @@
 	{/if}
 
 	{#if unknownWord}
-		<div class="bg-blue-1 rounded-md px-4 py-3 w-[48%] mb-4">
+		<div class="bg-blue-1 rounded-md px-4 py-3 w-full md:w-[48%] mb-4">
 			<div class="font-medium mb-1 text-xs flex">
 				<a href="/words/{unknownWord.id}" class="flex-1">{unknownWord.word}</a>
 			</div>
@@ -81,6 +81,7 @@
 				type="text"
 				bind:value={sentence}
 				class="bg-blue-1 rounded-sm block w-full p-2 text-lg mb-2"
+				lang="pl"
 			/>
 
 			<SpinnerButton onClick={onSubmit}>Submit</SpinnerButton>
