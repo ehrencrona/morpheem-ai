@@ -72,7 +72,7 @@
 
 	{#if !feedback}
 		<p class="mb-4 font-lato text-xs">
-			Write a sentence or fragment using the word <b>{word.word}</b>
+			Write a sentence or fragment using the word "<b>{word.word}</b>"
 		</p>
 
 		<form>
