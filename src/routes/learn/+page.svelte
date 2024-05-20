@@ -15,13 +15,15 @@
 		addSentencesForWord,
 		fetchSentencesWithWord
 	} from '../api/sentences/withword/[word]/client';
-	import { fetchMnemonic } from '../api/word/[id]/mnemonic/client';
+	import { fetchMnemonic, storeMnemonic } from '../api/word/[id]/mnemonic/client';
 	import type { UnknownWordResponse } from '../api/word/unknown/+server';
 	import { lookupUnknownWord } from '../api/word/unknown/client';
-	import Sentence from './ReadSentence.svelte';
+	import ReadSentence from './ReadSentence.svelte';
 	import WriteSentence from './WriteSentence.svelte';
+	import EditMnemonic from './EditMnemonic.svelte';
 
 	let knowledge: AggKnowledgeForUser[] = [];
+	let editMnemonic: (DB.Word & { mnemonic?: string | undefined }) | undefined;
 
 	let revealed: (UnknownWordResponse & { mnemonic?: string })[];
 	let current:
@@ -32,6 +34,8 @@
 				type: 'write' | 'read';
 		  }
 		| undefined;
+
+	$: word = current?.words.find(({ id }) => id == current?.wordId)!;
 
 	async function init() {
 		knowledge = await fetchAggregateKnowledge();
@@ -129,20 +133,31 @@
 
 	onMount(init);
 
-	async function getMnemonic(word: DB.Word) {
+	async function getMnemonic(word: DB.Word, forceRegeneration: boolean) {
 		if (!current) {
 			throw new Error('Invalid state');
 		}
 
-		const mnemonic = await fetchMnemonic(word.id);
+		const mnemonic = await fetchMnemonic(word.id, forceRegeneration);
 
-		revealed = revealed.map((r) => {
-			if (r.id === word.id) {
-				r.mnemonic = mnemonic;
-			}
+		revealed = revealed.map((r) => ({
+			...r,
+			mnemonic: r.id === word.id ? mnemonic : r.mnemonic
+		}));
+	}
 
-			return r;
-		});
+	async function saveMnemonic(mnemonic: string) {
+		if (!editMnemonic || !word) {
+			throw new Error('Invalid state');
+		}
+
+		await storeMnemonic(editMnemonic.id, mnemonic);
+
+		editMnemonic = undefined;
+		revealed = revealed.map((r) => ({
+			...r,
+			mnemonic: r.id === word.id ? mnemonic : r.mnemonic
+		}));
 	}
 
 	const getHint = () => fetchHint(current!.sentence.id);
@@ -232,13 +247,14 @@
 		</div>
 
 		{#if current.type == 'read'}
-			<Sentence
-				word={current.words.find(({ id }) => id == current?.wordId)}
+			<ReadSentence
+				{word}
 				sentence={current.sentence}
 				{revealed}
 				{getHint}
 				{onUnknown}
 				{onRemoveUnknown}
+				onEditMnemonic={async (word) => (editMnemonic = word)}
 				{getMnemonic}
 				{getTranslation}
 				{knowledge}
@@ -246,11 +262,9 @@
 			/>
 		{:else}
 			<WriteSentence
-				word={{
-					word: current.words.find(({ id }) => id == current.wordId).word,
-					id: current.wordId
-				}}
+				word={word}
 				onContinue={continueAfterWrite}
+				fetchIdea={getTranslation}
 			/>
 		{/if}
 	{:else}
@@ -276,5 +290,13 @@
 				</path>
 			</svg>
 		</div>
+	{/if}
+
+	{#if editMnemonic}
+		<EditMnemonic
+			mnemonic={editMnemonic.mnemonic}
+			onCancel={async () => (editMnemonic = undefined)}
+			onSave={saveMnemonic}
+		/>
 	{/if}
 </main>

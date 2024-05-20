@@ -5,9 +5,9 @@
 	import { isSeparator, toWordsWithSeparators } from '../../logic/toWords';
 	import type { AggKnowledgeForUser } from '../../logic/types';
 	import type { UnknownWordResponse } from '../api/word/unknown/+server';
-	import SpinnerButton from './SpinnerButton.svelte';
-	import Ama from './AMA.svelte';
 	import { fetchAskMeAnything } from '../api/write/ama/client';
+	import Ama from './AMA.svelte';
+	import SpinnerButton from './SpinnerButton.svelte';
 
 	export let sentence: DB.Sentence;
 	export let word: DB.Word;
@@ -18,13 +18,14 @@
 	export let onUnknown: (word: string) => Promise<any>;
 	export let onRemoveUnknown: (word: string) => Promise<any>;
 	export let onNext: () => Promise<any>;
+	export let onEditMnemonic: (word: DB.Word & { mnemonic?: string }) => Promise<any>;
 
 	let hint: string | undefined;
 	let translation: string | undefined;
 
 	export let getHint: () => Promise<string>;
 	export let getTranslation: () => Promise<string>;
-	export let getMnemonic: (word: DB.Word) => Promise<any>;
+	export let getMnemonic: (word: DB.Word, forceRegeneration: boolean) => Promise<any>;
 
 	$: wordsWithSeparators = toWordsWithSeparators(sentence.sentence);
 
@@ -74,7 +75,7 @@
 {/if}
 
 <ul class="flex flex-wrap mb-6 gap-4">
-	{#each revealed as word}
+	{#each revealed as word (word.id)}
 		<li class="bg-blue-1 rounded-md px-4 py-3 w-[48%]">
 			<div class="font-medium mb-1 text-xs flex">
 				<a href="/words/{word.id}" class="flex-1">{word.word}</a>
@@ -91,7 +92,7 @@
 					xmlns:xlink="http://www.w3.org/1999/xlink"
 					viewBox="0 0 512 512"
 					xml:space="preserve"
-					class="w-2 h-2 ml-2"
+					class="w-2 h-2 ml-2 cursor-pointer"
 					on:click={() => onRemoveUnknown(word.word)}
 				>
 					<g>
@@ -110,11 +111,22 @@
 			<div class="text-xs font-lato mt-2">
 				{#if word.mnemonic}
 					<p>{word.mnemonic}</p>
-				{:else}
-					<SpinnerButton className="underline" onClick={() => getMnemonic(word)}>
-						Mnemonic
-					</SpinnerButton>
 				{/if}
+				<div class="flex justify-end gap-2 mt-1">
+					<SpinnerButton className="underline" onClick={() => getMnemonic(word, !!word.mnemonic)}>
+						{#if word.mnemonic}
+							Regenerate
+						{:else}
+							Mnemonic
+						{/if}
+					</SpinnerButton>
+
+					{#if word.mnemonic}
+						<SpinnerButton className="underline" onClick={async () => onEditMnemonic(word)}
+							>Edit</SpinnerButton
+						>
+					{/if}
+				</div>
 			</div>
 		</li>
 	{/each}

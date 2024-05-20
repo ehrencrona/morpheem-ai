@@ -65,7 +65,7 @@ export async function askMeAnythingRead({
 		messages: [
 			{
 				role: 'system',
-				content: `The user is studying Polish and found the sentence "${sentence}" while studying the word ${word} and has a question. Briefly but helpfully and friendly answer the question in English.`
+				content: `The user is studying Polish and encountered the sentence "${sentence}" while studying the word ${word}. The user now has a question about Polish or about the sentence. Briefly but helpfully and friendly answer the question (in English).`
 			},
 			{
 				role: 'system',
