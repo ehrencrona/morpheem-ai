@@ -37,8 +37,6 @@ export async function storeWrittenSentence({
 		)
 	);
 
-	console.log(JSON.stringify(knowledge, null, 2));
-
 	console.log(`Writing feedback stored: ${lemmatized.join(', ')}`);
 
 	await addKnowledge(knowledge);

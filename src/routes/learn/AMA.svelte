@@ -36,6 +36,7 @@
 
 		<SpinnerButton
 			onClick={onSubmit}
+			isSubmit={true}
 			className="text-blue-1 bg-blue-3 rounded-md px-4 py-1 mt-3 mb-1 text-xs"
 		>
 			Get answer

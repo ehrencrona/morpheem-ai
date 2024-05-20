@@ -1,6 +1,6 @@
 import type { SentencesWithWords } from '../../routes/api/sentences/withword/[word]/+server';
 import type { AggKnowledgeForUser } from '../types';
-import { expectedKnowledge, knowledgeGain, now } from './knowledge';
+import { didNotKnowFirst, expectedKnowledge, knewFirst, knowledgeGain, now } from './knowledge';
 
 export function getNextWord(knowledge: AggKnowledgeForUser[]) {
 	return getNextWords(knowledge)[0];
@@ -9,12 +9,13 @@ export function getNextWord(knowledge: AggKnowledgeForUser[]) {
 export function getNextWords(knowledge: AggKnowledgeForUser[], count = 5) {
 	const score = knowledge.map(
 		(k) =>
-			knowledgeGain(k, {
+			(knowledgeGain(k, {
 				now: now(),
 				lastTime: k.time
 			}) *
-			(2 - k.level / 100) *
-			(2 - k.level / 100)
+				(2 - k.level / 100) *
+				(2 - k.level / 100)) /
+			4
 	);
 
 	// return the five words with highest scores
@@ -32,7 +33,10 @@ export function getNextWords(knowledge: AggKnowledgeForUser[], count = 5) {
 
 	console.log(
 		'next words:',
-		indexes.map((i) => knowledge[i].wordId)
+		indexes.map(
+			(i) =>
+				`${knowledge[i].wordId} (score ${Math.round(score[i] * 100)}%, level ${knowledge[i].level})${knowledge[i].studied === false ? ' unstudied' : ''}`
+		)
 	);
 
 	return indexes.map((i) => knowledge[i].wordId);

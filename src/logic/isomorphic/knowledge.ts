@@ -9,7 +9,7 @@ const b = -2.33071243e-2;
 const c = 3.28301466e-5;
 
 export function expectedKnowledge(
-	{ alpha, beta }: AlphaBeta,
+	{ alpha }: AlphaBeta,
 	{ now, lastTime }: { now: number; lastTime: number }
 ) {
 	const k = a * alpha + b;
@@ -62,17 +62,11 @@ export function knewFirst() {
 	return { alpha: 1, beta: null };
 }
 
-export function didNotKnow(
-	{ alpha, beta }: AlphaBeta,
-	{ now, lastTime }: { now: number; lastTime: number }
-) {
+export function didNotKnow({ alpha }: AlphaBeta, { now, lastTime }: { now: number; lastTime: number }) {
 	return { alpha: (1 - f) * alpha + f * nt, beta: null };
 }
 
-export function knew(
-	{ alpha, beta }: AlphaBeta,
-	{ now, lastTime }: { now: number; lastTime: number }
-) {
+export function knew({ alpha }: AlphaBeta, { now, lastTime }: { now: number; lastTime: number }) {
 	return { alpha: (1 - f) * alpha + f * kn, beta: null };
 }
 

@@ -1,5 +1,6 @@
 import { dateToTime } from '../logic/isomorphic/knowledge';
 import type { AggKnowledgeForUser } from '../logic/types';
+import { userId } from '../logic/user';
 import { db } from './client';
 
 export function addKnowledge({
@@ -72,6 +73,17 @@ export async function transformAggregateKnowledge(
 				.execute();
 		}
 	});
+}
+
+export async function getEasiestUnstudiedWords() {
+	return db
+		.selectFrom('words')
+		.leftJoin('aggregate_knowledge', 'word_id', 'id')
+		.select(['id', 'word', 'level'])
+		.where('aggregate_knowledge.word_id', 'is', null)
+		.orderBy('level', 'asc')
+		.limit(1)
+		.execute();
 }
 
 export async function getAggregateKnowledgeForUser({

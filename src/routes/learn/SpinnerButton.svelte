@@ -1,6 +1,7 @@
 <script lang="ts">
 	export let onClick: () => Promise<any>;
 	export let className = 'text-blue-1 bg-blue-4 rounded-md px-5 py-1 m-2 ml-0';
+	export let isSubmit = false;
 
 	let isLoading = false;
 	let showSpinner = false;
@@ -19,7 +20,12 @@
 	}
 </script>
 
-<button class={`${className} relative`} on:click|preventDefault={didClick} disabled={isLoading}>
+<button
+	class={`${className} relative`}
+	on:click|preventDefault={didClick}
+	disabled={isLoading}
+	type={isSubmit ? 'submit' : 'button'}
+>
 	{#if showSpinner}
 		<div class="absolute left-1 top-2">
 			<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">

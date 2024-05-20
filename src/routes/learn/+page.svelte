@@ -153,11 +153,12 @@
 
 		await storeMnemonic(editMnemonic.id, mnemonic);
 
-		editMnemonic = undefined;
 		revealed = revealed.map((r) => ({
 			...r,
-			mnemonic: r.id === word.id ? mnemonic : r.mnemonic
+			mnemonic: r.id === editMnemonic!.id ? mnemonic : r.mnemonic
 		}));
+
+		editMnemonic = undefined;
 	}
 
 	const getHint = () => fetchHint(current!.sentence.id);
@@ -261,11 +262,7 @@
 				onNext={store}
 			/>
 		{:else}
-			<WriteSentence
-				word={word}
-				onContinue={continueAfterWrite}
-				fetchIdea={getTranslation}
-			/>
+			<WriteSentence {word} onContinue={continueAfterWrite} fetchIdea={getTranslation} />
 		{/if}
 	{:else}
 		<div class="text-center mt-12">
