@@ -23,12 +23,12 @@
 
 	let knowledge: AggKnowledgeForUser[] = [];
 
+	let revealed: (UnknownWordResponse & { mnemonic?: string })[];
 	let current:
 		| {
 				wordId: number;
 				sentence: DB.Sentence;
 				words: DB.Word[];
-				revealed: (UnknownWordResponse & { mnemonic?: string })[];
 				type: 'write' | 'read';
 		  }
 		| undefined;
@@ -106,7 +106,7 @@
 		const k = knowledge.find((k) => k.wordId === wordId)!;
 		const wordKnowledge = k ? expectedKnowledge(k, { now: now(), lastTime: k.time }) : 0;
 
-		const type = wordKnowledge > 0.5 ? 'write' : 'read';
+		const type = wordKnowledge > 0.4 ? 'write' : 'read';
 
 		if (type == 'read') {
 			markSentenceSeen(sentence.id).catch(console.error);
@@ -116,9 +116,9 @@
 			wordId: wordId,
 			sentence,
 			words: sentence.words,
-			revealed: [],
 			type
 		};
+		revealed = [];
 		error = undefined;
 
 		console.log({
@@ -136,16 +136,13 @@
 
 		const mnemonic = await fetchMnemonic(word.id);
 
-		current = {
-			...current,
-			revealed: current.revealed.map((r) => {
-				if (r.id === word.id) {
-					r.mnemonic = mnemonic;
-				}
+		revealed = revealed.map((r) => {
+			if (r.id === word.id) {
+				r.mnemonic = mnemonic;
+			}
 
-				return r;
-			})
-		};
+			return r;
+		});
 	}
 
 	const getHint = () => fetchHint(current!.sentence.id);
@@ -158,7 +155,7 @@
 
 		const unknownWord = await lookupUnknownWord(word, current.sentence.id, current.wordId);
 
-		current = { ...current, revealed: [...current.revealed, unknownWord] };
+		revealed = [...revealed, unknownWord];
 	}
 
 	let error: string | undefined = undefined;
@@ -174,7 +171,7 @@
 
 			await sendKnowledge(
 				current.words
-					.filter((word) => !current!.revealed.find(({ id }) => id === word.id))
+					.filter((word) => !revealed.find(({ id }) => id === word.id))
 					.map((word) => ({
 						wordId: word.id,
 						sentenceId: sentenceId,
@@ -234,7 +231,7 @@
 			<Sentence
 				word={current.words.find(({ id }) => id == current?.wordId)}
 				sentence={current.sentence}
-				revealed={current.revealed}
+				{revealed}
 				{getHint}
 				{onUnknown}
 				{getMnemonic}
@@ -253,7 +250,13 @@
 		{/if}
 	{:else}
 		<div class="text-center mt-12">
-			<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" class="inline-block">
+			<svg
+				xmlns="http://www.w3.org/2000/svg"
+				width="1em"
+				height="1em"
+				viewBox="0 0 24 24"
+				class="inline-block"
+			>
 				<path
 					fill="currentColor"
 					d="M12,4a8,8,0,0,1,7.89,6.7A1.53,1.53,0,0,0,21.38,12h0a1.5,1.5,0,0,0,1.48-1.75,11,11,0,0,0-21.72,0A1.5,1.5,0,0,0,2.62,12h0a1.53,1.53,0,0,0,1.49-1.3A8,8,0,0,1,12,4Z"

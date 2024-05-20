@@ -8,7 +8,7 @@
 	import SpinnerButton from './SpinnerButton.svelte';
 
 	export let sentence: DB.Sentence;
-	export let word: DB.Word | undefined;
+	export let word: DB.Word;
 	export let knowledge: AggKnowledgeForUser[];
 
 	export let revealed: (UnknownWordResponse & { mnemonic?: string })[];
@@ -26,7 +26,6 @@
 	$: wordsWithSeparators = toWordsWithSeparators(sentence.sentence);
 
 	function clear() {
-		console.log('clear')
 		hint = undefined;
 		translation = undefined;
 	}
@@ -51,7 +50,7 @@
 </script>
 
 {#if word}
-	<div class="">{word.word}</div>
+	<div class="">{word.word} <span class="text-xxs font-lato ml-1">{getExpectedKnowledge(word)}</span></div>
 {/if}
 
 <div class="text-4xl mb-4 mt-4 font-medium">
