@@ -9,10 +9,12 @@
 
 	export let word: { id: number; word: string };
 	export let onContinue: () => Promise<any>;
+	export let fetchIdea: () => Promise<string>;
 
 	let feedback: string | undefined;
 	let corrected: string | undefined;
 	let sentence: string;
+	let idea: string | undefined;
 
 	let unknownWord: UnknownWordResponse | undefined;
 
@@ -20,6 +22,7 @@
 		sentence = '';
 		feedback = '';
 		corrected = '';
+		idea = '';
 		unknownWord = undefined;
 	}
 
@@ -41,6 +44,10 @@
 
 	const onWordUnknown = async () => {
 		unknownWord = await lookupUnknownWord(word.word, undefined, word.id, true);
+	};
+
+	const getIdea = async () => {
+		idea = await fetchIdea();
 	};
 </script>
 
@@ -84,18 +91,37 @@
 				lang="pl"
 			/>
 
+			{#if idea}
+				<div class="text-xs font-lato text-gray-1">{idea}</div>
+			{/if}
+
+			{#if !idea}
+				<SpinnerButton
+					onClick={getIdea}
+					className="text-blue-1 bg-blue-3 rounded-md px-5 py-1 m-2 ml-0">Idea</SpinnerButton
+				>
+			{/if}
+			
 			<SpinnerButton onClick={onSubmit}>Submit</SpinnerButton>
 		</form>
-	{:else}
+		{:else}
 		<div class="text-xl font-bold mb-6 mt-4 text-balance line-through">
 			{sentence}
 		</div>
-
+		
 		<div class="mb-6 font-lato text-xs">
 			{feedback}
 		</div>
-
+		
 		<div class="text-xl font-bold mb-6 text-balance">{corrected}</div>
+		
+		<SpinnerButton
+			onClick={async () => {
+				feedback = '';
+				corrected = '';
+			}}
+			className="text-blue-1 bg-blue-3 rounded-md px-5 py-1 m-2 ml-0">Try again</SpinnerButton
+		>
 
 		<SpinnerButton onClick={clickedContinue}>Continue</SpinnerButton>
 	{/if}
