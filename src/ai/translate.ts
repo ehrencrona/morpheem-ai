@@ -19,7 +19,9 @@ export async function translateWordInContext(
 				: []),
 			{
 				role: 'user',
-				content: `What's the meaning of the word "${lemma}"? Only answer with the definition.`
+				content: sentence
+					? `What does the word "${lemma}" mean in the sentence? Only answer with the definition.`
+					: `What does the Polish word "${lemma}" mean? Only answer with the definition.`
 			}
 		],
 		temperature: 0.5,
