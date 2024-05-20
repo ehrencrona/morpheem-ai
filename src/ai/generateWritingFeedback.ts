@@ -17,7 +17,7 @@ export async function generateWritingFeedback(
 			{
 				role: 'system',
 				content:
-					'Briefly but friendly point out any errors in the Polish text entered by the user. If there are grammatical mistakes, spelling mistakes, unidiomatic constructs or inappropriate word choices, point them out. If the sentence is correct, praise the user. Also return the corrected text, applying all your suggestions. Return JSON in the format {feedback: string, corrected: string}'
+					'Briefly but friendly point out any errors in the Polish text entered by the user. If there are grammatical mistakes, spelling mistakes, unidiomatic constructs or inappropriate word choices, point them out. If the sentence is correct, praise the user. Also return the corrected text, applying all your suggestions. Write in English. Return JSON in the format {feedback: string, corrected: string}'
 			},
 			{
 				role: 'assistant',
@@ -49,7 +49,7 @@ export async function askMeAnything({
 			{
 				role: 'system',
 				content:
-					'The user needs help formulating a Polish sentence. Briefly but helpfully and friendly answer the question. If the user wrote an English word, provide the Polish translation.'
+					'The user needs is practising writing in Polish. Briefly but helpfully and friendly answer the question in English. If the user wrote an English word, provide the Polish translation. Do not provide the whole sentence for the user unless (explicitly asked for).'
 			},
 			{
 				role: 'assistant',
