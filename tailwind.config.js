@@ -24,7 +24,8 @@ export default {
 			'blue-1': '#F1FAEE',
 			'blue-2': '#A8DADC',
 			'blue-3': '#457B9D',
-			'blue-4': '#1D3557'
+			'blue-4': '#1D3557',
+			'gray-1': '#777777'
 		}
 	},
 	plugins: []

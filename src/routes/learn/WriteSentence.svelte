@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { UnknownWordResponse } from '../api/word/unknown/+server';
 	import { lookupUnknownWord } from '../api/word/unknown/client';
+	import { fetchAskMeAnything } from '../api/write/ama/client';
 	import { storeWrittenSentence } from '../api/write/client';
 	import { fetchWritingFeedback } from '../api/write/feedback/client';
 	import AMA from './AMA.svelte';
@@ -102,6 +103,17 @@
 		class="absolute bottom-0 left-0 right-0 bg-[#ffffff] px-4 py-2"
 		style="box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.1);"
 	>
-		<AMA word={word.word} {sentence} />
+		<AMA
+			explanation="Enter an English word to get a Polish translation."
+			ask={(question) =>
+				fetchAskMeAnything({
+					type: 'write',
+					question,
+					word: word.word,
+					sentenceEntered: sentence,
+					sentenceCorrected: corrected
+				})}
+			wordId={word.id}
+		/>
 	</div>
 </div>

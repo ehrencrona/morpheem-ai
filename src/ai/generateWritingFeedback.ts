@@ -33,39 +33,3 @@ export async function generateWritingFeedback(
 		schema: responseSchema
 	});
 }
-
-export async function askMeAnything({
-	sentence,
-	word,
-	question
-}: {
-	sentence?: string;
-	word: string;
-	question: string;
-}) {
-	return ask({
-		model: 'gpt-4o',
-		messages: [
-			{
-				role: 'system',
-				content:
-					'The user needs is practising writing in Polish. Briefly but helpfully and friendly answer the question in English. If the user wrote an English word, provide the Polish translation. Do not provide the whole sentence for the user unless (explicitly asked for).'
-			},
-			{
-				role: 'assistant',
-				content: `Write a Polish sentence or fragment containing "${word}"`
-			},
-			...(sentence?.trim()
-				? ([
-						{
-							role: 'user',
-							content: sentence
-						}
-					] as Message[])
-				: []),
-			{ role: 'user', content: question }
-		],
-		temperature: 1,
-		logResponse: true
-	});
-}

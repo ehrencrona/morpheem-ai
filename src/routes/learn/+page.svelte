@@ -18,7 +18,7 @@
 	import { fetchMnemonic } from '../api/word/[id]/mnemonic/client';
 	import type { UnknownWordResponse } from '../api/word/unknown/+server';
 	import { lookupUnknownWord } from '../api/word/unknown/client';
-	import Sentence from './Sentence.svelte';
+	import Sentence from './ReadSentence.svelte';
 	import WriteSentence from './WriteSentence.svelte';
 
 	let knowledge: AggKnowledgeForUser[] = [];
@@ -215,7 +215,7 @@
 		<h3>{error}</h3>
 	{/if}
 
-	<div class="bg-blue-3 text-center text-blue-1 p-2 rounded-md absolute bottom-2 right-2">
+	<div class="bg-blue-3 text-center text-blue-1 p-2 rounded-md top-2 right-2 absolute hidden lg:block">
 		<b class="font-sans text-3xl font-bold">{calculateWordsKnown(knowledge)}</b>
 		<div class="text-xs font-lato">words known</div>
 	</div>

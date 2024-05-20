@@ -6,6 +6,8 @@
 	import type { AggKnowledgeForUser } from '../../logic/types';
 	import type { UnknownWordResponse } from '../api/word/unknown/+server';
 	import SpinnerButton from './SpinnerButton.svelte';
+	import Ama from './AMA.svelte';
+	import { fetchAskMeAnything } from '../api/write/ama/client';
 
 	export let sentence: DB.Sentence;
 	export let word: DB.Word;
@@ -50,7 +52,9 @@
 </script>
 
 {#if word}
-	<div class="">{word.word} <span class="text-xxs font-lato ml-1">{getExpectedKnowledge(word)}</span></div>
+	<div class="">
+		{word.word} <span class="text-xxs font-lato ml-1">{getExpectedKnowledge(word)}</span>
+	</div>
 {/if}
 
 <div class="text-4xl mb-4 mt-4 font-medium">
@@ -63,7 +67,7 @@
 </div>
 
 {#if translation || hint}
-	<div class="mb-6 text-balance text-lg font-lato italic" transition:slide>
+	<div class="mb-6 text-balance text-lg font-lato italic" in:slide>
 		{translation || hint}
 	</div>
 {/if}
@@ -114,4 +118,25 @@
 	<SpinnerButton className="text-blue-1 bg-blue-4 rounded-md px-5 py-1" onClick={onNext}>
 		Got it
 	</SpinnerButton>
+</div>
+
+<div
+	class="absolute bottom-0 left-0 right-0 bg-[#ffffff] px-4 py-2 flex justify-center center"
+	style="box-shadow: 0 -2px 4px -1px rgba(0, 0, 0, 0.1);"
+>
+	<div class="w-full max-w-[800px]">
+		<Ama
+			explanation="You can refer to the current question or the explained words."
+			ask={(question) =>
+				fetchAskMeAnything({
+					type: 'read',
+					question,
+					word: word.word,
+					sentence: sentence.sentence,
+					revealed,
+					translation
+				})}
+			wordId={word.id}
+		/>
+	</div>
 </div>

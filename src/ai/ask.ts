@@ -1,4 +1,4 @@
-import { MODEL, groq } from './groq-client';
+import { groq } from './groq-client';
 import { openai } from './openai-client';
 
 export type Model =
