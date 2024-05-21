@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import * as DB from '../db/types';
 
 export interface AlphaBeta {
 	readonly alpha: number;
@@ -22,4 +23,13 @@ export interface AggKnowledgeForUser {
 	beta: number | null;
 	time: number;
 	level: number;
+}
+
+export interface SentenceWord extends DB.Word {
+	word_index: number;
+}
+
+export interface CandidateSentenceWithWords extends DB.Sentence {
+	words: SentenceWord[];
+	lastSeen: number | undefined;
 }

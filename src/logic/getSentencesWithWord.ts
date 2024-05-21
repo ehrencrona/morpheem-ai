@@ -2,17 +2,16 @@ import { getSentencesWithWord as getSentencesWithWordFromDd } from '../db/senten
 import { getLastSeen } from '../db/sentencesSeen';
 import type * as DB from '../db/types';
 import { getWordsOfSentence } from '../db/words';
+import type { CandidateSentenceWithWords } from './types';
 
-export async function getSentencesWithWord(word: DB.Word): Promise<
-	(DB.Sentence & {
-		words: DB.Word[];
-		lastSeen: number | undefined;
-	})[]
-> {
+export async function getSentencesWithWord(word: DB.Word): Promise<CandidateSentenceWithWords[]> {
 	return addWordsToSentences(await getSentencesWithWordFromDd(word.id), word);
 }
 
-export async function addWordsToSentences(sentences: DB.Sentence[], word: DB.Word) {
+export async function addWordsToSentences(
+	sentences: DB.Sentence[],
+	word: DB.Word
+): Promise<CandidateSentenceWithWords[]> {
 	const lastSeen = await getLastSeen(sentences.map((sentence) => sentence.id));
 
 	const words = await Promise.all(sentences.map((sentence) => getWordsOfSentence(sentence.id!)));

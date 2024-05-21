@@ -8,6 +8,7 @@
 	import { fetchAskMeAnything } from '../api/write/ama/client';
 	import Ama from './AMA.svelte';
 	import SpinnerButton from './SpinnerButton.svelte';
+	import WordCard from './WordCard.svelte';
 
 	export let sentence: DB.Sentence;
 	export let word: DB.Word;
@@ -18,14 +19,12 @@
 	export let onUnknown: (word: string) => Promise<any>;
 	export let onRemoveUnknown: (word: string) => Promise<any>;
 	export let onNext: () => Promise<any>;
-	export let onEditMnemonic: (word: DB.Word & { mnemonic?: string }) => Promise<any>;
 
 	let hint: string | undefined;
 	let translation: string | undefined;
 
 	export let getHint: () => Promise<string>;
 	export let getTranslation: () => Promise<string>;
-	export let getMnemonic: (word: DB.Word, forceRegeneration: boolean) => Promise<any>;
 
 	$: wordsWithSeparators = toWordsWithSeparators(sentence.sentence);
 
@@ -74,86 +73,34 @@
 	</div>
 {/if}
 
-<ul class="flex flex-wrap mb-6 gap-4">
+<div class="flex flex-wrap mb-6 gap-4">
 	{#each revealed as word (word.id)}
-		<li class="bg-blue-1 rounded-md px-4 py-3 w-[48%]">
-			<div class="font-medium mb-1 text-xs flex">
-				<a href="/words/{word.id}" class="flex-1">{word.word}</a>
-
-				<span class="text-xxs font-lato ml-1">{getExpectedKnowledge(word)}</span>
-
-				<svg
-					fill="#000000"
-					height="800px"
-					width="800px"
-					version="1.1"
-					id="Layer_1"
-					xmlns="http://www.w3.org/2000/svg"
-					xmlns:xlink="http://www.w3.org/1999/xlink"
-					viewBox="0 0 512 512"
-					xml:space="preserve"
-					class="w-2 h-2 ml-2 cursor-pointer"
-					on:click={() => onRemoveUnknown(word.word)}
-				>
-					<g>
-						<g>
-							<polygon
-								points="512,59.076 452.922,0 256,196.922 59.076,0 0,59.076 196.922,256 0,452.922 59.076,512 256,315.076 452.922,512 
-					 512,452.922 315.076,256 		"
-							/>
-						</g>
-					</g>
-				</svg>
-			</div>
-
-			<div class="text-balance text-lg font-lato mt-2">{word.english}</div>
-
-			<div class="text-xs font-lato mt-2">
-				{#if word.mnemonic}
-					<p>{word.mnemonic}</p>
-				{/if}
-				<div class="flex justify-end gap-2 mt-1">
-					<SpinnerButton className="underline" onClick={() => getMnemonic(word, !!word.mnemonic)}>
-						{#if word.mnemonic}
-							Regenerate
-						{:else}
-							Mnemonic
-						{/if}
-					</SpinnerButton>
-
-					{#if word.mnemonic}
-						<SpinnerButton className="underline" onClick={async () => onEditMnemonic(word)}
-							>Edit</SpinnerButton
-						>
-					{/if}
-				</div>
-			</div>
-		</li>
+		<WordCard
+			{word}
+			onRemove={() => onRemoveUnknown(word.word)}
+			english={word.english}
+			{knowledge}
+		/>
 	{/each}
-</ul>
+</div>
 
-<div class="flex gap-4">
+<div class="flex gap-2">
 	{#if !hint && !translation}
-		<SpinnerButton
-			className="text-blue-1 bg-blue-3 rounded-md px-5 py-1"
-			onClick={() => getHint().then((got) => (hint = got))}
-		>
+		<SpinnerButton type="secondary" onClick={() => getHint().then((got) => (hint = got))}>
 			Hint
 		</SpinnerButton>
 	{/if}
 
 	{#if !translation}
 		<SpinnerButton
-			className="text-blue-1 bg-blue-3 rounded-md px-5 py-1"
+			type="secondary"
 			onClick={() => getTranslation().then((got) => (translation = got))}
 		>
 			Translation
 		</SpinnerButton>
 	{/if}
 
-	<SpinnerButton className="text-blue-1 bg-blue-4 rounded-md px-5 py-1" onClick={onNext}>
-		Got it
-	</SpinnerButton>
+	<SpinnerButton onClick={onNext}>Got it</SpinnerButton>
 </div>
 
 <div

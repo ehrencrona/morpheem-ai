@@ -14,11 +14,12 @@ const postSchema = z
 	})
 	.or(
 		z.object({
-			type: z.literal('read'),
+			type: z.literal('read').or(z.literal('cloze')),
 			question: z.string(),
 			sentence: z.string(),
 			translation: z.string().optional(),
 			word: z.string(),
+			confusedWord: z.string().optional(),
 			revealed: z.array(z.object({ english: z.string(), word: z.string() }))
 		})
 	);

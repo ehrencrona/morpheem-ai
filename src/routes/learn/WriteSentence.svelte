@@ -6,6 +6,7 @@
 	import { fetchWritingFeedback } from '../api/write/feedback/client';
 	import AMA from './AMA.svelte';
 	import SpinnerButton from './SpinnerButton.svelte';
+	import WordCard from './WordCard.svelte';
 
 	export let word: { id: number; word: string };
 	export let onContinue: () => Promise<any>;
@@ -69,12 +70,8 @@
 	{/if}
 
 	{#if unknownWord}
-		<div class="bg-blue-1 rounded-md px-4 py-3 w-full md:w-[48%] mb-4">
-			<div class="font-medium mb-1 text-xs flex">
-				<a href="/words/{unknownWord.id}" class="flex-1">{unknownWord.word}</a>
-			</div>
-
-			<div class="text-balance text-lg font-lato mt-2">{unknownWord.english}</div>
+		<div class="flex flex-wrap mb-6 gap-4">
+			<WordCard word={unknownWord} english={unknownWord.english} />
 		</div>
 	{/if}
 
@@ -92,7 +89,7 @@
 			/>
 
 			{#if idea}
-				<div class="text-xs font-lato text-gray-1">{idea}</div>
+				<div class="text-xs font-lato text-gray-1 mb-2">{idea}</div>
 			{/if}
 
 			{#if !idea}

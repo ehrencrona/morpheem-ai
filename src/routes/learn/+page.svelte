@@ -5,7 +5,7 @@
 	import type * as DB from '../../db/types';
 	import { getNextSentence, getNextWords } from '../../logic/isomorphic/getNext';
 	import { expectedKnowledge, now } from '../../logic/isomorphic/knowledge';
-	import type { AggKnowledgeForUser } from '../../logic/types';
+	import type { AggKnowledgeForUser, SentenceWord } from '../../logic/types';
 	import { userId } from '../../logic/user';
 	import { fetchAggregateKnowledge, sendKnowledge } from '../api/knowledge/client';
 	import { markSentenceSeen } from '../api/sentences/[sentence]/client';
@@ -15,23 +15,21 @@
 		addSentencesForWord,
 		fetchSentencesWithWord
 	} from '../api/sentences/withword/[word]/client';
-	import { fetchMnemonic, storeMnemonic } from '../api/word/[id]/mnemonic/client';
 	import type { UnknownWordResponse } from '../api/word/unknown/+server';
 	import { lookupUnknownWord } from '../api/word/unknown/client';
+	import Cloze from './Cloze.svelte';
 	import ReadSentence from './ReadSentence.svelte';
 	import WriteSentence from './WriteSentence.svelte';
-	import EditMnemonic from './EditMnemonic.svelte';
 
 	let knowledge: AggKnowledgeForUser[] = [];
-	let editMnemonic: (DB.Word & { mnemonic?: string | undefined }) | undefined;
 
 	let revealed: (UnknownWordResponse & { mnemonic?: string })[];
 	let current:
 		| {
 				wordId: number;
 				sentence: DB.Sentence;
-				words: DB.Word[];
-				type: 'write' | 'read';
+				words: SentenceWord[];
+				type: 'write' | 'read' | 'cloze';
 		  }
 		| undefined;
 
@@ -110,7 +108,7 @@
 		const k = knowledge.find((k) => k.wordId === wordId)!;
 		const wordKnowledge = k ? expectedKnowledge(k, { now: now(), lastTime: k.time }) : 0;
 
-		const type = wordKnowledge > 0.4 ? 'write' : 'read';
+		const type = wordKnowledge > 0.4 ? (Math.random() > 0.7 ? 'write' : 'cloze') : 'read';
 
 		if (type == 'read') {
 			markSentenceSeen(sentence.id).catch(console.error);
@@ -122,6 +120,7 @@
 			words: sentence.words,
 			type
 		};
+
 		revealed = [];
 		error = undefined;
 
@@ -132,34 +131,6 @@
 	}
 
 	onMount(init);
-
-	async function getMnemonic(word: DB.Word, forceRegeneration: boolean) {
-		if (!current) {
-			throw new Error('Invalid state');
-		}
-
-		const mnemonic = await fetchMnemonic(word.id, forceRegeneration);
-
-		revealed = revealed.map((r) => ({
-			...r,
-			mnemonic: r.id === word.id ? mnemonic : r.mnemonic
-		}));
-	}
-
-	async function saveMnemonic(mnemonic: string) {
-		if (!editMnemonic || !word) {
-			throw new Error('Invalid state');
-		}
-
-		await storeMnemonic(editMnemonic.id, mnemonic);
-
-		revealed = revealed.map((r) => ({
-			...r,
-			mnemonic: r.id === editMnemonic!.id ? mnemonic : r.mnemonic
-		}));
-
-		editMnemonic = undefined;
-	}
 
 	const getHint = () => fetchHint(current!.sentence.id);
 	const getTranslation = () => fetchTranslation(current!.sentence.id);
@@ -255,14 +226,23 @@
 				{getHint}
 				{onUnknown}
 				{onRemoveUnknown}
-				onEditMnemonic={async (word) => (editMnemonic = word)}
-				{getMnemonic}
 				{getTranslation}
 				{knowledge}
 				onNext={store}
 			/>
-		{:else}
+		{:else if current.type == 'write'}
 			<WriteSentence {word} onContinue={continueAfterWrite} fetchIdea={getTranslation} />
+		{:else if current.type == 'cloze'}
+			<Cloze
+				{word}
+				sentence={current.sentence}
+				sentenceWords={current.words}
+				onNext={continueAfterWrite}
+				{onUnknown}
+				{onRemoveUnknown}
+				{revealed}
+				{knowledge}
+			/>
 		{/if}
 	{:else}
 		<div class="text-center mt-12">
@@ -287,13 +267,5 @@
 				</path>
 			</svg>
 		</div>
-	{/if}
-
-	{#if editMnemonic}
-		<EditMnemonic
-			mnemonic={editMnemonic.mnemonic}
-			onCancel={async () => (editMnemonic = undefined)}
-			onSave={saveMnemonic}
-		/>
 	{/if}
 </main>

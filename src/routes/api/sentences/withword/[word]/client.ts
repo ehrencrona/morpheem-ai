@@ -1,7 +1,9 @@
-import type { SentencesWithWords } from './+server';
 import { addSentencesForWord as addSentencesForWordLogic } from '../../../../../logic/addSentencesForWord';
+import { CandidateSentenceWithWords } from '../../../../../logic/types';
 
-export async function fetchSentencesWithWord(wordId: number): Promise<SentencesWithWords> {
+export async function fetchSentencesWithWord(
+	wordId: number
+): Promise<CandidateSentenceWithWords[]> {
 	const res = await fetch(`/api/sentences/withword/${wordId}`);
 
 	if (!res.ok) {

@@ -36,13 +36,19 @@ export const POST: ServerLoad = async ({ request }) => {
 				english: string;
 		  })
 		| undefined = undefined;
-	let word: DB.Word;
+	let word: DB.Word | undefined = undefined;
 
 	if (sentenceId) {
 		sentence = await addEnglishToSentence(await getSentence(sentenceId));
 
-		word = await getWordInSentence(wordString, sentenceId);
-	} else {
+		try {
+			word = await getWordInSentence(wordString, sentenceId);
+		} catch (e) {
+			console.error(e);
+		}
+	}
+
+	if (!word) {
 		word = await getWordByLemma(wordString);
 	}
 

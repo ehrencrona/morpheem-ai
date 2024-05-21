@@ -1,6 +1,7 @@
 import { filterUndefineds } from '$lib/filterUndefineds';
 import { KNOWLEDGE_TYPE_WRITE } from '../db/knowledgeTypes';
 import { getWordByLemma } from '../db/words';
+import { addWrittenSentence } from '../db/writtenSentences';
 import { addKnowledge } from './knowledge';
 import { lemmatizeSentences } from './lemmatize';
 import { userId } from './user';
@@ -37,7 +38,13 @@ export async function storeWrittenSentence({
 		)
 	);
 
-	console.log(`Writing feedback stored: ${lemmatized.join(', ')}`);
+	await addWrittenSentence({
+		sentence,
+		wordId,
+		userId
+	});
 
 	await addKnowledge(knowledge);
+
+	console.log(`Writing feedback stored: ${lemmatized.join(', ')}`);
 }

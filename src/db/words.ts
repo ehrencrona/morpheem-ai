@@ -2,6 +2,7 @@ import { error } from '@sveltejs/kit';
 import { db } from './client';
 import type * as DB from './types';
 import type { NotNull } from 'kysely';
+import { SentenceWord } from '../logic/types';
 
 export async function addWord(lemma: string, isCognate?: boolean) {
 	if (lemma == 'the') {
@@ -91,6 +92,18 @@ export async function getWordById(wordId: number): Promise<DB.Word> {
 	return word;
 }
 
+export async function getWordsByPrefix(prefix: string, limit: number) {
+	return (
+		await db
+			.selectFrom('words')
+			.select(['word'])
+			.where('word', 'like', `${prefix.toLowerCase()}%`)
+			.orderBy('word asc')
+			.limit(limit)
+			.execute()
+	).map(({ word }) => word);
+}
+
 export async function updateLemma(wordId: number, lemma: string) {
 	await db.updateTable('words').set({ word: lemma }).where('id', '=', wordId).execute();
 
@@ -101,7 +114,7 @@ export async function deleteWord(wordId: number) {
 	await db.deleteFrom('words').where('id', '=', wordId).execute();
 }
 
-export async function getWordsOfSentence(sentenceId: number): Promise<DB.Word[]> {
+export async function getWordsOfSentence(sentenceId: number): Promise<SentenceWord[]> {
 	return db
 		.selectFrom('word_sentences')
 		.innerJoin('words', 'word_id', 'id')

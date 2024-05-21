@@ -3,8 +3,6 @@ import { getWordById } from '../../../../../db/words';
 import { addSentencesForWord } from '../../../../../logic/addSentencesForWord';
 import { getSentencesWithWord } from '../../../../../logic/getSentencesWithWord';
 
-export type SentencesWithWords = Awaited<ReturnType<typeof getSentencesWithWord>>;
-
 export const GET: ServerLoad = async ({ params }) => {
 	const wordId = parseInt(params.word || '');
 

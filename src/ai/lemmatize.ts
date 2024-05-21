@@ -1,5 +1,6 @@
 import { CodedError } from '../CodedError';
 import { getLemmasOfWord } from '../db/lemmas';
+import { standardize } from '../logic/isomorphic/standardize';
 import { toWords } from '../logic/toWords';
 import { Message, ask } from './ask';
 
@@ -36,8 +37,6 @@ przykłady: przykład`
 		temperature: 0,
 		max_tokens: 1000
 	});
-
-	const standardize = (word: string) => word.toLowerCase();
 
 	let lemmaByWord: Record<string, string> = {};
 

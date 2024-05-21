@@ -1,6 +1,6 @@
 import type { SentencesWithWords } from '../../routes/api/sentences/withword/[word]/+server';
 import type { AggKnowledgeForUser } from '../types';
-import { didNotKnowFirst, expectedKnowledge, knewFirst, knowledgeGain, now } from './knowledge';
+import { expectedKnowledge, knowledgeGain, now } from './knowledge';
 
 export function getNextWord(knowledge: AggKnowledgeForUser[]) {
 	return getNextWords(knowledge)[0];

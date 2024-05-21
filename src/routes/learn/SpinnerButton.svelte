@@ -1,7 +1,9 @@
 <script lang="ts">
 	export let onClick: () => Promise<any>;
-	export let className = 'text-blue-1 bg-blue-4 rounded-md px-5 py-1 m-2 ml-0';
 	export let isSubmit = false;
+	export let type: 'primary' | 'secondary' = 'primary';
+	export let className =
+		'text-blue-1 rounded-md px-6 py-1 m-2 ml-0 ' + (type == 'primary' ? 'bg-blue-4' : 'bg-blue-3');
 
 	let isLoading = false;
 	let showSpinner = false;
