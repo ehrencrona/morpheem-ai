@@ -23,6 +23,8 @@ export interface AggKnowledgeForUser {
 	beta: number | null;
 	time: number;
 	level: number;
+	word: string;
+	studied?: false;
 }
 
 export interface SentenceWord extends DB.Word {

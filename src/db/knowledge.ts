@@ -1,6 +1,5 @@
 import { dateToTime } from '../logic/isomorphic/knowledge';
 import type { AggKnowledgeForUser } from '../logic/types';
-import { userId } from '../logic/user';
 import { db } from './client';
 
 export function addKnowledge({
@@ -94,13 +93,14 @@ export async function getAggregateKnowledgeForUser({
 	const raw = await db
 		.selectFrom('aggregate_knowledge')
 		.innerJoin('words', 'word_id', 'id')
-		.select(['word_id', 'alpha', 'beta', 'time', 'level'])
+		.select(['word_id', 'alpha', 'beta', 'time', 'level', 'word'])
 		.where('user_id', '=', userId)
 		.execute();
 
-	return raw.map(({ word_id: wordId, level, alpha, beta, time }) => ({
+	return raw.map(({ word_id: wordId, level, alpha, beta, time, word }) => ({
 		wordId,
 		level,
+		word,
 		alpha,
 		beta,
 		time: dateToTime(time)
@@ -117,16 +117,33 @@ export async function getAggregateKnowledgeForUserWords({
 	const raw = await db
 		.selectFrom('aggregate_knowledge')
 		.innerJoin('words', 'word_id', 'id')
-		.select(['word_id', 'alpha', 'beta', 'time', 'level'])
+		.select(['word_id', 'alpha', 'beta', 'time', 'level', 'word'])
 		.where('user_id', '=', userId)
 		.where('word_id', 'in', wordIds)
 		.execute();
 
-	return raw.map(({ word_id: wordId, level, alpha, beta, time }) => ({
+	return raw.map(({ word_id: wordId, level, alpha, beta, time, word }) => ({
 		wordId,
+		word,
 		level,
 		alpha,
 		beta,
 		time: dateToTime(time)
 	}));
+}
+
+export async function getRawKnowledgeForUser({
+	userId,
+	wordId
+}: {
+	userId: number;
+	wordId: number;
+}) {
+	return db
+		.selectFrom('knowledge')
+		.select(['word_id', 'sentence_id', 'knew', 'time'])
+		.where('user_id', '=', userId)
+		.where('word_id', '=', wordId)
+		.orderBy('time', 'asc')
+		.execute();
 }

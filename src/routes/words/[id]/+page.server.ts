@@ -2,9 +2,19 @@ import { redirect, type ServerLoad } from '@sveltejs/kit';
 import { getForms } from '../../../db/lemmas';
 import { getSentencesWithWord } from '../../../db/sentences';
 import { getWordById, getWordByLemma } from '../../../db/words';
-import { getAggregateKnowledgeForUserWords } from '../../../db/knowledge';
+import { getAggregateKnowledgeForUserWords, getRawKnowledgeForUser } from '../../../db/knowledge';
 import { userId } from '../../../logic/user';
-import { expectedKnowledge, now } from '../../../logic/isomorphic/knowledge';
+import {
+	dateToTime,
+	didNotKnow,
+	didNotKnowFirst,
+	expectedKnowledge,
+	knew,
+	knewFirst,
+	now
+} from '../../../logic/isomorphic/knowledge';
+import { AlphaBeta } from '../../../logic/types';
+import { getMnemonic } from '../../../db/mnemonics';
 
 export const load = (async ({ params }) => {
 	const wordId = parseInt(params.id!);
@@ -30,10 +40,38 @@ export const load = (async ({ params }) => {
 		? expectedKnowledge(knowledge[0], { now: now(), lastTime: knowledge[0].time })
 		: 0;
 
+	const rawKnowledge = await getRawKnowledgeForUser({
+		userId,
+		wordId
+	});
+
+	let acc: AlphaBeta | null = null;
+
+	const knowledgeHistory = rawKnowledge.map(({ knew: k, time: date }) => {
+		const time = {
+			now: now(),
+			lastTime: dateToTime(date)
+		};
+
+		const knowledge = acc ? expectedKnowledge(acc, time) : 0;
+
+		if (acc == null) {
+			acc = k ? knewFirst() : didNotKnowFirst();
+		} else {
+			acc = k ? knew(acc, time) : didNotKnow(acc, time);
+		}
+
+		return { ...acc, knew: k, time: dateToTime(date), date, knowledge };
+	}, null);
+
+	const mnemonic = await getMnemonic({ wordId, userId });
+
 	return {
 		sentences,
 		word,
 		forms,
-		wordKnowledge
+		wordKnowledge,
+		knowledgeHistory,
+		mnemonic
 	};
 }) satisfies ServerLoad;
