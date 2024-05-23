@@ -1,6 +1,13 @@
-import { db } from '../db/client';
-import { dateToTime } from '../logic/isomorphic/knowledge';
 import { writeFileSync } from 'fs';
+import { db } from '../db/client';
+import {
+	dateToTime,
+	didNotKnow,
+	didNotKnowFirst,
+	knewFirst,
+	knew as knewLater
+} from '../logic/isomorphic/knowledge';
+import { KNOWLEDGE_TYPE_READ } from '../db/knowledgeTypes';
 
 async function exportKnowledge() {
 	let output = '';
@@ -19,6 +26,8 @@ async function exportKnowledge() {
 	let byWord = new Map<number, typeof rows>();
 
 	for (const row of rows) {
+		if (row.type != KNOWLEDGE_TYPE_READ) continue;
+
 		let wordRows = byWord.get(row.word_id);
 
 		if (!wordRows) {
@@ -29,16 +38,23 @@ async function exportKnowledge() {
 		const knew = row.knew;
 		const timesSeen = wordRows.length;
 
-		const kn = 1.1;
-		const nt = 0.2;
-		const f = 0.3;
-		let slidingAverageKnew = timesSeen > 0 ? (wordRows[0].knew ? kn : nt) : nt;
+		let alphaBeta =
+			timesSeen > 0
+				? wordRows[0].knew
+					? knewFirst()
+					: didNotKnowFirst()
+				: { alpha: 0, beta: null };
 
 		for (let i = 1; i < timesSeen; i++) {
-			slidingAverageKnew = (1 - f) * slidingAverageKnew + f * (wordRows[i].knew ? kn : nt);
+			const time = {
+				now: dateToTime(wordRows[i].time),
+				lastTime: dateToTime(wordRows[i - 1].time)
+			};
+
+			alphaBeta = wordRows[i].knew ? knewLater(alphaBeta, time) : didNotKnow(alphaBeta, time);
 		}
 
-		slidingAverageKnew = Math.min(1, slidingAverageKnew);
+		const slidingAverageKnew = alphaBeta.alpha;
 
 		const lastKnew = wordRows.reverse().find((r) => r.knew);
 		const lastNotKnew = wordRows.reverse().find((r) => !r.knew);

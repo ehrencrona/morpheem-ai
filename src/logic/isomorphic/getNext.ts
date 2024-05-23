@@ -1,5 +1,4 @@
-import type { SentencesWithWords } from '../../routes/api/sentences/withword/[word]/+server';
-import type { AggKnowledgeForUser } from '../types';
+import type { AggKnowledgeForUser, CandidateSentenceWithWords } from '../types';
 import { expectedKnowledge, knowledgeGain, now } from './knowledge';
 
 export function getNextWord(knowledge: AggKnowledgeForUser[]) {
@@ -7,10 +6,12 @@ export function getNextWord(knowledge: AggKnowledgeForUser[]) {
 }
 
 export function getNextWords(knowledge: AggKnowledgeForUser[], count = 5) {
+	const n = now();
+
 	const score = knowledge.map(
 		(k) =>
 			(knowledgeGain(k, {
-				now: now(),
+				now: n,
 				lastTime: k.time
 			}) *
 				(2 - k.level / 100) *
@@ -28,22 +29,26 @@ export function getNextWords(knowledge: AggKnowledgeForUser[], count = 5) {
 	const word = knowledge[indexes[0]];
 
 	console.log(
-		`knowledge of ${word.wordId}, index ${indexes[0]}: ${word.alpha}/${word.beta}, age ${now() - word.time} = ${score[indexes[0]]}`
+		`knowledge of ${word.word}, index ${indexes[0]}: ${word.alpha}/${word.beta}, age ${now() - word.time} = ${score[indexes[0]]}`
 	);
 
 	console.log(
-		'next words:',
-		indexes.map(
-			(i) =>
-				`${knowledge[i].wordId} (score ${Math.round(score[i] * 100)}%, level ${knowledge[i].level})${knowledge[i].studied === false ? ' unstudied' : ''}`
-		)
+		'next words:\n' +
+			indexes
+				.map(
+					(i, j) =>
+						`${j + 1}. ${knowledge[i].word} (${knowledge[i].wordId}, score ${Math.round(score[i] * 100)}%, knowledge ${Math.round(
+							100 * expectedKnowledge(knowledge[i], { now: n, lastTime: knowledge[i].time })
+						)}% level ${knowledge[i].level})${knowledge[i].studied === false ? ' unstudied' : ''}`
+				)
+				.join(`\n`)
 	);
 
 	return indexes.map((i) => knowledge[i].wordId);
 }
 
 export function getNextSentence(
-	sentences: SentencesWithWords,
+	sentences: CandidateSentenceWithWords[],
 	knowledge: AggKnowledgeForUser[],
 	wordStudied: number
 ) {
@@ -78,7 +83,7 @@ export function getNextSentence(
 				lastTime: wordKnowledge.time
 			});
 
-			message += ` (${Math.round(score * 100)}% known)`;
+			message += ` (${word.id}, ${Math.round(score * 100)}% known)`;
 
 			return score;
 		});
@@ -88,7 +93,7 @@ export function getNextSentence(
 		}
 
 		const score = Math.pow(
-			wordScore.reduce((a, b) => a * b, 1) * (sentence.lastSeen ? 0.6 : 1),
+			wordScore.reduce((a, b) => a * b, 1) * (sentence.lastSeen ? 0.5 : 1),
 			1 / (sentence.words.length + 1)
 		);
 

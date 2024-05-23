@@ -26,6 +26,20 @@
 		<p><b>Mnemonic</b>: {data.mnemonic || '-'}</p>
 	</div>
 
+	{#if data.translations.length}
+		<h2 class="font-bold mt-8 mb-2">Translations</h2>
+
+		<ul>
+			{#each data.translations as translation}
+				<li class="my-1">
+					{translation}
+				</li>
+			{/each}
+		</ul>
+	{/if}
+
+	<h2 class="font-bold mt-8 mb-2">Sentences</h2>
+
 	{#each data.sentences as sentence}
 		<p class="my-1">
 			<a href="/sentences/{sentence.id}">{sentence.sentence}</a>

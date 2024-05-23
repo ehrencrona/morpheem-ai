@@ -1,9 +1,10 @@
 import { redirect, type ServerLoad } from '@sveltejs/kit';
-import { getForms } from '../../../db/lemmas';
-import { getSentencesWithWord } from '../../../db/sentences';
-import { getWordById, getWordByLemma } from '../../../db/words';
 import { getAggregateKnowledgeForUserWords, getRawKnowledgeForUser } from '../../../db/knowledge';
-import { userId } from '../../../logic/user';
+import { getForms } from '../../../db/lemmas';
+import { getMnemonic } from '../../../db/mnemonics';
+import { getSentencesWithWord } from '../../../db/sentences';
+import { getAllWordTranslations } from '../../../db/wordTranslations';
+import { getWordById, getWordByLemma } from '../../../db/words';
 import {
 	dateToTime,
 	didNotKnow,
@@ -14,7 +15,7 @@ import {
 	now
 } from '../../../logic/isomorphic/knowledge';
 import { AlphaBeta } from '../../../logic/types';
-import { getMnemonic } from '../../../db/mnemonics';
+import { userId } from '../../../logic/user';
 
 export const load = (async ({ params }) => {
 	const wordId = parseInt(params.id!);
@@ -66,12 +67,15 @@ export const load = (async ({ params }) => {
 
 	const mnemonic = await getMnemonic({ wordId, userId });
 
+	const translations = (await getAllWordTranslations(wordId)).map(({ english }) => english);
+
 	return {
 		sentences,
 		word,
 		forms,
 		wordKnowledge,
 		knowledgeHistory,
-		mnemonic
+		mnemonic,
+		translations
 	};
 }) satisfies ServerLoad;

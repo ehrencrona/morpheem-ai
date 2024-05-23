@@ -8,7 +8,19 @@ const a = 9.59244224e-1;
 const b = -2.33071243e-2;
 const c = 3.28301466e-5;
 
+const [forgetting, correction] = [0, 0.01644545, 0.0077873];
+
 export function expectedKnowledge(
+	{ alpha }: AlphaBeta,
+	{ now, lastTime }: { now: number; lastTime: number }
+) {
+	const time = Math.log(now - lastTime + Math.E);
+
+	return Math.min(Math.max(alpha - forgetting * time + correction, 0), 1);
+}
+
+/** Previous best fit */
+export function expectedKnowledgeOld(
 	{ alpha }: AlphaBeta,
 	{ now, lastTime }: { now: number; lastTime: number }
 ) {
@@ -55,19 +67,22 @@ export function knowledgeGain(
 }
 
 export function didNotKnowFirst() {
-	return { alpha: 0, beta: null };
+	return { alpha: nt, beta: null };
 }
 
 export function knewFirst() {
-	return { alpha: 1, beta: null };
+	return { alpha: kn, beta: null };
 }
 
-export function didNotKnow({ alpha }: AlphaBeta, { now, lastTime }: { now: number; lastTime: number }) {
+export function didNotKnow(
+	{ alpha }: AlphaBeta,
+	{ now, lastTime }: { now: number; lastTime: number }
+) {
 	return { alpha: (1 - f) * alpha + f * nt, beta: null };
 }
 
 export function knew({ alpha }: AlphaBeta, { now, lastTime }: { now: number; lastTime: number }) {
-	return { alpha: (1 - f) * alpha + f * kn, beta: null };
+	return { alpha: Math.min((1 - f) * alpha + f * kn, 1), beta: null };
 }
 
 const startOfTime = new Date(2024, 0, 1).getTime();

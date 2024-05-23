@@ -23,7 +23,9 @@
 
 	let knowledge: AggKnowledgeForUser[] = [];
 
-	let revealed: (UnknownWordResponse & { mnemonic?: string })[];
+	let toPracticeActively: (UnknownWordResponse & { mnemonic?: string })[] = [];
+
+	let revealed: (UnknownWordResponse & { mnemonic?: string })[] = [];
 	let current:
 		| {
 				wordId: number;
@@ -46,11 +48,17 @@
 	let nextPromise: ReturnType<typeof calculateNextSentence>;
 
 	async function calculateNextSentence(wordIds: number[] = [], excludeWordId?: number) {
-		if (!wordIds.length) {
+		let wordId: number | undefined = toPracticeActively.pop()?.id;
+		let type: 'write' | 'read' | 'cloze' = 'cloze';
+
+		if (!wordId && !wordIds.length) {
 			wordIds = getNextWords(knowledge).filter((id) => id !== excludeWordId);
 		}
 
-		const wordId = wordIds[0];
+		if (!wordId) {
+			wordId = wordIds[0];
+			type = 'read';
+		}
 
 		try {
 			let sentences = await fetchSentencesWithWord(wordId);
@@ -81,7 +89,8 @@
 			return {
 				sentence,
 				wordId,
-				getNextPromise: () => calculateNextSentence(wordIds.slice(1), wordId)
+				getNextPromise: () => calculateNextSentence(wordIds.slice(1), wordId),
+				type
 			};
 		} catch (e: any) {
 			console.log(e);
@@ -100,7 +109,8 @@
 		const {
 			sentence,
 			wordId,
-			getNextPromise: getNext
+			getNextPromise: getNext,
+			type
 		} = await (nextPromise || calculateNextSentence());
 
 		nextPromise = getNext();
@@ -108,9 +118,10 @@
 		const k = knowledge.find((k) => k.wordId === wordId)!;
 		const wordKnowledge = k ? expectedKnowledge(k, { now: now(), lastTime: k.time }) : 0;
 
-		const type = wordKnowledge > 0.4 ? (Math.random() > 0.7 ? 'write' : 'cloze') : 'read';
+		// const type = 'read';
+		// wordKnowledge > 0.6 ? (Math.random() > 0.8 ? 'write' : 'cloze') : 'read';
 
-		if (type == 'read') {
+		if (type == 'read' || type == 'cloze') {
 			markSentenceSeen(sentence.id).catch(console.error);
 		}
 
@@ -121,7 +132,10 @@
 			type
 		};
 
+		toPracticeActively.push(...revealed);
+
 		revealed = [];
+
 		error = undefined;
 
 		console.log({
@@ -195,7 +209,7 @@
 	async function continueAfterWrite() {
 		knowledge = await fetchAggregateKnowledge();
 
-		showNextSentence();
+		await showNextSentence();
 	}
 </script>
 
