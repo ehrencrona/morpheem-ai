@@ -6,13 +6,15 @@
 	import EditMnemonic from './EditMnemonic.svelte';
 	import WordCardDumb from './WordCardDumb.svelte';
 
-	export let word: DB.Word;
 	export let onRemove: (() => void) | undefined = undefined;
-	export let english: string | undefined = undefined;
+
 	export let knowledge: AggKnowledgeForUser[] | undefined = undefined;
 
-	let mnemonic: string | undefined = undefined;
-	let editMnemonic: (DB.Word & { mnemonic?: string | undefined }) | undefined;
+	export let word: DB.Word;
+	export let english: string | undefined = undefined;
+	export let mnemonic: string | undefined = undefined;
+
+	let editMnemonic: string | undefined;
 
 	async function getMnemonic(word: DB.Word, forceRegeneration: boolean) {
 		mnemonic = await fetchMnemonic(word.id, forceRegeneration);
@@ -49,13 +51,14 @@
 	{mnemonic}
 	{english}
 	onGetMnemonic={getMnemonic}
-	onEditMnemonic={async (word) => (editMnemonic = word)}
+	onEditMnemonic={async (word, mnemonic) => (editMnemonic = mnemonic || '')}
 	expectedKnowledge={getExpectedKnowledge(word)}
 />
 
-{#if editMnemonic}
+{#if editMnemonic != undefined}
 	<EditMnemonic
-		mnemonic={editMnemonic.mnemonic}
+		wordString={word.word}
+		mnemonic={editMnemonic}
 		onCancel={async () => (editMnemonic = undefined)}
 		onSave={saveMnemonic}
 	/>

@@ -23,9 +23,9 @@
 
 	let knowledge: AggKnowledgeForUser[] = [];
 
-	let toPracticeActively: (UnknownWordResponse & { mnemonic?: string })[] = [];
+	let toPracticeActively: UnknownWordResponse[] = [];
 
-	let revealed: (UnknownWordResponse & { mnemonic?: string })[] = [];
+	let revealed: UnknownWordResponse[] = [];
 	let current:
 		| {
 				wordId: number;

@@ -14,7 +14,7 @@
 	export let word: DB.Word;
 	export let knowledge: AggKnowledgeForUser[];
 
-	export let revealed: (UnknownWordResponse & { mnemonic?: string })[];
+	export let revealed: UnknownWordResponse[];
 
 	export let onUnknown: (word: string) => Promise<any>;
 	export let onRemoveUnknown: (word: string) => Promise<any>;
@@ -77,6 +77,7 @@
 	{#each revealed as word (word.id)}
 		<WordCard
 			{word}
+			mnemonic={word.mnemonic}
 			onRemove={() => onRemoveUnknown(word.word)}
 			english={word.english}
 			{knowledge}
@@ -104,7 +105,7 @@
 </div>
 
 <div
-	class="absolute bottom-0 left-0 right-0 bg-[#ffffff] px-4 py-2 flex justify-center center"
+	class="absolute bottom-0 left-0 right-0 bg-[#ffffff] px-4 py-2 flex justify-center center z-30"
 	style="box-shadow: 0 -2px 4px -1px rgba(0, 0, 0, 0.1);"
 >
 	<div class="w-full max-w-[800px]">

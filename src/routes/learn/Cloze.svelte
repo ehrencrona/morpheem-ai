@@ -4,6 +4,7 @@
 	import type { AggKnowledgeForUser, SentenceWord } from '../../logic/types';
 	import { userId } from '../../logic/user';
 	import { sendKnowledge } from '../api/knowledge/client';
+	import { fetchMnemonic } from '../api/word/[id]/mnemonic/client';
 	import { fetchWordsByPrefix } from '../api/word/prefix/[prefix]/client';
 	import type { UnknownWordResponse } from '../api/word/unknown/+server';
 	import { lookupUnknownWord } from '../api/word/unknown/client';
@@ -23,6 +24,7 @@
 	export let onNext: () => Promise<any>;
 
 	let english: string | undefined = undefined;
+	let mnemonic: string | undefined = undefined;
 	let showPercentage = 0;
 	let suggestedWords: string[] = [];
 	let userSelection: string | undefined;
@@ -34,6 +36,7 @@
 		userSelection = undefined;
 		showEnglish = false;
 		english = (await lookupUnknownWord(word.word, sentence.id, word.id)).english;
+		mnemonic = await fetchMnemonic(word.id, false);
 	}
 
 	$: if (sentence.id) {
@@ -89,6 +92,7 @@
 	{onType}
 	{onAnswer}
 	{english}
+	{mnemonic}
 	{showPercentage}
 	{showEnglish}
 	{suggestedWords}

@@ -5,6 +5,7 @@
 	export let onCancel: () => Promise<any>;
 
 	export let mnemonic = '';
+	export let wordString: string;
 
 	let form: HTMLFormElement;
 </script>
@@ -20,6 +21,10 @@
 			}
 		}}
 	>
+		<p class="mb-4">
+			Write a mnemonic to help you remember <b>{wordString}</b>:
+		</p>
+
 		<textarea
 			bind:value={mnemonic}
 			class="bg-blue-1 rounded-sm block w-full p-2 text-lg mb-4"

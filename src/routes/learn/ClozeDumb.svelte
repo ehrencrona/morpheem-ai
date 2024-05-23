@@ -9,13 +9,18 @@
 	import WordCard from './WordCard.svelte';
 
 	export let sentence: DB.Sentence;
-	export let word: DB.Word;
 	export let sentenceWords: SentenceWord[];
+
+	export let word: DB.Word;
 	export let english: string | undefined;
+	export let mnemonic: string | undefined;
+
 	export let showPercentage: number;
 	export let showEnglish: boolean;
+
 	export let suggestedWords: string[] = [];
 	export let userSelection: string | undefined;
+
 	export let revealed: UnknownWordResponse[];
 	export let knowledge: AggKnowledgeForUser[] | undefined = undefined;
 
@@ -81,7 +86,12 @@
 
 	<div class="flex flex-wrap mb-6 gap-4">
 		{#each revealed as word (word.id)}
-			<WordCard {word} onRemove={() => onRemoveUnknown(word.word)} english={word.english} />
+			<WordCard
+				{word}
+				mnemonic={word.mnemonic}
+				onRemove={() => onRemoveUnknown(word.word)}
+				english={word.english}
+			/>
 		{/each}
 	</div>
 
@@ -111,10 +121,12 @@
 	{/if}
 
 	<div class="flex flex-wrap mb-6 gap-4">
-		<WordCard {word} {english} />
+		<WordCard {word} {english} {mnemonic} />
+
 		{#each revealed as word (word.id)}
 			<WordCard
 				{word}
+				mnemonic={word.mnemonic}
 				onRemove={() => onRemoveUnknown(word.word)}
 				english={word.english}
 				{knowledge}

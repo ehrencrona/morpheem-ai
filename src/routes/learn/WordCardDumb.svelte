@@ -10,7 +10,7 @@
 	export let english: string | undefined = undefined;
 
 	export let onGetMnemonic: (word: DB.Word, forceRegeneration: boolean) => Promise<any>;
-	export let onEditMnemonic: (word: DB.Word & { mnemonic?: string }) => Promise<any>;
+	export let onEditMnemonic: (word: DB.Word, mnemonic?: string) => Promise<any>;
 </script>
 
 <div class="bg-light-gray rounded-md px-4 py-3 w-full md:w-[48%] mb-4">
@@ -22,7 +22,10 @@
 		{/if}
 
 		{#if onRemove}
-			<button on:click={onRemove} class="flex justify-center items-center p-[6px] mt-[-6px] mr-[-6px] ml-1">
+			<button
+				on:click={onRemove}
+				class="flex justify-center items-center p-[6px] mt-[-6px] mr-[-6px] ml-1"
+			>
 				<svg
 					fill="#000000"
 					height="800px"
@@ -56,20 +59,28 @@
 		{#if mnemonic}
 			<p>{mnemonic}</p>
 		{/if}
-		<div class="flex justify-end gap-2 mt-1">
-			<SpinnerButton className="underline pl-5 pt-1" onClick={() => onGetMnemonic(word, !!mnemonic)}>
+		<div class="flex justify-end mt-1">
+			{#if !mnemonic}
+				<div class="pt-1">Mnemonic:</div>
+			{/if}
+			<SpinnerButton className="underline pt-1 pl-5" onClick={() => onGetMnemonic(word, true)}>
 				{#if mnemonic}
 					Regenerate
 				{:else}
-					Mnemonic
+					Generate
 				{/if}
 			</SpinnerButton>
 
-			{#if mnemonic}
-				<SpinnerButton className="underline pl-5 pt-1" onClick={async () => onEditMnemonic(word)}>
+			<SpinnerButton
+				className="underline pt-1 pl-5"
+				onClick={async () => onEditMnemonic(word, mnemonic)}
+			>
+				{#if mnemonic}
 					Edit
-				</SpinnerButton>
-			{/if}
+				{:else}
+					Write
+				{/if}
+			</SpinnerButton>
 		</div>
 	</div>
 </div>
