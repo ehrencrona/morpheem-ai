@@ -1,6 +1,10 @@
-import { translateSentences } from '../ai/translate';
+import {
+	translateSentences,
+	translateWordInContext as translateWordInContextAi
+} from '../ai/translate';
 import { storeEnglish } from '../db/sentences';
 import * as DB from '../db/types';
+import { addWordTranslations, getWordTranslation } from '../db/wordTranslations';
 
 export async function addEnglishToSentence(
 	sentence: DB.Sentence
@@ -14,4 +18,26 @@ export async function addEnglishToSentence(
 	}
 
 	return sentence as DB.Sentence & { english: string };
+}
+
+export async function translateWordInContext(
+	word: DB.Word,
+	sentence?: { id: number; sentence: string; english: string }
+) {
+	let translation: { english: string } | undefined = await getWordTranslation(
+		word.id,
+		sentence?.id || null
+	);
+
+	if (!translation) {
+		translation = await translateWordInContextAi(word.word, sentence);
+
+		await addWordTranslations({
+			wordId: word.id,
+			sentenceId: sentence?.id,
+			english: translation.english
+		});
+	}
+
+	return translation;
 }

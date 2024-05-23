@@ -1,6 +1,6 @@
 import { json, type ServerLoad } from '@sveltejs/kit';
 import { z } from 'zod';
-import { translateWordInContext } from '../../../../ai/translate';
+import { translateWordInContext } from '../../../../logic/translate';
 import { KNOWLEDGE_TYPE_READ } from '../../../../db/knowledgeTypes';
 import { getSentence } from '../../../../db/sentences';
 import * as DB from '../../../../db/types';
@@ -52,7 +52,7 @@ export const POST: ServerLoad = async ({ request }) => {
 		word = await getWordByLemma(wordString);
 	}
 
-	const { english } = await translateWordInContext(word.word, sentence);
+	const { english } = await translateWordInContext(word, sentence);
 
 	console.log(`Unknown: ${wordString} (${word.word}) -> ${english}`);
 
