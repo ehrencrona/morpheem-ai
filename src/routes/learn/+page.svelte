@@ -20,8 +20,11 @@
 	import Cloze from './Cloze.svelte';
 	import ReadSentence from './ReadSentence.svelte';
 	import WriteSentence from './WriteSentence.svelte';
+	import { trackActivity } from './trackActivity';
+	import { sendWordsKnown } from '../api/knowledge/words-known/client';
 
 	let knowledge: AggKnowledgeForUser[] = [];
+	let wordsKnown: number;
 
 	let toPracticeActively: UnknownWordResponse[] = [];
 
@@ -39,6 +42,7 @@
 
 	async function init() {
 		knowledge = await fetchAggregateKnowledge();
+		wordsKnown = calculateWordsKnown(knowledge);
 
 		console.log(`Loaded ${knowledge.length} knowledge entries`);
 
@@ -182,10 +186,15 @@
 					isKnown: !revealed.find(({ id }) => id === word.id),
 					studiedWordId,
 					type: KNOWLEDGE_TYPE_READ
-				}))
+				})),
+				true
 			);
 
 			knowledge = await fetchAggregateKnowledge();
+
+			wordsKnown = calculateWordsKnown(knowledge);
+
+			sendWordsKnown(wordsKnown).catch(console.error);
 
 			await showNextSentence();
 		} catch (e: any) {
@@ -208,12 +217,15 @@
 
 	async function continueAfterWrite() {
 		knowledge = await fetchAggregateKnowledge();
+		wordsKnown = calculateWordsKnown(knowledge);
+
+		sendWordsKnown(wordsKnown).catch(console.error);
 
 		await showNextSentence();
 	}
 </script>
 
-<main class="font-sans bold w-full">
+<main class="font-sans bold w-full" use:trackActivity>
 	{#if error}
 		<h3>{error}</h3>
 	{/if}
@@ -221,12 +233,12 @@
 	<div
 		class="bg-blue-3 text-center text-blue-1 p-2 rounded-md top-2 right-2 absolute hidden lg:block"
 	>
-		<b class="font-sans text-3xl font-bold">{calculateWordsKnown(knowledge)}</b>
+		<b class="font-sans text-3xl font-bold">{wordsKnown}</b>
 		<div class="text-xs font-lato">words known</div>
 	</div>
 
 	{#if current}
-		<div class="text-right font-lato text-xs flex gap-1 mb-4 flex justify-end">
+		<div class="text-right font-lato text-xs flex gap-1 mb-4 justify-end">
 			<a href={`/sentences/${current?.sentence.id}/delete`} class="underline text-red">
 				Delete sentence
 			</a>

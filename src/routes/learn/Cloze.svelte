@@ -65,16 +65,19 @@
 	}
 
 	async function storeAndContinue(knew: boolean) {
-		sendKnowledge([
-			{
-				sentenceId: sentence.id,
-				wordId: word.id,
-				isKnown: knew,
-				type: KNOWLEDGE_TYPE_CLOZE,
-				userId,
-				studiedWordId: word.id
-			}
-		]).catch((e) => console.error(e));
+		sendKnowledge(
+			[
+				{
+					sentenceId: sentence.id,
+					wordId: word.id,
+					isKnown: knew,
+					type: KNOWLEDGE_TYPE_CLOZE,
+					userId,
+					studiedWordId: word.id
+				}
+			],
+			true
+		).catch((e) => console.error(e));
 
 		await onNext();
 	}

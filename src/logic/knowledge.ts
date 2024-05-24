@@ -32,6 +32,7 @@ export async function getBeginnerKnowledge(): Promise<AggKnowledgeForUser[]> {
 	return words.slice(0, 4).map((word) => ({
 		wordId: word.id,
 		level: word.level,
+		word: word.word,
 		time: now(),
 		alpha: 1,
 		beta: 1

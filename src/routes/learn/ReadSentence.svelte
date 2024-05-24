@@ -73,7 +73,7 @@
 	</div>
 {/if}
 
-<div class="flex flex-wrap mb-6 gap-4">
+<div class="grid grid-cols-1 md:grid-cols-2 w-full gap-x-4">
 	{#each revealed as word (word.id)}
 		<WordCard
 			{word}

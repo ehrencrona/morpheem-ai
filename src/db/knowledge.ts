@@ -10,7 +10,7 @@ export function addKnowledge({
 	studiedWordId
 }: {
 	wordId: number;
-	sentenceId: number;
+	sentenceId?: number;
 	userId: number;
 	isKnown: boolean;
 	studiedWordId: number;
@@ -32,7 +32,7 @@ export async function transformAggregateKnowledge(
 
 	transform: (opts: { alpha: number; beta: number | null; time: number } | undefined) => {
 		alpha: number;
-		beta: number;
+		beta: number | null;
 	}
 ) {
 	return db.transaction().execute(async (transaction) => {
@@ -95,6 +95,31 @@ export async function getAggregateKnowledgeForUser({
 		.innerJoin('words', 'word_id', 'id')
 		.select(['word_id', 'alpha', 'beta', 'time', 'level', 'word'])
 		.where('user_id', '=', userId)
+		.execute();
+
+	return raw.map(({ word_id: wordId, level, alpha, beta, time, word }) => ({
+		wordId,
+		level,
+		word,
+		alpha,
+		beta,
+		time: dateToTime(time)
+	}));
+}
+
+export async function getRecentKnowledge({
+	userId
+}: {
+	userId: number;
+}): Promise<AggKnowledgeForUser[]> {
+	const raw = await db
+		.selectFrom('aggregate_knowledge')
+		.innerJoin('words', 'word_id', 'id')
+		.select(['word_id', 'alpha', 'beta', 'time', 'level', 'word'])
+		.where('user_id', '=', userId)
+		.where('alpha', '<', 0.95)
+		.orderBy('time', 'desc')
+		.limit(30)
 		.execute();
 
 	return raw.map(({ word_id: wordId, level, alpha, beta, time, word }) => ({

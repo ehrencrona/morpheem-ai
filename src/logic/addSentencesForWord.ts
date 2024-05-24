@@ -42,7 +42,7 @@ export async function addSentencesForWord(
 
 					return hasWord;
 				})
-				.map(async ({ sentence, english, lemmas }) => addSentence(sentence, english, lemmas))
+				.map(async ({ sentence, lemmas }) => addSentence(sentence, undefined, lemmas))
 		)
 	);
 

@@ -4,7 +4,11 @@ import { toWords } from './toWords';
 
 import * as sentences from '../db/sentences';
 
-export async function addSentence(sentenceString: string, english: string, lemmas: string[]) {
+export async function addSentence(
+	sentenceString: string,
+	english: string | undefined,
+	lemmas: string[]
+) {
 	console.log(`Adding sentence "${sentenceString}" (lemmas: ${lemmas.join(' ')})...`);
 
 	return sentences.addSentence({

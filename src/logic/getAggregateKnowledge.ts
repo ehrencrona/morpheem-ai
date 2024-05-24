@@ -9,12 +9,13 @@ export async function getAggregateKnowledge() {
 	const easiestUnstudied = await getEasiestUnstudiedWords();
 
 	knowledge = knowledge.concat(
-		easiestUnstudied.map(({ id, level }) => ({
+		easiestUnstudied.map(({ id, level, word }) => ({
 			alpha: 0.5,
 			beta: null,
 			wordId: id,
 			level,
 			time: now() - 2.9 * 24 * 60,
+			word,
 			studied: false
 		}))
 	);

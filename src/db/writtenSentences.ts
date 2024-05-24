@@ -18,3 +18,13 @@ export async function addWrittenSentence({
 		})
 		.execute();
 }
+
+export async function getRecentWrittenSentences({ userId }: { userId: number }) {
+	return db
+		.selectFrom('written_sentences')
+		.select(['sentence', 'word_id'])
+		.where('user_id', '=', userId)
+		.orderBy('time', 'desc')
+		.limit(20)
+		.execute();
+}

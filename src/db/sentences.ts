@@ -8,7 +8,7 @@ export async function addSentence({
 	words
 }: {
 	sentenceString: string;
-	english: string;
+	english: string | undefined;
 	words: { id: number; word: string | null }[];
 }): Promise<Sentence | undefined> {
 	const sentence = await db.transaction().execute(async (trx) => {
