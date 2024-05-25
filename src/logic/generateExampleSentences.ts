@@ -157,10 +157,7 @@ const isHard = (word: DB.Word, knowledge: AggKnowledgeForUser[], hardLevel: numb
 		return false;
 	}
 
-	if (
-		wordKnowledge &&
-		expectedKnowledge(wordKnowledge, { now: now(), lastTime: wordKnowledge.time }) < 0.6
-	) {
+	if (wordKnowledge && expectedKnowledge(wordKnowledge, { now: now(), exercise: 'read' }) < 0.6) {
 		return true;
 	}
 

@@ -7,15 +7,17 @@ const knowledge: AggKnowledgeForUser[] = [
 		wordId: 296,
 		alpha: 1,
 		beta: 5333,
-		time: 167898,
-		level: 1
+		lastTime: 167898,
+		level: 1,
+		word: 'a'
 	},
 	{
 		wordId: 661,
 		alpha: 1,
 		beta: 1,
-		time: 167898,
-		level: 1
+		lastTime: 167898,
+		level: 1,
+		word: 'b'
 	}
 ];
 

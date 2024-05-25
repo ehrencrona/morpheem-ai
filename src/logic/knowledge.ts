@@ -1,8 +1,9 @@
-import type { AggKnowledgeForUser, WordKnowledge } from './types';
+import type { AggKnowledgeForUser, Exercise, WordKnowledge } from './types';
 
 import { addKnowledge as addKnowledgeToDb, transformAggregateKnowledge } from '../db/knowledge';
 import { getWordsBelowLevel } from '../db/words';
 import { didNotKnow, didNotKnowFirst, knew, knewFirst, now } from './isomorphic/knowledge';
+import { knowledgeTypeToExercise } from '../db/knowledgeTypes';
 
 export async function addKnowledge(words: WordKnowledge[]) {
 	words = eliminateDuplicates(words);
@@ -12,12 +13,12 @@ export async function addKnowledge(words: WordKnowledge[]) {
 			await addKnowledgeToDb(wordKnowledge);
 
 			await transformAggregateKnowledge(wordKnowledge, (existing) => {
-				if (!existing) {
-					return wordKnowledge.isKnown ? knewFirst() : didNotKnowFirst();
-				} else {
-					const time = { now: now(), lastTime: existing.time };
+				const exercise = knowledgeTypeToExercise(wordKnowledge.type);
 
-					return (wordKnowledge.isKnown ? knew : didNotKnow)(existing, time);
+				if (!existing) {
+					return wordKnowledge.isKnown ? knewFirst(exercise) : didNotKnowFirst(exercise);
+				} else {
+					return (wordKnowledge.isKnown ? knew : didNotKnow)(existing, { now: now(), exercise });
 				}
 			});
 		}),
@@ -33,7 +34,7 @@ export async function getBeginnerKnowledge(): Promise<AggKnowledgeForUser[]> {
 		wordId: word.id,
 		level: word.level,
 		word: word.word,
-		time: now(),
+		lastTime: now(),
 		alpha: 1,
 		beta: 1
 	}));

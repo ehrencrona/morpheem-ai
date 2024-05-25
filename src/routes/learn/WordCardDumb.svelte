@@ -13,7 +13,7 @@
 	export let onEditMnemonic: (word: DB.Word, mnemonic?: string) => Promise<any>;
 </script>
 
-<div class="bg-light-gray rounded-md px-4 py-3 w-full md:max-w-[400px] mb-4">
+<div class="bg-light-gray rounded-md px-4 py-3 w-full md:max-w-[500px] mb-4">
 	<div class="font-medium mb-1 text-xs flex">
 		<a href="/words/{word.id}" class="flex-1">{word.word}</a>
 

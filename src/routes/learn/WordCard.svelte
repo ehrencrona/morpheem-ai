@@ -35,9 +35,8 @@
 
 		if (wordKnowledge) {
 			return (
-				Math.round(
-					100 * expectedKnowledge(wordKnowledge, { now: now(), lastTime: wordKnowledge.time })
-				) + '% known'
+				Math.round(100 * expectedKnowledge(wordKnowledge, { now: now(), exercise: 'read' })) +
+				'% known'
 			);
 		} else {
 			return 'first time';

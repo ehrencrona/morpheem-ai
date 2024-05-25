@@ -16,6 +16,7 @@ import {
 } from '../../../logic/isomorphic/knowledge';
 import { AlphaBeta } from '../../../logic/types';
 import { userId } from '../../../logic/user';
+import { knowledgeTypeToExercise } from '../../../db/knowledgeTypes';
 
 export const load = (async ({ params }) => {
 	const wordId = parseInt(params.id!);
@@ -38,7 +39,7 @@ export const load = (async ({ params }) => {
 	});
 
 	const wordKnowledge = knowledge.length
-		? expectedKnowledge(knowledge[0], { now: now(), lastTime: knowledge[0].time })
+		? expectedKnowledge(knowledge[0], { now: now(), exercise: 'read' })
 		: 0;
 
 	const rawKnowledge = await getRawKnowledgeForUser({
@@ -48,21 +49,23 @@ export const load = (async ({ params }) => {
 
 	let acc: AlphaBeta | null = null;
 
-	const knowledgeHistory = rawKnowledge.map(({ knew: k, time: date }) => {
+	const knowledgeHistory = rawKnowledge.map(({ type, knew: k, time: date }) => {
+		const lastTime = dateToTime(date);
+		const exercise = knowledgeTypeToExercise(type);
 		const time = {
 			now: now(),
-			lastTime: dateToTime(date)
+			exercise
 		};
 
-		const knowledge = acc ? expectedKnowledge(acc, time) : 0;
+		const knowledge = acc ? expectedKnowledge({ ...acc, lastTime }, time) : 0;
 
 		if (acc == null) {
-			acc = k ? knewFirst() : didNotKnowFirst();
+			acc = k ? knewFirst(exercise) : didNotKnowFirst(exercise);
 		} else {
-			acc = k ? knew(acc, time) : didNotKnow(acc, time);
+			acc = k ? knew({ ...acc, lastTime }, time) : didNotKnow({ ...acc, lastTime }, time);
 		}
 
-		return { ...acc, knew: k, time: dateToTime(date), date, knowledge };
+		return { ...acc, knew: k, time: lastTime, date, knowledge };
 	}, null);
 
 	const mnemonic = await getMnemonic({ wordId, userId });

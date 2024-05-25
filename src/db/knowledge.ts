@@ -7,13 +7,15 @@ export function addKnowledge({
 	sentenceId,
 	userId,
 	isKnown,
-	studiedWordId
+	studiedWordId,
+	type
 }: {
 	wordId: number;
 	sentenceId?: number;
 	userId: number;
 	isKnown: boolean;
 	studiedWordId: number;
+	type: number;
 }) {
 	return db
 		.insertInto('knowledge')
@@ -22,7 +24,8 @@ export function addKnowledge({
 			sentence_id: sentenceId,
 			user_id: userId,
 			knew: isKnown,
-			studied_word_id: studiedWordId
+			studied_word_id: studiedWordId,
+			type
 		})
 		.execute();
 }
@@ -30,7 +33,7 @@ export function addKnowledge({
 export async function transformAggregateKnowledge(
 	{ wordId, userId }: { wordId: number; userId: number },
 
-	transform: (opts: { alpha: number; beta: number | null; time: number } | undefined) => {
+	transform: (opts: { alpha: number; beta: number | null; lastTime: number } | undefined) => {
 		alpha: number;
 		beta: number | null;
 	}
@@ -61,7 +64,7 @@ export async function transformAggregateKnowledge(
 			const values = transform({
 				alpha,
 				beta,
-				time: dateToTime(date)
+				lastTime: dateToTime(date)
 			});
 
 			await transaction
@@ -103,7 +106,7 @@ export async function getAggregateKnowledgeForUser({
 		word,
 		alpha,
 		beta,
-		time: dateToTime(time)
+		lastTime: dateToTime(time)
 	}));
 }
 
@@ -128,7 +131,7 @@ export async function getRecentKnowledge({
 		word,
 		alpha,
 		beta,
-		time: dateToTime(time)
+		lastTime: dateToTime(time)
 	}));
 }
 
@@ -153,7 +156,7 @@ export async function getAggregateKnowledgeForUserWords({
 		level,
 		alpha,
 		beta,
-		time: dateToTime(time)
+		lastTime: dateToTime(time)
 	}));
 }
 
@@ -166,7 +169,7 @@ export async function getRawKnowledgeForUser({
 }) {
 	return db
 		.selectFrom('knowledge')
-		.select(['word_id', 'sentence_id', 'knew', 'time'])
+		.select(['word_id', 'sentence_id', 'knew', 'time', 'type'])
 		.where('user_id', '=', userId)
 		.where('word_id', '=', wordId)
 		.orderBy('time', 'asc')

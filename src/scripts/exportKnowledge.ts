@@ -7,7 +7,8 @@ import {
 	knewFirst,
 	knew as knewLater
 } from '../logic/isomorphic/knowledge';
-import { KNOWLEDGE_TYPE_READ } from '../db/knowledgeTypes';
+import { KNOWLEDGE_TYPE_READ, knowledgeTypeToExercise } from '../db/knowledgeTypes';
+import { AlphaBeta } from '../logic/types';
 
 async function exportKnowledge() {
 	let output = '';
@@ -38,20 +39,24 @@ async function exportKnowledge() {
 		const knew = row.knew;
 		const timesSeen = wordRows.length;
 
-		let alphaBeta =
+		let alphaBeta: AlphaBeta =
 			timesSeen > 0
 				? wordRows[0].knew
-					? knewFirst()
-					: didNotKnowFirst()
+					? knewFirst('read')
+					: didNotKnowFirst('read')
 				: { alpha: 0, beta: null };
 
 		for (let i = 1; i < timesSeen; i++) {
 			const time = {
 				now: dateToTime(wordRows[i].time),
-				lastTime: dateToTime(wordRows[i - 1].time)
+				exercise: knowledgeTypeToExercise(wordRows[i].type)
 			};
 
-			alphaBeta = wordRows[i].knew ? knewLater(alphaBeta, time) : didNotKnow(alphaBeta, time);
+			const lastTime = dateToTime(wordRows[i - 1].time);
+
+			alphaBeta = wordRows[i].knew
+				? knewLater({ ...alphaBeta, lastTime }, time)
+				: didNotKnow({ ...alphaBeta, lastTime }, time);
 		}
 
 		const slidingAverageKnew = alphaBeta.alpha;

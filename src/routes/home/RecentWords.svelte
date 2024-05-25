@@ -49,7 +49,12 @@
 						{toPercent(
 							expectedKnowledge(word.knowledge, {
 								now: now(),
-								lastTime: word.knowledge.time
+								exercise: 'read'
+							})
+						)} / {toPercent(
+							expectedKnowledge(word.knowledge, {
+								now: now(),
+								exercise: 'write'
 							})
 						)}
 					</span>

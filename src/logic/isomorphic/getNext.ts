@@ -1,5 +1,5 @@
-import type { AggKnowledgeForUser, CandidateSentenceWithWords } from '../types';
-import { expectedKnowledge, knowledgeGain, now } from './knowledge';
+import type { AggKnowledgeForUser, CandidateSentenceWithWords, Exercise } from '../types';
+import { expectedKnowledge, calculateRepetitionValue, now } from './knowledge';
 
 export function getNextWord(knowledge: AggKnowledgeForUser[]) {
 	return getNextWords(knowledge)[0];
@@ -8,43 +8,59 @@ export function getNextWord(knowledge: AggKnowledgeForUser[]) {
 export function getNextWords(knowledge: AggKnowledgeForUser[], count = 5) {
 	const n = now();
 
-	const score = knowledge.map(
-		(k) =>
-			(knowledgeGain(k, {
-				now: n,
-				lastTime: k.time
-			}) *
-				(2 - k.level / 100) *
-				(2 - k.level / 100)) /
-			4
+	const scores = knowledge.reduce(
+		(acc, k) => [
+			...acc,
+			{
+				...k,
+				exercise: 'read' as Exercise,
+				score:
+					(calculateRepetitionValue(k, {
+						now: n,
+						exercise: 'read'
+					}) *
+						(2 - k.level / 100) *
+						(2 - k.level / 100)) /
+					4
+			},
+			{
+				...k,
+				exercise: (Math.random() > 0.75 ? 'write' : 'cloze') as Exercise,
+				score:
+					(calculateRepetitionValue(k, {
+						now: n,
+						exercise: 'write'
+					}) *
+						(2 - k.level / 100) *
+						(2 - k.level / 100)) /
+					4
+			}
+		],
+		[] as (AggKnowledgeForUser & { score: number; exercise: Exercise })[]
 	);
 
 	// return the five words with highest scores
-	const indexes = score
-		.map((s, i) => ({ s, i }))
-		.sort((a, b) => b.s - a.s)
-		.slice(0, count)
-		.map((x) => x.i);
+	const topScores = scores.sort((a, b) => b.score - a.score).slice(0, count);
 
-	const word = knowledge[indexes[0]];
+	const word = topScores[0];
 
 	console.log(
-		`knowledge of ${word.word}, index ${indexes[0]}: ${word.alpha}/${word.beta}, age ${now() - word.time} = ${score[indexes[0]]}`
+		`Knowledge of ${word.word}: ${word.alpha}/${word.beta}, age ${now() - word.lastTime} = ${word.score}`
 	);
 
 	console.log(
-		'next words:\n' +
-			indexes
+		'Next words:\n' +
+			topScores
 				.map(
 					(i, j) =>
-						`${j + 1}. ${knowledge[i].word} (${knowledge[i].wordId}, score ${Math.round(score[i] * 100)}%, knowledge ${Math.round(
-							100 * expectedKnowledge(knowledge[i], { now: n, lastTime: knowledge[i].time })
-						)}% level ${knowledge[i].level})${knowledge[i].studied === false ? ' unstudied' : ''}`
+						`${j + 1}. ${i.word} ${i.exercise} (${i.wordId}, score ${Math.round(i.score * 100)}%, knowledge ${Math.round(
+							100 * expectedKnowledge(i, { now: n, exercise: i.exercise })
+						)}% level ${i.level})${i.studied === false ? ' unstudied' : ''}`
 				)
 				.join(`\n`)
 	);
 
-	return indexes.map((i) => knowledge[i].wordId);
+	return topScores.map(({ wordId, exercise }) => ({ wordId, exercise }));
 }
 
 export function getNextSentence(
@@ -80,7 +96,7 @@ export function getNextSentence(
 
 			const score = expectedKnowledge(wordKnowledge, {
 				now: now(),
-				lastTime: wordKnowledge.time
+				exercise: 'read'
 			});
 
 			message += ` (${word.id}, ${Math.round(score * 100)}% known)`;

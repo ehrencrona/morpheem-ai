@@ -17,11 +17,12 @@ async function listAggregateKnowledge() {
 					expectedKnowledge(
 						{
 							alpha,
-							beta
+							beta,
+							lastTime: dateToTime(time)
 						},
 						{
-							lastTime: dateToTime(time),
-							now: n
+							now: n,
+							exercise: 'read'
 						}
 					) * 100
 				);

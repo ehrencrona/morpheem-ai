@@ -1,4 +1,5 @@
 import { db } from '../db/client';
+import { knowledgeTypeToExercise } from '../db/knowledgeTypes';
 import {
 	dateToTime,
 	didNotKnow,
@@ -8,37 +9,45 @@ import {
 	knewFirst,
 	now
 } from '../logic/isomorphic/knowledge';
-
-interface AggregateKnowledge {
-	time: Date;
-	user_id: number;
-	word_id: number;
-	alpha: number;
-	beta: number | null;
-}
+import { AggKnowledgeForUser } from '../logic/types';
 
 async function regenerateAggregateKnowledge() {
-	const agg = new Map<number, AggregateKnowledge>();
+	const agg = new Map<number, Omit<AggKnowledgeForUser, 'word' | 'level'>>();
 
-	const rows = await db.selectFrom('knowledge').orderBy('time asc').selectAll().execute();
+	const rows = (await db.selectFrom('knowledge').orderBy('time asc').selectAll().execute()).map(
+		(row) => ({
+			...row,
+			wordId: row.word_id,
+			lastTime: dateToTime(row.time),
+			exercise: knowledgeTypeToExercise(row.type)
+		})
+	);
 
 	for (const row of rows) {
 		let aggWord = agg.get(row.word_id);
+		const { exercise } = row;
 
 		if (!aggWord) {
 			aggWord = {
 				...row,
-				...(row.knew ? knewFirst() : didNotKnowFirst())
+				...(row.knew ? knewFirst(exercise) : didNotKnowFirst(exercise))
 			};
 		} else {
 			const now = dateToTime(row.time);
-			const lastTime = dateToTime(aggWord.time);
 
 			aggWord = {
 				...aggWord,
-				time: row.time,
-				...(row.knew ? knew(aggWord, { now, lastTime }) : didNotKnow(aggWord, { now, lastTime }))
+				lastTime: row.lastTime,
+				...(row.knew ? knew(aggWord, { now, exercise }) : didNotKnow(aggWord, { now, exercise }))
 			};
+		}
+
+		if (exercise != 'read') {
+			console.log(
+				`${row.word_id}: alpha ${aggWord.alpha}, beta ${aggWord.beta}, age ${
+					now() - aggWord.lastTime
+				} -> ${Math.round(100 * expectedKnowledge(aggWord, { now: now(), exercise }))}%`
+			);
 		}
 
 		agg.set(row.word_id, aggWord);
@@ -56,13 +65,11 @@ async function regenerateAggregateKnowledge() {
 		const aggWord = agg.get(row.word_id);
 
 		if (aggWord) {
-			console.log(
-				`${row.word}: alpha ${aggWord.alpha}, beta ${aggWord.beta}, age ${
-					n - dateToTime(aggWord.time)
-				} -> ${Math.round(
-					100 * expectedKnowledge(aggWord!, { now: n, lastTime: dateToTime(aggWord!.time) })
-				)}%`
-			);
+			// console.log(
+			// 	`${row.word}: alpha ${aggWord.alpha}, beta ${aggWord.beta}, age ${
+			// 		n - aggWord.lastTime
+			// 	} -> ${Math.round(100 * expectedKnowledge(aggWord!, { now: n, exercise: 'read' }))}%`
+			// );
 
 			await db
 				.updateTable('aggregate_knowledge')

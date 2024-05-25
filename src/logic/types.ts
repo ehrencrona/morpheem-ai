@@ -6,6 +6,12 @@ export interface AlphaBeta {
 	readonly beta: number | null;
 }
 
+export interface AlphaBetaTime extends AlphaBeta {
+	readonly lastTime: number;
+}
+
+export type Exercise = 'read' | 'write' | 'cloze';
+
 export const wordKnowledgeSchema = z.object({
 	wordId: z.number(),
 	sentenceId: z.number().optional(),
@@ -21,7 +27,7 @@ export interface AggKnowledgeForUser {
 	wordId: number;
 	alpha: number;
 	beta: number | null;
-	time: number;
+	lastTime: number;
 	level: number;
 	word: string;
 	studied?: false;

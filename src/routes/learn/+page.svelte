@@ -5,7 +5,7 @@
 	import type * as DB from '../../db/types';
 	import { getNextSentence, getNextWords } from '../../logic/isomorphic/getNext';
 	import { expectedKnowledge, now } from '../../logic/isomorphic/knowledge';
-	import type { AggKnowledgeForUser, SentenceWord } from '../../logic/types';
+	import type { AggKnowledgeForUser, Exercise, SentenceWord } from '../../logic/types';
 	import { userId } from '../../logic/user';
 	import { fetchAggregateKnowledge, sendKnowledge } from '../api/knowledge/client';
 	import { markSentenceSeen } from '../api/sentences/[sentence]/client';
@@ -26,15 +26,13 @@
 	let knowledge: AggKnowledgeForUser[] = [];
 	let wordsKnown: number;
 
-	let toPracticeActively: UnknownWordResponse[] = [];
-
 	let revealed: UnknownWordResponse[] = [];
 	let current:
 		| {
 				wordId: number;
 				sentence: DB.Sentence;
 				words: SentenceWord[];
-				type: 'write' | 'read' | 'cloze';
+				exercise: Exercise;
 		  }
 		| undefined;
 
@@ -51,18 +49,16 @@
 
 	let nextPromise: ReturnType<typeof calculateNextSentence>;
 
-	async function calculateNextSentence(wordIds: number[] = [], excludeWordId?: number) {
-		let wordId: number | undefined = toPracticeActively.pop()?.id;
-		let type: 'write' | 'read' | 'cloze' = 'cloze';
-
-		if (!wordId && !wordIds.length) {
-			wordIds = getNextWords(knowledge).filter((id) => id !== excludeWordId);
+	async function calculateNextSentence(
+		wordIds: { wordId: number; exercise: Exercise }[] = [],
+		excludeWordId?: number
+	) {
+		if (!wordIds.length) {
+			wordIds = getNextWords(knowledge).filter(({ wordId }) => wordId !== excludeWordId);
 		}
 
-		if (!wordId) {
-			wordId = wordIds[0];
-			type = 'read';
-		}
+		let wordId = wordIds[0].wordId;
+		let exercise = wordIds[0].exercise;
 
 		try {
 			let sentences = await fetchSentencesWithWord(wordId);
@@ -94,7 +90,7 @@
 				sentence,
 				wordId,
 				getNextPromise: () => calculateNextSentence(wordIds.slice(1), wordId),
-				type
+				exercise
 			};
 		} catch (e: any) {
 			console.log(e);
@@ -114,18 +110,18 @@
 			sentence,
 			wordId,
 			getNextPromise: getNext,
-			type
+			exercise
 		} = await (nextPromise || calculateNextSentence());
 
 		nextPromise = getNext();
 
 		const k = knowledge.find((k) => k.wordId === wordId)!;
-		const wordKnowledge = k ? expectedKnowledge(k, { now: now(), lastTime: k.time }) : 0;
+		// const wordKnowledge = k ? expectedKnowledge(k, { now: now() }) : 0;
 
 		// const type = 'read';
 		// wordKnowledge > 0.6 ? (Math.random() > 0.8 ? 'write' : 'cloze') : 'read';
 
-		if (type == 'read' || type == 'cloze') {
+		if (exercise == 'read' || exercise == 'cloze') {
 			markSentenceSeen(sentence.id).catch(console.error);
 		}
 
@@ -133,19 +129,12 @@
 			wordId: wordId,
 			sentence,
 			words: sentence.words,
-			type
+			exercise
 		};
-
-		toPracticeActively.push(...revealed);
 
 		revealed = [];
 
 		error = undefined;
-
-		console.log({
-			...current,
-			wordKnowledge
-		});
 	}
 
 	onMount(init);
@@ -208,7 +197,7 @@
 		const n = now();
 
 		const wordsKnown = knowledge.reduce(
-			(acc, wk) => acc + expectedKnowledge(wk, { now: n, lastTime: wk.time }),
+			(acc, wk) => acc + expectedKnowledge(wk, { now: n, exercise: 'read' }),
 			0
 		);
 
@@ -244,7 +233,7 @@
 			</a>
 		</div>
 
-		{#if current.type == 'read'}
+		{#if current.exercise == 'read'}
 			<ReadSentence
 				{word}
 				sentence={current.sentence}
@@ -256,9 +245,9 @@
 				{knowledge}
 				onNext={store}
 			/>
-		{:else if current.type == 'write'}
+		{:else if current.exercise == 'write'}
 			<WriteSentence {word} onContinue={continueAfterWrite} fetchIdea={getTranslation} />
-		{:else if current.type == 'cloze'}
+		{:else if current.exercise == 'cloze'}
 			<Cloze
 				{word}
 				sentence={current.sentence}
