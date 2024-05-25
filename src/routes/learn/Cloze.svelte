@@ -4,6 +4,7 @@
 	import type { AggKnowledgeForUser, SentenceWord } from '../../logic/types';
 	import { userId } from '../../logic/user';
 	import { sendKnowledge } from '../api/knowledge/client';
+	import { fetchTranslation } from '../api/sentences/[sentence]/english/client';
 	import { fetchMnemonic } from '../api/word/[id]/mnemonic/client';
 	import { fetchWordsByPrefix } from '../api/word/prefix/[prefix]/client';
 	import type { UnknownWordResponse } from '../api/word/unknown/+server';
@@ -23,20 +24,22 @@
 
 	export let onNext: () => Promise<any>;
 
-	let english: string | undefined = undefined;
+	let englishWord: string | undefined = undefined;
+	let englishSentence: string | undefined = undefined;
 	let mnemonic: string | undefined = undefined;
-	let showPercentage = 0;
+	let showChars = 0;
 	let suggestedWords: string[] = [];
 	let userSelection: string | undefined;
-	let showEnglish = false;
 
 	async function clear() {
-		showPercentage = 0;
+		showChars = 0;
 		suggestedWords = [];
 		userSelection = undefined;
-		showEnglish = false;
-		english = (await lookupUnknownWord(word.word, sentence.id, word.id)).english;
 		mnemonic = await fetchMnemonic(word.id, false);
+	}
+
+	$: if (word.id || sentence.id) {
+		lookupUnknownWord(word.word, sentence.id, word.id).then((word) => (englishWord = word.english)).catch(console.error);
 	}
 
 	$: if (sentence.id) {
@@ -44,19 +47,23 @@
 	}
 
 	async function onHint() {
-		if (showEnglish) {
-			showPercentage += 1 / 3;
-		} else {
-			showEnglish = true;
-		}
+			if (showChars < 2) {
+				showChars++;
+			} else {
+				showChars = 100;
+			}
 	}
 
 	async function onReveal() {
-		showPercentage = 1;
+		showChars = 100;
 	}
 
-	async function onType(wordString: string) {
-		suggestedWords = wordString.length > 0 ? await fetchWordsByPrefix(wordString) : [];
+	async function onTranslate() {
+		englishSentence = await fetchTranslation(sentence.id);
+	}
+
+	async function onType(prefix: string) {
+		suggestedWords = prefix.length > 0 ? await fetchWordsByPrefix(prefix) : [];
 	}
 
 	async function onAnswer(wordString: string) {
@@ -94,12 +101,13 @@
 	{onReveal}
 	{onType}
 	{onAnswer}
-	{english}
+	{onTranslate}
+	{englishWord}
+	{englishSentence}
 	{mnemonic}
-	{showPercentage}
-	{showEnglish}
+	{showChars}
 	{suggestedWords}
-	{userSelection}
+	answered={userSelection}
 	{revealed}
 	{knowledge}
 />

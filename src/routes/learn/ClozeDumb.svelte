@@ -12,14 +12,14 @@
 	export let sentenceWords: SentenceWord[];
 
 	export let word: DB.Word;
-	export let english: string | undefined;
+	export let englishWord: string | undefined;
+	export let englishSentence: string | undefined;
 	export let mnemonic: string | undefined;
 
-	export let showPercentage: number;
-	export let showEnglish: boolean;
+	export let showChars: number;
 
 	export let suggestedWords: string[] = [];
-	export let userSelection: string | undefined;
+	export let answered: string | undefined;
 
 	export let revealed: UnknownWordResponse[];
 	export let knowledge: AggKnowledgeForUser[] | undefined = undefined;
@@ -29,8 +29,11 @@
 	export let onUnknown: (wordString: string) => Promise<any>;
 	export let onRemoveUnknown: (word: string) => Promise<any>;
 	export let onReveal: () => Promise<any>;
+	export let onTranslate: () => Promise<any>;
 	export let onType: (prefix: string) => void;
 	export let onAnswer: (wordString: string) => void;
+
+	$: answer = conjugatedWord.slice(0, showChars) + (prefix || '');
 
 	let prefix: string;
 
@@ -42,33 +45,36 @@
 		clear();
 	}
 
-	$: isRevealed = showPercentage >= 1;
-	$: knew = userSelection == word.word;
+	$: isRevealed = showChars >= word.word.length;
+	$: knew = answered == word.word || answered == conjugatedWord;
 
-	$: if (prefix != null) {
-		onType(prefix);
+	$: if (prefix != null || showChars > 0) {
+		onType(answer);
 	}
 
 	$: wordStrings = toWords(sentence.sentence);
 
-	$: maskedWordString = wordStrings[sentenceWords.findIndex((w) => w.id === word.id)];
+	$: conjugatedWord = wordStrings[sentenceWords.findIndex((w) => w.id === word.id)];
 	$: wordsWithSeparators = toWordsWithSeparators(sentence.sentence);
-	$: showChars = Math.floor(maskedWordString.length * showPercentage);
+
+	function onSubmit() {
+		onAnswer(answer);
+	}
 </script>
 
-<div class="text-4xl mb-8 mt-8 font-medium">
-	{#each wordsWithSeparators as wordString, index}{#if !isSeparator(wordString)}{#if standardize(wordString) == standardize(maskedWordString)}
+<form class="text-4xl mb-8 mt-8 font-medium" on:submit={onSubmit}>
+	{#each wordsWithSeparators as wordString, index}{#if !isSeparator(wordString)}{#if standardize(wordString) == standardize(conjugatedWord)}
 				{#if isRevealed}
 					<span class={knew ? 'text-green' : 'text-red'}>{wordString}</span>
 				{:else}
 					<span class="whitespace-nowrap">
+						{wordString.slice(0, showChars)}
 						<input
 							type="text"
 							class="border-b-4 border-b-red bg-blue-1"
 							size={wordString.length - showChars}
 							bind:value={prefix}
 						/>
-						{wordString.slice(wordString.length - showChars)}
 					</span>
 				{/if}
 			{:else}<span
@@ -77,11 +83,11 @@
 					tabindex={index}
 					on:click={() => onUnknown(wordString)}>{wordString}</span
 				>{/if}{:else}{wordString}{/if}{/each}
-</div>
+</form>
 
 {#if !isRevealed}
-	{#if english && showEnglish}
-		<div class="text-sm mb-4" in:slide>{english}</div>
+	{#if englishSentence || englishWord}
+		<div class="text-sm mb-4" in:slide>{englishSentence || englishWord}</div>
 	{/if}
 
 	<div class="flex flex-wrap mb-6 gap-4">
@@ -111,17 +117,19 @@
 	<div class="mt-4">
 		<SpinnerButton onClick={onHint} type="secondary">Hint</SpinnerButton>
 
-		<SpinnerButton onClick={onReveal} type="secondary">Reveal</SpinnerButton>
+		<SpinnerButton onClick={onTranslate} type="secondary">Translate</SpinnerButton>
+
+		<SpinnerButton onClick={onReveal}>Reveal</SpinnerButton>
 	</div>
 {:else}
 	{#if knew}
 		<div class="mb-4">Correct!</div>
-	{:else if userSelection}
-		<div class="mb-4">You picked <b>{userSelection}</b>.</div>
+	{:else if answered}
+		<div class="mb-4">You picked <b>{answered}</b>.</div>
 	{/if}
 
 	<div class="flex flex-wrap mb-6 gap-4">
-		<WordCard {word} {english} {mnemonic} />
+		<WordCard {word} english={englishWord} {mnemonic} />
 
 		{#each revealed as word (word.id)}
 			<WordCard
