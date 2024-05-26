@@ -2,7 +2,7 @@ import { json, type ServerLoad } from '@sveltejs/kit';
 import { getWordById } from '../../../../../db/words';
 import { generateMnemonic } from '../../../../../logic/generateMnemonic';
 import { z } from 'zod';
-import { setMnemonic } from '../../../../../db/mnemonics';
+import { getMnemonic, setMnemonic } from '../../../../../db/mnemonics';
 import { userId } from '../../../../../logic/user';
 
 const postSchema = z.object({
@@ -10,13 +10,15 @@ const postSchema = z.object({
 });
 
 export const POST: ServerLoad = async ({ params, url }) => {
-	const force = url.searchParams.has('force');
+	const generate = url.searchParams.has('generate');
 
 	const wordId = parseInt(params.id!);
 
 	const word = await getWordById(wordId);
 
-	return json(await generateMnemonic(word, force));
+	return json(
+		generate ? await generateMnemonic(word, true) : await getMnemonic({ wordId, userId })
+	);
 };
 
 export const PUT: ServerLoad = async ({ request, params }) => {

@@ -4,13 +4,14 @@ import { storeWordsKnown } from '../../../../db/wordsKnown';
 import { userId } from '../../../../logic/user';
 
 export const POST: ServerLoad = async ({ request }) => {
-	let { wordsKnown } = z
+	let { read, write } = z
 		.object({
-			wordsKnown: z.number()
+			read: z.number(),
+			write: z.number()
 		})
 		.parse(await request.json());
 
-	await storeWordsKnown(userId, wordsKnown);
+	await storeWordsKnown({ userId, read, write });
 
 	return json({});
 };

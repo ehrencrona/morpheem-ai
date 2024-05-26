@@ -38,9 +38,12 @@ export const load = (async ({ params }) => {
 		wordIds: [wordId]
 	});
 
-	const wordKnowledge = knowledge.length
+	const readKnowledge = knowledge.length
 		? expectedKnowledge(knowledge[0], { now: now(), exercise: 'read' })
 		: 0;
+	const writeKnowledge = knowledge.length
+			? expectedKnowledge(knowledge[0], { now: now(), exercise: 'write' })
+			: 0;
 
 	const rawKnowledge = await getRawKnowledgeForUser({
 		userId,
@@ -52,6 +55,7 @@ export const load = (async ({ params }) => {
 	const knowledgeHistory = rawKnowledge.map(({ type, knew: k, time: date }) => {
 		const lastTime = dateToTime(date);
 		const exercise = knowledgeTypeToExercise(type);
+
 		const time = {
 			now: now(),
 			exercise
@@ -65,7 +69,7 @@ export const load = (async ({ params }) => {
 			acc = k ? knew({ ...acc, lastTime }, time) : didNotKnow({ ...acc, lastTime }, time);
 		}
 
-		return { ...acc, knew: k, time: lastTime, date, knowledge };
+		return { ...acc, knew: k, time: lastTime, date, knowledge, exercise };
 	}, null);
 
 	const mnemonic = await getMnemonic({ wordId, userId });
@@ -76,7 +80,8 @@ export const load = (async ({ params }) => {
 		sentences,
 		word,
 		forms,
-		wordKnowledge,
+		readKnowledge,
+		writeKnowledge,
 		knowledgeHistory,
 		mnemonic,
 		translations

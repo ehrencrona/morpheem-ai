@@ -1,5 +1,5 @@
 import { getAggregateKnowledgeForUser, getEasiestUnstudiedWords } from '../db/knowledge';
-import { now } from './isomorphic/knowledge';
+import { now, nt } from './isomorphic/knowledge';
 import { getBeginnerKnowledge } from './knowledge';
 import { userId } from './user';
 
@@ -10,11 +10,11 @@ export async function getAggregateKnowledge() {
 
 	knowledge = knowledge.concat(
 		easiestUnstudied.map(({ id, level, word }) => ({
-			alpha: 0.5,
+			alpha: nt,
 			beta: null,
 			wordId: id,
 			level,
-			lastTime: now() - 2.9 * 24 * 60,
+			lastTime: now() - 20,
 			word,
 			studied: false
 		}))

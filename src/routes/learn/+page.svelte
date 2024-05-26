@@ -22,9 +22,10 @@
 	import WriteSentence from './WriteSentence.svelte';
 	import { trackActivity } from './trackActivity';
 	import { sendWordsKnown } from '../api/knowledge/words-known/client';
+	import { calculateWordsKnown } from '../../logic/isomorphic/wordsKnown';
 
 	let knowledge: AggKnowledgeForUser[] = [];
-	let wordsKnown: number;
+	let wordsKnown: { read: number; write: number };
 
 	let revealed: UnknownWordResponse[] = [];
 	let current:
@@ -193,17 +194,6 @@
 		}
 	}
 
-	function calculateWordsKnown(knowledge: AggKnowledgeForUser[]) {
-		const n = now();
-
-		const wordsKnown = knowledge.reduce(
-			(acc, wk) => acc + expectedKnowledge(wk, { now: n, exercise: 'read' }),
-			0
-		);
-
-		return Math.round(wordsKnown);
-	}
-
 	async function continueAfterWrite() {
 		knowledge = await fetchAggregateKnowledge();
 		wordsKnown = calculateWordsKnown(knowledge);
@@ -219,12 +209,15 @@
 		<h3>{error}</h3>
 	{/if}
 
-	<div
+	<a
+		href="/home"
 		class="bg-blue-3 text-center text-blue-1 p-2 rounded-md top-2 right-2 absolute hidden lg:block"
 	>
-		<b class="font-sans text-3xl font-bold">{wordsKnown}</b>
-		<div class="text-xs font-lato">words known</div>
-	</div>
+		<b class="font-sans text-3xl font-bold">{wordsKnown?.read}</b>
+		<div class="text-xs font-lato">passive vocabulary</div>
+		<b class="font-sans text-3xl font-bold">{wordsKnown?.write}</b>
+		<div class="text-xs font-lato">active vocabulary</div>
+	</a>
 
 	{#if current}
 		<div class="text-right font-lato text-xs flex gap-1 mb-4 justify-end">

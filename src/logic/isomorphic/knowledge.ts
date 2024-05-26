@@ -1,7 +1,7 @@
 import type { AlphaBetaTime, Exercise } from '../types';
 
 const kn = 1.1;
-const nt = 0.2;
+export const nt = 0.2;
 const f = 0.3;
 
 const a = 9.59244224e-1;
@@ -89,7 +89,7 @@ export function knew(
 	{ now, exercise }: { now: number; exercise: Exercise }
 ) {
 	if (exercise == 'read') {
-		return { alpha: Math.min((1 - f) * alpha + f * kn, 1), beta: null };
+		return { alpha: Math.min((1 - f) * alpha + f * kn, 1), beta };
 	} else if (beta != null) {
 		return { alpha, beta: Math.min((1 - f) * beta + f * kn, 1) };
 	} else {

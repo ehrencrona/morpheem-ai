@@ -35,6 +35,9 @@
 		showChars = 0;
 		suggestedWords = [];
 		userSelection = undefined;
+		englishWord = undefined;
+		englishSentence = undefined;
+
 		mnemonic = await fetchMnemonic(word.id, false);
 	}
 

@@ -60,6 +60,18 @@ export function getNextWords(knowledge: AggKnowledgeForUser[], count = 5) {
 				.join(`\n`)
 	);
 
+	console.log(
+		'Next unstudied word\n' +
+			scores
+				.filter((s) => s.studied == false)
+				.map(
+					(i) =>
+						`${i.word} ${i.exercise} (${i.wordId}, score ${Math.round(i.score * 100)}%, knowledge ${Math.round(
+							100 * expectedKnowledge(i, { now: n, exercise: i.exercise })
+						)}% level ${i.level})${i.studied === false ? ' unstudied' : ''}`
+				)
+	);
+
 	return topScores.map(({ wordId, exercise }) => ({ wordId, exercise }));
 }
 

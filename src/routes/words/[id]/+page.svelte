@@ -49,7 +49,7 @@
 	{#if data.forms.length}
 		<h2 class="font-bold mt-8 mb-2">Forms</h2>
 
-		<ul class="flex gap-2">
+		<ul class="flex flex-wrap gap-2">
 			{#each data.forms as form}
 				<li class="bg-blue-1 border-blue-1 rounded-lg px-5 py-1">
 					{form.word}
@@ -64,11 +64,13 @@
 
 	<h2 class="font-bold mt-8 mb-2">Knowledge history</h2>
 
-	<div class="grid grid-cols-4 mb-2">
+	<div class="grid grid-cols-6 mb-2">
 		<div class="mb-1">Date</div>
 		<div class="mb-1">Knew</div>
+		<div class="mb-1">Exercise</div>
 		<div class="mb-1">Knowledge</div>
 		<div class="mb-1">Alpha</div>
+		<div class="mb-1">Beta</div>
 		{#each data.knowledgeHistory as k}
 			<div>
 				{dateFormat.format(k.date)}
@@ -76,14 +78,18 @@
 			<div>
 				{k.knew ? 'Knew' : "Didn't know"}
 			</div>
+			<div>{k.exercise}</div>
 			<div>
 				{toPercent(k.knowledge)}
 			</div>
 			<div>
 				{toPercent(k.alpha)}
 			</div>
+			<div>
+				{k.beta ? toPercent(k.beta) : '-'}
+			</div>
 		{/each}
 	</div>
 
-	<p>Knowledge now: {toPercent(data.wordKnowledge)}</p>
+	<p>Knowledge now {toPercent(data.readKnowledge)} (read), {toPercent(data.writeKnowledge)} (write)</p>
 </main>

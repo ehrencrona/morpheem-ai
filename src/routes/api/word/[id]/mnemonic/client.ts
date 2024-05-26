@@ -1,8 +1,5 @@
-export async function fetchMnemonic(
-	wordId: number,
-	forceRegenerate: boolean = false
-): Promise<string> {
-	const res = await fetch(`/api/word/${wordId}/mnemonic${forceRegenerate ? `?force` : ''}`, {
+export async function fetchMnemonic(wordId: number, generate: boolean = false): Promise<string> {
+	const res = await fetch(`/api/word/${wordId}/mnemonic${generate ? `?generate` : ''}`, {
 		method: 'POST'
 	});
 

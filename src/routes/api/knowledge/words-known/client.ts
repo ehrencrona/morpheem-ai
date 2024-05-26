@@ -1,10 +1,10 @@
-export async function sendWordsKnown(wordsKnown: number) {
+export async function sendWordsKnown({ read, write }: { read: number; write: number }) {
 	const res = await fetch('/api/knowledge/words-known', {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json'
 		},
-		body: JSON.stringify({ wordsKnown })
+		body: JSON.stringify({ read, write })
 	});
 
 	if (!res.ok) {

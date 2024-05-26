@@ -16,8 +16,8 @@
 
 	let editMnemonic: string | undefined;
 
-	async function getMnemonic(word: DB.Word, forceRegeneration: boolean) {
-		mnemonic = await fetchMnemonic(word.id, forceRegeneration);
+	async function getMnemonic(word: DB.Word, generate: boolean) {
+		mnemonic = await fetchMnemonic(word.id, generate);
 	}
 
 	async function saveMnemonic(newMnemonic: string) {

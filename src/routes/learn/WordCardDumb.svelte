@@ -9,7 +9,7 @@
 	export let mnemonic: string | undefined = undefined;
 	export let english: string | undefined = undefined;
 
-	export let onGetMnemonic: (word: DB.Word, forceRegeneration: boolean) => Promise<any>;
+	export let onGetMnemonic: (word: DB.Word, generate: boolean) => Promise<any>;
 	export let onEditMnemonic: (word: DB.Word, mnemonic?: string) => Promise<any>;
 </script>
 

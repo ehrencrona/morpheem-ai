@@ -35,10 +35,10 @@
 
 	$: answer = conjugatedWord.slice(0, showChars) + (prefix || '');
 
-	let prefix: string;
+	let prefix: string|null;
 
 	function clear() {
-		prefix = '';
+		prefix = null;
 	}
 
 	$: if (sentence.id) {
@@ -101,7 +101,7 @@
 		{/each}
 	</div>
 
-	{#if suggestedWords.length > 0}
+	{#if suggestedWords.length > 0 && !answered}
 		<div class="flex flex-wrap gap-4 my-8">
 			{#each suggestedWords as suggestedWord}
 				<button
