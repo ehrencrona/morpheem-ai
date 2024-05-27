@@ -24,10 +24,13 @@ export function getAllWordTranslations(wordId: number) {
 }
 
 export function getWordTranslation(wordId: number, sentenceId: number | null) {
-	return db
-		.selectFrom('word_translations')
-		.where('word_id', '=', wordId)
-		.where('sentence_id', '=', sentenceId)
-		.selectAll()
-		.executeTakeFirst();
+	let select = db.selectFrom('word_translations').selectAll().where('word_id', '=', wordId);
+
+	if (sentenceId !== null) {
+		select = select.where('sentence_id', '=', sentenceId);
+	} else {
+		select = select.where('sentence_id', 'is', null);
+	}
+
+	return select.executeTakeFirst();
 }

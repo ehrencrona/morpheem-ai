@@ -23,6 +23,7 @@
 
 		{#if onRemove}
 			<button
+				type="button"
 				on:click={onRemove}
 				class="flex justify-center items-center p-[6px] mt-[-6px] mr-[-6px] ml-1"
 			>

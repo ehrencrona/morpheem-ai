@@ -92,6 +92,26 @@ export async function generateExampleSentences(
 	return graded;
 }
 
+export async function addWords(wordStrings: string[]) {
+	const [cognates, lemmas] = await Promise.all([
+		findCognates(wordStrings),
+		// try to double check that we actually got the dictionary form
+		lemmatizeSentences([wordStrings.join(' ')])
+	]);
+
+	wordStrings = wordStrings.filter((word) => {
+		const isLemmaDoubleCheck = lemmas[0].includes(word);
+
+		if (!isLemmaDoubleCheck) {
+			console.warn(`Double check: ${word} not found in lemmas`);
+		}
+
+		return isLemmaDoubleCheck;
+	});
+
+	return Promise.all(wordStrings.map((word) => addWord(word, cognates.includes(word))));
+}
+
 async function gradeSentences(sentences: string[], lemma: string, hardLevel: number) {
 	const lemmas = await lemmatizeSentences(sentences);
 
@@ -100,18 +120,14 @@ async function gradeSentences(sentences: string[], lemma: string, hardLevel: num
 	let missingWords = lemmas.flat().filter((lemma) => !words.some((word) => word.word === lemma));
 
 	if (missingWords.length) {
-		const [cognates, lemmas] = await Promise.all([
-			findCognates(missingWords),
-			// try to double check that we actually got the dictionary form
-			lemmatizeSentences([missingWords.join(' ')])
-		]);
+		const wordsAdded = await addWords(missingWords);
 
-		missingWords = missingWords.filter((word) => {
-			const isLemmaDoubleCheck = lemmas[0].includes(word);
+		for (const word of missingWords) {
+			const addedWord = wordsAdded.find((w) => w.word === word);
 
-			if (!isLemmaDoubleCheck) {
-				console.warn(`Double check: ${word} not found in lemmas`);
-
+			if (addedWord) {
+				words.push(addedWord);
+			} else {
 				words.push({
 					id: -1,
 					word,
@@ -119,13 +135,7 @@ async function gradeSentences(sentences: string[], lemma: string, hardLevel: num
 					cognate: false
 				});
 			}
-
-			return isLemmaDoubleCheck;
-		});
-
-		await Promise.all(
-			missingWords.map(async (word) => words.push(await addWord(word, cognates.includes(word))))
-		);
+		}
 	}
 
 	const knowledge = await getAggregateKnowledgeForUserWords({

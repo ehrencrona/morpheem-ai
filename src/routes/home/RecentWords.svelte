@@ -12,7 +12,7 @@
 	let showAll = false;
 
 	async function onUnknown(word: AggKnowledgeForUser) {
-		const unknownWord = await lookupUnknownWord(word.word, undefined, word.wordId);
+		const unknownWord = await lookupUnknownWord(word.word, undefined);
 
 		revealed = [...revealed, unknownWord];
 	}

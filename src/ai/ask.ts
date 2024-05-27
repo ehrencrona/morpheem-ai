@@ -78,7 +78,7 @@ export async function ask<T>({
 		const response = completion.choices[0].message.content || '';
 
 		if (logResponse) {
-			console.debug(`${requestId}. [assistant] ${response?.replaceAll(/[\n\t ]+/g, ' ')}`);
+			console.debug(`${requestId}. [${model}] ${response?.replaceAll(/[\n\t ]+/g, ' ')}`);
 		}
 
 		return response;

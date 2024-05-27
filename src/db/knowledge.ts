@@ -142,6 +142,10 @@ export async function getAggregateKnowledgeForUserWords({
 	userId: number;
 	wordIds: number[];
 }): Promise<AggKnowledgeForUser[]> {
+	if (wordIds.length === 0) {
+		return [];
+	}
+
 	const raw = await db
 		.selectFrom('aggregate_knowledge')
 		.innerJoin('words', 'word_id', 'id')

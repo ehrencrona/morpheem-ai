@@ -148,7 +148,7 @@
 			throw new Error('Invalid state');
 		}
 
-		const unknownWord = await lookupUnknownWord(word, current.sentence.id, current.wordId);
+		const unknownWord = await lookupUnknownWord(word, current.sentence.id);
 
 		revealed = [...revealed, unknownWord];
 	}

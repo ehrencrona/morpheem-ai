@@ -42,7 +42,9 @@
 	}
 
 	$: if (word.id || sentence.id) {
-		lookupUnknownWord(word.word, sentence.id, word.id).then((word) => (englishWord = word.english)).catch(console.error);
+		lookupUnknownWord(word.word, sentence.id)
+			.then((word) => (englishWord = word.english))
+			.catch(console.error);
 	}
 
 	$: if (sentence.id) {
@@ -50,11 +52,11 @@
 	}
 
 	async function onHint() {
-			if (showChars < 2) {
-				showChars++;
-			} else {
-				showChars = 100;
-			}
+		if (showChars < 2) {
+			showChars++;
+		} else {
+			showChars = 100;
+		}
 	}
 
 	async function onReveal() {

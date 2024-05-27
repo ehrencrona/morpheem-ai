@@ -1,7 +1,9 @@
 <script lang="ts">
+	import { slide } from 'svelte/transition';
 	import type { UnknownWordResponse } from '../api/word/unknown/+server';
 	import { lookupUnknownWord } from '../api/word/unknown/client';
 	import { fetchAskMeAnything } from '../api/write/ama/client';
+	import { fetchProvidedWordsInAnswer } from '../api/write/ama/provided/client';
 	import { storeWrittenSentence } from '../api/write/client';
 	import { fetchWritingFeedback } from '../api/write/feedback/client';
 	import AMA from './AMA.svelte';
@@ -17,70 +19,95 @@
 	let sentence: string;
 	let idea: string | undefined;
 
-	let unknownWord: UnknownWordResponse | undefined;
+	let revealed = false;
+	let unknownWords: UnknownWordResponse[] = [];
+
+	let lookedUpWord: UnknownWordResponse | undefined;
 
 	function clear() {
 		sentence = '';
 		feedback = '';
 		corrected = '';
 		idea = '';
-		unknownWord = undefined;
+		unknownWords = [];
+		revealed = false;
 	}
 
 	$: if (word) {
 		clear();
+
+		lookupUnknownWord(word.word, undefined)
+			.then((word) => (lookedUpWord = word))
+			.catch(console.error);
 	}
 
 	const onSubmit = async () => {
 		if (!sentence) return;
 
-		({ feedback, corrected } = await fetchWritingFeedback({ word: word.word, sentence }));
+		const res = await fetchWritingFeedback({ word: word.word, sentence });
+
+		({ feedback, corrected } = res);
+
+		unknownWords = dedup([...unknownWords, ...res.unknownWords]);
 	};
 
 	const clickedContinue = async () => {
-		await storeWrittenSentence({ wordId: word.id, sentence: corrected! });
+		await storeWrittenSentence({
+			wordId: word.id,
+			sentence: corrected!,
+			unknownWordIds: unknownWords.map(({ id }) => id)
+		});
 
 		return onContinue();
 	};
 
 	const onWordUnknown = async () => {
-		unknownWord = await lookupUnknownWord(word.word, undefined, word.id, true);
+		if (lookedUpWord) {
+			unknownWords = [...unknownWords, lookedUpWord];
+			revealed = true;
+		}
 	};
 
 	const getIdea = async () => {
 		idea = await fetchIdea();
 	};
+
+	function dedup(words: UnknownWordResponse[]) {
+		return words.filter((word, index) => words.findIndex((w) => w.id == word.id) == index);
+	}
+
+	const askMeAnything = async (question: string) => {
+		const answer = await fetchAskMeAnything({
+			type: 'write',
+			question,
+			word: word.word,
+			sentenceEntered: sentence,
+			sentenceCorrected: corrected
+		});
+
+		if (!revealed) {
+			fetchProvidedWordsInAnswer({ question, answer })
+				.then((words) => (unknownWords = dedup([...unknownWords, ...words])))
+				.catch(console.error);
+		}
+
+		return answer;
+	};
 </script>
 
 <div>
-	{#if !unknownWord}
-		<h1 class="mb-4">
-			{word.word}
+	<h1 class="mb-4 text-xl">
+		{#if lookedUpWord}"{lookedUpWord?.english}"{:else}...{/if}
+	</h1>
 
-			<span>
-				<a
-					href="#"
-					class="ml-1 text-xs font-lato underline"
-					on:click|preventDefault={onWordUnknown}
-				>
-					Explain word
-				</a>
-			</span>
-		</h1>
-	{/if}
+	<form>
+		{#if !feedback}
+			<p class="mb-4 font-lato text-xs">
+				Write a sentence or fragment using the Polish word for "<b>
+					{lookedUpWord?.english || '...'}
+				</b>"
+			</p>
 
-	{#if unknownWord}
-		<div class="flex flex-wrap mb-6 gap-4">
-			<WordCard word={unknownWord} english={unknownWord.english} />
-		</div>
-	{/if}
-
-	{#if !feedback}
-		<p class="mb-4 font-lato text-xs">
-			Write a sentence or fragment using the word "<b>{word.word}</b>"
-		</p>
-
-		<form>
 			<input
 				type="text"
 				bind:value={sentence}
@@ -91,39 +118,57 @@
 			{#if idea}
 				<div class="text-xs font-lato text-gray-1 mb-2">{idea}</div>
 			{/if}
-
-			{#if !idea}
-				<SpinnerButton
-					onClick={getIdea}
-					className="text-blue-1 bg-blue-3 rounded-md px-5 py-1 m-2 ml-0">Idea</SpinnerButton
-				>
+		{:else}
+			{#if corrected != sentence}
+				<div class="text-xl font-bold mb-6 mt-4 text-balance line-through">
+					{sentence}
+				</div>
 			{/if}
 
-			<SpinnerButton onClick={onSubmit} isSubmit={true}>Submit</SpinnerButton>
-		</form>
-	{:else}
-		{#if corrected != sentence}
-			<div class="text-xl font-bold mb-6 mt-4 text-balance line-through">
-				{sentence}
+			<div class="mb-6 font-lato text-xs">
+				{feedback}
+			</div>
+
+			<div class="text-xl font-bold mb-6 text-balance">{corrected}</div>
+		{/if}
+
+		{#if unknownWords.length > 0}
+			<div class="grid grid-cols-1 md:grid-cols-2 w-full gap-x-4 mt-8" transition:slide>
+				{#each unknownWords as unknownWord}
+					<WordCard
+						word={unknownWord}
+						english={unknownWord.english}
+						onRemove={() =>
+							(unknownWords = unknownWords.filter((word) => word.id != unknownWord.id))}
+					/>
+				{/each}
 			</div>
 		{/if}
 
-		<div class="mb-6 font-lato text-xs">
-			{feedback}
+		<div class="mt-8">
+			{#if !feedback}
+				{#if !revealed}
+					<SpinnerButton onClick={onWordUnknown} type="secondary">Hint</SpinnerButton>
+				{/if}
+
+				{#if !idea}
+					<SpinnerButton onClick={getIdea} type="secondary">Idea</SpinnerButton>
+				{/if}
+
+				<SpinnerButton onClick={onSubmit} isSubmit={true}>Submit</SpinnerButton>
+			{:else}
+				<SpinnerButton
+					onClick={async () => {
+						feedback = '';
+						corrected = '';
+					}}
+					className="text-blue-1 bg-blue-3 rounded-md px-5 py-1 m-2 ml-0">Try again</SpinnerButton
+				>
+
+				<SpinnerButton onClick={clickedContinue}>Continue</SpinnerButton>
+			{/if}
 		</div>
-
-		<div class="text-xl font-bold mb-6 text-balance">{corrected}</div>
-
-		<SpinnerButton
-			onClick={async () => {
-				feedback = '';
-				corrected = '';
-			}}
-			className="text-blue-1 bg-blue-3 rounded-md px-5 py-1 m-2 ml-0">Try again</SpinnerButton
-		>
-
-		<SpinnerButton onClick={clickedContinue}>Continue</SpinnerButton>
-	{/if}
+	</form>
 
 	<div
 		class="absolute bottom-0 left-0 right-0 bg-[#ffffff] px-4 py-2"
@@ -131,14 +176,7 @@
 	>
 		<AMA
 			explanation="Enter an English word to get a Polish translation."
-			ask={(question) =>
-				fetchAskMeAnything({
-					type: 'write',
-					question,
-					word: word.word,
-					sentenceEntered: sentence,
-					sentenceCorrected: corrected
-				})}
+			ask={askMeAnything}
 			wordId={word.id}
 		/>
 	</div>

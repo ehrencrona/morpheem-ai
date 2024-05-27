@@ -1,9 +1,6 @@
-import { generateWritingFeedback } from '../../../../ai/generateWritingFeedback';
-import { PostSchema } from './+server';
+import type { FeedbackResponse, PostSchema } from './+server';
 
-export async function fetchWritingFeedback(
-	params: PostSchema
-): Promise<ReturnType<typeof generateWritingFeedback>> {
+export async function fetchWritingFeedback(params: PostSchema): Promise<FeedbackResponse> {
 	const res = await fetch(`/api/write/feedback`, {
 		method: 'POST',
 		body: JSON.stringify(params),

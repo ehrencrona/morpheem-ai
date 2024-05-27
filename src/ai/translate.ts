@@ -19,13 +19,17 @@ export async function translateWordInContext(
 				: []),
 			{
 				role: 'user',
-				content: sentence
-					? `What does the word "${lemma}" mean in the sentence? Only answer with the definition.`
-					: `What does the Polish word "${lemma}" mean? Only answer with the definition.`
+				content:
+					(sentence
+						? `What is the English translation of the word "${lemma}" in the sentence?`
+						: `What is the English translation of the Polish word "${lemma}"?`) +
+					` Only answer with the definition (as a fragment; no final full stop). `
 			}
 		],
 		temperature: 0.5,
-		max_tokens: 30
+		max_tokens: 30,
+		logResponse: true,
+		model: 'gpt-4o'
 	});
 
 	return { english: definition };

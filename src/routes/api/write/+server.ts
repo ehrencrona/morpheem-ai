@@ -4,7 +4,8 @@ import { storeWrittenSentence } from '../../../logic/storeWrittenSentence';
 
 const postSchema = z.object({
 	sentence: z.string(),
-	wordId: z.number()
+	wordId: z.number(),
+	unknownWordIds: z.array(z.number())
 });
 
 export type PostSchema = z.infer<typeof postSchema>;

@@ -4,7 +4,7 @@ import type * as DB from './types';
 import type { NotNull } from 'kysely';
 import { SentenceWord } from '../logic/types';
 
-export async function addWord(lemma: string, isCognate?: boolean) {
+export async function addWord(lemma: string, isCognate?: boolean): Promise<DB.Word> {
 	if (lemma == 'the') {
 		throw new Error('"the" is English');
 	}

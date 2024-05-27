@@ -8,10 +8,12 @@ import { userId } from './user';
 
 export async function storeWrittenSentence({
 	sentence,
-	wordId
+	wordId,
+	unknownWordIds
 }: {
 	sentence: string;
 	wordId: number;
+	unknownWordIds: number[];
 }): Promise<void> {
 	const [lemmatized] = await lemmatizeSentences([sentence]);
 
@@ -22,8 +24,9 @@ export async function storeWrittenSentence({
 					const word = await getWordByLemma(lemma);
 
 					return {
+						word: word.word,
 						wordId: word.id,
-						isKnown: true,
+						isKnown: !unknownWordIds.includes(word.id),
 						studiedWordId: wordId,
 						sentenceId: undefined,
 						type: KNOWLEDGE_TYPE_WRITE,
@@ -46,5 +49,7 @@ export async function storeWrittenSentence({
 
 	await addKnowledge(knowledge);
 
-	console.log(`Writing feedback stored: ${lemmatized.join(', ')}`);
+	console.log(
+		`Writing feedback stored: ${knowledge.map((w) => `${w.word}${unknownWordIds.includes(w.wordId) ? ' (did not know)' : ''}`).join(', ')}`
+	);
 }

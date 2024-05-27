@@ -18,7 +18,7 @@ export async function askMeAnythingWrite({
 			{
 				role: 'system',
 				content:
-					'The user is practicing writing in Polish. Briefly but helpfully and friendly answer the question in English. If the user wrote an English word, provide the Polish translation. Do not provide the whole sentence for the user (unless explicitly asked for).'
+					'The user is practicing writing in Polish. Briefly but helpfully and friendly answer the question in English. If the user wrote an English word or phrase, provide the Polish translation. Do not provide the whole sentence for the user (unless explicitly asked for).'
 			},
 			{
 				role: 'assistant',
@@ -108,4 +108,29 @@ export async function askMeAnythingRead({
 		temperature: 1,
 		logResponse: true
 	});
+}
+
+export async function findProvidedWordsInAnswer(question: string, answer: string) {
+	const wordString = await ask({
+		model: 'gpt-4o',
+		messages: [
+			{
+				role: 'system',
+				content:
+					`In the following question/answer pair, I want to find which Polish words the user were told about that they did not already know. List all Polish words in the answer that are not present in the question. Use the dictionary form (lemma). Ignore English words. Only list the words, separated by commas.\n` +
+					'For example:\n' +
+					'Q: "How do you say white cats?" A: "białe koty" -> "biały, kot"\n' +
+					'Q: "How is mowic conjugated with oni?" A: "mówią" -> "" (because mówic was in the question)\n' +
+					'Q: "Give it to me?" A: "daj mi to" -> "daċ, mi, to"\n'
+			},
+			{
+				role: 'user',
+				content: `Q: "${question}" A: "${answer}"`
+			}
+		],
+		temperature: 0,
+		logResponse: true
+	});
+
+	return wordString.split(', ').map((word) => word.trim().replace(/"/g, ''));
 }
