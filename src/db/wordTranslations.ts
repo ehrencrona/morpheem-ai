@@ -26,7 +26,7 @@ export function getAllWordTranslations(wordId: number) {
 export function getWordTranslation(wordId: number, sentenceId: number | null) {
 	let select = db.selectFrom('word_translations').selectAll().where('word_id', '=', wordId);
 
-	if (sentenceId !== null) {
+	if (sentenceId != null) {
 		select = select.where('sentence_id', '=', sentenceId);
 	} else {
 		select = select.where('sentence_id', 'is', null);
