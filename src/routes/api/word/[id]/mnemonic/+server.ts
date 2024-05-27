@@ -17,7 +17,9 @@ export const POST: ServerLoad = async ({ params, url, locals }) => {
 	const word = await getWordById(wordId);
 
 	return json(
-		generate ? await generateMnemonic(word, userId, true) : await getMnemonic({ wordId, userId })
+		generate
+			? await generateMnemonic(word, userId, locals.user!.languages, true)
+			: await getMnemonic({ wordId, userId })
 	);
 };
 

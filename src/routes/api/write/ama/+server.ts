@@ -24,12 +24,12 @@ const postSchema = z
 		})
 	);
 
-export const POST: ServerLoad = async ({ request }) => {
+export const POST: ServerLoad = async ({ request, locals }) => {
 	const params = postSchema.parse(await request.json());
 
 	if (params.type === 'write') {
-		return json(await askMeAnythingWrite(params));
+		return json(await askMeAnythingWrite({ ...params, languagesSpoken: locals.user!.languages }));
 	} else {
-		return json(await askMeAnythingRead(params));
+		return json(await askMeAnythingRead({ ...params, languagesSpoken: locals.user!.languages }));
 	}
 };

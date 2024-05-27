@@ -1,7 +1,6 @@
-import { languagesSpoken } from '../logic/user';
 import { ask } from './ask';
 
-export async function generateMnemonic(word: string) {
+export async function generateMnemonic(word: string, languagesSpoken: string) {
 	const completion = await ask({
 		model: 'gpt-4o',
 		messages: [

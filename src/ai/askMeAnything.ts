@@ -1,16 +1,17 @@
-import { languagesSpoken } from '../logic/user';
 import { Message, ask } from './ask';
 
 export async function askMeAnythingWrite({
 	sentenceEntered,
 	sentenceCorrected,
 	word,
-	question
+	question,
+	languagesSpoken
 }: {
 	sentenceEntered?: string;
 	sentenceCorrected?: string;
 	word: string;
 	question: string;
+	languagesSpoken: string;
 }) {
 	return ask({
 		model: 'gpt-4o',
@@ -19,6 +20,10 @@ export async function askMeAnythingWrite({
 				role: 'system',
 				content:
 					'The user is practicing writing in Polish. Briefly but helpfully and friendly answer the question in English. If the user wrote an English word or phrase, provide the Polish translation. Do not provide the whole sentence for the user (unless explicitly asked for).'
+			},
+			{
+				role: 'system',
+				content: `The user speaks the following languages: ${languagesSpoken}`
 			},
 			{
 				role: 'assistant',
@@ -53,7 +58,8 @@ export async function askMeAnythingRead({
 	translation,
 	word,
 	confusedWord,
-	revealed
+	revealed,
+	languagesSpoken
 }: {
 	question: string;
 	sentence: string;
@@ -61,6 +67,7 @@ export async function askMeAnythingRead({
 	word: string;
 	confusedWord?: string;
 	revealed: { english: string; word: string }[];
+	languagesSpoken: string;
 }) {
 	return ask({
 		model: 'gpt-4o',

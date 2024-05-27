@@ -4,7 +4,9 @@ import { generateExampleSentences } from './generateExampleSentences';
 test('generateExampleSentences', async ({}) => {
 	const word = 'odcinek';
 
-	const sentences = await generateExampleSentences(word, undefined);
+	const sentences = await generateExampleSentences(word, {
+		userId: 4711
+	});
 
 	expect(sentences.length).toBeGreaterThan(2);
 
