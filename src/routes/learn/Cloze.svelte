@@ -43,7 +43,11 @@
 
 	$: if (word.id || sentence.id) {
 		lookupUnknownWord(word.word, sentence.id)
-			.then((word) => (englishWord = word.english))
+			.then((translated) => {
+				if (word.word == translated.word) {
+					englishWord = translated.english;
+				}
+			})
 			.catch(console.error);
 	}
 

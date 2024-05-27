@@ -85,7 +85,7 @@
 			sentenceCorrected: corrected
 		});
 
-		if (!revealed) {
+		if (!feedback) {
 			fetchProvidedWordsInAnswer({ question, answer })
 				.then((words) => (unknownWords = dedup([...unknownWords, ...words])))
 				.catch(console.error);

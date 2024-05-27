@@ -90,7 +90,7 @@
 		<div class="text-sm mb-4" in:slide>{englishSentence || englishWord}</div>
 	{/if}
 
-	<div class="flex flex-wrap mb-6 gap-4">
+	<div class="grid grid-cols-1 md:grid-cols-2 w-full gap-x-4 mt-8">
 		{#each revealed as word (word.id)}
 			<WordCard
 				{word}
@@ -128,7 +128,7 @@
 		<div class="mb-4">You picked <b>{answered}</b>.</div>
 	{/if}
 
-	<div class="flex flex-wrap mb-6 gap-4">
+	<div class="grid grid-cols-1 md:grid-cols-2 w-full gap-x-4 mt-8">
 		<WordCard {word} english={englishWord} {mnemonic} />
 
 		{#each revealed as word (word.id)}
