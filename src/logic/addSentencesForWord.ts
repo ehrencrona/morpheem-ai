@@ -10,11 +10,11 @@ import { generateExampleSentences } from './generateExampleSentences';
 /** Makes up new sentences for the specified word */
 export async function addSentencesForWord(
 	word: DB.Word,
-	{ retriesLeft = 1 }: { retriesLeft?: number } = {}
+	{ userId, retriesLeft = 1 }: { userId: number; retriesLeft?: number }
 ): ReturnType<typeof getSentencesWithWord> {
 	async function getSentences(retriesLeft = 1) {
 		try {
-			const sentences = await generateExampleSentences(word.word, word.level);
+			const sentences = await generateExampleSentences(word.word, { level: word.level, userId });
 
 			return sentences;
 		} catch (e: any) {
@@ -63,7 +63,7 @@ export async function addSentencesForWord(
 		if (retriesLeft > 0) {
 			console.error(message + ', retrying...');
 
-			return addSentencesForWord(word, { retriesLeft: retriesLeft - 1 });
+			return addSentencesForWord(word, { retriesLeft: retriesLeft - 1, userId });
 		} else {
 			throw new CodedError(message, 'noValidSentencesFound');
 		}

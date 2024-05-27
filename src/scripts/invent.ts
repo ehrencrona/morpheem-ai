@@ -5,7 +5,7 @@ import { generateExampleSentences } from '../logic/generateExampleSentences';
 async function invent() {
 	const word = await getWordByLemma('zjawić');
 
-	const sentences = await generateExampleSentences(word.word, undefined);
+	const sentences = await generateExampleSentences(word.word, { userId: 4711 });
 
 	const icp = await isContextProvided(sentences[0].sentence, word, sentences[0].lemmas);
 

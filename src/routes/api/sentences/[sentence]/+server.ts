@@ -1,13 +1,14 @@
 import type { ServerLoad } from '@sveltejs/kit';
 import { addSeenSentence } from '../../../../db/sentencesSeen';
-import { userId } from '../../../../logic/user';
 
-export const POST: ServerLoad = async ({ params }) => {
+export const POST: ServerLoad = async ({ params, locals }) => {
 	const sentenceId = parseInt(params.sentence || '');
 
 	if (isNaN(sentenceId)) {
 		throw new Error('Invalid sentence ID');
 	}
+
+	const userId = locals.user!.num;
 
 	await addSeenSentence(sentenceId, userId);
 

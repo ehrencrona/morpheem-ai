@@ -1,9 +1,8 @@
 import { json, type ServerLoad } from '@sveltejs/kit';
 import { z } from 'zod';
 import { storeWordsKnown } from '../../../../db/wordsKnown';
-import { userId } from '../../../../logic/user';
 
-export const POST: ServerLoad = async ({ request }) => {
+export const POST: ServerLoad = async ({ request, locals }) => {
 	let { read, write } = z
 		.object({
 			read: z.number(),
@@ -11,7 +10,7 @@ export const POST: ServerLoad = async ({ request }) => {
 		})
 		.parse(await request.json());
 
-	await storeWordsKnown({ userId, read, write });
+	await storeWordsKnown({ userId: locals.user!.num, read, write });
 
 	return json({});
 };

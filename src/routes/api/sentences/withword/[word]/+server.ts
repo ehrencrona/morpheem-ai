@@ -22,7 +22,8 @@ export const GET: ServerLoad = async ({ params }) => {
 };
 
 /** Add more examples of this word if there aren't any unseen. */
-export const POST: ServerLoad = async ({ params }) => {
+export const POST: ServerLoad = async ({ params, locals }) => {
+	const userId = locals.user!.num;
 	const wordId = parseInt(params.word || '');
 
 	if (isNaN(wordId)) {
@@ -33,7 +34,7 @@ export const POST: ServerLoad = async ({ params }) => {
 
 	console.log(`Add sentences with word: ${word.word} (${wordId})`);
 
-	const sentences = await addSentencesForWord(word).then(() => {
+	const sentences = await addSentencesForWord(word, { userId }).then(() => {
 		console.log(`Done adding sentences with word: ${word.word} (${wordId})`);
 	});
 

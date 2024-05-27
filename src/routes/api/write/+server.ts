@@ -10,10 +10,11 @@ const postSchema = z.object({
 
 export type PostSchema = z.infer<typeof postSchema>;
 
-export const POST: ServerLoad = async ({ request }) => {
+export const POST: ServerLoad = async ({ request, locals }) => {
 	const body = postSchema.parse(await request.json());
+	const userId = locals.user!.num;
 
-	await storeWrittenSentence(body);
+	await storeWrittenSentence({ ...body, userId });
 
 	return json({});
 };

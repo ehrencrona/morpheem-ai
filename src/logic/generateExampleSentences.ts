@@ -1,22 +1,28 @@
+import { findCognates } from '../ai/cognates';
 import {
 	generateExampleSentences as generateExampleSentencesAi,
 	simplifySentences
 } from '../ai/generateExampleSentences';
 import { lemmatizeSentences } from '../ai/lemmatize';
-import { translateSentences } from '../ai/translate';
 import { getAggregateKnowledgeForUserWords } from '../db/knowledge';
+import * as DB from '../db/types';
 import { addWord, getMultipleWordsByLemmas } from '../db/words';
 import { expectedKnowledge, now } from './isomorphic/knowledge';
-import { userId } from './user';
-import * as DB from '../db/types';
 import { AggKnowledgeForUser } from './types';
-import { findCognates } from '../ai/cognates';
 
 export async function generateExampleSentences(
 	lemma: string,
-	level = 60,
-	hardLevel = Math.max(Math.round((level * 2) / 3), 10),
-	retriesLeft = 1
+	{
+		level = 60,
+		hardLevel = Math.max(Math.round((level * 2) / 3), 10),
+		retriesLeft = 1,
+		userId
+	}: {
+		level?: number;
+		hardLevel?: number;
+		retriesLeft?: number;
+		userId: number;
+	}
 ) {
 	let sentences = await generateExampleSentencesAi(
 		lemma,
@@ -24,7 +30,7 @@ export async function generateExampleSentences(
 		8
 	);
 
-	let graded = await gradeSentences(sentences, lemma, hardLevel);
+	let graded = await gradeSentences(sentences, { exceptLemma: lemma, hardLevel, userId });
 
 	const simple = graded.filter(({ hard }) => !hard.length);
 
@@ -35,7 +41,12 @@ export async function generateExampleSentences(
 			console.log(`No simple sentences found. Retrying ${lemma} with level ${level / 2}`);
 
 			graded = graded.concat(
-				await generateExampleSentences(lemma, level / 2, hardLevel, retriesLeft - 1)
+				await generateExampleSentences(lemma, {
+					level: level / 2,
+					hardLevel,
+					retriesLeft: retriesLeft - 1,
+					userId
+				})
 			);
 		} else if (almostSimple.length) {
 			console.log(
@@ -47,8 +58,7 @@ export async function generateExampleSentences(
 					(await simplifySentences(almostSimple, lemma)).filter(
 						(s) => !sentences.some((sentence) => sentence.toLowerCase() === s.toLowerCase())
 					),
-					lemma,
-					hardLevel
+					{ exceptLemma: lemma, hardLevel, userId }
 				)
 			);
 		} else {
@@ -63,8 +73,7 @@ export async function generateExampleSentences(
 					(await simplifySentences(simplest, lemma)).filter(
 						(s) => !sentences.some((sentence) => sentence.toLowerCase() === s.toLowerCase())
 					),
-					lemma,
-					hardLevel
+					{ exceptLemma: lemma, hardLevel, userId }
 				)
 			);
 		}
@@ -112,7 +121,10 @@ export async function addWords(wordStrings: string[]) {
 	return Promise.all(wordStrings.map((word) => addWord(word, cognates.includes(word))));
 }
 
-async function gradeSentences(sentences: string[], lemma: string, hardLevel: number) {
+async function gradeSentences(
+	sentences: string[],
+	{ userId, exceptLemma, hardLevel }: { exceptLemma: string; hardLevel: number; userId: number }
+) {
 	const lemmas = await lemmatizeSentences(sentences);
 
 	const words = await getMultipleWordsByLemmas(dedup(lemmas.flat()));
@@ -144,7 +156,7 @@ async function gradeSentences(sentences: string[], lemma: string, hardLevel: num
 	});
 
 	const hardWords = words.filter(
-		(word) => word.word != lemma && isHard(word, knowledge, hardLevel)
+		(word) => word.word != exceptLemma && isHard(word, knowledge, hardLevel)
 	);
 
 	const hardLemmas = hardWords

@@ -14,14 +14,21 @@ import { AggKnowledgeForUser } from '../logic/types';
 async function regenerateAggregateKnowledge() {
 	const agg = new Map<number, Omit<AggKnowledgeForUser, 'word' | 'level'>>();
 
-	const rows = (await db.selectFrom('knowledge').orderBy('time asc').selectAll().execute()).map(
-		(row) => ({
-			...row,
-			wordId: row.word_id,
-			lastTime: dateToTime(row.time),
-			exercise: knowledgeTypeToExercise(row.type)
-		})
-	);
+	const userId = 4711;
+
+	const rows = (
+		await db
+			.selectFrom('knowledge')
+			.orderBy('time asc')
+			.where('user_id', '=', userId)
+			.selectAll()
+			.execute()
+	).map((row) => ({
+		...row,
+		wordId: row.word_id,
+		lastTime: dateToTime(row.time),
+		exercise: knowledgeTypeToExercise(row.type)
+	}));
 
 	for (const row of rows) {
 		let aggWord = agg.get(row.word_id);
@@ -55,6 +62,7 @@ async function regenerateAggregateKnowledge() {
 
 	const previousAgg = await db
 		.selectFrom('aggregate_knowledge')
+		.where('user_id', '=', userId)
 		.innerJoin('words', 'word_id', 'words.id')
 		.selectAll()
 		.execute();
@@ -78,9 +86,14 @@ async function regenerateAggregateKnowledge() {
 					beta: aggWord?.beta
 				})
 				.where('word_id', '=', row.word_id)
+				.where('user_id', '=', userId)
 				.execute();
 		} else {
-			await db.deleteFrom('aggregate_knowledge').where('word_id', '=', row.word_id).execute();
+			await db
+				.deleteFrom('aggregate_knowledge')
+				.where('word_id', '=', row.word_id)
+				.where('user_id', '=', userId)
+				.execute();
 		}
 	}
 

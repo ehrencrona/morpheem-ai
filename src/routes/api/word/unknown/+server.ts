@@ -6,7 +6,6 @@ import * as DB from '../../../../db/types';
 import { getWordByLemma } from '../../../../db/words';
 import { getWordInSentence } from '../../../../logic/getWordInSentence';
 import { addEnglishToSentence, translateWordInContext } from '../../../../logic/translate';
-import { userId } from '../../../../logic/user';
 
 export type PostSchema = z.infer<typeof postSchema>;
 
@@ -20,7 +19,8 @@ export interface UnknownWordResponse extends DB.Word {
 	mnemonic?: string;
 }
 
-export const POST: ServerLoad = async ({ request }) => {
+export const POST: ServerLoad = async ({ request, locals }) => {
+	const userId = locals.user!.num;
 	let { word: wordString, sentenceId } = postSchema.parse(await request.json());
 
 	let sentence:

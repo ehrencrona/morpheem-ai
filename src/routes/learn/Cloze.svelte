@@ -2,7 +2,6 @@
 	import { KNOWLEDGE_TYPE_CLOZE } from '../../db/knowledgeTypes';
 	import * as DB from '../../db/types';
 	import type { AggKnowledgeForUser, SentenceWord } from '../../logic/types';
-	import { userId } from '../../logic/user';
 	import { sendKnowledge } from '../api/knowledge/client';
 	import { fetchTranslation } from '../api/sentences/[sentence]/english/client';
 	import { fetchMnemonic } from '../api/word/[id]/mnemonic/client';
@@ -88,7 +87,7 @@
 					wordId: word.id,
 					isKnown: knew,
 					type: KNOWLEDGE_TYPE_CLOZE,
-					userId,
+					userId: -1,
 					studiedWordId: word.id
 				}
 			],

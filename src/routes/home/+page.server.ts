@@ -1,10 +1,15 @@
-import type { ServerLoad } from '@sveltejs/kit';
+import { redirect, type ServerLoad } from '@sveltejs/kit';
 import { getRecentKnowledge } from '../../db/knowledge';
-import { getRecentWrittenSentences } from '../../db/writtenSentences';
-import { userId } from '../../logic/user';
 import { getActivity } from '../../db/wordsKnown';
+import { getRecentWrittenSentences } from '../../db/writtenSentences';
 
-export const load = (async ({}) => {
+export const load = (async ({ locals }) => {
+	if (!locals.user) {
+		return redirect(302, '/login');
+	}
+
+	const userId = locals.user.num;
+
 	return {
 		knowledge: await getRecentKnowledge({
 			userId

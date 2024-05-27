@@ -19,8 +19,9 @@ const postSchema = z.object({
 	word: z.string()
 });
 
-export const POST: ServerLoad = async ({ request }) => {
+export const POST: ServerLoad = async ({ request, locals }) => {
 	const { sentence, word } = postSchema.parse(await request.json());
+	const userId = locals.user!.num;
 
 	const feedback = await generateWritingFeedback(sentence, word);
 
@@ -37,10 +38,10 @@ export const POST: ServerLoad = async ({ request }) => {
 		`User was provided with the words ${newWords.map(({ word }) => word).join(', ')} in the correction "${feedback.corrected}".`
 	);
 
-	newWords = await filterClearlyKnownWords(newWords);
+	newWords = await filterClearlyKnownWords(newWords, userId);
 
 	return json({
 		...feedback,
-		unknownWords: await wordsToUnknownWords(newWords)
+		unknownWords: await wordsToUnknownWords(newWords, userId)
 	} satisfies FeedbackResponse);
 };

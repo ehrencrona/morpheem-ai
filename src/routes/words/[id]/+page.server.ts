@@ -1,5 +1,6 @@
 import { redirect, type ServerLoad } from '@sveltejs/kit';
 import { getAggregateKnowledgeForUserWords, getRawKnowledgeForUser } from '../../../db/knowledge';
+import { knowledgeTypeToExercise } from '../../../db/knowledgeTypes';
 import { getForms } from '../../../db/lemmas';
 import { getMnemonic } from '../../../db/mnemonics';
 import { getSentencesWithWord } from '../../../db/sentences';
@@ -15,10 +16,8 @@ import {
 	now
 } from '../../../logic/isomorphic/knowledge';
 import { AlphaBeta } from '../../../logic/types';
-import { userId } from '../../../logic/user';
-import { knowledgeTypeToExercise } from '../../../db/knowledgeTypes';
 
-export const load = (async ({ params }) => {
+export const load: ServerLoad = (async ({ params, locals }) => {
 	const wordId = parseInt(params.id!);
 
 	if (isNaN(wordId)) {
@@ -26,6 +25,8 @@ export const load = (async ({ params }) => {
 
 		return redirect(302, `/words/${word.id}`);
 	}
+
+	const userId = locals.user!.num;
 
 	const word = await getWordById(wordId);
 
@@ -42,8 +43,8 @@ export const load = (async ({ params }) => {
 		? expectedKnowledge(knowledge[0], { now: now(), exercise: 'read' })
 		: 0;
 	const writeKnowledge = knowledge.length
-			? expectedKnowledge(knowledge[0], { now: now(), exercise: 'write' })
-			: 0;
+		? expectedKnowledge(knowledge[0], { now: now(), exercise: 'write' })
+		: 0;
 
 	const rawKnowledge = await getRawKnowledgeForUser({
 		userId,

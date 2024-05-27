@@ -4,16 +4,17 @@ import { getWordByLemma } from '../db/words';
 import { addWrittenSentence } from '../db/writtenSentences';
 import { addKnowledge } from './knowledge';
 import { lemmatizeSentences } from './lemmatize';
-import { userId } from './user';
 
 export async function storeWrittenSentence({
 	sentence,
 	wordId,
-	unknownWordIds
+	unknownWordIds,
+	userId
 }: {
 	sentence: string;
 	wordId: number;
 	unknownWordIds: number[];
+	userId: number;
 }): Promise<void> {
 	const [lemmatized] = await lemmatizeSentences([sentence]);
 

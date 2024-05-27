@@ -15,8 +15,8 @@
 	}
 </script>
 
-<a href="/learn" class="inline-block mt-2 bg-blue-3 text-blue-1 rounded-md px-4 py-3">
-	Start studying
+<a href="/" class="inline-block mt-2 bg-blue-3 text-blue-1 rounded-md px-4 py-3">
+	Keep studying
 </a>
 
 <h3 class="text-lg mb-4 mt-8">Your progress</h3>

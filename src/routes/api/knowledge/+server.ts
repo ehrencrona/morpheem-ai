@@ -4,9 +4,10 @@ import { storeSentenceDone } from '../../../db/wordsKnown';
 import { getAggregateKnowledge } from '../../../logic/getAggregateKnowledge';
 import { addKnowledge } from '../../../logic/knowledge';
 import { wordKnowledgeSchema } from '../../../logic/types';
-import { userId } from '../../../logic/user';
 
-export const POST: ServerLoad = async ({ request }) => {
+export const POST: ServerLoad = async ({ request, locals }) => {
+	const userId = locals.user!.num;
+
 	let { words, didSentence } = z
 		.object({
 			words: z.array(wordKnowledgeSchema),
@@ -15,7 +16,7 @@ export const POST: ServerLoad = async ({ request }) => {
 		})
 		.parse(await request.json());
 
-	await addKnowledge(words);
+	await addKnowledge(words.map((word) => ({ ...word, userId })));
 
 	if (didSentence) {
 		await storeSentenceDone(userId);
@@ -24,8 +25,10 @@ export const POST: ServerLoad = async ({ request }) => {
 	return json({});
 };
 
-export const GET: ServerLoad = async ({}) => {
-	let knowledge = await getAggregateKnowledge();
+export const GET: ServerLoad = async ({ locals }) => {
+	const userId = locals.user!.num;
+
+	let knowledge = await getAggregateKnowledge(userId);
 
 	return json(knowledge);
 };

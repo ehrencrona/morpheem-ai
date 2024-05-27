@@ -1,28 +1,26 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { CodedError } from '../../CodedError';
-	import { KNOWLEDGE_TYPE_READ } from '../../db/knowledgeTypes';
-	import type * as DB from '../../db/types';
-	import { getNextSentence, getNextWords } from '../../logic/isomorphic/getNext';
-	import { expectedKnowledge, now } from '../../logic/isomorphic/knowledge';
-	import type { AggKnowledgeForUser, Exercise, SentenceWord } from '../../logic/types';
-	import { userId } from '../../logic/user';
-	import { fetchAggregateKnowledge, sendKnowledge } from '../api/knowledge/client';
-	import { markSentenceSeen } from '../api/sentences/[sentence]/client';
-	import { fetchTranslation } from '../api/sentences/[sentence]/english/client';
-	import { fetchHint } from '../api/sentences/[sentence]/hint/client';
+	import { CodedError } from '../CodedError';
+	import { KNOWLEDGE_TYPE_READ } from '../db/knowledgeTypes';
+	import type * as DB from '../db/types';
+	import { getNextSentence, getNextWords } from '../logic/isomorphic/getNext';
+	import { calculateWordsKnown } from '../logic/isomorphic/wordsKnown';
+	import type { AggKnowledgeForUser, Exercise, SentenceWord } from '../logic/types';
+	import { fetchAggregateKnowledge, sendKnowledge } from './api/knowledge/client';
+	import { sendWordsKnown } from './api/knowledge/words-known/client';
+	import { markSentenceSeen } from './api/sentences/[sentence]/client';
+	import { fetchTranslation } from './api/sentences/[sentence]/english/client';
+	import { fetchHint } from './api/sentences/[sentence]/hint/client';
 	import {
 		addSentencesForWord,
 		fetchSentencesWithWord
-	} from '../api/sentences/withword/[word]/client';
-	import type { UnknownWordResponse } from '../api/word/unknown/+server';
-	import { lookupUnknownWord } from '../api/word/unknown/client';
-	import Cloze from './Cloze.svelte';
-	import ReadSentence from './ReadSentence.svelte';
-	import WriteSentence from './WriteSentence.svelte';
-	import { trackActivity } from './trackActivity';
-	import { sendWordsKnown } from '../api/knowledge/words-known/client';
-	import { calculateWordsKnown } from '../../logic/isomorphic/wordsKnown';
+	} from './api/sentences/withword/[word]/client';
+	import type { UnknownWordResponse } from './api/word/unknown/+server';
+	import { lookupUnknownWord } from './api/word/unknown/client';
+	import Cloze from './learn/Cloze.svelte';
+	import ReadSentence from './learn/ReadSentence.svelte';
+	import WriteSentence from './learn/WriteSentence.svelte';
+	import { trackActivity } from './learn/trackActivity';
 
 	let knowledge: AggKnowledgeForUser[] = [];
 	let wordsKnown: { read: number; write: number };
@@ -50,10 +48,13 @@
 
 	let nextPromise: ReturnType<typeof calculateNextSentence>;
 
-	async function calculateNextSentence(
-		wordIds: { wordId: number; exercise: Exercise }[] = [],
-		excludeWordId?: number
-	) {
+	async function calculateNextSentence({
+		wordIds = [],
+		excludeWordId
+	}: {
+		wordIds?: { wordId: number; exercise: Exercise }[];
+		excludeWordId?: number;
+	}) {
 		if (!wordIds.length) {
 			wordIds = getNextWords(knowledge).filter(({ wordId }) => wordId !== excludeWordId);
 		}
@@ -81,7 +82,10 @@
 				if (!nextSentence) {
 					console.error(`No sentences found for word ${wordId}`);
 
-					return calculateNextSentence(wordIds.slice(1), wordId);
+					return calculateNextSentence({
+						wordIds: wordIds.slice(1),
+						excludeWordId: wordId
+					});
 				}
 			}
 
@@ -90,7 +94,11 @@
 			return {
 				sentence,
 				wordId,
-				getNextPromise: () => calculateNextSentence(wordIds.slice(1), wordId),
+				getNextPromise: () =>
+					calculateNextSentence({
+						wordIds: wordIds.slice(1),
+						excludeWordId: wordId
+					}),
 				exercise
 			};
 		} catch (e: any) {
@@ -102,7 +110,10 @@
 				error = e.message;
 			}
 
-			return calculateNextSentence(wordIds.slice(1), wordId);
+			return calculateNextSentence({
+				wordIds: wordIds.slice(1),
+				excludeWordId: wordId
+			});
 		}
 	}
 
@@ -112,7 +123,7 @@
 			wordId,
 			getNextPromise: getNext,
 			exercise
-		} = await (nextPromise || calculateNextSentence());
+		} = await (nextPromise || calculateNextSentence({}));
 
 		nextPromise = getNext();
 
@@ -172,7 +183,7 @@
 				current.words.map((word) => ({
 					wordId: word.id,
 					sentenceId: sentenceId,
-					userId: userId,
+					userId: -1,
 					isKnown: !revealed.find(({ id }) => id === word.id),
 					studiedWordId,
 					type: KNOWLEDGE_TYPE_READ
@@ -213,9 +224,9 @@
 		href="/home"
 		class="bg-blue-3 text-center text-blue-1 p-2 rounded-md top-2 right-2 absolute hidden lg:block"
 	>
-		<b class="font-sans text-3xl font-bold">{wordsKnown?.read}</b>
+		<b class="font-sans text-3xl font-bold">{wordsKnown?.read || ''}</b>
 		<div class="text-xs font-lato">passive vocabulary</div>
-		<b class="font-sans text-3xl font-bold">{wordsKnown?.write}</b>
+		<b class="font-sans text-3xl font-bold">{wordsKnown?.write || ''}</b>
 		<div class="text-xs font-lato">active vocabulary</div>
 	</a>
 

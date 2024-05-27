@@ -1,3 +1,4 @@
+import { NodePostgresAdapter } from '@lucia-auth/adapter-postgresql';
 import { Kysely, PostgresDialect } from 'kysely';
 import type { DB } from 'kysely-codegen';
 import pg from 'pg';
@@ -6,10 +7,17 @@ const DATABASE_URL = 'postgres://andreasehrencrona@localhost/morpheem';
 
 const { Pool } = pg;
 
+const pool = new Pool({
+	connectionString: DATABASE_URL
+});
+
+export const adapter = new NodePostgresAdapter(pool, {
+	user: 'auth_user',
+	session: 'user_session'
+});
+
 export const db = new Kysely<DB>({
 	dialect: new PostgresDialect({
-		pool: new Pool({
-			connectionString: DATABASE_URL
-		})
+		pool
 	})
 });

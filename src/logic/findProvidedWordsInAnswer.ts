@@ -3,20 +3,21 @@ import { findProvidedWordsInAnswer as findProvidedWordsInAnswerAi } from '../ai/
 import { getAggregateKnowledgeForUserWords } from '../db/knowledge';
 import { getLemmaIdsOfWord } from '../db/lemmas';
 import { getMnemonic } from '../db/mnemonics';
+import * as DB from '../db/types';
 import { getWordById, getWordByLemma } from '../db/words';
 import { UnknownWordResponse } from '../routes/api/word/unknown/+server';
 import { addWords } from './generateExampleSentences';
 import { expectedKnowledge, now } from './isomorphic/knowledge';
 import { translateWordInContext } from './translate';
-import { userId } from './user';
-import * as DB from '../db/types';
 
 export async function findProvidedWordsInAnswer({
 	question,
-	answer
+	answer,
+	userId
 }: {
 	question: string;
 	answer: string;
+	userId: number;
 }): Promise<UnknownWordResponse[]> {
 	const provided = await findProvidedWordsInAnswerAi(question, answer);
 
@@ -26,9 +27,9 @@ export async function findProvidedWordsInAnswer({
 		`User was provided with the words ${unknownWords.map(({ word }) => word).join(', ')} in the answer "${answer}".`
 	);
 
-	unknownWords = await filterClearlyKnownWords(unknownWords);
+	unknownWords = await filterClearlyKnownWords(unknownWords, userId);
 
-	return wordsToUnknownWords(unknownWords);
+	return wordsToUnknownWords(unknownWords, userId);
 }
 
 export async function wordStringsToWords(wordStrings: string[], sentence: string) {
@@ -55,7 +56,10 @@ export async function wordStringsToWords(wordStrings: string[], sentence: string
 	);
 }
 
-export async function filterClearlyKnownWords(unknownWords: DB.Word[]): Promise<DB.Word[]> {
+export async function filterClearlyKnownWords(
+	unknownWords: DB.Word[],
+	userId: number
+): Promise<DB.Word[]> {
 	const knowledge = await getAggregateKnowledgeForUserWords({
 		userId,
 		wordIds: unknownWords.map(({ id }) => id)
@@ -73,7 +77,10 @@ export async function filterClearlyKnownWords(unknownWords: DB.Word[]): Promise<
 	});
 }
 
-export function wordsToUnknownWords(words: DB.Word[]): Promise<UnknownWordResponse[]> {
+export function wordsToUnknownWords(
+	words: DB.Word[],
+	userId: number
+): Promise<UnknownWordResponse[]> {
 	return Promise.all(
 		words.map(async (word) => {
 			const { english } = await translateWordInContext(word);

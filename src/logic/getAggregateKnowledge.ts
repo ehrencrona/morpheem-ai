@@ -1,9 +1,8 @@
 import { getAggregateKnowledgeForUser, getEasiestUnstudiedWords } from '../db/knowledge';
 import { now, nt } from './isomorphic/knowledge';
 import { getBeginnerKnowledge } from './knowledge';
-import { userId } from './user';
 
-export async function getAggregateKnowledge() {
+export async function getAggregateKnowledge(userId: number) {
 	let knowledge = await getAggregateKnowledgeForUser({ userId });
 
 	const easiestUnstudied = await getEasiestUnstudiedWords();
