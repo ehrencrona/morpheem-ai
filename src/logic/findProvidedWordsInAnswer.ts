@@ -5,7 +5,7 @@ import { getLemmaIdsOfWord } from '../db/lemmas';
 import { getMnemonic } from '../db/mnemonics';
 import * as DB from '../db/types';
 import { getWordById, getWordByLemma } from '../db/words';
-import { UnknownWordResponse } from '../routes/api/word/unknown/+server';
+import { UnknownWordResponse } from '../routes/[lang]/api/word/unknown/+server';
 import { addWords } from './generateExampleSentences';
 import { expectedKnowledge, now } from './isomorphic/knowledge';
 import { translateWordInContext } from './translate';
