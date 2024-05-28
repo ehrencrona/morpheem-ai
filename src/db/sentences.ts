@@ -1,18 +1,23 @@
 import { error } from '@sveltejs/kit';
+import { Language } from '../logic/types';
 import { db } from './client';
 import type { Sentence } from './types';
 
-export async function addSentence({
-	sentenceString,
-	english,
-	words
-}: {
-	sentenceString: string;
-	english: string | undefined;
-	words: { id: number; word: string | null }[];
-}): Promise<Sentence | undefined> {
+export async function addSentence(
+	sentenceString: string,
+	{
+		english,
+		words,
+		language
+	}: {
+		english: string | undefined;
+		words: { id: number; word: string | null }[];
+		language: Language;
+	}
+): Promise<Sentence | undefined> {
 	const sentence = await db.transaction().execute(async (trx) => {
 		const sentence = await trx
+			.withSchema(language.schema)
 			.insertInto('sentences')
 			.values({ sentence: sentenceString, english })
 			.returning(['id', 'sentence', 'english'])
@@ -33,7 +38,11 @@ export async function addSentence({
 			word_index: index
 		}));
 
-		await trx.insertInto('word_sentences').values(wordSentences).execute();
+		await trx
+			.withSchema(language.schema)
+			.insertInto('word_sentences')
+			.values(wordSentences)
+			.execute();
 
 		return sentence;
 	});
@@ -41,16 +50,22 @@ export async function addSentence({
 	return sentence;
 }
 
-export function getSentences() {
-	return db.selectFrom('sentences').select(['id', 'sentence']).orderBy('id asc').execute();
+export function getSentences(language: Language) {
+	return db
+		.withSchema(language.schema)
+		.selectFrom('sentences')
+		.select(['id', 'sentence'])
+		.orderBy('id asc')
+		.execute();
 }
 
-export function getSentenceIds() {
-	return db.selectFrom('sentences').select(['id']).execute();
+export function getSentenceIds(language: Language) {
+	return db.withSchema(language.schema).selectFrom('sentences').select(['id']).execute();
 }
 
-export async function getSentence(id: number) {
+export async function getSentence(id: number, language: Language) {
 	const sentence = await db
+		.withSchema(language.schema)
 		.selectFrom('sentences')
 		.select(['id', 'sentence', 'english'])
 		.where('id', '=', id)
@@ -63,8 +78,12 @@ export async function getSentence(id: number) {
 	return sentence;
 }
 
-export async function getSentencesWithWord(wordId: number): Promise<Sentence[]> {
+export async function getSentencesWithWord(
+	wordId: number,
+	language: Language
+): Promise<Sentence[]> {
 	return db
+		.withSchema(language.schema)
 		.selectFrom('word_sentences')
 		.innerJoin('sentences', 'sentence_id', 'id')
 		.select(['id', 'sentence', 'english'])
@@ -72,10 +91,19 @@ export async function getSentencesWithWord(wordId: number): Promise<Sentence[]> 
 		.execute();
 }
 
-export async function deleteSentence(sentenceId: number) {
-	await db.deleteFrom('sentences').where('id', '=', sentenceId).execute();
+export async function deleteSentence(sentenceId: number, language: Language) {
+	await db
+		.withSchema(language.schema)
+		.deleteFrom('sentences')
+		.where('id', '=', sentenceId)
+		.execute();
 }
 
-export async function storeEnglish(english: string, sentenceId: number) {
-	await db.updateTable('sentences').set({ english }).where('id', '=', sentenceId).execute();
+export async function storeEnglish(english: string, sentenceId: number, language: Language) {
+	await db
+		.withSchema(language.schema)
+		.updateTable('sentences')
+		.set({ english })
+		.where('id', '=', sentenceId)
+		.execute();
 }

@@ -4,19 +4,22 @@ import { getSentences } from '../db/sentences';
 import { getWordsOfSentence } from '../db/words';
 import { getSentenceWords } from '../logic/addSentence';
 import { toWords } from '../logic/toWords';
+import { POLISH } from '../constants';
 
 async function addMissingSentenceWords() {
-	const sentences = await getSentences();
+	const language = POLISH;
+
+	const sentences = await getSentences(language);
 
 	for (const sentence of sentences) {
-		const currentWords = await getWordsOfSentence(sentence.id);
+		const currentWords = await getWordsOfSentence(sentence.id, language);
 
 		const wordStrings = toWords(sentence.sentence);
 
 		if (currentWords.length != wordStrings.length) {
-			const lemmas = await lemmatizeSentences([sentence.sentence]);
+			const lemmas = await lemmatizeSentences([sentence.sentence], language);
 
-			const words = await getSentenceWords(sentence.sentence, lemmas[0]);
+			const words = await getSentenceWords(sentence.sentence, lemmas[0], language);
 
 			const wordSentences = words.map((word, index) => ({
 				word_id: word.id,

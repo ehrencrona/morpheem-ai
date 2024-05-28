@@ -5,9 +5,7 @@ import { getAggregateKnowledge } from '../../../logic/getAggregateKnowledge';
 import { addKnowledge } from '../../../logic/knowledge';
 import { wordKnowledgeSchema } from '../../../logic/types';
 
-export const POST: ServerLoad = async ({ request, locals }) => {
-	const userId = locals.user!.num;
-
+export const POST: ServerLoad = async ({ request, locals: { userId, language } }) => {
 	let { words, didSentence } = z
 		.object({
 			words: z.array(wordKnowledgeSchema),
@@ -16,19 +14,20 @@ export const POST: ServerLoad = async ({ request, locals }) => {
 		})
 		.parse(await request.json());
 
-	await addKnowledge(words.map((word) => ({ ...word, userId })));
+	await addKnowledge(
+		words.map((word) => ({ ...word, userId: userId! })),
+		language
+	);
 
 	if (didSentence) {
-		await storeSentenceDone(userId);
+		await storeSentenceDone(userId!, language);
 	}
 
 	return json({});
 };
 
-export const GET: ServerLoad = async ({ locals }) => {
-	const userId = locals.user!.num;
-
-	let knowledge = await getAggregateKnowledge(userId);
+export const GET: ServerLoad = async ({ locals: { userId, language } }) => {
+	let knowledge = await getAggregateKnowledge(userId!, language);
 
 	return json(knowledge);
 };

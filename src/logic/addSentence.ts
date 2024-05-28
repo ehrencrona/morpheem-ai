@@ -3,22 +3,34 @@ import { addWord, getMultipleWordsByLemmas } from '../db/words';
 import { toWords } from './toWords';
 
 import * as sentences from '../db/sentences';
+import { Language } from './types';
 
 export async function addSentence(
 	sentenceString: string,
-	english: string | undefined,
-	lemmas: string[]
+	{
+		english,
+		lemmas,
+		language
+	}: {
+		english: string | undefined;
+		lemmas: string[];
+		language: Language;
+	}
 ) {
 	console.log(`Adding sentence "${sentenceString}" (lemmas: ${lemmas.join(' ')})...`);
 
-	return sentences.addSentence({
-		sentenceString,
+	return sentences.addSentence(sentenceString, {
 		english,
-		words: await getSentenceWords(sentenceString, lemmas)
+		words: await getSentenceWords(sentenceString, lemmas, language),
+		language
 	});
 }
 
-export async function getSentenceWords(sentenceString: string, lemmas: string[]) {
+export async function getSentenceWords(
+	sentenceString: string,
+	lemmas: string[],
+	language: Language
+) {
 	const wordStrings = toWords(sentenceString);
 
 	if (wordStrings.length !== lemmas.length) {
@@ -27,12 +39,12 @@ export async function getSentenceWords(sentenceString: string, lemmas: string[])
 		);
 	}
 
-	let words = await getMultipleWordsByLemmas(lemmas);
+	let words = await getMultipleWordsByLemmas(lemmas, language);
 
 	let missingWords = lemmas.filter((lemma) => !words.some((word) => word.word == lemma));
 
 	for (const missingWord of missingWords) {
-		const wordLemmas = await getLemmasOfWord(missingWord);
+		const wordLemmas = await getLemmasOfWord(missingWord, language);
 
 		if (wordLemmas.length > 0) {
 			const rightLemma = wordLemmas[0];
@@ -49,13 +61,15 @@ export async function getSentenceWords(sentenceString: string, lemmas: string[])
 
 	missingWords = lemmas.filter((lemma) => !words.some((word) => word.word == lemma));
 
-	words.push(...(await Promise.all(missingWords.map(async (lemma) => (await addWord(lemma))!))));
+	words.push(
+		...(await Promise.all(missingWords.map(async (lemma) => (await addWord(lemma, { language }))!)))
+	);
 
 	await Promise.all(
 		lemmas
 			.map((lemma, i) => [lemma, wordStrings[i]])
 			.map(([lemma, wordString]) =>
-				addWordToLemma(wordString, words.find((word) => word.word === lemma)!)
+				addWordToLemma(wordString, words.find((word) => word.word === lemma)!, language)
 			)
 	);
 

@@ -1,15 +1,19 @@
+import { Language } from '../logic/types';
 import { db } from './client';
 
 export function addWordTranslations({
 	wordId,
 	sentenceId,
-	english
+	english,
+	language
 }: {
 	wordId: number;
 	sentenceId?: number;
 	english: string;
+	language: Language;
 }) {
 	return db
+		.withSchema(language.schema)
 		.insertInto('word_translations')
 		.values({
 			word_id: wordId,
@@ -19,12 +23,21 @@ export function addWordTranslations({
 		.execute();
 }
 
-export function getAllWordTranslations(wordId: number) {
-	return db.selectFrom('word_translations').where('word_id', '=', wordId).selectAll().execute();
+export function getAllWordTranslations(wordId: number, language: Language) {
+	return db
+		.withSchema(language.schema)
+		.selectFrom('word_translations')
+		.where('word_id', '=', wordId)
+		.selectAll()
+		.execute();
 }
 
-export function getWordTranslation(wordId: number, sentenceId: number | null) {
-	let select = db.selectFrom('word_translations').selectAll().where('word_id', '=', wordId);
+export function getWordTranslation(wordId: number, sentenceId: number | null, language: Language) {
+	let select = db
+		.withSchema(language.schema)
+		.selectFrom('word_translations')
+		.selectAll()
+		.where('word_id', '=', wordId);
 
 	if (sentenceId != null) {
 		select = select.where('sentence_id', '=', sentenceId);

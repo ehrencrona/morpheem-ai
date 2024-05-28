@@ -21,6 +21,7 @@ export interface UnknownWordResponse extends DB.Word {
 
 export const POST: ServerLoad = async ({ request, locals }) => {
 	const userId = locals.user!.num;
+	const { language } = locals;
 	let { word: wordString, sentenceId } = postSchema.parse(await request.json());
 
 	let sentence:
@@ -31,22 +32,22 @@ export const POST: ServerLoad = async ({ request, locals }) => {
 	let word: DB.Word | undefined = undefined;
 
 	if (sentenceId) {
-		sentence = await addEnglishToSentence(await getSentence(sentenceId));
+		sentence = await addEnglishToSentence(await getSentence(sentenceId, language), language);
 
 		try {
-			word = await getWordInSentence(wordString, sentenceId);
+			word = await getWordInSentence(wordString, sentenceId, language);
 		} catch (e) {
 			console.error(e);
 		}
 	}
 
 	if (!word) {
-		word = await getWordByLemma(wordString);
+		word = await getWordByLemma(wordString, language);
 	}
 
-	const { english } = await translateWordInContext(word, sentence);
+	const { english } = await translateWordInContext(word, { sentence, language });
 
-	const mnemonic = await getMnemonic({ wordId: word.id, userId });
+	const mnemonic = await getMnemonic({ wordId: word.id, userId, language });
 
 	console.log(`Unknown: ${wordString} (${word.word}) -> ${english}`);
 

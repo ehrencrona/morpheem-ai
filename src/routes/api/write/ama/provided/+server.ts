@@ -11,6 +11,7 @@ const postSchema = z.object({
 
 export const POST: ServerLoad = async ({ request, locals }) => {
 	const params = postSchema.parse(await request.json());
+	const { language } = locals;
 
-	return json(await findProvidedWordsInAnswer({ ...params, userId: locals.user!.num }));
+	return json(await findProvidedWordsInAnswer({ ...params, userId: locals.user!.num, language }));
 };

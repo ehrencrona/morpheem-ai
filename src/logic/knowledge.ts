@@ -1,34 +1,38 @@
-import type { AggKnowledgeForUser, Exercise, WordKnowledge } from './types';
+import type { AggKnowledgeForUser, Exercise, Language, WordKnowledge } from './types';
 
 import { addKnowledge as addKnowledgeToDb, transformAggregateKnowledge } from '../db/knowledge';
 import { getWordsBelowLevel } from '../db/words';
 import { didNotKnow, didNotKnowFirst, knew, knewFirst, now } from './isomorphic/knowledge';
 import { knowledgeTypeToExercise } from '../db/knowledgeTypes';
 
-export async function addKnowledge(words: WordKnowledge[]) {
+export async function addKnowledge(words: WordKnowledge[], language: Language) {
 	words = eliminateDuplicates(words);
+
+	await addKnowledgeToDb(words, language);
 
 	await parallelize(
 		words.map((wordKnowledge) => async () => {
-			await addKnowledgeToDb(wordKnowledge);
+			await transformAggregateKnowledge(
+				wordKnowledge,
+				(existing) => {
+					const exercise = knowledgeTypeToExercise(wordKnowledge.type);
 
-			await transformAggregateKnowledge(wordKnowledge, (existing) => {
-				const exercise = knowledgeTypeToExercise(wordKnowledge.type);
-
-				if (!existing) {
-					return wordKnowledge.isKnown ? knewFirst(exercise) : didNotKnowFirst(exercise);
-				} else {
-					return (wordKnowledge.isKnown ? knew : didNotKnow)(existing, { now: now(), exercise });
-				}
-			});
+					if (!existing) {
+						return wordKnowledge.isKnown ? knewFirst(exercise) : didNotKnowFirst(exercise);
+					} else {
+						return (wordKnowledge.isKnown ? knew : didNotKnow)(existing, { now: now(), exercise });
+					}
+				},
+				language
+			);
 		}),
 		10
 	);
 }
 
 /** TODO */
-export async function getBeginnerKnowledge(): Promise<AggKnowledgeForUser[]> {
-	const words = await getWordsBelowLevel(10);
+export async function getBeginnerKnowledge(language: Language): Promise<AggKnowledgeForUser[]> {
+	const words = await getWordsBelowLevel(10, language);
 
 	return words.slice(0, 4).map((word) => ({
 		wordId: word.id,

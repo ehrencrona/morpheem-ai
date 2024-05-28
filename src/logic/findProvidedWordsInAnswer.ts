@@ -9,46 +9,53 @@ import { UnknownWordResponse } from '../routes/api/word/unknown/+server';
 import { addWords } from './generateExampleSentences';
 import { expectedKnowledge, now } from './isomorphic/knowledge';
 import { translateWordInContext } from './translate';
+import { Language } from './types';
 
 export async function findProvidedWordsInAnswer({
 	question,
 	answer,
-	userId
+	userId,
+	language
 }: {
 	question: string;
 	answer: string;
 	userId: number;
+	language: Language;
 }): Promise<UnknownWordResponse[]> {
-	const provided = await findProvidedWordsInAnswerAi(question, answer);
+	const provided = await findProvidedWordsInAnswerAi(question, answer, language);
 
-	let unknownWords = await wordStringsToWords(provided, answer);
+	let unknownWords = await wordStringsToWords(provided, answer, language);
 
 	console.log(
 		`User was provided with the words ${unknownWords.map(({ word }) => word).join(', ')} in the answer "${answer}".`
 	);
 
-	unknownWords = await filterClearlyKnownWords(unknownWords, userId);
+	unknownWords = await filterClearlyKnownWords(unknownWords, userId, language);
 
-	return wordsToUnknownWords(unknownWords, userId);
+	return wordsToUnknownWords(unknownWords, userId, language);
 }
 
-export async function wordStringsToWords(wordStrings: string[], sentence: string) {
+export async function wordStringsToWords(
+	wordStrings: string[],
+	sentence: string,
+	language: Language
+) {
 	return filterUndefineds(
 		await Promise.all(
 			wordStrings.map(async (wordString) => {
 				try {
-					return await getWordByLemma(wordString);
+					return await getWordByLemma(wordString, language);
 				} catch (e) {
-					const lemmaIds = await getLemmaIdsOfWord(wordString);
+					const lemmaIds = await getLemmaIdsOfWord(wordString, language);
 
 					if (lemmaIds.length == 1) {
-						return getWordById(lemmaIds[0].lemma_id);
+						return getWordById(lemmaIds[0].lemma_id, language);
 					} else {
 						console.error(
 							`The word ${wordString} was provided in the answer "${sentence}" but does not exist. Adding it.`
 						);
 
-						return (await addWords([wordString]))[0];
+						return (await addWords([wordString], language))[0];
 					}
 				}
 			})
@@ -58,11 +65,13 @@ export async function wordStringsToWords(wordStrings: string[], sentence: string
 
 export async function filterClearlyKnownWords(
 	unknownWords: DB.Word[],
-	userId: number
+	userId: number,
+	language: Language
 ): Promise<DB.Word[]> {
 	const knowledge = await getAggregateKnowledgeForUserWords({
 		userId,
-		wordIds: unknownWords.map(({ id }) => id)
+		wordIds: unknownWords.map(({ id }) => id),
+		language
 	});
 
 	return unknownWords.filter((word) => {
@@ -79,13 +88,14 @@ export async function filterClearlyKnownWords(
 
 export function wordsToUnknownWords(
 	words: DB.Word[],
-	userId: number
+	userId: number,
+	language: Language
 ): Promise<UnknownWordResponse[]> {
 	return Promise.all(
 		words.map(async (word) => {
-			const { english } = await translateWordInContext(word);
+			const { english } = await translateWordInContext(word, { language, sentence: undefined });
 
-			const mnemonic = await getMnemonic({ wordId: word.id, userId });
+			const mnemonic = await getMnemonic({ wordId: word.id, userId, language });
 
 			return {
 				...word,

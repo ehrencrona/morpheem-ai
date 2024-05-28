@@ -4,25 +4,28 @@ import { getWordByLemma } from '../db/words';
 import { addWrittenSentence } from '../db/writtenSentences';
 import { addKnowledge } from './knowledge';
 import { lemmatizeSentences } from './lemmatize';
+import { Language } from './types';
 
 export async function storeWrittenSentence({
 	sentence,
 	wordId,
 	unknownWordIds,
-	userId
+	userId,
+	language
 }: {
 	sentence: string;
 	wordId: number;
 	unknownWordIds: number[];
 	userId: number;
+	language: Language;
 }): Promise<void> {
-	const [lemmatized] = await lemmatizeSentences([sentence]);
+	const [lemmatized] = await lemmatizeSentences([sentence], language);
 
 	const knowledge = filterUndefineds(
 		await Promise.all(
 			lemmatized.map(async (lemma) => {
 				try {
-					const word = await getWordByLemma(lemma);
+					const word = await getWordByLemma(lemma, language);
 
 					return {
 						word: word.word,
@@ -45,10 +48,11 @@ export async function storeWrittenSentence({
 	await addWrittenSentence({
 		sentence,
 		wordId,
-		userId
+		userId,
+		language
 	});
 
-	await addKnowledge(knowledge);
+	await addKnowledge(knowledge, language);
 
 	console.log(
 		`Writing feedback stored: ${knowledge.map((w) => `${w.word}${unknownWordIds.includes(w.wordId) ? ' (did not know)' : ''}`).join(', ')}`

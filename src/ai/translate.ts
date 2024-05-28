@@ -1,10 +1,12 @@
 import { z } from 'zod';
 import { Message, ask, toMessages } from './ask';
 import { askForJson } from './askForJson';
+import { Language } from '../logic/types';
 
 export async function translateWordInContext(
 	lemma: string,
-	sentence?: { sentence: string; english: string }
+	sentence: { sentence: string; english: string } | undefined,
+	language: Language
 ) {
 	const definition = await ask({
 		messages: [
@@ -12,7 +14,7 @@ export async function translateWordInContext(
 				? ([
 						{
 							role: 'user',
-							content: `Translate the Polish sentence "${sentence.sentence}" into English.`
+							content: `Translate the ${language.name} sentence "${sentence.sentence}" into English.`
 						},
 						{ role: 'assistant', content: sentence.english }
 					] as Message[])
@@ -22,7 +24,7 @@ export async function translateWordInContext(
 				content:
 					(sentence
 						? `What is the English translation of the word "${lemma}" in the sentence?`
-						: `What is the English translation of the Polish word "${lemma}"?`) +
+						: `What is the English translation of the ${language.name} word "${lemma}"?`) +
 					` Only answer with the definition (as a fragment; no final full stop). `
 			}
 		],
@@ -35,62 +37,63 @@ export async function translateWordInContext(
 	return { english: definition };
 }
 
-export async function translateWords(words: string[]) {
+export async function translateWords(words: string[], language: Language) {
 	return translateSentences(words, {
 		temperature: 0,
-		instruction:
-			'Translate the JSON of Polish dictionary words to their English definitions without changing the JSON format.'
+		instruction: `Translate the JSON of ${language.name} dictionary words to their English definitions without changing the JSON format.`,
+		language
 	});
 }
 
 export async function translateSentences(
-	polishes: string[],
+	sentences: string[],
 	{
 		temperature = 0.5,
 		instruction,
-		variableName = 'sentences'
-	}: { temperature?: number; instruction?: string; variableName?: string } = {}
+		variableName = 'sentences',
+		language
+	}: { temperature?: number; instruction?: string; variableName?: string; language: Language }
 ): Promise<string[]> {
-	if (polishes.length === 0) {
+	if (sentences.length === 0) {
 		return [];
 	}
 
-	const englishes = (
+	const translations = (
 		await askForJson({
 			messages: toMessages({
-				instruction: instruction || `Translate the JSON from Polish to English.`,
-				prompt: JSON.stringify({ [variableName]: polishes })
+				instruction: instruction || `Translate the JSON from ${language.name} to English.`,
+				prompt: JSON.stringify({ [variableName]: sentences })
 			}),
 			temperature,
-			max_tokens: 100 + polishes.reduce((sum, sentence) => sum + 4 * sentence.length, 0),
+			max_tokens: 100 + sentences.reduce((sum, sentence) => sum + 4 * sentence.length, 0),
 			schema: z.object({ [variableName]: z.array(z.string()) }),
 			model: 'gpt-3.5-turbo'
 		})
 	)[variableName];
 
-	if (englishes.length !== polishes.length) {
+	if (translations.length !== sentences.length) {
 		console.error(
-			`Number of sentences does not match number of translations: ${polishes.length} vs ${englishes.length}`
+			`Number of sentences does not match number of translations: ${sentences.length} vs ${translations.length}`
 		);
 
-		if (polishes.length > 1) {
+		if (sentences.length > 1) {
 			return (
 				await Promise.all(
-					polishes.map((sentence) => translateSentences([sentence], { temperature }))
+					sentences.map((sentence) => translateSentences([sentence], { temperature, language }))
 				)
 			).flat();
-		} else if (englishes.length) {
-			return englishes.slice(0, 1);
+		} else if (translations.length) {
+			return translations.slice(0, 1);
 		} else {
-			console.error({ polishes, englishes });
+			console.error({ polishes: sentences, englishes: translations });
 
-			throw new Error(`Failed to translate ${polishes.length} sentences.`);
+			throw new Error(`Failed to translate ${sentences.length} sentences.`);
 		}
 	}
 
-	for (const index of Object.keys(englishes)) {
-		const sentence = polishes[Number(index)];
-		const english = englishes[Number(index)];
+	for (const index of Object.keys(translations)) {
+		const sentence = sentences[Number(index)];
+		const english = translations[Number(index)];
 
 		if (
 			(english?.length < sentence.length / 4 || english?.length > sentence.length * 4) &&
@@ -100,5 +103,5 @@ export async function translateSentences(
 		}
 	}
 
-	return englishes;
+	return translations;
 }

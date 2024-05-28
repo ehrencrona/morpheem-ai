@@ -13,8 +13,9 @@ export type PostSchema = z.infer<typeof postSchema>;
 export const POST: ServerLoad = async ({ request, locals }) => {
 	const body = postSchema.parse(await request.json());
 	const userId = locals.user!.num;
+	const { language } = locals;
 
-	await storeWrittenSentence({ ...body, userId });
+	await storeWrittenSentence({ ...body, userId, language });
 
 	return json({});
 };

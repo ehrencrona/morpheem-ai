@@ -8,7 +8,7 @@ import { getAggregateKnowledgeForUserWords } from '../db/knowledge';
 import * as DB from '../db/types';
 import { addWord, getMultipleWordsByLemmas } from '../db/words';
 import { expectedKnowledge, now } from './isomorphic/knowledge';
-import { AggKnowledgeForUser } from './types';
+import { AggKnowledgeForUser, Language } from './types';
 
 export async function generateExampleSentences(
 	lemma: string,
@@ -16,21 +16,24 @@ export async function generateExampleSentences(
 		level = 60,
 		hardLevel = Math.max(Math.round((level * 2) / 3), 10),
 		retriesLeft = 1,
-		userId
+		userId,
+		language
 	}: {
 		level?: number;
 		hardLevel?: number;
 		retriesLeft?: number;
 		userId: number;
+		language: Language;
 	}
 ) {
 	let sentences = await generateExampleSentencesAi(
 		lemma,
 		level < 20 ? 'beginner' : level < 40 ? 'easy' : 'normal',
-		8
+		8,
+		language
 	);
 
-	let graded = await gradeSentences(sentences, { exceptLemma: lemma, hardLevel, userId });
+	let graded = await gradeSentences(sentences, { exceptLemma: lemma, hardLevel, userId, language });
 
 	const simple = graded.filter(({ hard }) => !hard.length);
 
@@ -45,7 +48,8 @@ export async function generateExampleSentences(
 					level: level / 2,
 					hardLevel,
 					retriesLeft: retriesLeft - 1,
-					userId
+					userId,
+					language
 				})
 			);
 		} else if (almostSimple.length) {
@@ -55,10 +59,10 @@ export async function generateExampleSentences(
 
 			graded = almostSimple.concat(
 				await gradeSentences(
-					(await simplifySentences(almostSimple, lemma)).filter(
+					(await simplifySentences(almostSimple, lemma, language)).filter(
 						(s) => !sentences.some((sentence) => sentence.toLowerCase() === s.toLowerCase())
 					),
-					{ exceptLemma: lemma, hardLevel, userId }
+					{ exceptLemma: lemma, hardLevel, userId, language }
 				)
 			);
 		} else {
@@ -70,10 +74,10 @@ export async function generateExampleSentences(
 
 			graded = simplest.concat(
 				await gradeSentences(
-					(await simplifySentences(simplest, lemma)).filter(
+					(await simplifySentences(simplest, lemma, language)).filter(
 						(s) => !sentences.some((sentence) => sentence.toLowerCase() === s.toLowerCase())
 					),
-					{ exceptLemma: lemma, hardLevel, userId }
+					{ exceptLemma: lemma, hardLevel, userId, language }
 				)
 			);
 		}
@@ -101,11 +105,11 @@ export async function generateExampleSentences(
 	return graded;
 }
 
-export async function addWords(wordStrings: string[]) {
+export async function addWords(wordStrings: string[], language: Language) {
 	const [cognates, lemmas] = await Promise.all([
-		findCognates(wordStrings),
+		findCognates(wordStrings, language),
 		// try to double check that we actually got the dictionary form
-		lemmatizeSentences([wordStrings.join(' ')])
+		lemmatizeSentences([wordStrings.join(' ')], { language })
 	]);
 
 	wordStrings = wordStrings.filter((word) => {
@@ -118,21 +122,28 @@ export async function addWords(wordStrings: string[]) {
 		return isLemmaDoubleCheck;
 	});
 
-	return Promise.all(wordStrings.map((word) => addWord(word, cognates.includes(word))));
+	return Promise.all(
+		wordStrings.map((word) => addWord(word, { isCognate: cognates.includes(word), language }))
+	);
 }
 
 async function gradeSentences(
 	sentences: string[],
-	{ userId, exceptLemma, hardLevel }: { exceptLemma: string; hardLevel: number; userId: number }
+	{
+		userId,
+		exceptLemma,
+		hardLevel,
+		language
+	}: { exceptLemma: string; hardLevel: number; userId: number; language: Language }
 ) {
-	const lemmas = await lemmatizeSentences(sentences);
+	const lemmas = await lemmatizeSentences(sentences, { language });
 
-	const words = await getMultipleWordsByLemmas(dedup(lemmas.flat()));
+	const words = await getMultipleWordsByLemmas(dedup(lemmas.flat()), language);
 
 	let missingWords = lemmas.flat().filter((lemma) => !words.some((word) => word.word === lemma));
 
 	if (missingWords.length) {
-		const wordsAdded = await addWords(missingWords);
+		const wordsAdded = await addWords(missingWords, language);
 
 		for (const word of missingWords) {
 			const addedWord = wordsAdded.find((w) => w.word === word);
@@ -152,7 +163,8 @@ async function gradeSentences(
 
 	const knowledge = await getAggregateKnowledgeForUserWords({
 		wordIds: words.map(({ id }) => id),
-		userId
+		userId,
+		language
 	});
 
 	const hardWords = words.filter(

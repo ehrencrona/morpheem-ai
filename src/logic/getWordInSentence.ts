@@ -3,14 +3,19 @@ import { addWordToLemma, getLemmaIdsOfWord } from '../db/lemmas';
 import { getSentence } from '../db/sentences';
 import { addWord, getWordsOfSentence } from '../db/words';
 import { toWords } from './toWords';
+import { Language } from './types';
 
 /**
  * @param wordString The word as it appears in the sentence.
  */
-export async function getWordInSentence(wordString: string, sentenceId: number) {
+export async function getWordInSentence(
+	wordString: string,
+	sentenceId: number,
+	language: Language
+) {
 	wordString = wordString.toLowerCase();
 
-	const lemmaIds = (await getLemmaIdsOfWord(wordString)).reduce((acc, { lemma_id }) => {
+	const lemmaIds = (await getLemmaIdsOfWord(wordString, language)).reduce((acc, { lemma_id }) => {
 		acc.add(lemma_id);
 		return acc;
 	}, new Set<number>());
@@ -18,10 +23,10 @@ export async function getWordInSentence(wordString: string, sentenceId: number) 
 	if (lemmaIds.size === 0) {
 		console.log(`Word "${wordString}" not found in word forms, adding...`);
 
-		const sentence = await getSentence(sentenceId);
+		const sentence = await getSentence(sentenceId, language);
 		const wordStrings = toWords(sentence.sentence);
 
-		const [lemmas] = await lemmatizeSentences([sentence.sentence]);
+		const [lemmas] = await lemmatizeSentences([sentence.sentence], { language });
 
 		const index = wordStrings.indexOf(wordString);
 
@@ -33,14 +38,14 @@ export async function getWordInSentence(wordString: string, sentenceId: number) 
 
 		const lemma = lemmas[index];
 
-		const word = await addWord(lemma);
+		const word = await addWord(lemma, { language });
 
-		await addWordToLemma(wordString, word);
+		await addWordToLemma(wordString, word, language);
 
 		return word;
 	}
 
-	const words = await getWordsOfSentence(sentenceId);
+	const words = await getWordsOfSentence(sentenceId, language);
 
 	const word = words.find((w) => lemmaIds.has(w.id) || w.word === wordString);
 

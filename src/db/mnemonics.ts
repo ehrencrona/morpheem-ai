@@ -1,15 +1,19 @@
+import { Language } from '../logic/types';
 import { db } from './client';
 
 export async function setMnemonic({
 	wordId,
 	userId,
-	mnemonic
+	mnemonic,
+	language
 }: {
 	wordId: number;
 	userId: number;
 	mnemonic: string;
+	language: Language;
 }): Promise<void> {
 	await db
+		.withSchema(language.schema)
 		.insertInto('mnemonics')
 		.values({ word_id: wordId, user_id: userId, mnemonic })
 		.onConflict((oc) => oc.columns(['user_id', 'word_id']).doUpdateSet({ mnemonic }))
@@ -18,13 +22,16 @@ export async function setMnemonic({
 
 export async function getMnemonic({
 	wordId,
-	userId
+	userId,
+	language
 }: {
 	wordId: number;
 	userId: number;
+	language: Language;
 }): Promise<string | undefined> {
 	return (
 		await db
+			.withSchema(language.schema)
 			.selectFrom('mnemonics')
 			.select('mnemonic')
 			.where('word_id', '=', wordId)

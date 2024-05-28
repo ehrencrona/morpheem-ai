@@ -1,8 +1,14 @@
 import { dateToTime } from '../logic/isomorphic/knowledge';
+import { Language } from '../logic/types';
 import { db } from './client';
 
-export async function addSeenSentence(sentenceId: number, userId: number): Promise<void> {
+export async function addSeenSentence(
+	sentenceId: number,
+	userId: number,
+	language: Language
+): Promise<void> {
 	await db
+		.withSchema(language.schema)
 		.insertInto('sentences_seen')
 		.values({ sentence_id: sentenceId, user_id: userId })
 		.onConflict((oc) =>
@@ -13,8 +19,12 @@ export async function addSeenSentence(sentenceId: number, userId: number): Promi
 		.execute();
 }
 
-export async function getLastSeen(sentenceIds: number[]): Promise<(number | undefined)[]> {
+export async function getLastSeen(
+	sentenceIds: number[],
+	language: Language
+): Promise<(number | undefined)[]> {
 	const rows = await db
+		.withSchema(language.schema)
 		.selectFrom('sentences_seen')
 		.select(['sentence_id', 'time'])
 		.where('sentence_id', 'in', sentenceIds)

@@ -6,15 +6,24 @@ import { deleteWord } from '../db/words';
 import { addSentence } from './addSentence';
 import { addWordsToSentences, getSentencesWithWord } from './getSentencesWithWord';
 import { generateExampleSentences } from './generateExampleSentences';
+import { Language } from './types';
 
 /** Makes up new sentences for the specified word */
 export async function addSentencesForWord(
 	word: DB.Word,
-	{ userId, retriesLeft = 1 }: { userId: number; retriesLeft?: number }
+	{
+		userId,
+		language,
+		retriesLeft = 1
+	}: { userId: number; language: Language; retriesLeft?: number }
 ): ReturnType<typeof getSentencesWithWord> {
 	async function getSentences(retriesLeft = 1) {
 		try {
-			const sentences = await generateExampleSentences(word.word, { level: word.level, userId });
+			const sentences = await generateExampleSentences(word.word, {
+				level: word.level,
+				userId,
+				language
+			});
 
 			return sentences;
 		} catch (e: any) {
@@ -42,15 +51,17 @@ export async function addSentencesForWord(
 
 					return hasWord;
 				})
-				.map(async ({ sentence, lemmas }) => addSentence(sentence, undefined, lemmas))
+				.map(async ({ sentence, lemmas }) =>
+					addSentence(sentence, { english: undefined, lemmas, language })
+				)
 		)
 	);
 
 	if (result.length == 0) {
-		const [[lemma]] = await lemmatizeSentences([word.word]);
+		const [[lemma]] = await lemmatizeSentences([word.word], { language });
 
 		if (lemma != word.word) {
-			await deleteWord(word.id);
+			await deleteWord(word.id, language);
 
 			throw new CodedError(
 				`No valid example sentences found for ${word.word} (${word.id}), probably because the lemma is actually ${lemma}. Deleting the word`,
@@ -63,11 +74,11 @@ export async function addSentencesForWord(
 		if (retriesLeft > 0) {
 			console.error(message + ', retrying...');
 
-			return addSentencesForWord(word, { retriesLeft: retriesLeft - 1, userId });
+			return addSentencesForWord(word, { retriesLeft: retriesLeft - 1, userId, language });
 		} else {
 			throw new CodedError(message, 'noValidSentencesFound');
 		}
 	}
 
-	return addWordsToSentences(result, word);
+	return addWordsToSentences(result, word, language);
 }

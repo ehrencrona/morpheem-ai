@@ -1,7 +1,9 @@
+import { Language } from '../logic/types';
 import { db } from './client';
 
-export async function getActivity(userId: number) {
+export async function getActivity(userId: number, language: Language) {
 	return db
+		.withSchema(language.schema)
 		.selectFrom('activity')
 		.selectAll()
 		.where('user_id', '=', userId)
@@ -12,13 +14,16 @@ export async function getActivity(userId: number) {
 export async function storeWordsKnown({
 	userId,
 	read,
-	write
+	write,
+	language
 }: {
 	userId: number;
 	read: number;
 	write: number;
+	language: Language;
 }) {
 	return db
+		.withSchema(language.schema)
 		.insertInto('activity')
 		.values({
 			user_id: userId,
@@ -34,8 +39,9 @@ export async function storeWordsKnown({
 		.execute();
 }
 
-export async function storeMinuteSpent(userId: number) {
+export async function storeMinuteSpent(userId: number, language: Language) {
 	return db
+		.withSchema(language.schema)
 		.insertInto('activity')
 		.values({
 			user_id: userId,
@@ -51,8 +57,9 @@ export async function storeMinuteSpent(userId: number) {
 		.execute();
 }
 
-export async function storeSentenceDone(userId: number) {
+export async function storeSentenceDone(userId: number, language: Language) {
 	return db
+		.withSchema(language.schema)
 		.insertInto('activity')
 		.values({
 			user_id: userId,

@@ -18,25 +18,27 @@ import {
 import { AlphaBeta } from '../../../logic/types';
 
 export const load: ServerLoad = (async ({ params, locals }) => {
+	const { language } = locals;
 	const wordId = parseInt(params.id!);
 
 	if (isNaN(wordId)) {
-		const word = await getWordByLemma(params.id!);
+		const word = await getWordByLemma(params.id!, language);
 
 		return redirect(302, `/words/${word.id}`);
 	}
 
 	const userId = locals.user!.num;
 
-	const word = await getWordById(wordId);
+	const word = await getWordById(wordId, language);
 
-	const sentences = await getSentencesWithWord(wordId);
+	const sentences = await getSentencesWithWord(wordId, language);
 
-	const forms = await getForms(wordId);
+	const forms = await getForms(wordId, language);
 
 	const knowledge = await getAggregateKnowledgeForUserWords({
 		userId,
-		wordIds: [wordId]
+		wordIds: [wordId],
+		language
 	});
 
 	const readKnowledge = knowledge.length
@@ -48,7 +50,8 @@ export const load: ServerLoad = (async ({ params, locals }) => {
 
 	const rawKnowledge = await getRawKnowledgeForUser({
 		userId,
-		wordId
+		wordId,
+		language
 	});
 
 	let acc: AlphaBeta | null = null;
@@ -73,9 +76,11 @@ export const load: ServerLoad = (async ({ params, locals }) => {
 		return { ...acc, knew: k, time: lastTime, date, knowledge, exercise };
 	}, null);
 
-	const mnemonic = await getMnemonic({ wordId, userId });
+	const mnemonic = await getMnemonic({ wordId, userId, language });
 
-	const translations = (await getAllWordTranslations(wordId)).map(({ english }) => english);
+	const translations = (await getAllWordTranslations(wordId, language)).map(
+		({ english }) => english
+	);
 
 	return {
 		sentences,

@@ -1,8 +1,14 @@
 import * as DB from '../db/types';
 import { toWords } from '../logic/toWords';
+import { Language } from '../logic/types';
 import { ask } from './ask';
 
-export async function isContextProvided(sentence: string, word: DB.Word, lemmas: string[]) {
+export async function isContextProvided(
+	sentence: string,
+	word: DB.Word,
+	lemmas: string[],
+	language: Language
+) {
 	const wordStrings = toWords(sentence);
 
 	if (wordStrings.length !== lemmas.length) {
@@ -24,7 +30,7 @@ export async function isContextProvided(sentence: string, word: DB.Word, lemmas:
 			},
 			{
 				role: 'user',
-				content: `What is the missing word in the following Polish sentence?\n${maskedSentence}`
+				content: `What is the missing word in the following ${language} sentence?\n${maskedSentence}`
 			}
 		],
 		temperature: 1,

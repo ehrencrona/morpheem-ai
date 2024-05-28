@@ -2,32 +2,55 @@ import { CodedError } from '../CodedError';
 import { getLemmasOfWord } from '../db/lemmas';
 import { standardize } from '../logic/isomorphic/standardize';
 import { toWords } from '../logic/toWords';
+import { Language } from '../logic/types';
 import { Message, ask } from './ask';
 
 export async function lemmatizeSentences(
 	sentences: string[],
-	{ retriesLeft = 1 }: { retriesLeft?: number } = {}
+	{ language, retriesLeft = 1 }: { language: Language; retriesLeft?: number }
 ) {
 	if (sentences.length === 0) {
 		return [];
 	}
 
+	const examples = {
+		pl: `"to są przykłady" 
+
+		becomes 
+							
+		to: to
+		są: być
+		przykłady: przykład`,
+		fr: `"y a-t-il des chaises?"
+		
+		becomes
+
+		y: y
+		a-t-il: avoir
+		des: de
+		chaises: chaise
+		
+		qu'est-ce que c'est?
+		
+		becomes
+		
+		qu': que
+		est-ce: être
+		que: que
+		c': ce
+		est: être`
+	};
+
 	const response = await ask({
-		model: 'gpt-3.5-turbo',
+		model: 'gpt-4o',
 		messages: (
 			[
 				{
 					role: 'system',
-					content: `For every Polish word entered, print it followed by the dictionary form. Print nothing else.
+					content: `For every ${language.name} word entered, print it followed by the dictionary form. Print nothing else.
 					Example:
 
-"to są przykłady" 
-
-becomes 
-					
-to: to
-są: być
-przykłady: przykład`
+${examples[language.code]}`
 				}
 			] as Message[]
 		).concat({
@@ -62,7 +85,7 @@ przykłady: przykład`
 					if (lemmaByWord[standardized]) {
 						return lemmaByWord[standardized];
 					} else {
-						const lemmas = await getLemmasOfWord(standardized);
+						const lemmas = await getLemmasOfWord(standardized, language);
 
 						if (lemmas.length == 1) {
 							return lemmas[0].word;
@@ -79,7 +102,7 @@ przykłady: przykład`
 
 	if (error) {
 		if (retriesLeft > 0) {
-			return lemmatizeSentences(sentences, { retriesLeft: retriesLeft - 1 });
+			return lemmatizeSentences(sentences, { language, retriesLeft: retriesLeft - 1 });
 		} else {
 			throw new CodedError(error, 'noLemmaFound');
 		}

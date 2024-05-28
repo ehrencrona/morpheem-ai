@@ -2,19 +2,28 @@ import { getSentencesWithWord as getSentencesWithWordFromDd } from '../db/senten
 import { getLastSeen } from '../db/sentencesSeen';
 import type * as DB from '../db/types';
 import { getWordsOfSentence } from '../db/words';
-import type { CandidateSentenceWithWords } from './types';
+import type { CandidateSentenceWithWords, Language } from './types';
 
-export async function getSentencesWithWord(word: DB.Word): Promise<CandidateSentenceWithWords[]> {
-	return addWordsToSentences(await getSentencesWithWordFromDd(word.id), word);
+export async function getSentencesWithWord(
+	word: DB.Word,
+	language: Language
+): Promise<CandidateSentenceWithWords[]> {
+	return addWordsToSentences(await getSentencesWithWordFromDd(word.id, language), word, language);
 }
 
 export async function addWordsToSentences(
 	sentences: DB.Sentence[],
-	word: DB.Word
+	word: DB.Word,
+	language: Language
 ): Promise<CandidateSentenceWithWords[]> {
-	const lastSeen = await getLastSeen(sentences.map((sentence) => sentence.id));
+	const lastSeen = await getLastSeen(
+		sentences.map((sentence) => sentence.id),
+		language
+	);
 
-	const words = await Promise.all(sentences.map((sentence) => getWordsOfSentence(sentence.id!)));
+	const words = await Promise.all(
+		sentences.map((sentence) => getWordsOfSentence(sentence.id!, language))
+	);
 
 	const result = sentences
 		.map((sentence, i) => ({

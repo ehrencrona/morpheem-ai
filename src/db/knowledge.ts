@@ -1,32 +1,31 @@
 import { dateToTime } from '../logic/isomorphic/knowledge';
-import type { AggKnowledgeForUser } from '../logic/types';
+import type { AggKnowledgeForUser, Language } from '../logic/types';
 import { db } from './client';
 
-export function addKnowledge({
-	wordId,
-	sentenceId,
-	userId,
-	isKnown,
-	studiedWordId,
-	type
-}: {
-	wordId: number;
-	sentenceId?: number;
-	userId: number;
-	isKnown: boolean;
-	studiedWordId: number;
-	type: number;
-}) {
+export function addKnowledge(
+	values: {
+		wordId: number;
+		sentenceId?: number;
+		userId: number;
+		isKnown: boolean;
+		studiedWordId: number;
+		type: number;
+	}[],
+	language: Language
+) {
 	return db
+		.withSchema(language.schema)
 		.insertInto('knowledge')
-		.values({
-			word_id: wordId,
-			sentence_id: sentenceId,
-			user_id: userId,
-			knew: isKnown,
-			studied_word_id: studiedWordId,
-			type
-		})
+		.values(
+			values.map(({ wordId, sentenceId, userId, isKnown, studiedWordId, type }) => ({
+				word_id: wordId,
+				sentence_id: sentenceId,
+				user_id: userId,
+				knew: isKnown,
+				studied_word_id: studiedWordId,
+				type
+			}))
+		)
 		.execute();
 }
 
@@ -36,10 +35,12 @@ export async function transformAggregateKnowledge(
 	transform: (opts: { alpha: number; beta: number | null; lastTime: number } | undefined) => {
 		alpha: number;
 		beta: number | null;
-	}
+	},
+	language: Language
 ) {
 	return db.transaction().execute(async (transaction) => {
 		const aggregateKnowledge = await transaction
+			.withSchema(language.schema)
 			.selectFrom('aggregate_knowledge')
 			.select(['alpha', 'beta', 'time'])
 			.where('word_id', '=', wordId)
@@ -50,6 +51,7 @@ export async function transformAggregateKnowledge(
 			const values = transform(undefined);
 
 			await transaction
+				.withSchema(language.schema)
 				.insertInto('aggregate_knowledge')
 				.values({
 					word_id: wordId,
@@ -68,6 +70,7 @@ export async function transformAggregateKnowledge(
 			});
 
 			await transaction
+				.withSchema(language.schema)
 				.updateTable('aggregate_knowledge')
 				.set({ ...values, time: new Date() })
 				.where('word_id', '=', wordId)
@@ -77,8 +80,9 @@ export async function transformAggregateKnowledge(
 	});
 }
 
-export async function getEasiestUnstudiedWords() {
+export async function getEasiestUnstudiedWords(language: Language) {
 	return db
+		.withSchema(language.schema)
 		.selectFrom('words')
 		.leftJoin('aggregate_knowledge', 'word_id', 'id')
 		.select(['id', 'word', 'level'])
@@ -89,11 +93,14 @@ export async function getEasiestUnstudiedWords() {
 }
 
 export async function getAggregateKnowledgeForUser({
-	userId
+	userId,
+	language
 }: {
 	userId: number;
+	language: Language;
 }): Promise<AggKnowledgeForUser[]> {
 	const raw = await db
+		.withSchema(language.schema)
 		.selectFrom('aggregate_knowledge')
 		.innerJoin('words', 'word_id', 'id')
 		.select(['word_id', 'alpha', 'beta', 'time', 'level', 'word'])
@@ -111,11 +118,14 @@ export async function getAggregateKnowledgeForUser({
 }
 
 export async function getRecentKnowledge({
-	userId
+	userId,
+	language
 }: {
 	userId: number;
+	language: Language;
 }): Promise<AggKnowledgeForUser[]> {
 	const raw = await db
+		.withSchema(language.schema)
 		.selectFrom('aggregate_knowledge')
 		.innerJoin('words', 'word_id', 'id')
 		.select(['word_id', 'alpha', 'beta', 'time', 'level', 'word'])
@@ -136,17 +146,20 @@ export async function getRecentKnowledge({
 }
 
 export async function getAggregateKnowledgeForUserWords({
+	wordIds,
 	userId,
-	wordIds
+	language
 }: {
-	userId: number;
 	wordIds: number[];
+	userId: number;
+	language: Language;
 }): Promise<AggKnowledgeForUser[]> {
 	if (wordIds.length === 0) {
 		return [];
 	}
 
 	const raw = await db
+		.withSchema(language.schema)
 		.selectFrom('aggregate_knowledge')
 		.innerJoin('words', 'word_id', 'id')
 		.select(['word_id', 'alpha', 'beta', 'time', 'level', 'word'])
@@ -166,12 +179,15 @@ export async function getAggregateKnowledgeForUserWords({
 
 export async function getRawKnowledgeForUser({
 	userId,
-	wordId
+	wordId,
+	language
 }: {
 	userId: number;
 	wordId: number;
+	language: Language;
 }) {
 	return db
+		.withSchema(language.schema)
 		.selectFrom('knowledge')
 		.select(['word_id', 'sentence_id', 'knew', 'time', 'type'])
 		.where('user_id', '=', userId)

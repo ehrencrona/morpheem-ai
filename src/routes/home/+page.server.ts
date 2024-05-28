@@ -4,6 +4,8 @@ import { getActivity } from '../../db/wordsKnown';
 import { getRecentWrittenSentences } from '../../db/writtenSentences';
 
 export const load = (async ({ locals }) => {
+	const { language } = locals;
+
 	if (!locals.user) {
 		return redirect(302, '/login');
 	}
@@ -12,9 +14,10 @@ export const load = (async ({ locals }) => {
 
 	return {
 		knowledge: await getRecentKnowledge({
-			userId
+			userId,
+			language
 		}),
-		writtenSentences: await getRecentWrittenSentences({ userId }),
-		activity: await getActivity(userId)
+		writtenSentences: await getRecentWrittenSentences({ userId, language }),
+		activity: await getActivity(userId, language)
 	};
 }) satisfies ServerLoad;

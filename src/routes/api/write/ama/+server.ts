@@ -28,8 +28,20 @@ export const POST: ServerLoad = async ({ request, locals }) => {
 	const params = postSchema.parse(await request.json());
 
 	if (params.type === 'write') {
-		return json(await askMeAnythingWrite({ ...params, languagesSpoken: locals.user!.languages }));
+		return json(
+			await askMeAnythingWrite({
+				...params,
+				languagesSpoken: locals.user!.languages,
+				language: locals.language
+			})
+		);
 	} else {
-		return json(await askMeAnythingRead({ ...params, languagesSpoken: locals.user!.languages }));
+		return json(
+			await askMeAnythingRead({
+				...params,
+				languagesSpoken: locals.user!.languages,
+				language: locals.language
+			})
+		);
 	}
 };

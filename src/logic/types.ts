@@ -1,6 +1,12 @@
 import { z } from 'zod';
 import * as DB from '../db/types';
 
+export interface Language {
+	code: 'pl' | 'fr';
+	name: string;
+	schema: string;
+}
+
 export interface AlphaBeta {
 	readonly alpha: number;
 	readonly beta: number | null;

@@ -1,7 +1,7 @@
 <script lang="ts">
-	import type { load } from './+page.server';
-
-	export let data: Awaited<ReturnType<typeof load>>;
+	import { PageData } from './$types';
+	
+	export let data: PageData;
 </script>
 
 <main>

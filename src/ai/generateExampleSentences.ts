@@ -1,17 +1,19 @@
 import { z } from 'zod';
 import { toMessages } from './ask';
 import { askForJson } from './askForJson';
+import { Language } from '../logic/types';
 
 export async function generateExampleSentences(
 	lemma: string,
 	level: 'beginner' | 'easy' | 'normal' = 'normal',
-	count: number = 10
+	count: number = 10,
+	language: Language
 ) {
 	let { examples } = await askForJson({
 		messages: toMessages({
 			instruction: `Return JSON in the format { "examples": [ ... ]}. Do not translate. Use simple words.`,
 			prompt:
-				`Give ${count} Polish sentences illustrating the use of the word "${lemma}".` +
+				`Give ${count} ${language.name} sentences illustrating the use of the word "${lemma}".` +
 				(level != 'normal' ? ` Use only simple words.` : ' Use only beginner words.')
 		}),
 		temperature: 1,
@@ -42,7 +44,8 @@ export async function generateExampleSentences(
 
 export async function simplifySentences(
 	sentences: { sentence: string; hard: string[]; lemmas: string[] }[],
-	lemma: string
+	lemma: string,
+	language: Language
 ) {
 	sentences = sentences.filter(({ hard }) => hard.length);
 
@@ -54,7 +57,7 @@ export async function simplifySentences(
 			},
 			{
 				role: 'user',
-				content: `Give ${Math.max(sentences.length, 2)} Polish sentences illustrating the use of the word "${lemma}".`
+				content: `Give ${Math.max(sentences.length, 2)} ${language.name} sentences illustrating the use of the word "${lemma}".`
 			},
 			{
 				role: 'assistant',
@@ -69,7 +72,7 @@ export async function simplifySentences(
 				content: `The following words are too difficult: ${dedup(
 					sentences.flatMap(({ hard }) => hard)
 				).join(', ')}.
-				Can you rewrite the Polish sentences using simpler words? Keep the word "${lemma}".`
+				Can you rewrite the ${language.name} sentences using simpler words? Keep the word "${lemma}".`
 			}
 		],
 
