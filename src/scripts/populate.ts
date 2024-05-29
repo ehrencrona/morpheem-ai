@@ -1,10 +1,10 @@
-import { FRENCH } from '../constants';
+import { FRENCH, POLISH } from '../constants';
 import { getWordsMissingExamples } from '../db/getWordsMissingExamples';
 import { addWord, deleteWord } from '../db/words';
 import { addSentencesForWord } from '../logic/addSentencesForWord';
 import { parallelize } from '../logic/knowledge';
 
-const language = FRENCH;
+const language = POLISH;
 
 export async function addSentencesForMissingWords() {
 	await addWord('maison', { language });
@@ -31,7 +31,7 @@ export async function addSentencesForMissingWords() {
 				}
 			}
 		}),
-		3
+		2
 	);
 }
 

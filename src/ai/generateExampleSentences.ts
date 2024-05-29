@@ -13,8 +13,12 @@ export async function generateExampleSentences(
 		messages: toMessages({
 			instruction: `Return JSON in the format { "examples": [ ... ]}. Do not translate. Use simple words.`,
 			prompt:
-				`Give ${count} ${language.name} sentences illustrating the use of the word "${lemma}".` +
-				(level != 'normal' ? ` Use only simple words.` : ' Use only beginner words.')
+				`Give ${count} ${language.name} sentences illustrating the use of the word "${lemma}". If the word is not a ${language.name} word, do not return anything.` +
+				(level != 'normal'
+					? level == 'beginner'
+						? ` Use only simple words.`
+						: ' Use only beginner words.'
+					: '')
 		}),
 		temperature: 1,
 		max_tokens: 6 * 200,

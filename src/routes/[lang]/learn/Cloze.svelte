@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { dedupUnknown } from '$lib/dedupUnknown';
 	import { KNOWLEDGE_TYPE_CLOZE, KNOWLEDGE_TYPE_READ } from '../../../db/knowledgeTypes';
 	import * as DB from '../../../db/types';
 	import type { AggKnowledgeForUser, Language, SentenceWord } from '../../../logic/types';
@@ -27,7 +28,7 @@
 	async function onUnknown(word: string) {
 		const unknownWord = await lookupUnknownWord(word, sentence.id);
 
-		revealed = [...revealed, unknownWord];
+		revealed = dedupUnknown([...revealed, unknownWord]);
 	}
 
 	async function onRemoveUnknown(word: string) {

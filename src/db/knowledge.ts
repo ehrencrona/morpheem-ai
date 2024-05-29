@@ -8,7 +8,7 @@ export function addKnowledge(
 		sentenceId?: number;
 		userId: number;
 		isKnown: boolean;
-		studiedWordId: number;
+		studiedWordId?: number;
 		type: number;
 	}[],
 	language: Language
@@ -27,6 +27,33 @@ export function addKnowledge(
 			}))
 		)
 		.execute();
+}
+
+export function addAggregateKnowledgeUnlessExists(
+	knowledge: {
+		alpha: number;
+		beta: number | null;
+		wordId: number;
+	}[],
+	userId: number,
+	language: Language
+) {
+	return db.transaction().execute(async (transaction) => {
+		for (const { alpha, beta, wordId } of knowledge) {
+			await transaction
+				.withSchema(language.schema)
+				.insertInto('aggregate_knowledge')
+				.values({
+					word_id: wordId,
+					user_id: userId,
+					alpha,
+					beta,
+					time: new Date()
+				})
+				.onConflict((oc) => oc.columns(['word_id', 'user_id']).doNothing())
+				.execute();
+		}
+	});
 }
 
 export async function transformAggregateKnowledge(
@@ -183,15 +210,41 @@ export async function getRawKnowledgeForUser({
 	language
 }: {
 	userId: number;
-	wordId: number;
+	wordId?: number;
 	language: Language;
 }) {
-	return db
+	let select = db
 		.withSchema(language.schema)
 		.selectFrom('knowledge')
 		.select(['word_id', 'sentence_id', 'knew', 'time', 'type'])
-		.where('user_id', '=', userId)
-		.where('word_id', '=', wordId)
-		.orderBy('time', 'asc')
-		.execute();
+		.where('user_id', '=', userId);
+
+	if (wordId !== undefined) {
+		select = select.where('word_id', '=', wordId);
+	}
+
+	return select.orderBy('time', 'asc').execute();
+}
+
+export async function getRawKnowledgeJoinedWithWordsForUser({
+	userId,
+	wordId,
+	language
+}: {
+	userId: number;
+	wordId?: number;
+	language: Language;
+}) {
+	let select = db
+		.withSchema(language.schema)
+		.selectFrom('knowledge')
+		.innerJoin('words', 'word_id', 'id')
+		.select(['word_id', 'sentence_id', 'knew', 'time', 'type', 'level', 'word', 'cognate'])
+		.where('user_id', '=', userId);
+
+	if (wordId !== undefined) {
+		select = select.where('word_id', '=', wordId);
+	}
+
+	return select.orderBy('time', 'asc').execute();
 }

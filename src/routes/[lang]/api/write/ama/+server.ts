@@ -18,7 +18,7 @@ const postSchema = z
 			question: z.string(),
 			sentence: z.string(),
 			translation: z.string().optional(),
-			word: z.string(),
+			word: z.string().optional(),
 			confusedWord: z.string().optional(),
 			revealed: z.array(z.object({ english: z.string(), word: z.string() }))
 		})

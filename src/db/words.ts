@@ -66,7 +66,7 @@ export async function getMultipleWordsByIds(wordIds: number[], language: Languag
 		.execute();
 }
 
-export async function getWords(orderBy: 'word asc' | 'id asc', language: Language) {
+export async function getWords(orderBy: 'word asc' | 'id asc' | 'level asc', language: Language) {
 	return db
 		.withSchema(language.schema)
 		.selectFrom('words')

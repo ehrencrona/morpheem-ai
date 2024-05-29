@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { dedupUnknown } from '$lib/dedupUnknown';
 	import { expectedKnowledge, now } from '../../../logic/isomorphic/knowledge';
 	import type { AggKnowledgeForUser } from '../../../logic/types';
 	import type { UnknownWordResponse } from '../api/word/unknown/+server';
@@ -14,7 +15,7 @@
 	async function onUnknown(word: AggKnowledgeForUser) {
 		const unknownWord = await lookupUnknownWord(word.word, undefined);
 
-		revealed = [...revealed, unknownWord];
+		revealed = dedupUnknown([...revealed, unknownWord]);
 	}
 
 	$: words = knowledge.map((wordKnowledge) => {

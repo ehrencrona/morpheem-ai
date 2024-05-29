@@ -19,9 +19,8 @@ export function getNextWords(knowledge: AggKnowledgeForUser[], count = 5) {
 						now: n,
 						exercise: 'read'
 					}) *
-						(2 - k.level / 100) *
 						(2 - k.level / 100)) /
-					4
+					2
 			},
 			{
 				...k,
@@ -31,9 +30,8 @@ export function getNextWords(knowledge: AggKnowledgeForUser[], count = 5) {
 						now: n,
 						exercise: 'write'
 					}) *
-						(2 - k.level / 100) *
 						(2 - k.level / 100)) /
-					4
+					2
 			}
 		],
 		[] as (AggKnowledgeForUser & { score: number; exercise: Exercise })[]

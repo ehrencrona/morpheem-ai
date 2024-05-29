@@ -14,7 +14,7 @@ export async function getAggregateKnowledge(userId: number, language: Language) 
 			beta: null,
 			wordId: id,
 			level,
-			lastTime: now() - 20,
+			lastTime: now() - 5,
 			word,
 			studied: false
 		}))

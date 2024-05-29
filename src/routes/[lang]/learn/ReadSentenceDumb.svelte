@@ -11,8 +11,8 @@
 	import WordCard from './WordCard.svelte';
 
 	export let sentence: DB.Sentence;
-	export let word: DB.Word;
-	export let knowledge: AggKnowledgeForUser[];
+	export let word: DB.Word | undefined;
+	export let knowledge: AggKnowledgeForUser[] | undefined = undefined;
 	export let language: Language;
 
 	export let revealed: UnknownWordResponse[];
@@ -39,6 +39,8 @@
 	}
 
 	function getExpectedKnowledge(word: DB.Word) {
+		if (!knowledge) return '';
+
 		const wordKnowledge = knowledge.find((k) => k.wordId === word.id);
 
 		if (wordKnowledge) {
@@ -115,12 +117,12 @@
 				fetchAskMeAnything({
 					type: 'read',
 					question,
-					word: word.word,
+					word: word?.word,
 					sentence: sentence.sentence,
 					revealed,
 					translation
 				})}
-			wordId={word.id}
+			wordId={sentence.id}
 		/>
 	</div>
 </div>

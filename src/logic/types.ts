@@ -23,7 +23,7 @@ export const wordKnowledgeSchema = z.object({
 	sentenceId: z.number().optional(),
 	userId: z.number(),
 	isKnown: z.boolean(),
-	studiedWordId: z.number(),
+	studiedWordId: z.number().optional(),
 	type: z.number()
 });
 

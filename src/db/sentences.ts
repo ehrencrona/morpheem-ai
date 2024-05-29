@@ -63,6 +63,15 @@ export function getSentenceIds(language: Language) {
 	return db.withSchema(language.schema).selectFrom('sentences').select(['id']).execute();
 }
 
+export async function getSentencesByIds(ids: number[], language: Language) {
+	return db
+		.withSchema(language.schema)
+		.selectFrom('sentences')
+		.select(['id', 'sentence', 'english'])
+		.where('id', 'in', ids)
+		.execute();
+}
+
 export async function getSentence(id: number, language: Language) {
 	const sentence = await db
 		.withSchema(language.schema)

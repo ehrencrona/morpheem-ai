@@ -24,6 +24,8 @@
 			/>
 
 			<button class="text-blue-1 rounded-md px-6 py-1 m-2 ml-0 bg-blue-4 mt-6">Continue</button>
+
+			<a href="/signup" class="text-blue-4 underline ml-4">Sign up</a>
 		</form>
 	</div>
 </div>

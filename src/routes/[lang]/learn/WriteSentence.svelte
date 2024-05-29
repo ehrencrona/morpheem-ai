@@ -46,6 +46,8 @@
 	const onSubmit = async () => {
 		if (!sentence) return;
 
+		sentence = sentence.trim();
+
 		const res = await fetchWritingFeedback({ word: word.word, sentence });
 
 		({ feedback, corrected } = res);

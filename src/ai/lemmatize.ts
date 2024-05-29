@@ -75,11 +75,11 @@ async function lemmatizeBatch(
 		
 		qu' (que) est-ce (être) que (que) c' (ce) est (être)
 		
-		ils ouvrent
+		ils ont une télé dorée 
 		
 		becomes
 		
-		ils (ils) ouvrent (ouvrir)`
+		ils (ils) ont (avoir) une (un) télé (télé) dorée (doré)`
 	};
 
 	const response = await ask({

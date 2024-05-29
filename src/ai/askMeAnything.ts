@@ -67,7 +67,7 @@ export async function askMeAnythingRead({
 	question: string;
 	sentence: string;
 	translation?: string;
-	word: string;
+	word?: string;
 	confusedWord?: string;
 	revealed: { english: string; word: string }[];
 	languagesSpoken: string;
@@ -78,7 +78,7 @@ export async function askMeAnythingRead({
 		messages: [
 			{
 				role: 'system',
-				content: `The user is studying ${language.name} and encountered the sentence "${sentence}" while studying the word ${word}${confusedWord ? `which they confused with "${confusedWord}"` : ''}. The user now has a question (about ${language.name}, the sentence or the word${confusedWord ? 's' : ''}). Briefly but helpfully and friendly answer the question (in English).`
+				content: `The user is studying ${language.name} and encountered the sentence "${sentence}"${word ? ` while studying the word "${word}"` : ''}${confusedWord ? ` which they confused with "${confusedWord}"` : ''}. The user now has a question (about ${language.name}, the sentence or the word${confusedWord ? 's' : ''}). Briefly but helpfully and friendly answer the question (in English).`
 			},
 			{
 				role: 'system',
