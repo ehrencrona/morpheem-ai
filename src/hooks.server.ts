@@ -34,9 +34,11 @@ export const handle: Handle = async ({ event, resolve }) => {
 	event.locals.userId = user?.num || null;
 	event.locals.session = session;
 
-	const [languageCode] = event.url.pathname.split('/');
+	const languageCode = event.url.pathname.split('/')[1];
 
-	event.locals.language = { pl: POLISH, fr: FRENCH }[languageCode] || POLISH;
+	const language = { pl: POLISH, fr: FRENCH }[languageCode];
+
+	event.locals.language = language || POLISH;
 
 	return resolve(event);
 };

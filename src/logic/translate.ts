@@ -23,26 +23,28 @@ export async function addEnglishToSentence(
 }
 
 export async function translateWordInContext(
-	word: DB.Word,
+	lemma: DB.Word,
 	{
 		sentence,
-		language
+		language,
+		wordString
 	}: {
 		sentence: { id: number; sentence: string; english: string } | undefined;
 		language: Language;
+		wordString?: string;
 	}
 ) {
 	let translation: { english: string } | undefined = await getWordTranslation(
-		word.id,
+		lemma.id,
 		sentence?.id || null,
 		language
 	);
 
 	if (!translation) {
-		translation = await translateWordInContextAi(word.word, sentence, language);
+		translation = await translateWordInContextAi(wordString || lemma.word, sentence, language);
 
 		await addWordTranslations({
-			wordId: word.id,
+			wordId: lemma.id,
 			sentenceId: sentence?.id,
 			english: translation.english,
 			language

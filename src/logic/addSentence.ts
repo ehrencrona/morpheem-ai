@@ -31,7 +31,7 @@ export async function getSentenceWords(
 	lemmas: string[],
 	language: Language
 ) {
-	const wordStrings = toWords(sentenceString);
+	const wordStrings = toWords(sentenceString, language);
 
 	if (wordStrings.length !== lemmas.length) {
 		throw new Error(

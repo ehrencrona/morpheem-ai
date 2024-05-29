@@ -20,17 +20,14 @@ import {
 } from '../../../../logic/isomorphic/knowledge';
 import { AlphaBeta } from '../../../../logic/types';
 
-export const load: ServerLoad = (async ({ params, locals }) => {
-	const { language } = locals;
+export const load: ServerLoad = async ({ params, locals: { language, userId } }) => {
 	const wordId = parseInt(params.id!);
 
 	if (isNaN(wordId)) {
 		const word = await getWordByLemma(params.id!, language);
 
-		return redirect(302, `/words/${word.id}`);
+		return redirect(302, `/${language.code}/words/${word.id}`);
 	}
-
-	const userId = locals.user!.num;
 
 	const word = await getWordById(wordId, language);
 
@@ -39,7 +36,7 @@ export const load: ServerLoad = (async ({ params, locals }) => {
 	const forms = await getForms(wordId, language);
 
 	const knowledge = await getAggregateKnowledgeForUserWords({
-		userId,
+		userId: userId!,
 		wordIds: [wordId],
 		language
 	});
@@ -52,7 +49,7 @@ export const load: ServerLoad = (async ({ params, locals }) => {
 		: 0;
 
 	const rawKnowledge = await getRawKnowledgeForUser({
-		userId,
+		userId: userId!,
 		wordId,
 		language
 	});
@@ -79,7 +76,7 @@ export const load: ServerLoad = (async ({ params, locals }) => {
 		return { ...acc, knew: k, time: lastTime, date, knowledge, exercise };
 	}, null);
 
-	const mnemonic = await getMnemonic({ wordId, userId, language });
+	const mnemonic = await getMnemonic({ wordId, userId: userId!, language });
 
 	const translations = (await getAllWordTranslations(wordId, language)).map(
 		({ english }) => english
@@ -93,6 +90,7 @@ export const load: ServerLoad = (async ({ params, locals }) => {
 		writeKnowledge,
 		knowledgeHistory,
 		mnemonic,
-		translations
+		translations,
+		languageCode: language.code
 	};
-}) satisfies ServerLoad;
+};

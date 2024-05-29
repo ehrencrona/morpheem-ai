@@ -1,7 +1,7 @@
 <script lang="ts">
-	import type { load } from './+page.server';
-
-	export let data: Awaited<ReturnType<typeof load>>;
+	import type { PageData } from './$types';
+	
+	export let data: PageData;
 
 	export let cognatesOnly = false;
 
@@ -20,7 +20,7 @@
 <main>
 	{#each words as word}
 		<div class='word'>
-			<a href="/words/{word.id}">{word.word}</a>
+			<a href={`words/${word.id}`}>{word.word}</a>
 		</div>
 	{/each}
 </main>

@@ -1,13 +1,13 @@
-import { POLISH } from '../constants';
+import { FRENCH } from '../constants';
 import { getWordsMissingExamples } from '../db/getWordsMissingExamples';
-import { deleteWord } from '../db/words';
+import { addWord, deleteWord } from '../db/words';
 import { addSentencesForWord } from '../logic/addSentencesForWord';
 import { parallelize } from '../logic/knowledge';
 
-export async function addSentencesForMissingWords() {
-	//	await addWord('piękny', 'pretty', undefined);
+const language = FRENCH;
 
-	const language = POLISH;
+export async function addSentencesForMissingWords() {
+	await addWord('maison', { language });
 
 	const words = await getWordsMissingExamples({
 		minSentenceCount: 3,
@@ -18,7 +18,7 @@ export async function addSentencesForMissingWords() {
 	await parallelize(
 		words.map((word) => async () => {
 			try {
-				return await addSentencesForWord(word, { userId: 4711, language });
+				return await addSentencesForWord(word, { language });
 			} catch (e: any) {
 				if (e.code == 'wrongLemma') {
 					console.error(e.message);
@@ -31,7 +31,7 @@ export async function addSentencesForMissingWords() {
 				}
 			}
 		}),
-		5
+		3
 	);
 }
 

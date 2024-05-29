@@ -7,7 +7,7 @@
 <main>
 	{#each data.sentences as sentence}
 		<p>
-			<a href="/sentences/{sentence.id}">{sentence.sentence}</a>
+			<a href={`/${data.languageCode}/sentences/${sentence.id}`}>{sentence.sentence}</a>
 		</p>
 	{/each}
 </main>

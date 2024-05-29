@@ -7,8 +7,52 @@ import { Message, ask } from './ask';
 
 export async function lemmatizeSentences(
 	sentences: string[],
-	{ language, retriesLeft = 1 }: { language: Language; retriesLeft?: number }
-) {
+	{
+		language,
+		ignoreErrors,
+		retriesLeft = 1
+	}: { language: Language; retriesLeft?: number; ignoreErrors?: boolean }
+): Promise<string[][]> {
+	if (sentences.length === 0) {
+		return [];
+	}
+
+	// split up sentences into batches of no more than 150 characters
+	const batches: string[][] = [];
+
+	let currentBatch: string[] = [];
+	let currentBatchLength = 0;
+
+	for (const sentence of sentences) {
+		if (currentBatchLength + sentence.length > 150 && currentBatch.length > 0) {
+			batches.push(currentBatch);
+			currentBatch = [];
+			currentBatchLength = 0;
+		}
+
+		currentBatch.push(sentence);
+		currentBatchLength += sentence.length;
+	}
+
+	batches.push(currentBatch);
+
+	return (
+		await Promise.all(
+			batches.map(async (batch) => {
+				return await lemmatizeBatch(batch, { language, ignoreErrors, retriesLeft });
+			})
+		)
+	).reduce<string[][]>((acc, val) => acc.concat(val), []);
+}
+
+async function lemmatizeBatch(
+	sentences: string[],
+	{
+		language,
+		ignoreErrors,
+		retriesLeft = 1
+	}: { language: Language; retriesLeft?: number; ignoreErrors?: boolean }
+): Promise<string[][]> {
 	if (sentences.length === 0) {
 		return [];
 	}
@@ -18,27 +62,24 @@ export async function lemmatizeSentences(
 
 		becomes 
 							
-		to: to
-		są: być
-		przykłady: przykład`,
+		to (to) są (być) przykłady (przykład)`,
 		fr: `"y a-t-il des chaises?"
 		
 		becomes
 
-		y: y
-		a-t-il: avoir
-		des: de
-		chaises: chaise
+		y (y) a-t-il (avoir) des (de) chaises (chaise)
 		
-		qu'est-ce que c'est?
+		qu' est-ce que c' est?
 		
 		becomes
 		
-		qu': que
-		est-ce: être
-		que: que
-		c': ce
-		est: être`
+		qu' (que) est-ce (être) que (que) c' (ce) est (être)
+		
+		ils ouvrent
+		
+		becomes
+		
+		ils (ils) ouvrent (ouvrir)`
 	};
 
 	const response = await ask({
@@ -55,18 +96,21 @@ ${examples[language.code]}`
 			] as Message[]
 		).concat({
 			role: 'user',
-			content: sentences.map((sentence) => toWords(sentence).join(' ')).join('\n')
+			content: sentences.map((sentence) => toWords(sentence, language).join(' ')).join('\n')
 		}),
 		temperature: 0,
-		max_tokens: 1000
+		max_tokens: 1000,
+		logResponse: true
 	});
 
 	let lemmaByWord: Record<string, string> = {};
 
 	(response || '').split('\n').map((line) => {
-		let [word, lemma] = line.split(':').map((part) => part.trim());
+		let matches = line.matchAll(/([^\s]+) \(([^\s]+)\)/g);
 
-		if (word && lemma) {
+		for (let match of matches) {
+			let [, word, lemma] = match;
+
 			word = standardize(word);
 			lemma = standardize(lemma);
 
@@ -79,7 +123,7 @@ ${examples[language.code]}`
 	const result = await Promise.all(
 		sentences.map(async (sentence) =>
 			Promise.all(
-				toWords(sentence).map(async (word) => {
+				toWords(sentence, language).map(async (word) => {
 					const standardized = standardize(word);
 
 					if (lemmaByWord[standardized]) {
@@ -100,9 +144,13 @@ ${examples[language.code]}`
 		)
 	);
 
-	if (error) {
+	if (error && !ignoreErrors) {
 		if (retriesLeft > 0) {
-			return lemmatizeSentences(sentences, { language, retriesLeft: retriesLeft - 1 });
+			return lemmatizeBatch(sentences, {
+				language,
+				retriesLeft: retriesLeft - 1,
+				ignoreErrors
+			});
 		} else {
 			throw new CodedError(error, 'noLemmaFound');
 		}

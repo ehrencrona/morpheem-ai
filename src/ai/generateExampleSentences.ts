@@ -72,14 +72,14 @@ export async function simplifySentences(
 				content: `The following words are too difficult: ${dedup(
 					sentences.flatMap(({ hard }) => hard)
 				).join(', ')}.
-				Can you rewrite the ${language.name} sentences using simpler words? Keep the word "${lemma}".`
+				Can you rewrite the ${language.name} sentences using simpler words? Keep the word "${lemma}" and only use ${language.name}.`
 			}
 		],
 
 		temperature: 1,
 		max_tokens: 6 * 200,
 		schema: z.object({ examples: z.array(z.string()) }),
-		model: 'gpt-3.5-turbo'
+		model: 'gpt-4o'
 	});
 
 	console.log(

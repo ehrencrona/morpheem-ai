@@ -24,7 +24,7 @@ export async function getWordInSentence(
 		console.log(`Word "${wordString}" not found in word forms, adding...`);
 
 		const sentence = await getSentence(sentenceId, language);
-		const wordStrings = toWords(sentence.sentence);
+		const wordStrings = toWords(sentence.sentence, language);
 
 		const [lemmas] = await lemmatizeSentences([sentence.sentence], { language });
 

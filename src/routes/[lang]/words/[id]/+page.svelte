@@ -1,6 +1,7 @@
 <script lang="ts">
-	import { PageData } from './$types';
-	
+	import { getLanguageOnClient } from '../../api/api-call';
+	import type { PageData } from './$types';
+
 	export let data: PageData;
 
 	const dateFormat = new Intl.DateTimeFormat('en-US', {
@@ -18,7 +19,10 @@
 <main>
 	<h1 class="text-xl font-bold my-4">{data.word?.word}</h1>
 
-	<a href="/words/{data.word.id}/delete" class="underline block mb-4 text-red">delete</a>
+	<a
+		href={`/${getLanguageOnClient().code}/words/${data.word.id}/delete`}
+		class="underline block mb-4 text-red">delete</a
+	>
 
 	<div class="my-4">
 		<p><b>Level</b>: {data.word.level}%</p>
@@ -42,7 +46,7 @@
 
 	{#each data.sentences as sentence}
 		<p class="my-1">
-			<a href="/sentences/{sentence.id}">{sentence.sentence}</a>
+			<a href={`/${data.languageCode}/sentences/${sentence.id}`}>{sentence.sentence}</a>
 		</p>
 	{/each}
 
@@ -54,7 +58,7 @@
 				<li class="bg-blue-1 border-blue-1 rounded-lg px-5 py-1">
 					{form.word}
 					<a
-						href={`/words/${data.word.id}/delete/lemma/${form.word}`}
+						href={`/${getLanguageOnClient().code}/words/${data.word.id}/delete/lemma/${form.word}`}
 						class="underline text-xs font-lato text-red ml-2">Delete</a
 					>
 				</li>
@@ -91,5 +95,7 @@
 		{/each}
 	</div>
 
-	<p>Knowledge now {toPercent(data.readKnowledge)} (read), {toPercent(data.writeKnowledge)} (write)</p>
+	<p>
+		Knowledge now {toPercent(data.readKnowledge)} (read), {toPercent(data.writeKnowledge)} (write)
+	</p>
 </main>

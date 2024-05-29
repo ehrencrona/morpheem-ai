@@ -10,5 +10,5 @@ export const GET: ServerLoad = async ({ params, locals: { language } }) => {
 
 	await deleteWord(wordId, language);
 
-	return redirect(302, '/words');
+	return redirect(302, `/${language.code}/words`);
 };

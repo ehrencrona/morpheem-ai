@@ -8,8 +8,8 @@ async function updateWordLevels() {
 		frequency: number;
 	}>`
     SELECT word_id, word, COUNT(*) AS frequency
-      FROM word_sentences
-      JOIN words ON word_id = id
+      FROM fr.word_sentences
+      JOIN fr.words ON word_id = id
       GROUP BY word_id, word
       ORDER BY frequency DESC`.execute(db);
 
@@ -22,7 +22,12 @@ async function updateWordLevels() {
 
 		console.log(`${word}\t${level}`);
 
-		await db.updateTable('words').set({ level }).where('id', '=', word_id).execute();
+		await db
+			.withSchema('fr')
+			.updateTable('words')
+			.set({ level })
+			.where('id', '=', word_id)
+			.execute();
 	}
 
 	process.exit(0);

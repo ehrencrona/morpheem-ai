@@ -45,7 +45,7 @@ export const POST: ServerLoad = async ({ request, locals }) => {
 		word = await getWordByLemma(wordString, language);
 	}
 
-	const { english } = await translateWordInContext(word, { sentence, language });
+	const { english } = await translateWordInContext(word, { wordString, sentence, language });
 
 	const mnemonic = await getMnemonic({ wordId: word.id, userId, language });
 

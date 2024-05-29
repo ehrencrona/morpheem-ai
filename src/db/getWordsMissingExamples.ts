@@ -12,19 +12,14 @@ export async function getWordsMissingExamples({
 	limit?: number;
 	language: Language;
 }): Promise<DB.Word[]> {
-	const words = await sql<{
-		id: number;
-		word: string;
-		level: number;
-		cognate: boolean | null;
-		frequency: number;
-	}>`SELECT w.id, w.word, w.level, w.cognate COUNT(ws.word_id) AS frequency
-    FROM ${language.schema}.word_sentences ws
-    JOIN words w ON ws.word_id = w.id
-    GROUP BY w.id, w.word
-    HAVING COUNT(ws.word_id) < ${minSentenceCount}
-    ORDER BY frequency DESC
-    LIMIT ${limit};`.execute(db);
-
-	return words.rows;
+	return db
+		.withSchema(language.schema)
+		.selectFrom('words')
+		.leftJoin('word_sentences', 'word_sentences.word_id', 'words.id')
+		.select(['words.id', 'word', 'level', 'cognate', sql`COUNT(*)`.as('frequency')])
+		.groupBy(['words.id', 'word'])
+		.having(sql`COUNT(word_sentences.sentence_id)`, '<', minSentenceCount)
+		.orderBy('frequency', 'desc')
+		.limit(limit)
+		.execute();
 }

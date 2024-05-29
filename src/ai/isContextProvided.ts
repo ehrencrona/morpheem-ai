@@ -9,7 +9,7 @@ export async function isContextProvided(
 	lemmas: string[],
 	language: Language
 ) {
-	const wordStrings = toWords(sentence);
+	const wordStrings = toWords(sentence, language);
 
 	if (wordStrings.length !== lemmas.length) {
 		throw new Error(`Word count mismatch: ${wordStrings.length} !== ${lemmas.length}`);
@@ -30,7 +30,7 @@ export async function isContextProvided(
 			},
 			{
 				role: 'user',
-				content: `What is the missing word in the following ${language} sentence?\n${maskedSentence}`
+				content: `What is the missing word in the following ${language.name} sentence?\n${maskedSentence}`
 			}
 		],
 		temperature: 1,

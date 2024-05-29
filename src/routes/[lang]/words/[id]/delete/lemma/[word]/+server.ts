@@ -10,5 +10,5 @@ export const GET: ServerLoad = async ({ params, locals: { language } }) => {
 
 	await deleteWordToLemma(wordId, params.word!, language);
 
-	return redirect(302, `/words/${wordId}`);
+	return redirect(302, `/${language.code}/words/${wordId}`);
 };

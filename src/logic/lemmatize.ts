@@ -6,7 +6,7 @@ import { Language } from './types';
 export async function lemmatizeSentences(sentences: string[], language: Language) {
 	const lemmas = await Promise.all(
 		sentences.map(async (sentence) => {
-			const wordStrings = toWords(sentence);
+			const wordStrings = toWords(sentence, language);
 
 			const lemmas = await Promise.all(
 				wordStrings.map(async (wordString) => {

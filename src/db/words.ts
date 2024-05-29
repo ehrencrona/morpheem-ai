@@ -8,8 +8,16 @@ export async function addWord(
 	lemma: string,
 	{ language, isCognate }: { language: Language; isCognate?: boolean }
 ): Promise<DB.Word> {
-	if (lemma == 'the') {
-		throw new Error('"the" is English');
+	if (['a', 'an', 'the', 'they', 'this', 'big'].includes(lemma)) {
+		throw new Error(`"${lemma}" is English`);
+	}
+
+	if (language.code == 'pl' && ['ta'].includes(lemma)) {
+		throw new Error(`"${lemma}" is not the dictionary form`);
+	}
+
+	if (language.code == 'fr' && ['la', 'nos', 'les', 'ses', 'nos'].includes(lemma)) {
+		throw new Error(`"${lemma}" is not the dictionary form`);
 	}
 
 	let result = await db

@@ -13,6 +13,28 @@ import { AggKnowledgeForUser, Language } from './types';
 export async function generateExampleSentences(
 	lemma: string,
 	{
+		language,
+		level = 60
+	}: {
+		language: Language;
+		level?: number;
+	}
+) {
+	let sentences = await generateExampleSentencesAi(
+		lemma,
+		level < 20 ? 'beginner' : level < 40 ? 'easy' : 'normal',
+		8,
+		language
+	);
+
+	const { lemmas } = await toWords(sentences, { language });
+
+	return sentences.map((sentence, i) => ({ sentence, lemmas: lemmas[i] }));
+}
+
+export async function generatePersonalizedExampleSentences(
+	lemma: string,
+	{
 		level = 60,
 		hardLevel = Math.max(Math.round((level * 2) / 3), 10),
 		retriesLeft = 1,
@@ -44,7 +66,7 @@ export async function generateExampleSentences(
 			console.log(`No simple sentences found. Retrying ${lemma} with level ${level / 2}`);
 
 			graded = graded.concat(
-				await generateExampleSentences(lemma, {
+				await generatePersonalizedExampleSentences(lemma, {
 					level: level / 2,
 					hardLevel,
 					retriesLeft: retriesLeft - 1,
@@ -105,28 +127,6 @@ export async function generateExampleSentences(
 	return graded;
 }
 
-export async function addWords(wordStrings: string[], language: Language) {
-	const [cognates, lemmas] = await Promise.all([
-		findCognates(wordStrings, language),
-		// try to double check that we actually got the dictionary form
-		lemmatizeSentences([wordStrings.join(' ')], { language })
-	]);
-
-	wordStrings = wordStrings.filter((word) => {
-		const isLemmaDoubleCheck = lemmas[0].includes(word);
-
-		if (!isLemmaDoubleCheck) {
-			console.warn(`Double check: ${word} not found in lemmas`);
-		}
-
-		return isLemmaDoubleCheck;
-	});
-
-	return Promise.all(
-		wordStrings.map((word) => addWord(word, { isCognate: cognates.includes(word), language }))
-	);
-}
-
 async function gradeSentences(
 	sentences: string[],
 	{
@@ -136,30 +136,7 @@ async function gradeSentences(
 		language
 	}: { exceptLemma: string; hardLevel: number; userId: number; language: Language }
 ) {
-	const lemmas = await lemmatizeSentences(sentences, { language });
-
-	const words = await getMultipleWordsByLemmas(dedup(lemmas.flat()), language);
-
-	let missingWords = lemmas.flat().filter((lemma) => !words.some((word) => word.word === lemma));
-
-	if (missingWords.length) {
-		const wordsAdded = await addWords(missingWords, language);
-
-		for (const word of missingWords) {
-			const addedWord = wordsAdded.find((w) => w.word === word);
-
-			if (addedWord) {
-				words.push(addedWord);
-			} else {
-				words.push({
-					id: -1,
-					word,
-					level: 99,
-					cognate: false
-				});
-			}
-		}
-	}
+	const { words, lemmas } = await toWords(sentences, { language });
 
 	const knowledge = await getAggregateKnowledgeForUserWords({
 		wordIds: words.map(({ id }) => id),
@@ -197,6 +174,57 @@ const isHard = (word: DB.Word, knowledge: AggKnowledgeForUser[], hardLevel: numb
 
 	return word.level > hardLevel;
 };
+
+export async function toWords(sentences: string[], { language }: { language: Language }) {
+	const lemmas = await lemmatizeSentences(sentences, { language });
+
+	const words = await getMultipleWordsByLemmas(dedup(lemmas.flat()), language);
+
+	let missingWords = lemmas.flat().filter((lemma) => !words.some((word) => word.word === lemma));
+
+	if (missingWords.length) {
+		const wordsAdded = await addWords(missingWords, language);
+
+		for (const word of missingWords) {
+			const addedWord = wordsAdded.find((w) => w.word === word);
+
+			if (addedWord) {
+				words.push(addedWord);
+			} else {
+				words.push({
+					id: -1,
+					word,
+					level: 99,
+					cognate: false
+				});
+			}
+		}
+	}
+
+	return { words, lemmas };
+}
+
+export async function addWords(wordStrings: string[], language: Language) {
+	const [cognates, lemmas] = await Promise.all([
+		findCognates(wordStrings, language),
+		// try to double check that we actually got the dictionary form
+		lemmatizeSentences([wordStrings.join(' ')], { language })
+	]);
+
+	wordStrings = wordStrings.filter((word) => {
+		const isLemmaDoubleCheck = lemmas[0].includes(word);
+
+		if (!isLemmaDoubleCheck) {
+			console.warn(`Double check: ${word} not found in lemmas`);
+		}
+
+		return isLemmaDoubleCheck;
+	});
+
+	return Promise.all(
+		wordStrings.map((word) => addWord(word, { isCognate: cognates.includes(word), language }))
+	);
+}
 
 function dedup(array: string[]) {
 	return [...new Set(array)];

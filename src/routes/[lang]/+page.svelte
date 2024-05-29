@@ -21,11 +21,11 @@
 	import ReadSentence from './learn/ReadSentence.svelte';
 	import WriteSentence from './learn/WriteSentence.svelte';
 	import { trackActivity } from './learn/trackActivity';
+	import { getLanguageOnClient } from './api/api-call';
 
 	let knowledge: AggKnowledgeForUser[] = [];
 	let wordsKnown: { read: number; write: number };
 
-	let revealed: UnknownWordResponse[] = [];
 	let current:
 		| {
 				wordId: number;
@@ -144,74 +144,28 @@
 			exercise
 		};
 
-		revealed = [];
-
 		error = undefined;
 	}
 
 	onMount(init);
 
-	const getHint = () => fetchHint(current!.sentence.id);
 	const getTranslation = () => fetchTranslation(current!.sentence.id);
-
-	async function onUnknown(word: string) {
-		if (!current) {
-			throw new Error('Invalid state');
-		}
-
-		const unknownWord = await lookupUnknownWord(word, current.sentence.id);
-
-		revealed = [...revealed, unknownWord];
-	}
-
-	async function onRemoveUnknown(word: string) {
-		revealed = revealed.filter((r) => r.word !== word);
-	}
 
 	let error: string | undefined = undefined;
 
-	async function store() {
-		if (!current) {
-			throw new Error('Invalid state');
-		}
-
+	async function onNext() {
 		try {
-			const sentenceId = current.sentence.id;
-			const studiedWordId = current.wordId;
-
-			await sendKnowledge(
-				current.words.map((word) => ({
-					wordId: word.id,
-					sentenceId: sentenceId,
-					userId: -1,
-					isKnown: !revealed.find(({ id }) => id === word.id),
-					studiedWordId,
-					type: KNOWLEDGE_TYPE_READ
-				})),
-				true
-			);
-
 			knowledge = await fetchAggregateKnowledge();
-
 			wordsKnown = calculateWordsKnown(knowledge);
-
+			
 			sendWordsKnown(wordsKnown).catch(console.error);
-
+			
 			await showNextSentence();
 		} catch (e: any) {
 			console.error(e);
-
+			
 			error = e.message;
 		}
-	}
-
-	async function continueAfterWrite() {
-		knowledge = await fetchAggregateKnowledge();
-		wordsKnown = calculateWordsKnown(knowledge);
-
-		sendWordsKnown(wordsKnown).catch(console.error);
-
-		await showNextSentence();
 	}
 </script>
 
@@ -232,7 +186,7 @@
 
 	{#if current}
 		<div class="text-right font-lato text-xs flex gap-1 mb-4 justify-end">
-			<a href={`/sentences/${current?.sentence.id}/delete`} class="underline text-red">
+			<a href={`/${getLanguageOnClient().code}/sentences/${current?.sentence.id}/delete`} class="underline text-red">
 				Delete sentence
 			</a>
 		</div>
@@ -240,27 +194,27 @@
 		{#if current.exercise == 'read'}
 			<ReadSentence
 				{word}
-				sentence={current.sentence}
-				{revealed}
-				{getHint}
-				{onUnknown}
-				{onRemoveUnknown}
-				{getTranslation}
 				{knowledge}
-				onNext={store}
+				sentence={current.sentence}
+				words={current.words}
+				language={getLanguageOnClient()}
+				{onNext}
 			/>
 		{:else if current.exercise == 'write'}
-			<WriteSentence {word} onContinue={continueAfterWrite} fetchIdea={getTranslation} />
+			<WriteSentence
+				{word}
+				{onNext}
+				fetchIdea={getTranslation}
+				language={getLanguageOnClient()}
+			/>
 		{:else if current.exercise == 'cloze'}
 			<Cloze
 				{word}
+				{knowledge}
+				{onNext}
 				sentence={current.sentence}
 				sentenceWords={current.words}
-				onNext={continueAfterWrite}
-				{onUnknown}
-				{onRemoveUnknown}
-				{revealed}
-				{knowledge}
+				language={getLanguageOnClient()}
 			/>
 		{/if}
 	{:else}

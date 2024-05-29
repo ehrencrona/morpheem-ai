@@ -5,7 +5,10 @@ import * as DB from '../db/types';
 import { deleteWord } from '../db/words';
 import { addSentence } from './addSentence';
 import { addWordsToSentences, getSentencesWithWord } from './getSentencesWithWord';
-import { generateExampleSentences } from './generateExampleSentences';
+import {
+	generateExampleSentences,
+	generatePersonalizedExampleSentences
+} from './generateExampleSentences';
 import { Language } from './types';
 
 /** Makes up new sentences for the specified word */
@@ -15,17 +18,20 @@ export async function addSentencesForWord(
 		userId,
 		language,
 		retriesLeft = 1
-	}: { userId: number; language: Language; retriesLeft?: number }
+	}: { userId?: number; language: Language; retriesLeft?: number }
 ): ReturnType<typeof getSentencesWithWord> {
 	async function getSentences(retriesLeft = 1) {
 		try {
-			const sentences = await generateExampleSentences(word.word, {
-				level: word.level,
-				userId,
-				language
-			});
-
-			return sentences;
+			return userId
+				? await generatePersonalizedExampleSentences(word.word, {
+						level: word.level,
+						userId,
+						language
+					})
+				: await generateExampleSentences(word.word, {
+						language,
+						level: word.level < 99 ? word.level : undefined
+					});
 		} catch (e: any) {
 			if (e.code == 'noLemmaFound' && retriesLeft > 0) {
 				// most likely, the sentence contained a word that doesn't actually exist

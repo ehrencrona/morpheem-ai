@@ -3,7 +3,7 @@
 	import * as DB from '../../../db/types';
 	import { standardize } from '../../../logic/isomorphic/standardize';
 	import { isSeparator, toWords, toWordsWithSeparators } from '../../../logic/toWords';
-	import type { AggKnowledgeForUser, SentenceWord } from '../../../logic/types';
+	import type { AggKnowledgeForUser, Language, SentenceWord } from '../../../logic/types';
 	import type { UnknownWordResponse } from '../api/word/unknown/+server';
 	import SpinnerButton from './SpinnerButton.svelte';
 	import WordCard from './WordCard.svelte';
@@ -15,6 +15,8 @@
 	export let englishWord: string | undefined;
 	export let englishSentence: string | undefined;
 	export let mnemonic: string | undefined;
+
+	export let language: Language;
 
 	export let showChars: number;
 
@@ -35,7 +37,7 @@
 
 	$: answer = conjugatedWord.slice(0, showChars) + (prefix || '');
 
-	let prefix: string|null;
+	let prefix: string | null;
 
 	function clear() {
 		prefix = null;
@@ -52,10 +54,10 @@
 		onType(answer);
 	}
 
-	$: wordStrings = toWords(sentence.sentence);
+	$: wordStrings = toWords(sentence.sentence, language);
 
 	$: conjugatedWord = wordStrings[sentenceWords.findIndex((w) => w.id === word.id)];
-	$: wordsWithSeparators = toWordsWithSeparators(sentence.sentence);
+	$: wordsWithSeparators = toWordsWithSeparators(sentence.sentence, language);
 
 	function onSubmit() {
 		onAnswer(answer);
@@ -102,7 +104,7 @@
 	</div>
 
 	{#if suggestedWords.length > 0 && !answered}
-		<div class="flex flex-wrap gap-4 my-8">
+		<div class="flex flex-wrap gap-4 mt-8 mb-8">
 			{#each suggestedWords as suggestedWord}
 				<button
 					class="bg-blue-1 border-blue-1 rounded-lg px-5 py-1"
@@ -111,6 +113,9 @@
 					{suggestedWord}
 				</button>
 			{/each}
+		</div>
+		<div class="text-xs font-sans mb-8">
+			Select the dictionary form of the word.
 		</div>
 	{/if}
 

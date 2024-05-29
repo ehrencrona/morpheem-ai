@@ -7,6 +7,7 @@ export const load: ServerLoad = async ({ params, locals: { language } }) => {
 
 	return {
 		sentence: await getSentence(sentenceId, language),
-		lemmas: await getWordsOfSentence(sentenceId, language)
+		lemmas: await getWordsOfSentence(sentenceId, language),
+		languageCode: language.code
 	};
 };

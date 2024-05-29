@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { KNOWLEDGE_TYPE_CLOZE } from '../../../db/knowledgeTypes';
+	import { KNOWLEDGE_TYPE_CLOZE, KNOWLEDGE_TYPE_READ } from '../../../db/knowledgeTypes';
 	import * as DB from '../../../db/types';
-	import type { AggKnowledgeForUser, SentenceWord } from '../../../logic/types';
+	import type { AggKnowledgeForUser, Language, SentenceWord } from '../../../logic/types';
 	import { sendKnowledge } from '../api/knowledge/client';
 	import { fetchTranslation } from '../api/sentences/[sentence]/english/client';
 	import { fetchMnemonic } from '../api/word/[id]/mnemonic/client';
@@ -15,11 +15,24 @@
 	export let sentence: DB.Sentence;
 	export let word: DB.Word;
 	export let sentenceWords: SentenceWord[];
-	export let revealed: UnknownWordResponse[];
 	export let knowledge: AggKnowledgeForUser[] = [];
+	export let language: Language;
 
-	export let onUnknown: (word: string) => Promise<any>;
-	export let onRemoveUnknown: (word: string) => Promise<any>;
+	let revealed: UnknownWordResponse[] = [];
+
+	$: if (sentence.id) {
+		revealed = [];
+	}
+
+	async function onUnknown(word: string) {
+		const unknownWord = await lookupUnknownWord(word, sentence.id);
+
+		revealed = [...revealed, unknownWord];
+	}
+
+	async function onRemoveUnknown(word: string) {
+		revealed = revealed.filter((r) => r.word !== word);
+	}
 
 	export let onNext: () => Promise<any>;
 
@@ -80,17 +93,19 @@
 	}
 
 	async function storeAndContinue(knew: boolean) {
-		sendKnowledge(
-			[
-				{
+		await sendKnowledge(
+			sentenceWords.map((sentenceWord) => {
+				const isCloze = sentenceWord.id == word.id;
+
+				return {
+					wordId: sentenceWord.id,
 					sentenceId: sentence.id,
-					wordId: word.id,
-					isKnown: knew,
-					type: KNOWLEDGE_TYPE_CLOZE,
-					userId: -1,
-					studiedWordId: word.id
-				}
-			],
+					isKnown: isCloze ? knew : !revealed.find(({ id }) => id === sentenceWord.id),
+					studiedWordId: word.id,
+					type: isCloze ? KNOWLEDGE_TYPE_CLOZE : KNOWLEDGE_TYPE_READ,
+					userId: -1
+				};
+			}),
 			true
 		).catch((e) => console.error(e));
 
@@ -118,6 +133,7 @@
 	answered={userSelection}
 	{revealed}
 	{knowledge}
+	{language}
 />
 
 <div

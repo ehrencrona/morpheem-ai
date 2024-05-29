@@ -3,6 +3,13 @@ import { db } from './client';
 import type * as DB from './types';
 
 export async function addWordToLemma(wordString: string, word: DB.Word, language: Language) {
+	if (
+		language.code == 'fr' &&
+		['ils->il', 'elle->il', 'ce->ça'].includes(`${wordString}->${word.word}`)
+	) {
+		throw new Error(`${word.word} is not the dictionary form of ${wordString}`);
+	}
+
 	// insert into word_lemma unless it already exists
 	const result = await db
 		.withSchema(language.schema)
@@ -12,7 +19,9 @@ export async function addWordToLemma(wordString: string, word: DB.Word, language
 		.execute();
 
 	if (result[0]?.numInsertedOrUpdatedRows) {
-		console.log(`Adding lemma of ${wordString} -> ${word.word}`);
+		if (wordString != word.word) {
+			console.log(`Adding lemma of ${wordString} -> ${word.word}`);
+		}
 	}
 }
 

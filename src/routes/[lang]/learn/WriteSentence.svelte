@@ -9,10 +9,12 @@
 	import AMA from './AMA.svelte';
 	import SpinnerButton from './SpinnerButton.svelte';
 	import WordCard from './WordCard.svelte';
+	import type { Language } from '../../../logic/types';
 
 	export let word: { id: number; word: string };
-	export let onContinue: () => Promise<any>;
+	export let onNext: () => Promise<any>;
 	export let fetchIdea: () => Promise<string>;
+	export let language: Language;
 
 	let feedback: string | undefined;
 	let corrected: string | undefined;
@@ -58,7 +60,7 @@
 			unknownWordIds: unknownWords.map(({ id }) => id)
 		});
 
-		return onContinue();
+		return onNext();
 	};
 
 	const onWordUnknown = async () => {
@@ -103,9 +105,7 @@
 	<form>
 		{#if !feedback}
 			<p class="mb-4 font-lato text-xs">
-				Write a sentence or fragment using the Polish word for "<b>
-					{lookedUpWord?.english || '...'}
-				</b>"
+				Write a sentence or fragment using the {language.name} word for "<b>{lookedUpWord?.english || '...'}</b>"
 			</p>
 
 			<input
@@ -175,7 +175,7 @@
 		style="box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.1);"
 	>
 		<AMA
-			explanation="Enter an English word to get a Polish translation."
+			explanation="Enter an English word to get a {language.name} translation."
 			ask={askMeAnything}
 			wordId={word.id}
 		/>
