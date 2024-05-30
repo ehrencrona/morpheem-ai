@@ -19,7 +19,7 @@ export async function storeWrittenSentence({
 	userId: number;
 	language: Language;
 }): Promise<void> {
-	const [lemmatized] = await lemmatizeSentences([sentence], language);
+	const [lemmatized] = await lemmatizeSentences([sentence], { language });
 
 	const knowledge = filterUndefineds(
 		await Promise.all(
