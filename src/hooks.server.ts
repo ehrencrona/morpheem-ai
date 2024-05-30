@@ -4,6 +4,7 @@ import { FRENCH, POLISH } from './constants';
 
 export const handle: Handle = async ({ event, resolve }) => {
 	const sessionId = event.cookies.get(lucia.sessionCookieName);
+
 	if (!sessionId) {
 		event.locals.user = null;
 		event.locals.session = null;
@@ -40,5 +41,13 @@ export const handle: Handle = async ({ event, resolve }) => {
 
 	event.locals.language = language || POLISH;
 
-	return resolve(event);
+	let startTime = Date.now();
+
+	const response = await resolve(event);
+
+	console.log(
+		`${new URL(event.request.url).pathname} ${response.status} ${user?.username || '-'} ${Date.now() - startTime}ms`
+	);
+
+	return response;
 };
