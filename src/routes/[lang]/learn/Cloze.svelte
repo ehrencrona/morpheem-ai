@@ -12,12 +12,17 @@
 	import { fetchAskMeAnything } from '../api/write/ama/client';
 	import Ama from './AMA.svelte';
 	import ClozeDumb from './ClozeDumb.svelte';
+	import { fetchClozeEvaluation } from '../api/cloze/client';
+	import { toWords, toWordsWithSeparators } from '../../../logic/toWords';
+	import { standardize } from '../../../logic/isomorphic/standardize';
 
 	export let sentence: DB.Sentence;
 	export let word: DB.Word;
 	export let sentenceWords: SentenceWord[];
 	export let knowledge: AggKnowledgeForUser[] | undefined = undefined;
 	export let language: Language;
+
+	let evaluation: string | undefined = undefined;
 
 	let revealed: UnknownWordResponse[] = [];
 
@@ -42,22 +47,25 @@
 	let mnemonic: string | undefined = undefined;
 	let showChars = 0;
 	let suggestedWords: string[] = [];
-	let userSelection: string | undefined;
+	let answered: string | undefined;
 
 	async function clear() {
 		showChars = 0;
 		suggestedWords = [];
-		userSelection = undefined;
+		answered = undefined;
 		englishWord = undefined;
 		englishSentence = undefined;
+		evaluation = undefined;
 
 		mnemonic = await fetchMnemonic(word.id, false);
 	}
 
 	$: if (word.id || sentence.id) {
+		let wordWas = word;
+
 		lookupUnknownWord(word.word, sentence.id)
 			.then((translated) => {
-				if (word.word == translated.word) {
+				if (word.word == translated.word && word.id == wordWas.id) {
 					englishWord = translated.english;
 				}
 			})
@@ -88,9 +96,33 @@
 		suggestedWords = prefix.length > 0 ? await fetchWordsByPrefix(prefix) : [];
 	}
 
-	async function onAnswer(wordString: string) {
+	async function onAnswer(answerGiven: string) {
 		onReveal();
-		userSelection = wordString;
+		answered = answerGiven;
+
+		const conjugatedWord = toWords(sentence.sentence, language)[
+			sentenceWords.findIndex((w) => w.id === word.id)
+		];
+
+		const isCorrect = answered == word.word || answered == conjugatedWord;
+
+		if (!isCorrect) {
+			const wordWas = word;
+			const gotEvaluation = await fetchClozeEvaluation({
+				cloze: toWordsWithSeparators(sentence.sentence, language).reduce(
+					(cloze, word) =>
+						cloze + (standardize(word) == standardize(conjugatedWord) ? '______' : word),
+					''
+				),
+				clue: englishWord || '',
+				userAnswer: answered,
+				correctAnswer: word.word
+			});
+
+			if (word.id == wordWas.id) {
+				evaluation = gotEvaluation;
+			}
+		}
 	}
 
 	async function storeAndContinue(knew: boolean) {
@@ -118,6 +150,7 @@
 	{sentence}
 	{word}
 	{sentenceWords}
+	{evaluation}
 	{onHint}
 	onNext={storeAndContinue}
 	{onUnknown}
@@ -131,7 +164,7 @@
 	{mnemonic}
 	{showChars}
 	{suggestedWords}
-	answered={userSelection}
+	{answered}
 	{revealed}
 	{knowledge}
 	{language}
@@ -149,7 +182,7 @@
 					type: 'cloze',
 					question,
 					word: word.word,
-					confusedWord: userSelection,
+					confusedWord: answered,
 					sentence: sentence.sentence,
 					revealed
 				})}

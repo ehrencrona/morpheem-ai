@@ -155,14 +155,19 @@ export async function getEasiestUnstudiedWords({
 	language: Language;
 	userId: number;
 }) {
+	const aggregateKnowledgeForUser = db
+		.withSchema(language.schema)
+		.selectFrom('aggregate_knowledge')
+		.select(['word_id'])
+		.where('user_id', '=', userId);
+
 	return db
 		.withSchema(language.schema)
 		.selectFrom('words')
-		.leftJoin('aggregate_knowledge', 'word_id', 'id')
-		.select(['id', 'word', 'level'])
-		.where('aggregate_knowledge.word_id', 'is', null)
-		.where('user_id', '=', userId)
-		.orderBy('level', 'asc')
+		.leftJoin(aggregateKnowledgeForUser.as('ak'), 'words.id', 'ak.word_id')
+		.select(['words.id', 'words.word', 'words.level'])
+		.where('ak.word_id', 'is', null)
+		.orderBy('words.level', 'asc')
 		.limit(1)
 		.execute();
 }

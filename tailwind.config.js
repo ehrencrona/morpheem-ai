@@ -23,6 +23,7 @@ export default {
 			red: '#E63946',
 			green: '#2A9D8F',
 			'light-gray': '#F1F2F3',
+			gray: '#E5E5E5',
 			'blue-1': '#F1FAEE',
 			'blue-2': '#A8DADC',
 			'blue-3': '#457B9D',

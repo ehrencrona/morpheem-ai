@@ -22,6 +22,7 @@
 
 	export let suggestedWords: string[] = [];
 	export let answered: string | undefined;
+	export let evaluation: string | undefined;
 
 	export let revealed: UnknownWordResponse[];
 	export let knowledge: AggKnowledgeForUser[] | undefined = undefined;
@@ -87,11 +88,11 @@
 				>{/if}{:else}{wordString}{/if}{/each}
 </form>
 
-{#if !isRevealed}
-	{#if englishSentence || englishWord}
-		<div class="text-sm mb-4" in:slide>{englishSentence || englishWord}</div>
-	{/if}
+{#if englishSentence || englishWord}
+	<div class="text-sm mb-4" in:slide>{englishSentence || englishWord}</div>
+{/if}
 
+{#if !isRevealed}
 	<div class="grid grid-cols-1 md:grid-cols-2 w-full gap-x-4 mt-8">
 		{#each revealed as word (word.id)}
 			<WordCard
@@ -114,9 +115,7 @@
 				</button>
 			{/each}
 		</div>
-		<div class="text-xs font-sans mb-8">
-			Select the dictionary form of the word.
-		</div>
+		<div class="text-xs font-sans mb-8">Select the dictionary form of the word.</div>
 	{/if}
 
 	<div class="mt-4">
@@ -130,7 +129,10 @@
 	{#if knew}
 		<div class="mb-4">Correct!</div>
 	{:else if answered}
-		<div class="mb-4">You picked <b>{answered}</b>.</div>
+		<div class="mb-4">
+			You picked <b>{answered}</b>.
+			{evaluation || ''}
+		</div>
 	{/if}
 
 	<div class="grid grid-cols-1 md:grid-cols-2 w-full gap-x-4 mt-8">
@@ -147,10 +149,14 @@
 		{/each}
 	</div>
 
-	<SpinnerButton
-		className="text-blue-1 bg-blue-4 rounded-md px-5 py-1 mt-2"
-		onClick={() => onNext(knew)}
-	>
-		Continue
-	</SpinnerButton>
+	<div class="mt-4">
+		<SpinnerButton onClick={onTranslate} type="secondary">Translate</SpinnerButton>
+
+		<SpinnerButton
+			className="text-blue-1 bg-blue-4 rounded-md px-5 py-1 mt-2"
+			onClick={() => onNext(knew)}
+		>
+			Continue
+		</SpinnerButton>
+	</div>
 {/if}
