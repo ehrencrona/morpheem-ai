@@ -21,10 +21,12 @@
 	let sentence: string;
 	let idea: string | undefined;
 
-	let revealed = false;
+	let showChars: number = 0;
 	let unknownWords: UnknownWordResponse[] = [];
 
 	let lookedUpWord: UnknownWordResponse | undefined;
+
+	$: isRevealed = showChars > 2 || showChars > word.word.length - 1;
 
 	function clear() {
 		sentence = '';
@@ -32,7 +34,7 @@
 		corrected = '';
 		idea = '';
 		unknownWords = [];
-		revealed = false;
+		showChars = 0;
 	}
 
 	$: if (word) {
@@ -65,10 +67,12 @@
 		return onNext();
 	};
 
-	const onWordUnknown = async () => {
-		if (lookedUpWord) {
+	const onHint = async () => {
+		showChars++;
+
+		if ((showChars > 2 || showChars > word.word.length - 1) && lookedUpWord) {
 			unknownWords = [...unknownWords, lookedUpWord];
-			revealed = true;
+			showChars = 99;
 		}
 	};
 
@@ -107,7 +111,9 @@
 	<form>
 		{#if !feedback}
 			<p class="mb-4 font-lato text-xs">
-				Write a sentence or fragment using the {language.name} word for "<b>{lookedUpWord?.english || '...'}</b>"
+				Write a sentence or fragment using the {language.name} word for "<b
+					>{lookedUpWord?.english || '...'}</b
+				>"
 			</p>
 
 			<input
@@ -116,6 +122,12 @@
 				class="bg-blue-1 rounded-sm block w-full p-2 text-lg mb-2"
 				lang="pl"
 			/>
+
+			{#if showChars > 0 && !isRevealed}
+				<div class="text-xs font-lato mb-2">
+					The word starts with <b>"{word.word.slice(0, showChars)}..."</b>
+				</div>
+			{/if}
 
 			{#if idea}
 				<div class="text-xs font-lato text-gray-1 mb-2">{idea}</div>
@@ -149,8 +161,8 @@
 
 		<div class="mt-8">
 			{#if !feedback}
-				{#if !revealed}
-					<SpinnerButton onClick={onWordUnknown} type="secondary">Hint</SpinnerButton>
+				{#if !isRevealed}
+					<SpinnerButton onClick={onHint} type="secondary">Hint</SpinnerButton>
 				{/if}
 
 				{#if !idea}
