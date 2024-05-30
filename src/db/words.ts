@@ -16,7 +16,7 @@ export async function addWord(
 		throw new Error(`"${lemma}" is not the dictionary form`);
 	}
 
-	if (language.code == 'fr' && ['la', 'nos', 'les', 'ses', 'nos'].includes(lemma)) {
+	if (language.code == 'fr' && ['la', 'nos', 'les', 'ses', 'nos', 'une'].includes(lemma)) {
 		throw new Error(`"${lemma}" is not the dictionary form`);
 	}
 
@@ -61,7 +61,7 @@ export async function getMultipleWordsByIds(wordIds: number[], language: Languag
 	return db
 		.withSchema(language.schema)
 		.selectFrom('words')
-		.select(['id', 'word'])
+		.select(['id', 'word', 'cognate', 'level'])
 		.where('id', 'in', wordIds)
 		.execute();
 }
@@ -72,6 +72,26 @@ export async function getWords(orderBy: 'word asc' | 'id asc' | 'level asc', lan
 		.selectFrom('words')
 		.select(['id', 'word', 'cognate', 'level'])
 		.orderBy(orderBy)
+		.execute();
+}
+
+export async function getWordCount(language: Language) {
+	const res = await db
+		.withSchema(language.schema)
+		.selectFrom('words')
+		.select(({ fn }) => [fn.count('id').as('count')])
+		.execute();
+
+	return res[0].count as number;
+}
+
+export async function getNonCognateWordIds(language: Language, maxLevel: number) {
+	return db
+		.withSchema(language.schema)
+		.selectFrom('words')
+		.select(['id', 'word'])
+		.where('cognate', '=', false)
+		.where('level', '<=', maxLevel)
 		.execute();
 }
 
@@ -122,10 +142,12 @@ export async function getWordsByPrefix(
 	return (
 		await db
 			.withSchema(language.schema)
-			.selectFrom('words')
-			.select(['word'])
-			.where('word', 'like', `${prefix.toLowerCase()}%`)
+			.selectFrom('word_lemma')
+			.innerJoin('words', 'lemma_id', 'id')
+			.select(['words.word'])
+			.where('word_lemma.word', 'like', `${prefix.toLowerCase()}%`)
 			.orderBy('word asc')
+			.groupBy('words.word')
 			.limit(limit)
 			.execute()
 	).map(({ word }) => word);

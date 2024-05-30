@@ -1,7 +1,7 @@
 import { ServerLoad, json } from '@sveltejs/kit';
 import { z } from 'zod';
 import { generateWritingFeedback } from '../../../../../ai/generateWritingFeedback';
-import { lemmatizeSentences } from '../../../../../ai/lemmatize';
+import { lemmatizeSentences } from '../../../../../logic/lemmatize';
 import {
 	filterClearlyKnownWords,
 	wordStringsToWords,

@@ -1,6 +1,7 @@
 import { ServerLoad, redirect } from '@sveltejs/kit';
 import { getSentenceIds, getSentencesByIds } from '../../../db/sentences';
 import { getWordsOfSentence } from '../../../db/words';
+import { pick } from '$lib/pick';
 
 export const load: ServerLoad = async ({ locals: { language, userId } }) => {
 	if (!userId) {
@@ -24,25 +25,6 @@ export const load: ServerLoad = async ({ locals: { language, userId } }) => {
 		languageCode: language.code
 	};
 };
-
-function pick<T>(array: T[], count: number): T[] {
-	const result = [];
-	const length = array.length;
-	const indices = new Set<number>();
-
-	while (result.length < count) {
-		const index = Math.floor(Math.random() * length);
-
-		if (indices.has(index)) {
-			continue;
-		}
-
-		indices.add(index);
-		result.push(array[index]);
-	}
-
-	return result;
-}
 
 function zip<T, U>(a: T[], b: U[]): [T, U][] {
 	return a.map((value, index) => [value, b[index]]);

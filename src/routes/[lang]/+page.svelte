@@ -1,27 +1,26 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { CodedError } from '../../CodedError';
-	import { KNOWLEDGE_TYPE_READ } from '../../db/knowledgeTypes';
 	import type * as DB from '../../db/types';
 	import { getNextSentence, getNextWords } from '../../logic/isomorphic/getNext';
 	import { calculateWordsKnown } from '../../logic/isomorphic/wordsKnown';
 	import type { AggKnowledgeForUser, Exercise, SentenceWord } from '../../logic/types';
-	import { fetchAggregateKnowledge, sendKnowledge } from './api/knowledge/client';
+	import { getLanguageOnClient } from './api/api-call';
+	import { fetchAggregateKnowledge } from './api/knowledge/client';
 	import { sendWordsKnown } from './api/knowledge/words-known/client';
 	import { markSentenceSeen } from './api/sentences/[sentence]/client';
 	import { fetchTranslation } from './api/sentences/[sentence]/english/client';
-	import { fetchHint } from './api/sentences/[sentence]/hint/client';
 	import {
 		addSentencesForWord,
 		fetchSentencesWithWord
 	} from './api/sentences/withword/[word]/client';
-	import type { UnknownWordResponse } from './api/word/unknown/+server';
-	import { lookupUnknownWord } from './api/word/unknown/client';
 	import Cloze from './learn/Cloze.svelte';
 	import ReadSentence from './learn/ReadSentence.svelte';
 	import WriteSentence from './learn/WriteSentence.svelte';
 	import { trackActivity } from './learn/trackActivity';
-	import { getLanguageOnClient } from './api/api-call';
+	import type { PageData } from './$types';
+
+	export let data: PageData;
 
 	let knowledge: AggKnowledgeForUser[] = [];
 	let wordsKnown: { read: number; write: number };
@@ -157,13 +156,13 @@
 		try {
 			knowledge = await fetchAggregateKnowledge();
 			wordsKnown = calculateWordsKnown(knowledge);
-			
+
 			sendWordsKnown(wordsKnown).catch(console.error);
-			
+
 			await showNextSentence();
 		} catch (e: any) {
 			console.error(e);
-			
+
 			error = e.message;
 		}
 	}
@@ -174,22 +173,36 @@
 		<h3>{error}</h3>
 	{/if}
 
-	<a
-		href="/home"
-		class="bg-blue-3 text-center text-blue-1 p-2 rounded-md top-2 right-2 absolute hidden lg:block"
-	>
-		<b class="font-sans text-3xl font-bold">{wordsKnown?.read || ''}</b>
-		<div class="text-xs font-lato">passive vocabulary</div>
-		<b class="font-sans text-3xl font-bold">{wordsKnown?.write || ''}</b>
-		<div class="text-xs font-lato">active vocabulary</div>
-	</a>
+	{#if wordsKnown}
+		<a
+			href="/home"
+			class="bg-blue-3 text-center text-blue-1 p-2 rounded-md top-2 right-2 absolute hidden lg:block"
+		>
+			<b class="font-sans text-3xl font-bold">{wordsKnown.read}</b>
+			<div class="text-xs font-lato">passive vocabulary</div>
+			<b class="font-sans text-3xl font-bold">{wordsKnown.write}</b>
+			<div class="text-xs font-lato">active vocabulary</div>
+		</a>
+	{/if}
 
 	{#if current}
 		<div class="text-right font-lato text-xs flex gap-1 mb-4 justify-end">
-			<a href={`/${getLanguageOnClient().code}/sentences/${current?.sentence.id}/delete`} class="underline text-red">
+			<a
+				href={`/${getLanguageOnClient().code}/sentences/${current?.sentence.id}/delete`}
+				class="underline text-red"
+			>
 				Delete sentence
 			</a>
 		</div>
+
+		{#if wordsKnown?.read < 10}
+			<p class="bg-blue-1 border border-blue-4 py-2 px-4 rounded-sm inline-block text-sm mb-6">
+				If you don't want to start from a complete beginner level, take the <a
+					href={`${data.languageCode}/test`}
+					class="underline">placement test</a
+				>.
+			</p>
+		{/if}
 
 		{#if current.exercise == 'read'}
 			<ReadSentence
@@ -201,12 +214,7 @@
 				{onNext}
 			/>
 		{:else if current.exercise == 'write'}
-			<WriteSentence
-				{word}
-				{onNext}
-				fetchIdea={getTranslation}
-				language={getLanguageOnClient()}
-			/>
+			<WriteSentence {word} {onNext} fetchIdea={getTranslation} language={getLanguageOnClient()} />
 		{:else if current.exercise == 'cloze'}
 			<Cloze
 				{word}

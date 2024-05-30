@@ -3,7 +3,7 @@ import {
 	generateExampleSentences as generateExampleSentencesAi,
 	simplifySentences
 } from '../ai/generateExampleSentences';
-import { lemmatizeSentences } from '../ai/lemmatize';
+import { lemmatizeSentences } from '../logic/lemmatize';
 import { getAggregateKnowledgeForUserWords } from '../db/knowledge';
 import * as DB from '../db/types';
 import { addWord, getMultipleWordsByLemmas } from '../db/words';
@@ -205,6 +205,10 @@ export async function toWords(sentences: string[], { language }: { language: Lan
 }
 
 export async function addWords(wordStrings: string[], language: Language) {
+	if (!wordStrings.length) {
+		throw new Error('No words to add');
+	}
+
 	const [cognates, lemmas] = await Promise.all([
 		findCognates(wordStrings, language),
 		// try to double check that we actually got the dictionary form

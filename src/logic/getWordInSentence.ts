@@ -1,4 +1,4 @@
-import { lemmatizeSentences } from '../ai/lemmatize';
+import { lemmatizeSentences } from '../logic/lemmatize';
 import { addWordToLemma, getLemmaIdsOfWord } from '../db/lemmas';
 import { getSentence } from '../db/sentences';
 import { addWord, getWordsOfSentence } from '../db/words';

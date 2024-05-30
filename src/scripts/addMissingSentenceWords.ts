@@ -17,7 +17,7 @@ async function addMissingSentenceWords() {
 		const wordStrings = toWords(sentence.sentence, language);
 
 		if (currentWords.length != wordStrings.length) {
-			const lemmas = await lemmatizeSentences([sentence.sentence], language);
+			const lemmas = await lemmatizeSentences([sentence.sentence], { language });
 
 			const words = await getSentenceWords(sentence.sentence, lemmas[0], language);
 

@@ -53,7 +53,7 @@ export async function simplifySentences(
 ) {
 	sentences = sentences.filter(({ hard }) => hard.length);
 
-	const { examples: simplified } = await askForJson({
+	let { examples: simplified } = await askForJson({
 		messages: [
 			{
 				role: 'system',
@@ -84,6 +84,16 @@ export async function simplifySentences(
 		max_tokens: 6 * 200,
 		schema: z.object({ examples: z.array(z.string()) }),
 		model: 'gpt-4o'
+	});
+
+	simplified = simplified.map((sentence) => {
+		if (sentence.includes('->')) {
+			console.warn(`Got sentence with arrow from simplify: "${sentence}"`);
+
+			sentence = sentence.split('->')[1].trim();
+		}
+
+		return sentence;
 	});
 
 	console.log(

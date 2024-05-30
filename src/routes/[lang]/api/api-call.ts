@@ -8,7 +8,11 @@ export async function apiCall(path: string, options: RequestInit) {
 	const response = await fetch(`/${lang}${path}`, options);
 
 	if (response.ok) {
-		return response.json();
+		try {
+			return await response.json();
+		} catch (e) {
+			throw new Error(`While calling ${path}: ${e}`);
+		}
 	} else {
 		throw new Error(`While calling ${path}: ${await response.text()}`);
 	}

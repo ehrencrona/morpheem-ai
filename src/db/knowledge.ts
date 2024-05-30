@@ -56,6 +56,47 @@ export function addAggregateKnowledgeUnlessExists(
 	});
 }
 
+export async function setBetaIfNull(
+	knowledge: {
+		beta: number | null;
+		wordId: number;
+	}[],
+	userId: number,
+	language: Language
+) {
+	knowledge = knowledge.filter(({ beta }) => beta !== null);
+
+	return db.transaction().execute(async (transaction) => {
+		const wordIdToSet = await transaction
+			.withSchema(language.schema)
+			.selectFrom('aggregate_knowledge')
+			.select(['word_id'])
+			.where('beta', 'is', null)
+			.where('user_id', '=', userId)
+			.where(
+				'word_id',
+				'in',
+				knowledge.map(({ wordId }) => wordId)
+			)
+			.execute();
+
+		for (const { wordId, beta } of knowledge) {
+			if (wordIdToSet.some(({ word_id }) => word_id === wordId)) {
+				await transaction
+					.withSchema(language.schema)
+					.updateTable('aggregate_knowledge')
+					.set({
+						beta,
+						time: new Date()
+					})
+					.where('word_id', '=', wordId)
+					.where('user_id', '=', userId)
+					.execute();
+			}
+		}
+	});
+}
+
 export async function transformAggregateKnowledge(
 	{ wordId, userId }: { wordId: number; userId: number },
 
@@ -107,13 +148,20 @@ export async function transformAggregateKnowledge(
 	});
 }
 
-export async function getEasiestUnstudiedWords(language: Language) {
+export async function getEasiestUnstudiedWords({
+	language,
+	userId
+}: {
+	language: Language;
+	userId: number;
+}) {
 	return db
 		.withSchema(language.schema)
 		.selectFrom('words')
 		.leftJoin('aggregate_knowledge', 'word_id', 'id')
 		.select(['id', 'word', 'level'])
 		.where('aggregate_knowledge.word_id', 'is', null)
+		.where('user_id', '=', userId)
 		.orderBy('level', 'asc')
 		.limit(1)
 		.execute();
@@ -229,17 +277,20 @@ export async function getRawKnowledgeForUser({
 export async function getRawKnowledgeJoinedWithWordsForUser({
 	userId,
 	wordId,
-	language
+	language,
+	type
 }: {
 	userId: number;
 	wordId?: number;
 	language: Language;
+	type: number;
 }) {
 	let select = db
 		.withSchema(language.schema)
 		.selectFrom('knowledge')
 		.innerJoin('words', 'word_id', 'id')
 		.select(['word_id', 'sentence_id', 'knew', 'time', 'type', 'level', 'word', 'cognate'])
+		.where('type', '=', type)
 		.where('user_id', '=', userId);
 
 	if (wordId !== undefined) {

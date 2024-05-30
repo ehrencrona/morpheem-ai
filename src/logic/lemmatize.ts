@@ -3,7 +3,10 @@ import { getLemmasOfWord } from '../db/lemmas';
 import { toWords } from './toWords';
 import { Language } from './types';
 
-export async function lemmatizeSentences(sentences: string[], language: Language) {
+export async function lemmatizeSentences(
+	sentences: string[],
+	{ language, ignoreErrors = false }: { language: Language; ignoreErrors?: boolean }
+) {
 	const lemmas = await Promise.all(
 		sentences.map(async (sentence) => {
 			const wordStrings = toWords(sentence, language);
@@ -32,9 +35,9 @@ export async function lemmatizeSentences(sentences: string[], language: Language
 
 	const missingSentences = sentences.filter((_, i) => lemmas[i] === undefined);
 
-	const missingLemmas = await lemmatizeSentencesAi(missingSentences, { language });
+	const missingLemmas = await lemmatizeSentencesAi(missingSentences, { language, ignoreErrors });
 
 	let i = 0;
 
-	return lemmas.map((lemma, i) => lemma ?? missingLemmas[i++]);
+	return lemmas.map((lemma) => lemma ?? missingLemmas[i++]);
 }

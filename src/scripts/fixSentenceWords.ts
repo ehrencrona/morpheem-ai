@@ -35,7 +35,7 @@ async function fixSentenceWords() {
 
 		if (!isCorrect) {
 			try {
-				const lemmas = await lemmatizeSentences([sentence.sentence], language);
+				const lemmas = await lemmatizeSentences([sentence.sentence], { language });
 
 				const words = await getSentenceWords(sentence.sentence, lemmas[0], language);
 

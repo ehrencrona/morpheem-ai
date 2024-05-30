@@ -16,7 +16,7 @@
 	export let sentence: DB.Sentence;
 	export let word: DB.Word;
 	export let sentenceWords: SentenceWord[];
-	export let knowledge: AggKnowledgeForUser[] = [];
+	export let knowledge: AggKnowledgeForUser[] | undefined = undefined;
 	export let language: Language;
 
 	let revealed: UnknownWordResponse[] = [];
