@@ -17,6 +17,10 @@ export async function addWordsToSentences(
 	word: DB.Word,
 	language: Language
 ): Promise<CandidateSentenceWithWords[]> {
+	if (sentences.length === 0) {
+		return [];
+	}
+
 	const lastSeen = await getLastSeen(
 		sentences.map((sentence) => sentence.id),
 		language

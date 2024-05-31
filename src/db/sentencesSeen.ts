@@ -23,6 +23,10 @@ export async function getLastSeen(
 	sentenceIds: number[],
 	language: Language
 ): Promise<(number | undefined)[]> {
+	if (sentenceIds.length === 0) {
+		return [];
+	}
+
 	const rows = await db
 		.withSchema(language.schema)
 		.selectFrom('sentences_seen')
