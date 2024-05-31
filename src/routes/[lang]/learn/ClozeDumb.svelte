@@ -111,7 +111,7 @@
 		<div class="flex overflow-x-auto md:flex-wrap gap-4 mt-8 pb-4 mb-4">
 			{#each suggestedWords as suggestedWord}
 				<button
-					class="bg-blue-1 border-blue-1 rounded-lg px-5 py-1"
+					class="bg-blue-1 border-blue-1 rounded-lg px-5 py-1 whitespace-nowrap"
 					on:click={() => onAnswer(suggestedWord)}
 				>
 					{suggestedWord}
@@ -155,11 +155,6 @@
 	<div class="mt-4">
 		<SpinnerButton onClick={onTranslate} type="secondary">Translate</SpinnerButton>
 
-		<SpinnerButton
-			className="text-blue-1 bg-blue-4 rounded-md px-5 py-1 mt-2"
-			onClick={() => onNext(knew)}
-		>
-			Continue
-		</SpinnerButton>
+		<SpinnerButton type="primary" onClick={() => onNext(knew)}>Continue</SpinnerButton>
 	</div>
 {/if}
