@@ -2,12 +2,13 @@ import { redirect, type ServerLoad } from '@sveltejs/kit';
 import { getRecentKnowledge } from '../../../db/knowledge';
 import { getActivity } from '../../../db/wordsKnown';
 import { getRecentWrittenSentences } from '../../../db/writtenSentences';
+import { redirectToLogin } from '$lib/redirectToLogin';
 
-export const load = (async ({ locals }) => {
+export const load = (async ({ locals, url }) => {
 	const { language } = locals;
 
 	if (!locals.user) {
-		return redirect(302, '/login');
+		return redirectToLogin(url);
 	}
 
 	const userId = locals.user.num;

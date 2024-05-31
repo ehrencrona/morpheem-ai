@@ -71,6 +71,8 @@ export const actions: Actions = {
 			...sessionCookie.attributes
 		});
 
-		redirect(302, '/');
+		const returnTo = event.url.searchParams.get('return_to') || '/';
+
+		redirect(302, returnTo);
 	}
 };

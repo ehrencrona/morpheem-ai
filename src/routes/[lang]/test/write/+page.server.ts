@@ -1,6 +1,7 @@
 import { filterUndefineds } from '$lib/filterUndefineds';
 import { pick } from '$lib/pick';
-import { ServerLoad, redirect } from '@sveltejs/kit';
+import { redirectToLogin } from '$lib/redirectToLogin';
+import { ServerLoad } from '@sveltejs/kit';
 import {
 	getMultipleWordsByIds,
 	getNonCognateWordIds,
@@ -10,9 +11,9 @@ import { getAggregateKnowledge } from '../../../../logic/getAggregateKnowledge';
 import { getSentencesWithWord } from '../../../../logic/getSentencesWithWord';
 import { getNextSentence } from '../../../../logic/isomorphic/getNext';
 
-export const load: ServerLoad = async ({ url, request, locals: { language, userId } }) => {
+export const load: ServerLoad = async ({ url, locals: { language, userId } }) => {
 	if (!userId) {
-		return redirect(302, `/login`);
+		return redirectToLogin(url);
 	}
 
 	const level = parseInt(url.searchParams.get('level') || '99') || 99;

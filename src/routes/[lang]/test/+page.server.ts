@@ -1,11 +1,12 @@
-import { ServerLoad, redirect } from '@sveltejs/kit';
+import { pick } from '$lib/pick';
+import { redirectToLogin } from '$lib/redirectToLogin';
+import { ServerLoad } from '@sveltejs/kit';
 import { getSentenceIds, getSentencesByIds } from '../../../db/sentences';
 import { getWordsOfSentence } from '../../../db/words';
-import { pick } from '$lib/pick';
 
-export const load: ServerLoad = async ({ locals: { language, userId } }) => {
+export const load: ServerLoad = async ({ locals: { language, userId }, url }) => {
 	if (!userId) {
-		return redirect(302, `/login`);
+		return redirectToLogin(url);
 	}
 
 	const ids = await getSentenceIds(language);
