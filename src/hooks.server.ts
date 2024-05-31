@@ -1,4 +1,4 @@
-import type { Handle } from '@sveltejs/kit';
+import { json, type Handle } from '@sveltejs/kit';
 import { lucia } from './db/lucia';
 import { FRENCH, POLISH } from './constants';
 
@@ -12,6 +12,17 @@ export const handle: Handle = async ({ event, resolve }) => {
 	}
 
 	let { session, user } = await lucia.validateSession(sessionId);
+
+	if (event.url.pathname.includes('/api') && !user) {
+		return json(
+			{
+				error: 'Unauthorized'
+			},
+			{
+				status: 401
+			}
+		);
+	}
 
 	if (session && session.fresh) {
 		const sessionCookie = lucia.createSessionCookie(session.id);
