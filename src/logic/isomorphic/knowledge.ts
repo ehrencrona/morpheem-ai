@@ -42,7 +42,7 @@ export function calculateRepetitionValue(
 		return 0;
 	}
 
-	const optimalTime = Math.exp(knowledge * 11);
+	const optimalTime = Math.exp(knowledge * 12);
 
 	const time = now - lastTime;
 

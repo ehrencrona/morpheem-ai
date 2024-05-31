@@ -1,9 +1,9 @@
 import { fail, redirect } from '@sveltejs/kit';
-import { verify } from '@node-rs/argon2';
 
 import type { Actions } from './$types';
 import { db } from '../../db/client';
 import { lucia } from '../../db/lucia';
+import { LegacyScrypt } from 'lucia';
 
 export const actions: Actions = {
 	default: async (event) => {
@@ -51,19 +51,18 @@ export const actions: Actions = {
 			});
 		}
 
-		const validPassword = await verify(existingUser.password_hash, password, {
-			memoryCost: 19456,
-			timeCost: 2,
-			outputLen: 32,
-			parallelism: 1
-		});
+		const validPassword = await new LegacyScrypt().verify(existingUser.password_hash, password);
 
 		if (!validPassword) {
+			console.warn(`User ${username} failed to log in.`);
+
 			return fail(400, {
 				username,
 				message: 'Incorrect username or password'
 			});
 		}
+
+		console.log(`User ${username} logged in.`);
 
 		const session = await lucia.createSession(existingUser.id, {});
 		const sessionCookie = lucia.createSessionCookie(session.id);

@@ -1,6 +1,6 @@
 import { Actions, fail, redirect } from '@sveltejs/kit';
 import { generateIdFromEntropySize } from 'lucia';
-import { hash } from '@node-rs/argon2';
+import { LegacyScrypt } from 'lucia';
 import { db } from '../../db/client';
 import { lucia } from '../../db/lucia';
 
@@ -28,13 +28,7 @@ export const actions: Actions = {
 		}
 
 		const userId = generateIdFromEntropySize(10); // 16 characters long
-		const passwordHash = await hash(password, {
-			// recommended minimum parameters
-			memoryCost: 19456,
-			timeCost: 2,
-			outputLen: 32,
-			parallelism: 1
-		});
+		const passwordHash = await new LegacyScrypt().hash(password);
 
 		// TODO: check if username is already used
 		await db
@@ -45,6 +39,8 @@ export const actions: Actions = {
 				password_hash: passwordHash
 			})
 			.execute();
+
+		console.log(`User ${username} signed up.`);
 
 		const session = await lucia.createSession(userId, {});
 		const sessionCookie = lucia.createSessionCookie(session.id);
