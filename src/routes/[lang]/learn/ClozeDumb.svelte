@@ -77,6 +77,7 @@
 							class="border-b-4 border-b-red bg-blue-1"
 							size={wordString.length - showChars}
 							bind:value={prefix}
+							autocapitalize="off"
 						/>
 					</span>
 				{/if}
@@ -93,19 +94,21 @@
 {/if}
 
 {#if !isRevealed}
-	<div class="grid grid-cols-1 md:grid-cols-2 w-full gap-x-4 mt-8">
-		{#each revealed as word (word.id)}
-			<WordCard
-				{word}
-				mnemonic={word.mnemonic}
-				onRemove={() => onRemoveUnknown(word.word)}
-				english={word.english}
-			/>
-		{/each}
-	</div>
+	{#if revealed.length > 0}
+		<div class="grid grid-cols-1 md:grid-cols-2 w-full gap-x-4 mt-8">
+			{#each revealed as word (word.id)}
+				<WordCard
+					{word}
+					mnemonic={word.mnemonic}
+					onRemove={() => onRemoveUnknown(word.word)}
+					english={word.english}
+				/>
+			{/each}
+		</div>
+	{/if}
 
 	{#if suggestedWords.length > 0 && !answered}
-		<div class="flex flex-wrap gap-4 mt-8 mb-8">
+		<div class="flex overflow-x-auto md:flex-wrap gap-4 mt-8 pb-4 mb-4">
 			{#each suggestedWords as suggestedWord}
 				<button
 					class="bg-blue-1 border-blue-1 rounded-lg px-5 py-1"
