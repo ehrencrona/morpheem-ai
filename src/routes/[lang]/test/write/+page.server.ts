@@ -1,3 +1,4 @@
+import { filterUndefineds } from '$lib/filterUndefineds';
 import { pick } from '$lib/pick';
 import { ServerLoad, redirect } from '@sveltejs/kit';
 import {
@@ -8,9 +9,6 @@ import {
 import { getAggregateKnowledge } from '../../../../logic/getAggregateKnowledge';
 import { getSentencesWithWord } from '../../../../logic/getSentencesWithWord';
 import { getNextSentence } from '../../../../logic/isomorphic/getNext';
-import { getSentenceWords } from '../../../../logic/addSentence';
-import { getWordInSentence } from '../../../../logic/getWordInSentence';
-import { filterUndefineds } from '$lib/filterUndefineds';
 
 export const load: ServerLoad = async ({ url, request, locals: { language, userId } }) => {
 	if (!userId) {

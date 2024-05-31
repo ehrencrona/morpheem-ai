@@ -28,16 +28,21 @@ export async function getWordInSentence(
 
 		const [lemmas] = await lemmatizeSentences([sentence.sentence], { language });
 
-		const index = wordStrings.indexOf(wordString);
+		let index = wordStrings.indexOf(wordString);
 
 		if (index < 0) {
-			throw new Error(
-				`Word "${wordString}" not found in sentence "${sentence.sentence}", only ${wordStrings.join(', ')}`
-			);
+			index = lemmas.indexOf(wordString);
+
+			if (index < 0) {
+				throw new Error(
+					`Word "${wordString}" not found in sentence "${sentence.sentence}", only ${wordStrings.join(', ')}`
+				);
+			}
 		}
 
 		const lemma = lemmas[index];
 
+		// does nothing if the lemma already exists
 		const word = await addWord(lemma, { language });
 
 		await addWordToLemma(wordString, word, language);

@@ -28,8 +28,6 @@ export async function calculateTestResult({
 
 	const regression = linearRegression(rawKnowledge.map((k) => [k.level, k.knew ? 1 : 0]));
 
-	console.log(rawKnowledge.map((k) => [k.level, k.knew ? 1 : 0]));
-
 	// Extract the slope and intercept
 	let { m: slope, b: intercept } = regression;
 
