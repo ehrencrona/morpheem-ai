@@ -5,7 +5,8 @@
 	export let isSubmit = false;
 	export let type: 'primary' | 'secondary' = 'primary';
 	export let className =
-		'text-blue-1 rounded-md px-6 py-1 m-2 ml-0 ' + (type == 'primary' ? 'bg-blue-4' : 'bg-blue-3');
+		'text-blue-1 rounded-md py-2 px-8 md:px-6 md:py-1 m-2 ml-0 text-lg md:text-base ' +
+		(type == 'primary' ? 'bg-blue-4' : 'bg-blue-3');
 
 	let isLoading = false;
 	let showSpinner = false;
@@ -43,13 +44,16 @@
 {/if}
 
 <button
-	class={`${className} ${error ? 'bg-red' : ''}`}
+	class={`${className} ${error ? 'bg-red' : ''} relative`}
 	on:click|preventDefault={didClick}
 	disabled={isLoading}
 	type={isSubmit ? 'submit' : 'button'}
 >
 	{#if showSpinner}
-		<div class="absolute left-1 top-2">
+		<div
+			class="absolute inset-0 flex items-center justify-center"
+			transition:fade={{ duration: 200 }}
+		>
 			<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
 				<path
 					fill="currentColor"
@@ -67,5 +71,7 @@
 		</div>
 	{/if}
 
-	<slot />
+	<div class={showSpinner ? 'opacity-0' : 'opacity-100'} style=" transition: opacity 0.2s">
+		<slot />
+	</div>
 </button>
