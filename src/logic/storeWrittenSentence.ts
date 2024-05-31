@@ -54,6 +54,7 @@ export async function storeWrittenSentence({
 
 	await addKnowledge(knowledge, language);
 
+	console.log(`User ${userId} wrote: ${sentence}`);
 	console.log(
 		`Writing feedback stored: ${knowledge.map((w) => `${w.word}${unknownWordIds.includes(w.wordId) ? ' (did not know)' : ''}`).join(', ')}`
 	);
