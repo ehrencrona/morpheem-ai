@@ -4,13 +4,17 @@
 	export let data: PageData;
 
 	function toNumber(value: number) {
-		const res = value.toLocaleString('en-US');
-
 		if (value > data.wordCount * 0.9) {
 			return `all words`;
 		}
 
-		return res + ' words';
+		if (value > 100) {
+			value = Math.round(value / 100) * 100;
+		} else if (value > 10) {
+			value = Math.round(value / 10) * 10;
+		}
+
+		return value.toLocaleString('en-US') + ' words';
 	}
 </script>
 
@@ -18,8 +22,8 @@
 
 <div class="max-w-[600px]">
 	<p class="mb-4">
-		We estimate your passive vocabulary to be <b>{toNumber(data.wordsKnown.read)}</b> and
-		your active vocabulary to be <b>{toNumber(data.wordsKnown.write)}</b>.
+		We estimate your passive vocabulary to be <b>{toNumber(data.wordsKnown.read)}</b> and your
+		active vocabulary to be <b>{toNumber(data.wordsKnown.write)}</b>.
 	</p>
 
 	<p class="mb-4">
@@ -29,7 +33,8 @@
 
 	{#if data.wordsKnown.read > data.wordCount * 0.9 || data.wordsKnown.write > data.wordCount * 0.9}
 		<p class="mb-4">
-			There are currently <b>{data.wordCount}</b> words in the system. This number will increase over time.
+			There are currently <b>{data.wordCount}</b> words in the system. This number will increase over
+			time.
 		</p>
 	{/if}
 </div>
