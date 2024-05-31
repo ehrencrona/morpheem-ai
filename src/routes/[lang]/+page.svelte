@@ -175,7 +175,7 @@
 
 	{#if wordsKnown}
 		<a
-			href="/home"
+			href="{getLanguageOnClient().code}/home"
 			class="bg-blue-3 text-center text-blue-1 p-2 rounded-md top-2 right-2 absolute hidden lg:block"
 		>
 			<b class="font-sans text-3xl font-bold">{wordsKnown.read}</b>
