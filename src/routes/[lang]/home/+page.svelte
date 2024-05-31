@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { getLanguageOnClient } from '../api/api-call';
 	import type { PageData } from './$types';
 	import RecentSentences from './RecentSentences.svelte';
 	import RecentWords from './RecentWords.svelte';
@@ -15,7 +16,7 @@
 	}
 </script>
 
-<a href="/" class="inline-block mt-2 bg-blue-3 text-blue-1 rounded-md px-4 py-3">
+<a href="/{getLanguageOnClient()}" class="inline-block mt-2 bg-blue-3 text-blue-1 rounded-md px-4 py-3">
 	Keep studying
 </a>
 
