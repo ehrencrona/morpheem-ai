@@ -93,7 +93,7 @@
 	}
 
 	async function onType(prefix: string) {
-		suggestedWords = prefix.length > 0 ? await fetchWordsByPrefix(prefix) : [];
+		suggestedWords = prefix.length > 0 && showChars < 100 ? await fetchWordsByPrefix(prefix) : [];
 	}
 
 	async function onAnswer(answerGiven: string) {
