@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { fade } from 'svelte/transition';
+
 	export let onClick: () => Promise<any>;
 	export let isSubmit = false;
 	export let type: 'primary' | 'secondary' = 'primary';
@@ -7,12 +9,18 @@
 
 	let isLoading = false;
 	let showSpinner = false;
+	let error: string | undefined = undefined;
 
 	async function didClick() {
 		const timeout = setTimeout(() => (showSpinner = true), 300);
 
 		try {
 			await onClick();
+			error = undefined;
+		} catch (e: any) {
+			error = e.message || e.toString();
+
+			console.error(e);
 		} finally {
 			clearTimeout(timeout);
 
@@ -22,8 +30,20 @@
 	}
 </script>
 
+{#if error}
+	<div
+		class="flex fixed left-0 bottom-0 right-0 p-2 bg-red text-[#fff] text-xs font-lato z-100"
+		transition:fade
+	>
+		<div class="flex-1">{error}</div>
+		<div>
+			<button class="underline ml-2" on:click={() => (error = undefined)}>Close</button>
+		</div>
+	</div>
+{/if}
+
 <button
-	class={`${className} relative`}
+	class={`${className} ${error ? 'bg-red' : ''}`}
 	on:click|preventDefault={didClick}
 	disabled={isLoading}
 	type={isSubmit ? 'submit' : 'button'}
