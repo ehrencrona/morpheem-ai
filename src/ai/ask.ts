@@ -15,7 +15,7 @@ export interface Message {
 
 let requestCount = 0;
 
-const defaultModel = 'llama3-8b-8192';
+const defaultModel = 'gpt-4o';
 
 export async function ask<T>({
 	messages,

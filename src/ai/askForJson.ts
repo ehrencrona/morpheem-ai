@@ -2,15 +2,13 @@ import type { z } from 'zod';
 import { Message, Model, ask } from './ask';
 import { zodParse } from './zodParse';
 
-const defaultModel = 'llama3-8b-8192';
-
 export async function askForJson<T>({
 	instruction,
 	messages,
 	temperature,
 	max_tokens,
 	schema,
-	model = defaultModel,
+	model,
 	retriesLeft = 1,
 	logResponse = false
 }: {
