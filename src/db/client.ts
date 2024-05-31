@@ -3,7 +3,7 @@ import { Kysely, PostgresDialect } from 'kysely';
 import type { DB } from 'kysely-codegen';
 import pg from 'pg';
 
-const DATABASE_URL = 'postgres://andreasehrencrona@localhost/morpheem';
+const DATABASE_URL = import.meta.env.VITE_DATABASE_URL as string;
 
 const { Pool } = pg;
 
