@@ -184,14 +184,9 @@
 		</div>
 	</form>
 
-	<div
-		class="absolute bottom-0 left-0 right-0 bg-[#ffffff] px-4 py-2"
-		style="box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.1);"
-	>
-		<AMA
-			explanation="Enter an English word to get a {language.name} translation."
-			ask={askMeAnything}
-			wordId={word.id}
-		/>
-	</div>
+	<AMA
+		explanation="Enter an English word to get a {language.name} translation."
+		ask={askMeAnything}
+		wordId={word.id}
+	/>
 </div>

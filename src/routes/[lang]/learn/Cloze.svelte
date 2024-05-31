@@ -170,23 +170,16 @@
 	{language}
 />
 
-<div
-	class="absolute bottom-0 left-0 right-0 bg-[#ffffff] px-4 py-2 flex justify-center center"
-	style="box-shadow: 0 -2px 4px -1px rgba(0, 0, 0, 0.1);"
->
-	<div class="w-full max-w-[800px]">
-		<Ama
-			explanation="You can refer to the current sentence or the word you chose."
-			ask={(question) =>
-				fetchAskMeAnything({
-					type: 'cloze',
-					question,
-					word: word.word,
-					confusedWord: answered,
-					sentence: sentence.sentence,
-					revealed
-				})}
-			wordId={word.id}
-		/>
-	</div>
-</div>
+<Ama
+	explanation="You can refer to the current sentence or the word you chose."
+	ask={(question) =>
+		fetchAskMeAnything({
+			type: 'cloze',
+			question,
+			word: word.word,
+			confusedWord: answered,
+			sentence: sentence.sentence,
+			revealed
+		})}
+	wordId={word.id}
+/>

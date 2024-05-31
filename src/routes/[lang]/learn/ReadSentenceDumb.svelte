@@ -106,23 +106,16 @@
 	<SpinnerButton onClick={onNext}>Got it</SpinnerButton>
 </div>
 
-<div
-	class="absolute bottom-0 left-0 right-0 bg-[#ffffff] px-4 py-2 flex justify-center center z-30"
-	style="box-shadow: 0 -2px 4px -1px rgba(0, 0, 0, 0.1);"
->
-	<div class="w-full max-w-[800px]">
-		<Ama
-			explanation="You can refer to the current question or the explained words."
-			ask={(question) =>
-				fetchAskMeAnything({
-					type: 'read',
-					question,
-					word: word?.word,
-					sentence: sentence.sentence,
-					revealed,
-					translation
-				})}
-			wordId={sentence.id}
-		/>
-	</div>
-</div>
+<Ama
+	explanation="You can refer to the current question or the explained words."
+	ask={(question) =>
+		fetchAskMeAnything({
+			type: 'read',
+			question,
+			word: word?.word,
+			sentence: sentence.sentence,
+			revealed,
+			translation
+		})}
+	wordId={sentence.id}
+/>
