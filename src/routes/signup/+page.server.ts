@@ -30,7 +30,18 @@ export const actions: Actions = {
 		const userId = generateIdFromEntropySize(10); // 16 characters long
 		const passwordHash = await new LegacyScrypt().hash(password);
 
-		// TODO: check if username is already used
+		if (
+			await db
+				.selectFrom('auth_user')
+				.selectAll()
+				.where('username', '=', username)
+				.executeTakeFirst()
+		) {
+			return fail(400, {
+				message: 'Username already exists'
+			});
+		}
+
 		await db
 			.insertInto('auth_user')
 			.values({
