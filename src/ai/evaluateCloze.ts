@@ -34,6 +34,7 @@ export async function evaluateCloze(
 			{ role: 'user', content: userAnswer }
 		],
 		model: 'gpt-4o',
-		temperature: 0.5
+		temperature: 0.5,
+		logResponse: true
 	});
 }
