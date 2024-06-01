@@ -22,27 +22,29 @@
 
 <h3 class="text-lg mb-4 mt-8">Your progress</h3>
 
-<div class="grid grid-cols-5 max-w-[500px] text-xs">
+<div class="grid grid-cols-5 gap-h-1 max-w-[500px] text-xs">
+	<div class="col-span-3"></div>
+	<div class="col-span-2 text-right">Vocabulary size</div>
 	<div class="mb-2">Date</div>
-	<div class="mb-2">Time spent</div>
-	<div class="mb-2">Sentences seen</div>
-	<div class="mb-2">Passive<br/>vocabulary</div>
-	<div class="mb-2">Active<br/>vocabulary</div>
+	<div class="mb-2 text-right ">Time spent</div>
+	<div class="mb-2 text-right">Sentences</div>
+	<div class="mb-2 text-right">Passive</div>
+	<div class="mb-2 text-right">Active</div>
 	{#each data.activity as date}
 		<div class="mb-1">
 			{dateFormat.format(date.date)}
 		</div>
-		<div class="mb-1">
+		<div class="mb-1 text-right">
 			{date.minutes_spent} min
 		</div>
-		<div class="mb-1">
+		<div class="mb-1 text-right">
 			{date.sentences_done}
 		</div>
-		<div class="mb-1">
-			{formatNumber(date.words_known)} words
+		<div class="mb-1 text-right">
+			{formatNumber(date.words_known)} <span class="hidden md:inline">words</span>
 		</div>
-		<div class="mb-1">
-			{formatNumber(date.words_known_write)} words
+		<div class="mb-1 text-right">
+			{formatNumber(date.words_known_write)} <span class="hidden md:inline">words</span>
 		</div>
 	{/each}
 </div>
