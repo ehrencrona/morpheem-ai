@@ -36,7 +36,7 @@
 	export let onType: (prefix: string) => void;
 	export let onAnswer: (wordString: string) => void;
 
-	$: answer = conjugatedWord.slice(0, showChars) + (prefix || '');
+	$: answer = conjugatedWord.slice(0, showChars) + (prefix?.trim() || '');
 
 	let prefix: string | null;
 
