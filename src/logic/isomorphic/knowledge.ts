@@ -36,7 +36,7 @@ export function calculateRepetitionValue(
 	{ alpha, beta, lastTime }: AlphaBetaTime,
 	{ now, exercise }: { now: number; exercise: Exercise }
 ) {
-	const knowledge = exercise == 'read' ? alpha : alpha > 0.8 ? beta || nt : 0;
+	const knowledge = exercise == 'read' ? Math.max(alpha, beta || 0) : alpha > 0.8 ? beta || nt : 0;
 
 	if (knowledge == 0) {
 		return 0;
