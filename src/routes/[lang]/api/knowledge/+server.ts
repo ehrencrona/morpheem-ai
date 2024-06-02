@@ -6,10 +6,9 @@ import { addKnowledge } from '../../../../logic/knowledge';
 import { wordKnowledgeSchema } from '../../../../logic/types';
 
 export const POST: ServerLoad = async ({ request, locals: { userId, language } }) => {
-	let { words, didSentence } = z
+	let { words } = z
 		.object({
 			words: z.array(wordKnowledgeSchema),
-			didSentence: z.boolean(),
 			wordsKnown: z.number().optional()
 		})
 		.parse(await request.json());
@@ -19,9 +18,7 @@ export const POST: ServerLoad = async ({ request, locals: { userId, language } }
 		language
 	);
 
-	if (didSentence) {
-		await storeSentenceDone(userId!, language);
-	}
+	await storeSentenceDone(userId!, language);
 
 	return json({});
 };

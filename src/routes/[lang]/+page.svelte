@@ -1,12 +1,26 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { CodedError } from '../../CodedError';
+	import { knowledgeTypeToExercise } from '../../db/knowledgeTypes';
 	import type * as DB from '../../db/types';
 	import { getNextSentence, getNextWords } from '../../logic/isomorphic/getNext';
+	import {
+		didNotKnow,
+		didNotKnowFirst,
+		knew,
+		knewFirst,
+		now
+	} from '../../logic/isomorphic/knowledge';
 	import { calculateWordsKnown } from '../../logic/isomorphic/wordsKnown';
-	import type { AggKnowledgeForUser, Exercise, SentenceWord } from '../../logic/types';
+	import type {
+		AggKnowledgeForUser,
+		Exercise,
+		SentenceWord,
+		WordKnowledge
+	} from '../../logic/types';
+	import type { PageData } from './$types';
 	import { getLanguageOnClient } from './api/api-call';
-	import { fetchAggregateKnowledge } from './api/knowledge/client';
+	import { fetchAggregateKnowledge, sendKnowledge as sendKnowledgeClient } from './api/knowledge/client';
 	import { sendWordsKnown } from './api/knowledge/words-known/client';
 	import { markSentenceSeen } from './api/sentences/[sentence]/client';
 	import { fetchTranslation } from './api/sentences/[sentence]/english/client';
@@ -18,7 +32,6 @@
 	import ReadSentence from './learn/ReadSentence.svelte';
 	import WriteSentence from './learn/WriteSentence.svelte';
 	import { trackActivity } from './learn/trackActivity';
-	import type { PageData } from './$types';
 
 	export let data: PageData;
 
@@ -43,6 +56,70 @@
 		console.log(`Loaded ${knowledge.length} knowledge entries`);
 
 		showNextSentence();
+	}
+
+	const toPercent = (n: number | null) => (n != null ? Math.round(n * 100) + '%' : '-');
+
+	async function sendKnowledge(words: (WordKnowledge & { word: DB.Word })[]) {
+		const byWord = new Map(words.map((w) => [w.wordId, w]));
+
+		sendKnowledgeClient(words).catch(console.error);
+
+		knowledge = knowledge.map((k) => {
+			const word = byWord.get(k.wordId);
+
+			if (word) {
+				byWord.delete(k.wordId);
+
+				const opts = { now: now(), exercise: knowledgeTypeToExercise(word.type) };
+
+				let aggKnowledge: AggKnowledgeForUser;
+
+				if (word.isKnown) {
+					aggKnowledge = { ...k, ...knew(k, opts) };
+				} else {
+					aggKnowledge = {
+						...k,
+						...didNotKnow(k, { now: now(), exercise: knowledgeTypeToExercise(word.type) })
+					};
+				}
+
+				console.log(
+					`Updated knowledge for word ${k.word} (${k.wordId}). knew: ${word.isKnown}, exercise: ${
+						opts.exercise
+					}, alpha: ${toPercent(aggKnowledge.alpha)} beta: ${toPercent(aggKnowledge.beta)}`
+				);
+
+				return aggKnowledge;
+			} else {
+				return k;
+			}
+		});
+
+		if (byWord.size) {
+			let newWords: DB.Word[] = Array.from(byWord.values()).map((w) => w.word);
+
+			const newKnowledge = new Array(...byWord).map(([, k]) => {
+				const exercise = knowledgeTypeToExercise(k.type);
+				const word = newWords.find((w) => w.id === k.wordId)!;
+
+				const aggKnowledge = {
+					wordId: k.wordId,
+					lastTime: now(),
+					level: word.level,
+					word: word.word,
+					...(k.isKnown ? knewFirst(exercise) : didNotKnowFirst(exercise))
+				};
+
+				console.log(
+					`New knowledge for word ${aggKnowledge.word} (${aggKnowledge.wordId}). knew: ${k.isKnown}, exercise: ${exercise}, alpha: ${toPercent(aggKnowledge.alpha)} beta: ${toPercent(aggKnowledge.beta)}`
+				);
+
+				return aggKnowledge;
+			});
+
+			knowledge = [...knowledge, ...newKnowledge];
+		}
 	}
 
 	let nextPromise: ReturnType<typeof calculateNextSentence>;
@@ -154,7 +231,6 @@
 
 	async function onNext() {
 		try {
-			knowledge = await fetchAggregateKnowledge();
 			wordsKnown = calculateWordsKnown(knowledge);
 
 			sendWordsKnown(wordsKnown).catch(console.error);
@@ -212,9 +288,16 @@
 				words={current.words}
 				language={getLanguageOnClient()}
 				{onNext}
+				{sendKnowledge}
 			/>
 		{:else if current.exercise == 'write'}
-			<WriteSentence {word} {onNext} fetchIdea={getTranslation} language={getLanguageOnClient()} />
+			<WriteSentence
+				{word}
+				{onNext}
+				fetchIdea={getTranslation}
+				language={getLanguageOnClient()}
+				{sendKnowledge}
+			/>
 		{:else if current.exercise == 'cloze'}
 			<Cloze
 				{word}
@@ -223,6 +306,7 @@
 				sentence={current.sentence}
 				sentenceWords={current.words}
 				language={getLanguageOnClient()}
+				{sendKnowledge}
 			/>
 		{/if}
 	{:else}

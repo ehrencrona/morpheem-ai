@@ -42,8 +42,10 @@ export function getNextWords(knowledge: AggKnowledgeForUser[], count = 5) {
 
 	const word = topScores[0];
 
+	const toPercent = (n: number | null) => (n != null ? Math.round(n * 100) + '%' : '-');
+
 	console.log(
-		`Knowledge of ${word.word}: ${word.alpha}/${word.beta}, age ${now() - word.lastTime} = ${word.score}`
+		`Knowledge of ${word.word}: ${toPercent(word.alpha)}/${toPercent(word.beta)}, age ${now() - word.lastTime} = ${word.score}`
 	);
 
 	console.log(

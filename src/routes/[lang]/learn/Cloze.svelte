@@ -2,8 +2,12 @@
 	import { dedupUnknown } from '$lib/dedupUnknown';
 	import { KNOWLEDGE_TYPE_CLOZE, KNOWLEDGE_TYPE_READ } from '../../../db/knowledgeTypes';
 	import * as DB from '../../../db/types';
-	import type { AggKnowledgeForUser, Language, SentenceWord } from '../../../logic/types';
-	import { sendKnowledge } from '../api/knowledge/client';
+	import type {
+		AggKnowledgeForUser,
+		Language,
+		SentenceWord,
+		WordKnowledge
+	} from '../../../logic/types';
 	import { fetchTranslation } from '../api/sentences/[sentence]/english/client';
 	import { fetchMnemonic } from '../api/word/[id]/mnemonic/client';
 	import { fetchWordsByPrefix } from '../api/word/prefix/[prefix]/client';
@@ -21,6 +25,7 @@
 	export let sentenceWords: SentenceWord[];
 	export let knowledge: AggKnowledgeForUser[] | undefined = undefined;
 	export let language: Language;
+	export let sendKnowledge: (words: (WordKnowledge & { word: DB.Word })[]) => Promise<any>;
 
 	let evaluation: string | undefined = undefined;
 
@@ -131,6 +136,7 @@
 				const isCloze = sentenceWord.id == word.id;
 
 				return {
+					word: sentenceWord,
 					wordId: sentenceWord.id,
 					sentenceId: sentence.id,
 					isKnown: isCloze ? knew : !revealed.find(({ id }) => id === sentenceWord.id),
@@ -138,8 +144,7 @@
 					type: isCloze ? KNOWLEDGE_TYPE_CLOZE : KNOWLEDGE_TYPE_READ,
 					userId: -1
 				};
-			}),
-			true
+			})
 		).catch((e) => console.error(e));
 
 		await onNext();

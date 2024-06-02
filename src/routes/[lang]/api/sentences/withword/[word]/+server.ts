@@ -2,6 +2,7 @@ import { json, type ServerLoad } from '@sveltejs/kit';
 import { getWordById } from '../../../../../../db/words';
 import { addSentencesForWord } from '../../../../../../logic/addSentencesForWord';
 import { getSentencesWithWord } from '../../../../../../logic/getSentencesWithWord';
+import { CandidateSentenceWithWords } from '../../../../../../logic/types';
 
 export const GET: ServerLoad = async ({ params, locals: { language } }) => {
 	const wordId = parseInt(params.word || '');
@@ -33,8 +34,13 @@ export const POST: ServerLoad = async ({ params, locals: { userId, language } })
 
 	console.log(`Add sentences with word: ${word.word} (${wordId})`);
 
-	const sentences = await addSentencesForWord(word, { userId: userId!, language }).then(() => {
+	const sentences: CandidateSentenceWithWords[] = await addSentencesForWord(word, {
+		userId: userId!,
+		language
+	}).then((res) => {
 		console.log(`Done adding sentences with word: ${word.word} (${wordId})`);
+
+		return res;
 	});
 
 	return json(sentences);

@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { slide } from 'svelte/transition';
+	import { KNOWLEDGE_TYPE_WRITE } from '../../../db/knowledgeTypes';
+	import type { Language, WordKnowledge } from '../../../logic/types';
 	import type { UnknownWordResponse } from '../api/word/unknown/+server';
 	import { lookupUnknownWord } from '../api/word/unknown/client';
 	import { fetchAskMeAnything } from '../api/write/ama/client';
@@ -9,12 +11,13 @@
 	import AMA from './AMA.svelte';
 	import SpinnerButton from './SpinnerButton.svelte';
 	import WordCard from './WordCard.svelte';
-	import type { Language } from '../../../logic/types';
+	import type * as DB from '../../../db/types';
 
 	export let word: { id: number; word: string };
 	export let onNext: () => Promise<any>;
 	export let fetchIdea: () => Promise<string>;
 	export let language: Language;
+	export let sendKnowledge: (words: (WordKnowledge & { word: DB.Word })[]) => Promise<any>;
 
 	let feedback: string | undefined;
 	let corrected: string | undefined;
@@ -58,11 +61,25 @@
 	};
 
 	const clickedContinue = async () => {
-		await storeWrittenSentence({
-			wordId: word.id,
-			sentence: corrected!,
-			unknownWordIds: unknownWords.map(({ id }) => id)
+		const studiedWordId = word.id;
+		const words = await storeWrittenSentence({
+			wordId: studiedWordId,
+			sentence: corrected!
 		});
+
+		const unknownWordIds = unknownWords.map(({ id }) => id);
+
+		const knowledge = words.map((word) => ({
+			word,
+			wordId: word.id,
+			isKnown: !unknownWordIds.includes(word.id),
+			studiedWordId,
+			sentenceId: undefined,
+			type: KNOWLEDGE_TYPE_WRITE,
+			userId: -1
+		}));
+
+		sendKnowledge(knowledge).catch(console.error);
 
 		return onNext();
 	};
@@ -176,7 +193,7 @@
 						feedback = '';
 						corrected = '';
 					}}
-					className="text-blue-1 bg-blue-3 rounded-md px-5 py-1 m-2 ml-0">Try again</SpinnerButton
+					type="secondary">Try again</SpinnerButton
 				>
 
 				<SpinnerButton onClick={clickedContinue}>Continue</SpinnerButton>

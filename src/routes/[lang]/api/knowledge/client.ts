@@ -6,12 +6,12 @@ export async function fetchAggregateKnowledge(): ReturnType<typeof getAggregateK
 	return apiCall('/api/knowledge', {});
 }
 
-export async function sendKnowledge(words: WordKnowledge[], didSentence: boolean) {
+export async function sendKnowledge(words: WordKnowledge[]) {
 	return apiCall('/api/knowledge', {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json'
 		},
-		body: JSON.stringify({ words, didSentence })
+		body: JSON.stringify({ words })
 	});
 }

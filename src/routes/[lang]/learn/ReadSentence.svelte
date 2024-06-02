@@ -2,8 +2,12 @@
 	import { dedupUnknown } from '$lib/dedupUnknown';
 	import { KNOWLEDGE_TYPE_READ } from '../../../db/knowledgeTypes';
 	import * as DB from '../../../db/types';
-	import type { AggKnowledgeForUser, Language, SentenceWord } from '../../../logic/types';
-	import { sendKnowledge } from '../api/knowledge/client';
+	import type {
+		AggKnowledgeForUser,
+		Language,
+		SentenceWord,
+		WordKnowledge
+	} from '../../../logic/types';
 	import { fetchTranslation } from '../api/sentences/[sentence]/english/client';
 	import { fetchHint } from '../api/sentences/[sentence]/hint/client';
 	import type { UnknownWordResponse } from '../api/word/unknown/+server';
@@ -16,6 +20,7 @@
 	export let word: DB.Word | undefined;
 	export let knowledge: AggKnowledgeForUser[] | undefined = undefined;
 	export let language: Language;
+	export let sendKnowledge: (words: (WordKnowledge & { word: DB.Word })[]) => Promise<any>;
 
 	export let onNext: () => Promise<any>;
 
@@ -27,7 +32,6 @@
 
 	const getHint = () => fetchHint(sentence.id);
 	const getTranslation = () => fetchTranslation(sentence.id);
-
 
 	async function onUnknown(word: string) {
 		const unknownWord = await lookupUnknownWord(word, sentence.id);
@@ -45,14 +49,14 @@
 
 		await sendKnowledge(
 			words.map((word) => ({
+				word,
 				wordId: word.id,
 				sentenceId: sentenceId,
 				isKnown: !revealed.find(({ id }) => id === word.id),
 				studiedWordId,
 				type: KNOWLEDGE_TYPE_READ,
 				userId: -1
-			})),
-			true
+			}))
 		);
 
 		await onNext();
