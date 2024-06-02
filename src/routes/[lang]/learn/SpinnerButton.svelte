@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { fade } from 'svelte/transition';
+	import Error from '../../../components/Error.svelte';
 
 	export let onClick: () => Promise<any>;
 	export let isSubmit = false;
@@ -31,17 +32,12 @@
 	}
 </script>
 
-{#if error}
-	<div
-		class="flex fixed left-0 bottom-0 right-0 p-2 bg-red text-[#fff] text-xs font-lato z-100"
-		transition:fade
-	>
-		<div class="flex-1">{error}</div>
-		<div>
-			<button class="underline ml-2" on:click={() => (error = undefined)}>Close</button>
-		</div>
-	</div>
-{/if}
+<Error
+	{error}
+	onClear={() => {
+		error = undefined;
+	}}
+/>
 
 <button
 	class={`${className} ${error ? 'bg-red' : ''} relative`}

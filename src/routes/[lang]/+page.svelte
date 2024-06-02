@@ -20,7 +20,10 @@
 	} from '../../logic/types';
 	import type { PageData } from './$types';
 	import { getLanguageOnClient } from './api/api-call';
-	import { fetchAggregateKnowledge, sendKnowledge as sendKnowledgeClient } from './api/knowledge/client';
+	import {
+		fetchAggregateKnowledge,
+		sendKnowledge as sendKnowledgeClient
+	} from './api/knowledge/client';
 	import { sendWordsKnown } from './api/knowledge/words-known/client';
 	import { markSentenceSeen } from './api/sentences/[sentence]/client';
 	import { fetchTranslation } from './api/sentences/[sentence]/english/client';
@@ -32,6 +35,7 @@
 	import ReadSentence from './learn/ReadSentence.svelte';
 	import WriteSentence from './learn/WriteSentence.svelte';
 	import { trackActivity } from './learn/trackActivity';
+	import Error from '../../components/Error.svelte';
 
 	export let data: PageData;
 
@@ -63,7 +67,7 @@
 	async function sendKnowledge(words: (WordKnowledge & { word: DB.Word })[]) {
 		const byWord = new Map(words.map((w) => [w.wordId, w]));
 
-		sendKnowledgeClient(words).catch(console.error);
+		sendKnowledgeClient(words.map(({ word, ...rest }) => rest)).catch((e) => (error = e));
 
 		knowledge = knowledge.map((k) => {
 			const word = byWord.get(k.wordId);
@@ -80,7 +84,7 @@
 				} else {
 					aggKnowledge = {
 						...k,
-						...didNotKnow(k, { now: now(), exercise: knowledgeTypeToExercise(word.type) })
+						...didNotKnow(k, opts)
 					};
 				}
 
@@ -210,7 +214,7 @@
 		// wordKnowledge > 0.6 ? (Math.random() > 0.8 ? 'write' : 'cloze') : 'read';
 
 		if (exercise == 'read' || exercise == 'cloze') {
-			markSentenceSeen(sentence.id).catch(console.error);
+			markSentenceSeen(sentence.id).catch((e) => (error = e));
 		}
 
 		current = {
@@ -233,7 +237,7 @@
 		try {
 			wordsKnown = calculateWordsKnown(knowledge);
 
-			sendWordsKnown(wordsKnown).catch(console.error);
+			sendWordsKnown(wordsKnown).catch((e) => (error = e));
 
 			await showNextSentence();
 		} catch (e: any) {
@@ -245,9 +249,7 @@
 </script>
 
 <main class="font-sans bold w-full" use:trackActivity>
-	{#if error}
-		<h3>{error}</h3>
-	{/if}
+	<Error {error} onClear={() => (error = undefined)} />
 
 	{#if wordsKnown}
 		<a

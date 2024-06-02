@@ -10,6 +10,8 @@ export async function addKnowledge(words: WordKnowledge[], language: Language) {
 
 	await addKnowledgeToDb(words, language);
 
+	console.log(`Storing knowledge ${words.map((word) => word.wordId).join(', ')}`);
+
 	await parallelize(
 		words.map((wordKnowledge) => async () => {
 			await transformAggregateKnowledge(
