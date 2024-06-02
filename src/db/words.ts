@@ -182,3 +182,20 @@ export async function getWordsOfSentence(
 		.$narrowType<{ word: NotNull }>()
 		.execute();
 }
+
+export async function getWordsOfSentences(
+	sentenceIds: number[],
+	language: Language
+): Promise<SentenceWord[][]> {
+	const rows = await db
+		.withSchema(language.schema)
+		.selectFrom('word_sentences')
+		.innerJoin('words', 'word_id', 'id')
+		.select(['word', 'word_index', 'id', 'level', 'cognate', 'sentence_id'])
+		.where('sentence_id', 'in', sentenceIds)
+		.orderBy(['sentence_id', 'word_index'])
+		.$narrowType<{ word: NotNull }>()
+		.execute();
+
+	return sentenceIds.map((sentenceId) => rows.filter((row) => row.sentence_id == sentenceId));
+}

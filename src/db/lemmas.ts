@@ -44,6 +44,22 @@ export function getLemmasOfWord(word: string, language: Language) {
 		.execute();
 }
 
+export async function getLemmasOfWords(words: string[], language: Language) {
+	const rows = await db
+		.withSchema(language.schema)
+		.selectFrom('word_lemma')
+		.where(
+			'word_lemma.word',
+			'in',
+			words.map((word) => word.toLowerCase())
+		)
+		.innerJoin('words', 'word_lemma.lemma_id', 'words.id')
+		.select(['words.id', 'words.word', 'cognate', 'level', 'word_lemma.word as inflected'])
+		.execute();
+
+	return words.map((word) => rows.filter((row) => row.inflected == word.toLowerCase()));
+}
+
 export function getLemmaIdsOfWord(word: string, language: Language) {
 	return db
 		.withSchema(language.schema)

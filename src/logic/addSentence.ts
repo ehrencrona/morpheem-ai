@@ -1,4 +1,4 @@
-import { addWordToLemma, getLemmasOfWord } from '../db/lemmas';
+import { addWordToLemma, getLemmasOfWords } from '../db/lemmas';
 import { addWord, getMultipleWordsByLemmas } from '../db/words';
 import { toWords } from './toWords';
 
@@ -43,8 +43,10 @@ export async function getSentenceWords(
 
 	let missingWords = lemmas.filter((lemma) => !words.some((word) => word.word == lemma));
 
-	for (const missingWord of missingWords) {
-		const wordLemmas = await getLemmasOfWord(missingWord, language);
+	const allLemmas = await getLemmasOfWords(missingWords, language);
+
+	missingWords.forEach((missingWord, i) => {
+		const wordLemmas = allLemmas[i];
 
 		if (wordLemmas.length > 0) {
 			const rightLemma = wordLemmas[0];
@@ -57,7 +59,7 @@ export async function getSentenceWords(
 
 			lemmas = lemmas.map((lemma) => (lemma === missingWord ? rightLemma.word! : lemma));
 		}
-	}
+	});
 
 	missingWords = lemmas.filter((lemma) => !words.some((word) => word.word == lemma));
 

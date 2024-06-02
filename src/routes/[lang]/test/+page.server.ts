@@ -2,7 +2,7 @@ import { pick } from '$lib/pick';
 import { redirectToLogin } from '$lib/redirectToLogin';
 import { ServerLoad } from '@sveltejs/kit';
 import { getSentenceIds, getSentencesByIds } from '../../../db/sentences';
-import { getWordsOfSentence } from '../../../db/words';
+import { getWordsOfSentence, getWordsOfSentences } from '../../../db/words';
 
 export const load: ServerLoad = async ({ locals: { language, userId }, url }) => {
 	if (!userId) {
@@ -19,7 +19,10 @@ export const load: ServerLoad = async ({ locals: { language, userId }, url }) =>
 		language
 	);
 
-	const words = await Promise.all(sentences.map(({ id }) => getWordsOfSentence(id, language)));
+	const words = await getWordsOfSentences(
+		sentences.map(({ id }) => id),
+		language
+	);
 
 	return {
 		sentences: zip(sentences, words).map(([sentence, words]) => ({ sentence, words })),

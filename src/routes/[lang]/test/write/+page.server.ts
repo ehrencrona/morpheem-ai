@@ -5,7 +5,8 @@ import { ServerLoad } from '@sveltejs/kit';
 import {
 	getMultipleWordsByIds,
 	getNonCognateWordIds,
-	getWordsOfSentence
+	getWordsOfSentence,
+	getWordsOfSentences
 } from '../../../../db/words';
 import { getAggregateKnowledge } from '../../../../logic/getAggregateKnowledge';
 import { getSentencesWithWord } from '../../../../logic/getSentencesWithWord';
@@ -30,15 +31,18 @@ export const load: ServerLoad = async ({ url, locals: { language, userId } }) =>
 
 	const knowledge = await getAggregateKnowledge(userId, language);
 
-	const sentences = await Promise.all(
-		words.map(
-			async (word) =>
-				getNextSentence(await getSentencesWithWord(word, language), knowledge, word.id)?.sentence
+	const sentences = filterUndefineds(
+		await Promise.all(
+			words.map(
+				async (word) =>
+					getNextSentence(await getSentencesWithWord(word, language), knowledge, word.id)?.sentence
+			)
 		)
 	);
 
-	const sentenceWords = await Promise.all(
-		sentences.map(async (sentence) => sentence && getWordsOfSentence(sentence.id, language))
+	const sentenceWords = await getWordsOfSentences(
+		sentences.map(({ id }) => id),
+		language
 	);
 
 	return {

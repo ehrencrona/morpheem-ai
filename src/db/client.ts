@@ -8,7 +8,8 @@ const DATABASE_URL = import.meta.env.VITE_DATABASE_URL as string;
 const { Pool } = pg;
 
 const pool = new Pool({
-	connectionString: DATABASE_URL
+	connectionString: DATABASE_URL,
+	ssl: !DATABASE_URL.includes('localhost')
 });
 
 export const adapter = new NodePostgresAdapter(pool, {
