@@ -14,7 +14,13 @@ export async function apiCall(path: string, options: RequestInit) {
 			throw new Error(`While calling ${path}: ${e}`);
 		}
 	} else {
-		throw new Error(`While calling ${path}: ${await response.text()}`);
+		let message = await response.text();
+
+		if (message.includes('<body')) {
+			message = `status ${response.status}`;
+		}
+
+		throw new Error(`While calling ${path}: ${message}`);
 	}
 }
 
