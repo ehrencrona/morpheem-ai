@@ -59,7 +59,7 @@
 
 		console.log(`Loaded ${knowledge.length} knowledge entries`);
 
-		showNextSentence();
+		await showNextSentence();
 	}
 
 	const toPercent = (n: number | null) => (n != null ? Math.round(n * 100) + '%' : '-');
@@ -72,19 +72,22 @@
 		knowledge = knowledge.map((k) => {
 			const word = byWord.get(k.wordId);
 
+			const lastTime = now();
+
 			if (word) {
 				byWord.delete(k.wordId);
 
-				const opts = { now: now(), exercise: knowledgeTypeToExercise(word.type) };
+				const opts = { now: lastTime, exercise: knowledgeTypeToExercise(word.type) };
 
 				let aggKnowledge: AggKnowledgeForUser;
 
 				if (word.isKnown) {
-					aggKnowledge = { ...k, ...knew(k, opts) };
+					aggKnowledge = { ...k, ...knew(k, opts), lastTime };
 				} else {
 					aggKnowledge = {
 						...k,
-						...didNotKnow(k, opts)
+						...didNotKnow(k, opts),
+						lastTime
 					};
 				}
 
@@ -227,7 +230,7 @@
 		error = undefined;
 	}
 
-	onMount(init);
+	onMount(() => init().catch((e) => (error = e)));
 
 	const getTranslation = () => fetchTranslation(current!.sentence.id);
 
