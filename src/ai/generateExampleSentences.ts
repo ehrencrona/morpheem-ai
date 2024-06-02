@@ -3,6 +3,11 @@ import { toMessages } from './ask';
 import { askForJson } from './askForJson';
 import { Language } from '../logic/types';
 
+const names = {
+	pl: `Marek, Jakub, Ewa, Agnieszka`,
+	fr: `Jacques, Pierre, Marie, Jeanne`
+};
+
 export async function generateExampleSentences(
 	lemma: string,
 	level: 'beginner' | 'easy' | 'normal' = 'normal',
@@ -13,7 +18,8 @@ export async function generateExampleSentences(
 		messages: toMessages({
 			instruction: `Return JSON in the format { "examples": [ ... ]}. Do not translate. Use simple words.`,
 			prompt:
-				`Give ${count} ${language.name} sentences illustrating the use of the word "${lemma}". If the word is not a ${language.name} word, do not return anything.` +
+				`Give ${count} ${language.name} sentences illustrating the use of the word "${lemma}". If the word is not a ${language.name} word, do not return anything. ` +
+				`The sentences are intended for adults. If you need names of people, use ${names[language.code]}.` +
 				(level != 'normal'
 					? level == 'beginner'
 						? ` Use only simple words.`
