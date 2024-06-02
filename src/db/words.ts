@@ -187,6 +187,10 @@ export async function getWordsOfSentences(
 	sentenceIds: number[],
 	language: Language
 ): Promise<SentenceWord[][]> {
+	if (sentenceIds.length == 0) {
+		return [];
+	}
+
 	const rows = await db
 		.withSchema(language.schema)
 		.selectFrom('word_sentences')

@@ -45,6 +45,10 @@ export function getLemmasOfWord(word: string, language: Language) {
 }
 
 export async function getLemmasOfWords(words: string[], language: Language) {
+	if (words.length == 0) {
+		return [];
+	}
+
 	const rows = await db
 		.withSchema(language.schema)
 		.selectFrom('word_lemma')
