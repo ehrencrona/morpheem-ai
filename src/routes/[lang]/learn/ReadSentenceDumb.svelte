@@ -65,6 +65,7 @@
 				style="cursor: pointer"
 				role="button"
 				tabindex={index}
+				class="hover:underline decoration-yellow"
 				on:click={() => onUnknown(word)}>{word}</span
 			>{:else}{word}{/if}{/each}
 </div>

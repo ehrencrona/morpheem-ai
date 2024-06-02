@@ -85,6 +85,7 @@
 					style="cursor: pointer"
 					role="button"
 					tabindex={index}
+					class="hover:underline decoration-yellow"
 					on:click={() => onUnknown(wordString)}>{wordString}</span
 				>{/if}{:else}{wordString}{/if}{/each}
 </form>
