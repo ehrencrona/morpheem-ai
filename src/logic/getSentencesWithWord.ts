@@ -49,7 +49,7 @@ export async function addWordsToSentences(
 
 			if (!wordCountCorrect) {
 				console.warn(
-					`Sentence ${sentence.id} has ${toWords(sentence.sentence, language).length} actual words, but has ${sentence.words.length} words in the DB`
+					`Sentence ${sentence.id} (${language.code}) has ${toWords(sentence.sentence, language).length} actual words, but has ${sentence.words.length} words in the DB`
 				);
 			}
 
