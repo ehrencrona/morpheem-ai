@@ -25,7 +25,7 @@
 	export let sentenceWords: SentenceWord[];
 	export let knowledge: AggKnowledgeForUser[] | undefined = undefined;
 	export let language: Language;
-	export let sendKnowledge: (words: (WordKnowledge & { word: DB.Word })[]) => Promise<any>;
+	export let sendKnowledge: (words: (WordKnowledge & { word: DB.Word })[]) => void;
 
 	let evaluation: string | undefined = undefined;
 
@@ -131,7 +131,7 @@
 	}
 
 	async function storeAndContinue(knew: boolean) {
-		await sendKnowledge(
+		sendKnowledge(
 			sentenceWords.map((sentenceWord) => {
 				const isCloze = sentenceWord.id == word.id;
 
@@ -145,7 +145,7 @@
 					userId: -1
 				};
 			})
-		).catch((e) => console.error(e));
+		);
 
 		await onNext();
 	}

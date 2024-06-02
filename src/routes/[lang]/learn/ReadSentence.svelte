@@ -20,7 +20,7 @@
 	export let word: DB.Word | undefined;
 	export let knowledge: AggKnowledgeForUser[] | undefined = undefined;
 	export let language: Language;
-	export let sendKnowledge: (words: (WordKnowledge & { word: DB.Word })[]) => Promise<any>;
+	export let sendKnowledge: (words: (WordKnowledge & { word: DB.Word })[]) => void;
 
 	export let onNext: () => Promise<any>;
 
@@ -47,7 +47,7 @@
 		const sentenceId = sentence.id;
 		const studiedWordId = word?.id;
 
-		await sendKnowledge(
+		sendKnowledge(
 			words.map((word) => ({
 				word,
 				wordId: word.id,

@@ -17,7 +17,7 @@
 	export let onNext: () => Promise<any>;
 	export let fetchIdea: () => Promise<string>;
 	export let language: Language;
-	export let sendKnowledge: (words: (WordKnowledge & { word: DB.Word })[]) => Promise<any>;
+	export let sendKnowledge: (words: (WordKnowledge & { word: DB.Word })[]) => void;
 
 	let feedback: string | undefined;
 	let corrected: string | undefined;
@@ -79,7 +79,7 @@
 			userId: -1
 		}));
 
-		sendKnowledge(knowledge).catch(console.error);
+		sendKnowledge(knowledge);
 
 		return onNext();
 	};

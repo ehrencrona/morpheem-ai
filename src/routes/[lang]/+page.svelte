@@ -64,10 +64,20 @@
 
 	const toPercent = (n: number | null) => (n != null ? Math.round(n * 100) + '%' : '-');
 
-	async function sendKnowledge(words: (WordKnowledge & { word: DB.Word })[]) {
+	function sendKnowledge(words: (WordKnowledge & { word: DB.Word })[]) {
 		const byWord = new Map(words.map((w) => [w.wordId, w]));
 
-		sendKnowledgeClient(words.map(({ word, ...rest }) => rest)).catch((e) => (error = e));
+		const knowledgeToSend = words.map(({ word, ...rest }) => rest);
+
+		sendKnowledgeClient(knowledgeToSend).catch((e) => {
+			console.error(e);
+
+			setTimeout(() => {
+				sendKnowledgeClient(knowledgeToSend).catch((e) => {
+					error = e;
+				});
+			}, 5000);
+		});
 
 		knowledge = knowledge.map((k) => {
 			const word = byWord.get(k.wordId);
