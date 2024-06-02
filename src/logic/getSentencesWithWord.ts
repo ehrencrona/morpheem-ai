@@ -27,7 +27,7 @@ export async function addWordsToSentences(
 	);
 
 	const words = await Promise.all(
-		sentences.map((sentence) => getWordsOfSentence(sentence.id!, language))
+		sentences.map((sentence) => getWordsOfSentence(sentence.id, language))
 	);
 
 	const result = sentences

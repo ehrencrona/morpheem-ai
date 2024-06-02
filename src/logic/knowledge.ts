@@ -4,6 +4,7 @@ import { addKnowledge as addKnowledgeToDb, transformAggregateKnowledge } from '.
 import { getWordsBelowLevel } from '../db/words';
 import { didNotKnow, didNotKnowFirst, knew, knewFirst, now } from './isomorphic/knowledge';
 import { knowledgeTypeToExercise } from '../db/knowledgeTypes';
+import { parallelize } from '$lib/parallelize';
 
 export async function addKnowledge(words: WordKnowledge[], language: Language) {
 	words = eliminateDuplicates(words);
@@ -67,23 +68,4 @@ function eliminateDuplicates(words: WordKnowledge[]) {
 	}
 
 	return unique;
-}
-
-export async function parallelize(
-	promises: (() => Promise<any>)[],
-	concurrency: number
-): Promise<void> {
-	let at = 0;
-
-	function next(): Promise<void> {
-		if (at < promises.length) {
-			const index = at++;
-
-			return promises[index]().then(next);
-		}
-
-		return Promise.resolve();
-	}
-
-	await Promise.all(Array.from({ length: concurrency }, next));
 }

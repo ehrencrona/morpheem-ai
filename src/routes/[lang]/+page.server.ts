@@ -1,5 +1,5 @@
 import { redirectToLogin } from '$lib/redirectToLogin';
-import { error, redirect, type ServerLoad } from '@sveltejs/kit';
+import { error, type ServerLoad } from '@sveltejs/kit';
 
 export const load: ServerLoad = async ({ locals: { user, language }, url }) => {
 	if (!user) {

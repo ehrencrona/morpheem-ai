@@ -89,15 +89,21 @@ export async function getSentence(id: number, language: Language) {
 
 export async function getSentencesWithWord(
 	wordId: number,
-	language: Language
+	language: Language,
+	limit?: number
 ): Promise<Sentence[]> {
-	return db
+	let select = db
 		.withSchema(language.schema)
 		.selectFrom('word_sentences')
 		.innerJoin('sentences', 'sentence_id', 'id')
 		.select(['id', 'sentence', 'english'])
-		.where('word_id', '=', wordId)
-		.execute();
+		.where('word_id', '=', wordId);
+
+	if (limit) {
+		select = select.limit(limit);
+	}
+
+	return select.execute();
 }
 
 export async function deleteSentence(sentenceId: number, language: Language) {

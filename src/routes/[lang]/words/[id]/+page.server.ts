@@ -31,7 +31,7 @@ export const load: ServerLoad = async ({ params, locals: { language, userId } })
 
 	const word = await getWordById(wordId, language);
 
-	const sentences = await getSentencesWithWord(wordId, language);
+	const sentences = await getSentencesWithWord(wordId, language, 30);
 
 	const forms = await getForms(wordId, language);
 
@@ -56,25 +56,27 @@ export const load: ServerLoad = async ({ params, locals: { language, userId } })
 
 	let acc: AlphaBeta | null = null;
 
-	const knowledgeHistory = rawKnowledge.map(({ type, knew: k, time: date }) => {
-		const lastTime = dateToTime(date);
-		const exercise = knowledgeTypeToExercise(type);
+	const knowledgeHistory = rawKnowledge
+		.map(({ type, knew: k, time: date }) => {
+			const lastTime = dateToTime(date);
+			const exercise = knowledgeTypeToExercise(type);
 
-		const time = {
-			now: now(),
-			exercise
-		};
+			const time = {
+				now: now(),
+				exercise
+			};
 
-		const knowledge = acc ? expectedKnowledge({ ...acc, lastTime }, time) : 0;
+			const knowledge = acc ? expectedKnowledge({ ...acc, lastTime }, time) : 0;
 
-		if (acc == null) {
-			acc = k ? knewFirst(exercise) : didNotKnowFirst(exercise);
-		} else {
-			acc = k ? knew({ ...acc, lastTime }, time) : didNotKnow({ ...acc, lastTime }, time);
-		}
+			if (acc == null) {
+				acc = k ? knewFirst(exercise) : didNotKnowFirst(exercise);
+			} else {
+				acc = k ? knew({ ...acc, lastTime }, time) : didNotKnow({ ...acc, lastTime }, time);
+			}
 
-		return { ...acc, knew: k, time: lastTime, date, knowledge, exercise };
-	}, null);
+			return { ...acc, knew: k, time: lastTime, date, knowledge, exercise };
+		}, null)
+		.slice(-10);
 
 	const mnemonic = await getMnemonic({ wordId, userId: userId!, language });
 
@@ -89,6 +91,7 @@ export const load: ServerLoad = async ({ params, locals: { language, userId } })
 		readKnowledge,
 		writeKnowledge,
 		knowledgeHistory,
+		knowledgeLength: rawKnowledge.length,
 		mnemonic,
 		translations,
 		languageCode: language.code
