@@ -9,7 +9,7 @@ const { Pool } = pg;
 
 const pool = new Pool({
 	connectionString: DATABASE_URL,
-	ssl: !DATABASE_URL.includes('localhost')
+	ssl: DATABASE_URL.includes('frankfurt-postgres.render.com')
 });
 
 export const adapter = new NodePostgresAdapter(pool, {
