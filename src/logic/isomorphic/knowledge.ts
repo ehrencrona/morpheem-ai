@@ -43,7 +43,7 @@ export function calculateRepetitionValue(
 ) {
 	if (studied == false) {
 		if (exercise == 'read') {
-			return 0.7 + (newWordValue || 0) / 12;
+			return 0.4 + (newWordValue || 0) / 10;
 		} else {
 			return 0;
 		}
