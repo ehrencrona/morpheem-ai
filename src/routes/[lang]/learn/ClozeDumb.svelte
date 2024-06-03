@@ -24,14 +24,17 @@
 
 	export let suggestedWords: string[] = [];
 	export let answered: string | undefined;
+	export let answeredLemma: string | undefined;
 	export let evaluation: string | undefined;
 	export let isLoadingSuggestions = false;
+	export let isCorrectInflection: boolean | undefined;
+	export let isCorrectLemma: boolean | undefined;
 
 	export let revealed: UnknownWordResponse[];
 	export let knowledge: AggKnowledgeForUser[] | undefined = undefined;
 
 	export let onHint: () => Promise<any>;
-	export let onNext: (knew: boolean) => Promise<any>;
+	export let onNext: () => Promise<any>;
 	export let onUnknown: (wordString: string) => Promise<any>;
 	export let onRemoveUnknown: (word: string) => Promise<any>;
 	export let onReveal: () => Promise<any>;
@@ -52,7 +55,6 @@
 	}
 
 	$: isRevealed = showChars >= word.word.length;
-	$: knew = answered == word.word || answered == conjugatedWord;
 
 	$: if (prefix != null || showChars > 0) {
 		onType(answer);
@@ -91,7 +93,7 @@
 <form class="text-4xl mb-8 mt-8 font-medium" on:submit={onSubmit}>
 	{#each wordsWithSeparators as wordString, index}{#if !isSeparator(wordString)}{#if standardize(wordString) == standardize(conjugatedWord)}
 				{#if isRevealed}
-					<span class={knew ? 'text-green' : 'text-red'}>{wordString}</span>{:else}
+					<span class={isCorrectInflection ? 'text-green' : 'text-red'}>{wordString}</span>{:else}
 					<div class="inline-flex flex-col -mb-1">
 						<span class="whitespace-nowrap">
 							{wordString.slice(0, showChars)}<input
@@ -141,8 +143,12 @@
 		</div>
 	{/if}
 
-	{#if !answered}
-		<div class="flex overflow-x-auto md:flex-wrap gap-4 mt-8 pb-4 mb-4 min-h-[50px] md:min-h-auto">
+	<div class="mt-8">
+		{#if answeredLemma}
+			<div class="text-xs font-lato mb-4">Now pick the correct form of <b>{answeredLemma}</b>:</div>
+		{/if}
+
+		<div class="flex overflow-x-auto md:flex-wrap gap-4 pb-4 mb-4 min-h-[50px] md:min-h-auto">
 			{#if isLoadingSuggestions}
 				<Spinner />
 			{/if}
@@ -155,7 +161,7 @@
 				</button>
 			{/each}
 		</div>
-	{/if}
+	</div>
 
 	<div class="mt-4 mb-4">
 		<SpinnerButton onClick={onHint} type="secondary">Hint</SpinnerButton>
@@ -165,11 +171,12 @@
 		<SpinnerButton onClick={onReveal}>Reveal</SpinnerButton>
 	</div>
 {:else}
-	{#if knew}
+	{#if isCorrectInflection}
 		<div class="mb-4">Correct!</div>
 	{:else if answered}
 		<div class="mb-4">
-			You picked <b>{answered}</b>.
+			You picked <b>{answered}</b>{#if isCorrectLemma && !isCorrectInflection}, which is the wrong
+				form of the right word{/if}.
 			{evaluation || ''}
 		</div>
 	{/if}
@@ -191,7 +198,7 @@
 	<div class="mt-4">
 		<SpinnerButton onClick={onTranslate} type="secondary">Translate</SpinnerButton>
 
-		<SpinnerButton type="primary" onClick={() => onNext(knew)}>Continue</SpinnerButton>
+		<SpinnerButton type="primary" onClick={() => onNext()}>Continue</SpinnerButton>
 	</div>
 {/if}
 

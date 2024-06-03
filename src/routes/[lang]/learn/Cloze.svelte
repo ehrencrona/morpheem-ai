@@ -13,6 +13,7 @@
 	} from '../../../logic/types';
 	import { fetchClozeEvaluation } from '../api/cloze/client';
 	import { fetchTranslation } from '../api/sentences/[sentence]/english/client';
+	import { fetchInflections } from '../api/word/[id]/inflections/client';
 	import { fetchMnemonic } from '../api/word/[id]/mnemonic/client';
 	import { fetchWordsByPrefix } from '../api/word/prefix/[prefix]/client';
 	import type { UnknownWordResponse } from '../api/word/unknown/+server';
@@ -56,16 +57,26 @@
 	let showChars = 0;
 	let suggestedWords: string[] = [];
 	let answered: string | undefined;
+	let answeredLemma: string | undefined;
+	let isCorrectLemma: boolean | undefined;
+	let isCorrectInflection: boolean | undefined;
+
+	let inflections: string[] = [];
 
 	async function clear() {
 		showChars = 0;
 		suggestedWords = [];
 		answered = undefined;
+		answeredLemma = undefined;
+		isCorrectLemma = undefined;
+		isCorrectInflection = undefined;
 		englishWord = undefined;
 		englishSentence = undefined;
 		evaluation = undefined;
 
 		mnemonic = await fetchMnemonic(word.id, false);
+
+		inflections = await fetchInflections(word.id);
 	}
 
 	$: if (word.id || sentence.id) {
@@ -120,16 +131,28 @@
 	}
 
 	async function onAnswer(answerGiven: string) {
-		onReveal();
-		answered = answerGiven;
-
 		const conjugatedWord = toWords(sentence.sentence, language)[
 			sentenceWords.findIndex((w) => w.id === word.id)
 		];
 
-		const isCorrect = answered == word.word || answered == conjugatedWord;
+		const isDictionaryForm = standardize(answerGiven) == word.word;
+		const isRightInflection = standardize(answerGiven) == conjugatedWord;
 
-		if (!isCorrect) {
+		if (!answeredLemma && isDictionaryForm && !isRightInflection && inflections.length) {
+			suggestedWords = inflections;
+
+			answeredLemma = answerGiven;
+
+			return;
+		}
+
+		onReveal();
+		answered = standardize(answerGiven);
+
+		isCorrectLemma = answeredLemma ? answeredLemma == word.word : isDictionaryForm || isRightInflection;
+		isCorrectInflection = isRightInflection || (!answeredLemma && isDictionaryForm);
+
+		if (!((answeredLemma && isRightInflection) || (!answeredLemma && isCorrectLemma))) {
 			const wordWas = word;
 			const gotEvaluation = await fetchClozeEvaluation({
 				cloze: toWordsWithSeparators(sentence.sentence, language).reduce(
@@ -139,7 +162,8 @@
 				),
 				clue: englishWord || '',
 				userAnswer: answered,
-				correctAnswer: word.word
+				correctAnswer: word.word,
+				isWrongInflection: !isCorrectInflection && isCorrectLemma
 			});
 
 			if (word.id == wordWas.id) {
@@ -148,7 +172,7 @@
 		}
 	}
 
-	async function storeAndContinue(knew: boolean) {
+	async function storeAndContinue() {
 		sendKnowledge(
 			sentenceWords.map((sentenceWord) => {
 				const isCloze = sentenceWord.id == word.id;
@@ -157,7 +181,7 @@
 					word: sentenceWord,
 					wordId: sentenceWord.id,
 					sentenceId: sentence.id,
-					isKnown: isCloze ? knew : !revealed.find(({ id }) => id === sentenceWord.id),
+					isKnown: isCloze ? isCorrectLemma! : !revealed.find(({ id }) => id === sentenceWord.id),
 					studiedWordId: word.id,
 					type: isCloze ? KNOWLEDGE_TYPE_CLOZE : KNOWLEDGE_TYPE_READ,
 					userId: -1
@@ -182,12 +206,15 @@
 	{onType}
 	{onAnswer}
 	{onTranslate}
+	{isCorrectInflection}
+	{isCorrectLemma}
 	{englishWord}
 	{englishSentence}
 	{mnemonic}
 	{showChars}
 	{suggestedWords}
 	{answered}
+	{answeredLemma}
 	{revealed}
 	{knowledge}
 	{language}

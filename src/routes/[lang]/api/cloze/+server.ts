@@ -6,7 +6,8 @@ const postSchema = z.object({
 	cloze: z.string(),
 	clue: z.string(),
 	userAnswer: z.string(),
-	correctAnswer: z.string()
+	correctAnswer: z.string(),
+	isWrongInflection: z.boolean()
 });
 
 export type PostSchema = z.infer<typeof postSchema>;

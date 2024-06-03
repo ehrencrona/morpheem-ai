@@ -44,6 +44,18 @@ export function getLemmasOfWord(word: string, language: Language) {
 		.execute();
 }
 
+export async function getInflections(wordId: number, language: Language) {
+	return (
+		await db
+			.withSchema(language.schema)
+			.selectFrom('word_lemma')
+			.where('lemma_id', '=', wordId)
+			.select(['word'])
+			.orderBy('word')
+			.execute()
+	).map((row) => row.word);
+}
+
 export async function getLemmasOfWords(words: string[], language: Language) {
 	if (words.length == 0) {
 		return [];

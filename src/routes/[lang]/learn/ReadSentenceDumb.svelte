@@ -59,28 +59,13 @@
 			isLoadingUnknown = false;
 		}
 	}
-
-	function getExpectedKnowledge(word: DB.Word) {
-		if (!knowledge) return '';
-
-		const wordKnowledge = knowledge.find((k) => k.wordId === word.id);
-
-		if (wordKnowledge) {
-			return (
-				Math.round(100 * expectedKnowledge(wordKnowledge, { now: now(), exercise: 'read' })) +
-				'% known'
-			);
-		} else {
-			return 'first time';
-		}
-	}
 </script>
 
-	<div class="text-xs font-lato">
+<div class="text-xs font-lato">
 	Click any word you don't understand. This marks it for later repetition.
 </div>
 
-<div class="text-4xl mb-4 mt-4 font-medium">
+<div class="text-4xl mb-4 mt-2 font-medium">
 	{#each wordsWithSeparators as word, index}{#if !isSeparator(word)}<span
 				style="cursor: pointer"
 				role="button"
@@ -120,7 +105,7 @@
 	{/if}
 </div>
 
-<div class="flex gap-2">
+<div class="flex gap-2 mt-4">
 	{#if !hint && !translation}
 		<SpinnerButton type="secondary" onClick={() => getHint().then((got) => (hint = got))}>
 			Hint
