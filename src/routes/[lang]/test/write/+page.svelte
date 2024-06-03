@@ -1,8 +1,9 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import SpinnerButton from '../../../../components/SpinnerButton.svelte';
 	import { getLanguageOnClient } from '../../api/api-call';
 	import Cloze from '../../learn/Cloze.svelte';
-	import SpinnerButton from '../../learn/SpinnerButton.svelte';
+	import { sendKnowledge } from '../../api/knowledge/client';
 	import type { PageData } from './$types';
 
 	export let data: PageData;
@@ -42,6 +43,7 @@
 	<h1 class="text-base">Sentence {wordIndex + 1} / {data.words.length}</h1>
 
 	<Cloze
+		{sendKnowledge}
 		sentence={word.sentence}
 		word={word.word}
 		sentenceWords={word.sentenceWords}

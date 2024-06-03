@@ -2,8 +2,9 @@
 	import { goto } from '$app/navigation';
 	import { getLanguageOnClient } from '../api/api-call';
 	import ReadSentence from '../learn/ReadSentence.svelte';
-	import SpinnerButton from '../learn/SpinnerButton.svelte';
+	import SpinnerButton from '../../../components/SpinnerButton.svelte';
 	import type { PageData } from './$types';
+	import { sendKnowledge } from '../api/knowledge/client';
 
 	export let data: PageData;
 
@@ -46,6 +47,7 @@
 	<h1 class="text-base">Sentence {sentenceIndex + 1} / {data.sentences.length}</h1>
 
 	<ReadSentence
+		{sendKnowledge}
 		sentence={sentence.sentence}
 		words={sentence.words}
 		word={undefined}
