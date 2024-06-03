@@ -49,9 +49,9 @@ export function calculateRepetitionValue(
 		}
 	}
 
-	const knowledge = exercise == 'read' ? Math.max(alpha, beta || 0) : alpha > 0.8 ? beta || nt : 0;
+	const knowledge = exercise == 'read' ? Math.max(alpha, beta || 0) : alpha > 0.8 ? beta || nt : -1;
 
-	if (knowledge == 0) {
+	if (knowledge == -1) {
 		return 0;
 	}
 
