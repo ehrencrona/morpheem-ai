@@ -113,8 +113,8 @@
 		</div>
 	{/if}
 
-	{#if suggestedWords.length > 0 && !answered}
-		<div class="flex overflow-x-auto md:flex-wrap gap-4 mt-8 pb-4 mb-4">
+	{#if  !answered}
+		<div class="flex overflow-x-auto md:flex-wrap gap-4 mt-8 pb-4 mb-4 min-h-[50px] md:min-h-auto">
 			{#each suggestedWords as suggestedWord}
 				<button
 					class="bg-blue-1 border-blue-1 rounded-lg px-5 py-1 whitespace-nowrap"
