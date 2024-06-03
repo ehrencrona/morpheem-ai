@@ -8,6 +8,7 @@
 	import SpinnerButton from '../../../components/SpinnerButton.svelte';
 	import WordCard from './WordCard.svelte';
 	import Spinner from '../../../components/Spinner.svelte';
+	import Error from '../../../components/Error.svelte';
 
 	export let sentence: DB.Sentence;
 	export let sentenceWords: SentenceWord[];
@@ -63,6 +64,7 @@
 	$: wordsWithSeparators = toWordsWithSeparators(sentence.sentence, language);
 
 	let isLoadingUnknown = false;
+	let error: any;
 
 	function onSubmit() {
 		onAnswer(answer);
@@ -75,6 +77,10 @@
 			await new Promise((resolve) => setTimeout(resolve, 1000));
 
 			await onUnknown(wordString);
+		} catch (e) {
+			console.error(e);
+
+			error = e;
 		} finally {
 			clearTimeout(timer);
 			isLoadingUnknown = false;
@@ -188,3 +194,5 @@
 		<SpinnerButton type="primary" onClick={() => onNext(knew)}>Continue</SpinnerButton>
 	</div>
 {/if}
+
+<Error {error} onClear={() => (error = undefined)} />

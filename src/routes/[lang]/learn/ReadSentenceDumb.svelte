@@ -11,6 +11,7 @@
 	import WordCard from './WordCard.svelte';
 	import BottomBar from '../../../components/BottomBar.svelte';
 	import Spinner from '../../../components/Spinner.svelte';
+	import Error from '../../../components/Error.svelte';
 
 	export let sentence: DB.Sentence;
 	export let word: DB.Word | undefined;
@@ -26,6 +27,7 @@
 	let hint: string | undefined;
 	let translation: string | undefined;
 	let isLoadingUnknown = false;
+	let error: any;
 
 	export let getHint: () => Promise<string>;
 	export let getTranslation: () => Promise<string>;
@@ -48,6 +50,10 @@
 			await new Promise((resolve) => setTimeout(resolve, 1000));
 
 			await onUnknown(wordString);
+		} catch (e) {
+			console.error(e);
+
+			error = e;
 		} finally {
 			clearTimeout(timer);
 			isLoadingUnknown = false;
@@ -70,7 +76,7 @@
 	}
 </script>
 
-<div class="text-xs font-lato">
+	<div class="text-xs font-lato">
 	Click any word you don't understand. This marks it for later repetition.
 </div>
 
@@ -154,3 +160,5 @@
 			: [])
 	]}
 />
+
+<Error {error} onClear={() => (error = undefined)} />

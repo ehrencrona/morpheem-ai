@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { dedupUnknown } from '$lib/dedupUnknown';
+	import Error from '../../../components/Error.svelte';
 	import { KNOWLEDGE_TYPE_CLOZE, KNOWLEDGE_TYPE_READ } from '../../../db/knowledgeTypes';
 	import * as DB from '../../../db/types';
 	import { standardize } from '../../../logic/isomorphic/standardize';
@@ -29,6 +30,7 @@
 
 	let evaluation: string | undefined = undefined;
 
+	let error: any;
 	let isLoadingSuggestions = false;
 	let revealed: UnknownWordResponse[] = [];
 
@@ -75,7 +77,10 @@
 					englishWord = translated.english;
 				}
 			})
-			.catch(console.error);
+			.catch((e) => {
+				console.error(e);
+				error = e;
+			});
 	}
 
 	$: if (sentence.id) {
@@ -105,6 +110,9 @@
 
 		try {
 			suggestedWords = prefix.length > 0 && showChars < 100 ? await fetchWordsByPrefix(prefix) : [];
+		} catch (e) {
+			console.error(e);
+			error = e;
 		} finally {
 			clearTimeout(timer);
 			isLoadingSuggestions = false;
@@ -205,3 +213,5 @@
 			: [])
 	]}
 />
+
+<Error {error} onClear={() => (error = undefined)} />
