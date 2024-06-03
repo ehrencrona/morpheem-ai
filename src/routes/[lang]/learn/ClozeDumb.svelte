@@ -92,17 +92,17 @@
 	{#each wordsWithSeparators as wordString, index}{#if !isSeparator(wordString)}{#if standardize(wordString) == standardize(conjugatedWord)}
 				{#if isRevealed}
 					<span class={knew ? 'text-green' : 'text-red'}>{wordString}</span>{:else}
-					<div class="inline-flex flex-col -mb-2">
+					<div class="inline-flex flex-col -mb-1">
 						<span class="whitespace-nowrap">
 							{wordString.slice(0, showChars)}<input
 								type="text"
-								class="border-b-4 border-b-red bg-blue-1 relative -top-2"
+								class="border-b-4 border-b-red bg-blue-1 relative"
 								size={wordString.length - showChars}
 								bind:value={prefix}
 								autocapitalize="off"
 							/>
 						</span>
-						<span class="text-xs font-lato text-right -mt-1">
+						<span class="text-xs font-lato text-right">
 							"{englishWord || '...'}"
 						</span>
 					</div>
