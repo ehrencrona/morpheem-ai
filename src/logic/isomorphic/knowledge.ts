@@ -33,16 +33,29 @@ function valueFunction(time: number, optimalTime: number, sigma: number) {
 
 /** How much is it worth to repeat this word now? */
 export function calculateRepetitionValue(
-	{ alpha, beta, lastTime }: AlphaBetaTime,
-	{ now, exercise }: { now: number; exercise: Exercise }
+	{ alpha, beta, lastTime, studied }: AlphaBetaTime & { studied?: boolean },
+	{
+		now,
+		exercise,
+		repetitionTime,
+		newWordValue
+	}: { now: number; exercise: Exercise; repetitionTime?: number; newWordValue?: number }
 ) {
+	if (studied == false) {
+		if (exercise == 'read') {
+			return 0.7 + (newWordValue || 0) / 12;
+		} else {
+			return 0;
+		}
+	}
+
 	const knowledge = exercise == 'read' ? Math.max(alpha, beta || 0) : alpha > 0.8 ? beta || nt : 0;
 
 	if (knowledge == 0) {
 		return 0;
 	}
 
-	const optimalTime = Math.exp(knowledge * 12);
+	const optimalTime = Math.exp(knowledge * (12 + (repetitionTime || 0)));
 
 	const time = now - lastTime;
 

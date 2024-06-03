@@ -1,3 +1,4 @@
+import { getNewWordValue, getRepetitionTime } from '$lib/settings';
 import type { AggKnowledgeForUser, CandidateSentenceWithWords, Exercise } from '../types';
 import { expectedKnowledge, calculateRepetitionValue, now } from './knowledge';
 
@@ -8,6 +9,9 @@ export function getNextWord(knowledge: AggKnowledgeForUser[]) {
 export function getNextWords(knowledge: AggKnowledgeForUser[], count = 5) {
 	const n = now();
 
+	const repetitionTime = getRepetitionTime();
+	const newWordValue = getNewWordValue();
+
 	const scores = knowledge.reduce(
 		(acc, k) => [
 			...acc,
@@ -17,7 +21,9 @@ export function getNextWords(knowledge: AggKnowledgeForUser[], count = 5) {
 				score:
 					(calculateRepetitionValue(k, {
 						now: n,
-						exercise: 'read'
+						exercise: 'read',
+						repetitionTime,
+						newWordValue
 					}) *
 						(2 - k.level / 100)) /
 					2
@@ -28,7 +34,9 @@ export function getNextWords(knowledge: AggKnowledgeForUser[], count = 5) {
 				score:
 					(calculateRepetitionValue(k, {
 						now: n,
-						exercise: 'write'
+						exercise: 'write',
+						repetitionTime,
+						newWordValue
 					}) *
 						(2 - k.level / 100)) /
 					2
@@ -37,7 +45,6 @@ export function getNextWords(knowledge: AggKnowledgeForUser[], count = 5) {
 		[] as (AggKnowledgeForUser & { score: number; exercise: Exercise })[]
 	);
 
-	// return the five words with highest scores
 	const topScores = scores.sort((a, b) => b.score - a.score).slice(0, count);
 
 	const word = topScores[0];
@@ -61,18 +68,17 @@ export function getNextWords(knowledge: AggKnowledgeForUser[], count = 5) {
 	);
 
 	console.log(
-		'Next unstudied word\n' +
+		'Next unstudied words\n' +
 			scores
-				.filter((s) => s.studied == false)
+				.filter((s) => s.studied == false && s.score > 0)
 				.map(
-					(i) =>
-						`${i.word} ${i.exercise} (${i.wordId}, score ${Math.round(i.score * 100)}%, knowledge ${Math.round(
-							100 * expectedKnowledge(i, { now: n, exercise: i.exercise })
-						)}% level ${i.level})${i.studied === false ? ' unstudied' : ''}`
+					(unstudied, i) =>
+						`${i + 1}. ${unstudied.word} ${unstudied.exercise} (${unstudied.wordId}, score ${Math.round(unstudied.score * 100)}%, level ${unstudied.level})`
 				)
+				.join('\n')
 	);
 
-	return topScores.map(({ wordId, exercise }) => ({ wordId, exercise }));
+	return topScores.map(({ wordId, exercise, studied }) => ({ wordId, exercise, studied }));
 }
 
 export function getNextSentence(

@@ -50,6 +50,7 @@
 				sentence: DB.Sentence;
 				words: SentenceWord[];
 				exercise: Exercise;
+				studied: false | undefined;
 		  }
 		| undefined;
 
@@ -94,12 +95,13 @@
 				let aggKnowledge: AggKnowledgeForUser;
 
 				if (word.isKnown) {
-					aggKnowledge = { ...k, ...knew(k, opts), lastTime };
+					aggKnowledge = { ...k, ...knew(k, opts), lastTime, studied: undefined };
 				} else {
 					aggKnowledge = {
 						...k,
 						...didNotKnow(k, opts),
-						lastTime
+						lastTime,
+						studied: undefined
 					};
 				}
 
@@ -147,15 +149,16 @@
 		wordIds = [],
 		excludeWordId
 	}: {
-		wordIds?: { wordId: number; exercise: Exercise }[];
+		wordIds?: { wordId: number; exercise: Exercise; studied: false | undefined }[];
 		excludeWordId?: number;
 	}) {
 		if (!wordIds.length) {
 			wordIds = getNextWords(knowledge).filter(({ wordId }) => wordId !== excludeWordId);
 		}
 
-		let wordId = wordIds[0].wordId;
-		let exercise = wordIds[0].exercise;
+		const wordId = wordIds[0].wordId;
+		const exercise = wordIds[0].exercise;
+		const studied = wordIds[0].studied;
 
 		try {
 			let sentences = await fetchSentencesWithWord(wordId);
@@ -189,6 +192,7 @@
 			return {
 				sentence,
 				wordId,
+				studied,
 				getNextPromise: () =>
 					calculateNextSentence({
 						wordIds: wordIds.slice(1),
@@ -217,7 +221,8 @@
 			sentence,
 			wordId,
 			getNextPromise: getNext,
-			exercise
+			exercise,
+			studied
 		} = await (nextPromise || calculateNextSentence({}));
 
 		nextPromise = getNext();
@@ -228,8 +233,9 @@
 
 		current = {
 			wordId: wordId,
-			sentence,
 			words: sentence.words,
+			sentence,
+			studied,
 			exercise
 		};
 
@@ -273,19 +279,27 @@
 	{/if}
 
 	{#if current}
-		<div class="text-right font-lato text-xs flex gap-2 mb-6 justify-end">
-			{#if word}
-				<a href={`/${languageCode}/words/${word.id}"`} class="underline text-red">
-					Word
-				</a>
-			{/if}
+		<div class="flex mb-6">
+			<div class="flex-1 font-lato text-xs flex items-center">
+				{#if current.studied == false}
+					<div class="bg-red text-[#fff] px-1 font-sans text-xxs">NEW WORD</div>
+				{/if}
+			</div>
 
-			<a
-				href={`/${languageCode}/sentences/${current?.sentence.id}/delete`}
-				class="underline text-red"
-			>
-				Error in sentence?
-			</a>
+			<div class="font-lato text-xs flex gap-2 justify-end">
+				<a href={`/${languageCode}/home`} class="underline text-red"> History </a>
+
+				{#if word}
+					<a href={`/${languageCode}/words/${word.id}"`} class="underline text-red"> Word </a>
+				{/if}
+
+				<a
+					href={`/${languageCode}/sentences/${current?.sentence.id}/delete`}
+					class="underline text-red"
+				>
+					Sentence is wrong
+				</a>
+			</div>
 		</div>
 
 		{#if wordsKnown?.read < 10}

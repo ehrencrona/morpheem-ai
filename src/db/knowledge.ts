@@ -150,10 +150,12 @@ export async function transformAggregateKnowledge(
 
 export async function getEasiestUnstudiedWords({
 	language,
-	userId
+	userId,
+	limit
 }: {
 	language: Language;
 	userId: number;
+	limit: number;
 }) {
 	const aggregateKnowledgeForUser = db
 		.withSchema(language.schema)
@@ -168,7 +170,7 @@ export async function getEasiestUnstudiedWords({
 		.select(['words.id', 'words.word', 'words.level'])
 		.where('ak.word_id', 'is', null)
 		.orderBy('words.level', 'asc')
-		.limit(1)
+		.limit(limit)
 		.execute();
 }
 

@@ -6,7 +6,7 @@ import { Language } from './types';
 export async function getAggregateKnowledge(userId: number, language: Language) {
 	let knowledge = await getAggregateKnowledgeForUser({ userId, language });
 
-	const easiestUnstudied = await getEasiestUnstudiedWords({ userId, language });
+	const easiestUnstudied = await getEasiestUnstudiedWords({ userId, language, limit: 10 });
 
 	knowledge = knowledge.concat(
 		easiestUnstudied.map(({ id, level, word }) => ({
