@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { getLanguageOnClient } from '../../api/api-call';
+	import { calculateRepetitionValue, now } from '../../../../logic/isomorphic/knowledge';
+	import { getRepetitionTime, getNewWordValue } from '../../../../lib/settings';
 	import type { PageData } from './$types';
 
 	export let data: PageData;
@@ -18,7 +20,7 @@
 </script>
 
 <main>
-	&lt; <a href='.' class="underline text-sm">All words</a>
+	&lt; <a href="." class="underline text-sm">All words</a>
 	<h1 class="text-xl font-bold my-4">{data.word?.word}</h1>
 
 	<a
@@ -109,5 +111,9 @@
 
 	<p class="text-xs font-sans">
 		Knowledge now {toPercent(data.readKnowledge)} (read), {toPercent(data.writeKnowledge)} (write)
+	</p>
+
+	<p class="text-xs font-sans">
+		Repetition value: {toPercent(data.repetitionValueRead)} (read), {toPercent(data.repetitionValueWrite)} (write)
 	</p>
 </main>

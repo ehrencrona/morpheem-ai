@@ -45,24 +45,26 @@ export function getNextWords(knowledge: AggKnowledgeForUser[], count = 5) {
 		[] as (AggKnowledgeForUser & { score: number; exercise: Exercise })[]
 	);
 
-	const topScores = scores.sort((a, b) => b.score - a.score).slice(0, count);
+	const topScores = scores.sort((a, b) => b.score - a.score);
 
 	const word = topScores[0];
 
 	const toPercent = (n: number | null) => (n != null ? Math.round(n * 100) + '%' : '-');
 
 	console.log(
-		`Knowledge of ${word.word}: ${toPercent(word.alpha)}/${toPercent(word.beta)}, age ${now() - word.lastTime} = ${word.score}`
+		`Knowledge of ${word.word}: ${toPercent(word.alpha)}/${toPercent(word.beta)}, age ${now() - word.lastTime} = ${toPercent(word.score)}`
 	);
 
 	console.log(
 		'Next words:\n' +
 			topScores
+				.filter((s) => s.studied == undefined)
+				.slice(0, 10)
 				.map(
 					(i, j) =>
 						`${j + 1}. ${i.word} ${i.exercise} (${i.wordId}, score ${Math.round(i.score * 100)}%, knowledge ${Math.round(
 							100 * expectedKnowledge(i, { now: n, exercise: i.exercise })
-						)}% level ${i.level})${i.studied === false ? ' unstudied' : ''}`
+						)}% level ${i.level})`
 				)
 				.join(`\n`)
 	);
@@ -71,6 +73,7 @@ export function getNextWords(knowledge: AggKnowledgeForUser[], count = 5) {
 		'Next unstudied words\n' +
 			scores
 				.filter((s) => s.studied == false && s.score > 0)
+				.slice(0, 5)
 				.map(
 					(unstudied, i) =>
 						`${i + 1}. ${unstudied.word} ${unstudied.exercise} (${unstudied.wordId}, score ${Math.round(unstudied.score * 100)}%, level ${unstudied.level})`
@@ -78,7 +81,9 @@ export function getNextWords(knowledge: AggKnowledgeForUser[], count = 5) {
 				.join('\n')
 	);
 
-	return topScores.map(({ wordId, exercise, studied }) => ({ wordId, exercise, studied }));
+	return topScores
+		.slice(0, count)
+		.map(({ wordId, exercise, studied }) => ({ wordId, exercise, studied }));
 }
 
 export function getNextSentence(

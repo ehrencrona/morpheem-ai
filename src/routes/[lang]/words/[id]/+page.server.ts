@@ -10,6 +10,7 @@ import { getSentencesWithWord } from '../../../../db/sentences';
 import { getAllWordTranslations } from '../../../../db/wordTranslations';
 import { getWordById, getWordByLemma } from '../../../../db/words';
 import {
+	calculateRepetitionValue,
 	dateToTime,
 	didNotKnow,
 	didNotKnowFirst,
@@ -78,6 +79,15 @@ export const load: ServerLoad = async ({ params, locals: { language, userId } })
 		}, null)
 		.slice(-10);
 
+	const repetitionValueRead = calculateRepetitionValue(knowledge[0], {
+		now: now(),
+		exercise: 'read'
+	});
+	const repetitionValueWrite = calculateRepetitionValue(knowledge[0], {
+		now: now(),
+		exercise: 'write'
+	});
+
 	const mnemonic = await getMnemonic({ wordId, userId: userId!, language });
 
 	const translations = (await getAllWordTranslations(wordId, language)).map(
@@ -90,6 +100,8 @@ export const load: ServerLoad = async ({ params, locals: { language, userId } })
 		forms,
 		readKnowledge,
 		writeKnowledge,
+		repetitionValueRead,
+		repetitionValueWrite,
 		knowledgeHistory,
 		knowledgeLength: rawKnowledge.length,
 		mnemonic,
