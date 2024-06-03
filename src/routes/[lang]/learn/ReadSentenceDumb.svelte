@@ -10,6 +10,7 @@
 	import SpinnerButton from '../../../components/SpinnerButton.svelte';
 	import WordCard from './WordCard.svelte';
 	import BottomBar from '../../../components/BottomBar.svelte';
+	import Spinner from '../../../components/Spinner.svelte';
 
 	export let sentence: DB.Sentence;
 	export let word: DB.Word | undefined;
@@ -24,6 +25,7 @@
 
 	let hint: string | undefined;
 	let translation: string | undefined;
+	let isLoadingUnknown = false;
 
 	export let getHint: () => Promise<string>;
 	export let getTranslation: () => Promise<string>;
@@ -37,6 +39,19 @@
 
 	$: if (sentence) {
 		clear();
+	}
+
+	async function onClickedWord(wordString: string) {
+		const timer = setTimeout(() => (isLoadingUnknown = true), 100);
+
+		try {
+			await new Promise((resolve) => setTimeout(resolve, 1000));
+
+			await onUnknown(wordString);
+		} finally {
+			clearTimeout(timer);
+			isLoadingUnknown = false;
+		}
 	}
 
 	function getExpectedKnowledge(word: DB.Word) {
@@ -65,7 +80,7 @@
 				role="button"
 				tabindex={index}
 				class="hover:underline decoration-yellow"
-				on:click={() => onUnknown(word)}>{word}</span
+				on:click={() => onClickedWord(word)}>{word}</span
 			>{:else}{word}{/if}{/each}
 </div>
 
@@ -92,6 +107,11 @@
 			{knowledge}
 		/>
 	{/each}
+	{#if isLoadingUnknown}
+		<div class="flex justify-center items-center">
+			<Spinner />
+		</div>
+	{/if}
 </div>
 
 <div class="flex gap-2">
@@ -133,5 +153,4 @@
 			? ['Etymology?', 'Other meanings?', 'Similar-sounding words?', 'Synonyms?', 'Examples?']
 			: [])
 	]}
-
 />

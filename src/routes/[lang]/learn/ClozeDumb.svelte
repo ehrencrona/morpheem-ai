@@ -62,8 +62,23 @@
 	$: conjugatedWord = wordStrings[sentenceWords.findIndex((w) => w.id === word.id)];
 	$: wordsWithSeparators = toWordsWithSeparators(sentence.sentence, language);
 
+	let isLoadingUnknown = false;
+
 	function onSubmit() {
 		onAnswer(answer);
+	}
+
+	async function onClickedWord(wordString: string) {
+		const timer = setTimeout(() => (isLoadingUnknown = true), 100);
+
+		try {
+			await new Promise((resolve) => setTimeout(resolve, 1000));
+
+			await onUnknown(wordString);
+		} finally {
+			clearTimeout(timer);
+			isLoadingUnknown = false;
+		}
 	}
 </script>
 
@@ -90,7 +105,7 @@
 					role="button"
 					tabindex={index}
 					class="hover:underline decoration-yellow"
-					on:click={() => onUnknown(wordString)}>{wordString}</span
+					on:click={() => onClickedWord(wordString)}>{wordString}</span
 				>{/if}{:else}{wordString}{/if}{/each}
 </form>
 
@@ -112,6 +127,11 @@
 					english={word.english}
 				/>
 			{/each}
+			{#if isLoadingUnknown}
+				<div class="flex justify-center items-center">
+					<Spinner />
+				</div>
+			{/if}
 		</div>
 	{/if}
 
