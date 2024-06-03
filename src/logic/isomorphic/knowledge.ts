@@ -41,7 +41,7 @@ export function calculateRepetitionValue(
 		newWordValue
 	}: { now: number; exercise: Exercise; repetitionTime?: number; newWordValue?: number }
 ) {
-	if (studied == false) {
+	if (studied === false) {
 		if (exercise == 'read') {
 			return 0.4 + (newWordValue || 0) / 10;
 		} else {
@@ -110,7 +110,7 @@ export function knew(
 	}
 }
 
-const startOfTime = new Date(2024, 0, 1).getTime();
+const startOfTime = 1704034800000;
 
 const timeScaling = 60 * 1000;
 
