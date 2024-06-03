@@ -24,7 +24,7 @@ export function getNextWords(knowledge: AggKnowledgeForUser[], count = 5) {
 			},
 			{
 				...k,
-				exercise: (Math.random() > 0.75 ? 'write' : 'cloze') as Exercise,
+				exercise: 'write' as Exercise, // (Math.random() > 0.75 ? 'write' : 'cloze') as Exercise,
 				score:
 					(calculateRepetitionValue(k, {
 						now: n,

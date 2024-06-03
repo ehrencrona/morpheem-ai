@@ -2,12 +2,15 @@
 	import { dedupUnknown } from '$lib/dedupUnknown';
 	import { KNOWLEDGE_TYPE_CLOZE, KNOWLEDGE_TYPE_READ } from '../../../db/knowledgeTypes';
 	import * as DB from '../../../db/types';
+	import { standardize } from '../../../logic/isomorphic/standardize';
+	import { toWords, toWordsWithSeparators } from '../../../logic/toWords';
 	import type {
 		AggKnowledgeForUser,
 		Language,
 		SentenceWord,
 		WordKnowledge
 	} from '../../../logic/types';
+	import { fetchClozeEvaluation } from '../api/cloze/client';
 	import { fetchTranslation } from '../api/sentences/[sentence]/english/client';
 	import { fetchMnemonic } from '../api/word/[id]/mnemonic/client';
 	import { fetchWordsByPrefix } from '../api/word/prefix/[prefix]/client';
@@ -16,9 +19,6 @@
 	import { fetchAskMeAnything } from '../api/write/ama/client';
 	import Ama from './AMA.svelte';
 	import ClozeDumb from './ClozeDumb.svelte';
-	import { fetchClozeEvaluation } from '../api/cloze/client';
-	import { toWords, toWordsWithSeparators } from '../../../logic/toWords';
-	import { standardize } from '../../../logic/isomorphic/standardize';
 
 	export let sentence: DB.Sentence;
 	export let word: DB.Word;
@@ -176,7 +176,6 @@
 />
 
 <Ama
-	explanation="You can refer to the current sentence or the word you chose."
 	ask={(question) =>
 		fetchAskMeAnything({
 			type: 'cloze',
@@ -187,4 +186,11 @@
 			revealed
 		})}
 	wordId={word.id}
+	suggestions={[
+		'Can I express this differently?',
+		`How do you say "banana" in ${language.name}?`,
+		...(revealed.length
+			? ['Etymology?', 'Other meanings?', 'Similar-sounding words?', 'Synonyms?', 'Examples?']
+			: [])
+	]}
 />

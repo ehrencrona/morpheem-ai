@@ -122,7 +122,9 @@
 
 <div>
 	<h1 class="mb-4 text-xl">
-		{#if lookedUpWord}"{lookedUpWord?.english}"{:else}...{/if}
+		{#if isRevealed}
+			{word.word}
+		{:else if lookedUpWord}"{lookedUpWord?.english}"{:else}...{/if}
 	</h1>
 
 	<form>
@@ -136,22 +138,25 @@
 			<input
 				type="text"
 				bind:value={sentence}
-				class="bg-blue-1 rounded-sm block w-full p-2 text-lg mb-2"
+				class="bg-blue-1 rounded-sm block w-full p-2 text-lg mb-6"
 				lang="pl"
 			/>
 
 			{#if showChars > 0 && !isRevealed}
-				<div class="text-xs font-lato mb-2">
+				<div class="text-xs font-lato mb-6">
 					The word starts with <b>"{word.word.slice(0, showChars)}..."</b>
 				</div>
 			{/if}
 
 			{#if idea}
-				<div class="text-xs font-lato text-gray-1 mb-2">{idea}</div>
+				<div class="text-sm mb-6" in:slide>
+					<div class="text-xs font-lato">Maybe write this in {language.name}?</div>
+					<div class="text-xl">"{idea}"</div>
+				</div>
 			{/if}
 		{:else}
 			{#if corrected != sentence}
-				<div class="text-xl font-bold mb-6 mt-4 text-balance line-through">
+				<div class="text-xl font-bold mb-6 text-balance line-through">
 					{sentence}
 				</div>
 			{/if}
@@ -202,7 +207,7 @@
 	</form>
 
 	<AMA
-		explanation="Enter an English word to get a {language.name} translation."
+		suggestions={[`How do you say "to scratch"?`, `traffic light in ${language.name}?`]}
 		ask={askMeAnything}
 		wordId={word.id}
 	/>

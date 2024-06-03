@@ -68,20 +68,22 @@
 <form class="text-4xl mb-8 mt-8 font-medium" on:submit={onSubmit}>
 	{#each wordsWithSeparators as wordString, index}{#if !isSeparator(wordString)}{#if standardize(wordString) == standardize(conjugatedWord)}
 				{#if isRevealed}
-					<span class={knew ? 'text-green' : 'text-red'}>{wordString}</span>
-				{:else}
-					<span class="whitespace-nowrap">
-						{wordString.slice(0, showChars)}
-						<input
-							type="text"
-							class="border-b-4 border-b-red bg-blue-1"
-							size={wordString.length - showChars}
-							bind:value={prefix}
-							autocapitalize="off"
-						/>
-					</span>
-				{/if}
-			{:else}<span
+					<span class={knew ? 'text-green' : 'text-red'}>{wordString}</span>{:else}
+					<div class="inline-flex flex-col -mb-2">
+						<span class="whitespace-nowrap">
+							{wordString.slice(0, showChars)}<input
+								type="text"
+								class="border-b-4 border-b-red bg-blue-1 relative -top-2"
+								size={wordString.length - showChars}
+								bind:value={prefix}
+								autocapitalize="off"
+							/>
+						</span>
+						<span class="text-xs font-lato text-right -mt-1">
+							"{englishWord || '...'}"
+						</span>
+					</div>
+				{/if}{:else}<span
 					style="cursor: pointer"
 					role="button"
 					tabindex={index}
@@ -90,8 +92,11 @@
 				>{/if}{:else}{wordString}{/if}{/each}
 </form>
 
-{#if englishSentence || englishWord}
-	<div class="text-sm mb-4" in:slide>{englishSentence || englishWord}</div>
+{#if englishSentence}
+	<div class="text-sm mb-6" in:slide>
+		<div class="text-xs font-lato">The sentence means</div>
+		<div class="text-xl">"{englishSentence}"</div>
+	</div>
 {/if}
 
 {#if !isRevealed}
@@ -119,16 +124,16 @@
 				</button>
 			{/each}
 		</div>
-		<div class="text-xs font-sans mb-8">Select the dictionary form of the word.</div>
 	{/if}
 
-	<div class="mt-4">
+	<div class="mt-4 mb-4">
 		<SpinnerButton onClick={onHint} type="secondary">Hint</SpinnerButton>
 
 		<SpinnerButton onClick={onTranslate} type="secondary">Translate</SpinnerButton>
 
 		<SpinnerButton onClick={onReveal}>Reveal</SpinnerButton>
 	</div>
+
 {:else}
 	{#if knew}
 		<div class="mb-4">Correct!</div>

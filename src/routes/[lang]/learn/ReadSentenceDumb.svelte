@@ -9,6 +9,7 @@
 	import Ama from './AMA.svelte';
 	import SpinnerButton from './SpinnerButton.svelte';
 	import WordCard from './WordCard.svelte';
+	import BottomBar from '../../../components/BottomBar.svelte';
 
 	export let sentence: DB.Sentence;
 	export let word: DB.Word | undefined;
@@ -54,11 +55,9 @@
 	}
 </script>
 
-{#if word}
-	<div class="">
-		{word.word} <span class="text-xxs font-lato ml-1">{getExpectedKnowledge(word)}</span>
-	</div>
-{/if}
+<div class="text-xs font-lato">
+	Click any word you don't understand. This marks it for later repetition.
+</div>
 
 <div class="text-4xl mb-4 mt-4 font-medium">
 	{#each wordsWithSeparators as word, index}{#if !isSeparator(word)}<span
@@ -71,8 +70,15 @@
 </div>
 
 {#if translation || hint}
-	<div class="mb-6 text-balance text-lg font-lato italic" in:slide>
-		{translation || hint}
+	<div class="text-sm mb-6" in:slide>
+		<div class="text-xs font-lato">
+			{#if translation}
+				The sentence means
+			{:else}
+				How the text might continue:
+			{/if}
+		</div>
+		<div class="text-xl">"{translation || hint}"</div>
 	</div>
 {/if}
 
@@ -108,7 +114,6 @@
 </div>
 
 <Ama
-	explanation="You can refer to the current question or the explained words."
 	ask={(question) =>
 		fetchAskMeAnything({
 			type: 'read',
@@ -119,4 +124,14 @@
 			translation
 		})}
 	wordId={sentence.id}
+	suggestions={[
+		'Can I express this differently?',
+		'Why is it "this" and not "that"?',
+		'How do you conjugate "to do"?',
+		`How do you say "ice cream" in ${language.name}?`,
+		...(revealed.length
+			? ['Etymology?', 'Other meanings?', 'Similar-sounding words?', 'Synonyms?', 'Examples?']
+			: [])
+	]}
+
 />

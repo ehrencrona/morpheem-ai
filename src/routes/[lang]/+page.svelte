@@ -277,12 +277,18 @@
 	{/if}
 
 	{#if current}
-		<div class="text-right font-lato text-xs flex gap-1 mb-4 justify-end">
+		<div class="text-right font-lato text-xs flex gap-2 mb-6 justify-end">
+			{#if word}
+				<a href={`/${getLanguageOnClient()}/words/${word.id}"`} class="underline text-red">
+					Word
+				</a>
+			{/if}
+
 			<a
 				href={`/${getLanguageOnClient().code}/sentences/${current?.sentence.id}/delete`}
 				class="underline text-red"
 			>
-				Delete sentence
+				Error in sentence?
 			</a>
 		</div>
 
