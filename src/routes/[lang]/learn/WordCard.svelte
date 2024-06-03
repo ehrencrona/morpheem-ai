@@ -16,8 +16,10 @@
 
 	let editMnemonic: string | undefined;
 
-	async function getMnemonic(word: DB.Word, generate: boolean) {
-		mnemonic = await fetchMnemonic(word.id, generate);
+	async function generateMnemonic(word: DB.Word) {
+		mnemonic = await fetchMnemonic(word.id, true);
+
+		return mnemonic!;
 	}
 
 	async function saveMnemonic(newMnemonic: string) {
@@ -49,7 +51,6 @@
 	{onRemove}
 	{mnemonic}
 	{english}
-	onGetMnemonic={getMnemonic}
 	onEditMnemonic={async (word, mnemonic) => (editMnemonic = mnemonic || '')}
 	expectedKnowledge={getExpectedKnowledge(word)}
 />
@@ -57,7 +58,9 @@
 {#if editMnemonic != undefined}
 	<EditMnemonic
 		wordString={word.word}
+		{english}
 		mnemonic={editMnemonic}
+		generate={() => generateMnemonic(word)}
 		onCancel={async () => (editMnemonic = undefined)}
 		onSave={saveMnemonic}
 	/>
