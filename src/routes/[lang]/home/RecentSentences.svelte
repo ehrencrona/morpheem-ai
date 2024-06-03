@@ -1,5 +1,5 @@
 <script lang="ts">
-	import SpinnerButton from '../learn/SpinnerButton.svelte';
+	import SpinnerButton from '../../../components/SpinnerButton.svelte';
 
 	export let sentences: { sentence: string }[];
 

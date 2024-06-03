@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type * as DB from '../../../db/types';
-	import SpinnerButton from './SpinnerButton.svelte';
+	import SpinnerButton from '../../../components/SpinnerButton.svelte';
 
 	export let word: DB.Word;
 	export let onRemove: (() => void) | undefined = undefined;

@@ -9,7 +9,7 @@
 	import { storeWrittenSentence } from '../api/write/client';
 	import { fetchWritingFeedback } from '../api/write/feedback/client';
 	import AMA from './AMA.svelte';
-	import SpinnerButton from './SpinnerButton.svelte';
+	import SpinnerButton from '../../../components/SpinnerButton.svelte';
 	import WordCard from './WordCard.svelte';
 	import type * as DB from '../../../db/types';
 

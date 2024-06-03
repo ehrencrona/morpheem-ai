@@ -5,8 +5,9 @@
 	import { isSeparator, toWords, toWordsWithSeparators } from '../../../logic/toWords';
 	import type { AggKnowledgeForUser, Language, SentenceWord } from '../../../logic/types';
 	import type { UnknownWordResponse } from '../api/word/unknown/+server';
-	import SpinnerButton from './SpinnerButton.svelte';
+	import SpinnerButton from '../../../components/SpinnerButton.svelte';
 	import WordCard from './WordCard.svelte';
+	import Spinner from '../../../components/Spinner.svelte';
 
 	export let sentence: DB.Sentence;
 	export let sentenceWords: SentenceWord[];
@@ -23,6 +24,7 @@
 	export let suggestedWords: string[] = [];
 	export let answered: string | undefined;
 	export let evaluation: string | undefined;
+	export let isLoadingSuggestions = false;
 
 	export let revealed: UnknownWordResponse[];
 	export let knowledge: AggKnowledgeForUser[] | undefined = undefined;
@@ -113,8 +115,11 @@
 		</div>
 	{/if}
 
-	{#if  !answered}
+	{#if !answered}
 		<div class="flex overflow-x-auto md:flex-wrap gap-4 mt-8 pb-4 mb-4 min-h-[50px] md:min-h-auto">
+			{#if isLoadingSuggestions}
+				<Spinner />
+			{/if}
 			{#each suggestedWords as suggestedWord}
 				<button
 					class="bg-blue-1 border-blue-1 rounded-lg px-5 py-1 whitespace-nowrap"
@@ -133,7 +138,6 @@
 
 		<SpinnerButton onClick={onReveal}>Reveal</SpinnerButton>
 	</div>
-
 {:else}
 	{#if knew}
 		<div class="mb-4">Correct!</div>

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import SpinnerButton from './SpinnerButton.svelte';
+	import SpinnerButton from '../../../components/SpinnerButton.svelte';
 
 	export let onSave: (mnemonic: string) => Promise<any>;
 	export let onCancel: () => Promise<any>;

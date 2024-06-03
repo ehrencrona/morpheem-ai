@@ -7,7 +7,7 @@
 	import type { UnknownWordResponse } from '../api/word/unknown/+server';
 	import { fetchAskMeAnything } from '../api/write/ama/client';
 	import Ama from './AMA.svelte';
-	import SpinnerButton from './SpinnerButton.svelte';
+	import SpinnerButton from '../../../components/SpinnerButton.svelte';
 	import WordCard from './WordCard.svelte';
 	import BottomBar from '../../../components/BottomBar.svelte';
 

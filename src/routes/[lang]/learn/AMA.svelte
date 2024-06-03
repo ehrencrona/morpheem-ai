@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { slide } from 'svelte/transition';
-	import SpinnerButton from './SpinnerButton.svelte';
+	import SpinnerButton from '../../../components/SpinnerButton.svelte';
 	import BottomBar from '../../../components/BottomBar.svelte';
 
 	export let ask: (question: string) => Promise<string>;

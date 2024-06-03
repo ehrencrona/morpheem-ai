@@ -4,7 +4,7 @@
 	import type { AggKnowledgeForUser } from '../../../logic/types';
 	import type { UnknownWordResponse } from '../api/word/unknown/+server';
 	import { lookupUnknownWord } from '../api/word/unknown/client';
-	import SpinnerButton from '../learn/SpinnerButton.svelte';
+	import SpinnerButton from '../../../components/SpinnerButton.svelte';
 	import WordCard from '../learn/WordCard.svelte';
 
 	export let knowledge: AggKnowledgeForUser[];

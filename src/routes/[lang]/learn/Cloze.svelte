@@ -29,6 +29,7 @@
 
 	let evaluation: string | undefined = undefined;
 
+	let isLoadingSuggestions = false;
 	let revealed: UnknownWordResponse[] = [];
 
 	$: if (sentence.id) {
@@ -98,7 +99,16 @@
 	}
 
 	async function onType(prefix: string) {
-		suggestedWords = prefix.length > 0 && showChars < 100 ? await fetchWordsByPrefix(prefix) : [];
+		const timer = setTimeout(() => {
+			isLoadingSuggestions = true;
+		}, 200);
+
+		try {
+			suggestedWords = prefix.length > 0 && showChars < 100 ? await fetchWordsByPrefix(prefix) : [];
+		} finally {
+			clearTimeout(timer);
+			isLoadingSuggestions = false;
+		}
 	}
 
 	async function onAnswer(answerGiven: string) {
@@ -173,6 +183,7 @@
 	{revealed}
 	{knowledge}
 	{language}
+	{isLoadingSuggestions}
 />
 
 <Ama
