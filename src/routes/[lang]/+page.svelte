@@ -39,6 +39,8 @@
 
 	export let data: PageData;
 
+	$: languageCode = data.languageCode;
+
 	let knowledge: AggKnowledgeForUser[] = [];
 	let wordsKnown: { read: number; write: number };
 
@@ -220,12 +222,6 @@
 
 		nextPromise = getNext();
 
-		const k = knowledge.find((k) => k.wordId === wordId)!;
-		// const wordKnowledge = k ? expectedKnowledge(k, { now: now() }) : 0;
-
-		// const type = 'read';
-		// wordKnowledge > 0.6 ? (Math.random() > 0.8 ? 'write' : 'cloze') : 'read';
-
 		if (exercise == 'read' || exercise == 'cloze') {
 			markSentenceSeen(sentence.id).catch((e) => (error = e));
 		}
@@ -266,7 +262,7 @@
 
 	{#if wordsKnown}
 		<a
-			href="{getLanguageOnClient().code}/home"
+			href="{languageCode}/home"
 			class="bg-blue-3 text-center text-blue-1 p-2 rounded-md top-2 right-2 absolute hidden lg:block"
 		>
 			<b class="font-sans text-3xl font-bold">{wordsKnown.read}</b>
@@ -279,13 +275,13 @@
 	{#if current}
 		<div class="text-right font-lato text-xs flex gap-2 mb-6 justify-end">
 			{#if word}
-				<a href={`/${getLanguageOnClient()}/words/${word.id}"`} class="underline text-red">
+				<a href={`/${languageCode}/words/${word.id}"`} class="underline text-red">
 					Word
 				</a>
 			{/if}
 
 			<a
-				href={`/${getLanguageOnClient().code}/sentences/${current?.sentence.id}/delete`}
+				href={`/${languageCode}/sentences/${current?.sentence.id}/delete`}
 				class="underline text-red"
 			>
 				Error in sentence?
