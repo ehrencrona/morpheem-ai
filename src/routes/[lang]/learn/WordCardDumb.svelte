@@ -15,7 +15,7 @@
 
 <div class="bg-light-gray rounded-md px-4 py-3 w-full border border-gray md:max-w-[500px] mb-4">
 	<div class="font-medium mb-1 flex">
-		<a href="{getLanguageOnClient().code}/words/{word.id}" class="flex-1 text-base decoration-yellow underline">{word.word}</a>
+		<a href="/{getLanguageOnClient().code}/words/{word.id}" class="flex-1 text-base decoration-yellow underline">{word.word}</a>
 
 		{#if expectedKnowledge != null}
 			<span class="text-xxs font-lato ml-1">{expectedKnowledge}</span>
