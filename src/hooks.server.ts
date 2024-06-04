@@ -8,10 +8,11 @@ export const handle: Handle = async ({ event, resolve }) => {
 	if (!sessionId) {
 		event.locals.user = null;
 		event.locals.session = null;
-		return resolve(event);
 	}
 
-	let { session, user } = await lucia.validateSession(sessionId);
+	let { session, user } = sessionId
+		? await lucia.validateSession(sessionId)
+		: { session: null, user: null };
 
 	if (event.url.pathname.includes('/api') && !user) {
 		return json(
