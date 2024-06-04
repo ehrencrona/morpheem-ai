@@ -79,14 +79,20 @@ export const load: ServerLoad = async ({ params, locals: { language, userId } })
 		}, null)
 		.slice(-10);
 
-	const repetitionValueRead = calculateRepetitionValue(knowledge[0], {
-		now: now(),
-		exercise: 'read'
-	});
-	const repetitionValueWrite = calculateRepetitionValue(knowledge[0], {
-		now: now(),
-		exercise: 'write'
-	});
+	const k = knowledge[0];
+
+	const repetitionValueRead = k
+		? calculateRepetitionValue(k, {
+				now: now(),
+				exercise: 'read'
+			})
+		: 0;
+	const repetitionValueWrite = k
+		? calculateRepetitionValue(k, {
+				now: now(),
+				exercise: 'write'
+			})
+		: 0;
 
 	const mnemonic = await getMnemonic({ wordId, userId: userId!, language });
 
