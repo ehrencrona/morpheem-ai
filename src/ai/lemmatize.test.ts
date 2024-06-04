@@ -2,6 +2,15 @@ import { expect, it } from 'vitest';
 import { FRENCH, POLISH } from '../constants';
 import { lemmatizeSentences } from './lemmatize';
 
+it('handles ambiguous words', async () => {
+	const lemmas = await lemmatizeSentences([`J'aime le soleil d'été.`, `Je l'ai toujours été.`], {
+		language: FRENCH
+	});
+
+	expect(lemmas[0][5]).toEqual('été');
+	expect(lemmas[1][4]).toEqual('être');
+});
+
 it('should return lemmas for Polish sentences', async () => {
 	expect(
 		await lemmatizeSentences(

@@ -103,31 +103,42 @@ ${examples[language.code]}`
 		logResponse: true
 	});
 
-	let lemmaByWord: Record<string, string> = {};
-
-	(response || '').split('\n').map((line) => {
-		let matches = line.matchAll(/([^\s]+) \(([^\s]+)\)/g);
-
-		for (let match of matches) {
-			let [, word, lemma] = match;
-
-			word = standardize(word);
-			lemma = standardize(lemma);
-
-			lemmaByWord[word] = lemma;
-		}
-	});
+	const lines = (response || '').split('\n');
 
 	let error: string | undefined = undefined;
 
 	const result = await Promise.all(
-		sentences.map(async (sentence) =>
-			Promise.all(
-				toWords(sentence, language).map(async (word) => {
+		sentences.map(async (sentence, i) => {
+			let lemmas: { word: string; lemma: string }[] = [];
+
+			const line = lines[i];
+			let matches = line.matchAll(/([^\s]+) \(([^\s]+)\)/g);
+
+			for (let match of matches) {
+				let [, word, lemma] = match;
+
+				word = standardize(word);
+				lemma = standardize(lemma);
+
+				lemmas.push({ word, lemma });
+			}
+
+			return Promise.all(
+				toWords(sentence, language).map(async (word, i) => {
 					const standardized = standardize(word);
 
-					if (lemmaByWord[standardized]) {
-						return lemmaByWord[standardized];
+					let lemma: { word: string; lemma: string } | undefined = lemmas[i];
+
+					if (lemma.word != standardized) {
+						console.warn(
+							`There's a mismatch between the word "${word}" and the lemma "${lemmas[i].word}" in sentence "${sentence}". Got ${lemmas.map((l) => l.word).join(', ')}`
+						);
+
+						lemma = lemmas.find((l) => l.word == standardized)!;
+					}
+
+					if (lemma) {
+						return lemma.lemma;
 					} else {
 						const lemmas = await getLemmasOfWord(standardized, language);
 
@@ -140,8 +151,8 @@ ${examples[language.code]}`
 						}
 					}
 				})
-			)
-		)
+			);
+		})
 	);
 
 	if (error && !ignoreErrors) {
