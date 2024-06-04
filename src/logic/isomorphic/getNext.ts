@@ -12,39 +12,40 @@ export function getNextWords(knowledge: AggKnowledgeForUser[], count = 5) {
 	const repetitionTime = getRepetitionTime();
 	const pastDue = getPastDue();
 
-	const scores = knowledge.reduce(
-		(acc, k) => [
-			...acc,
-			{
-				...k,
-				exercise: 'read' as Exercise,
-				score:
-					(calculateRepetitionValue(k, {
-						now: n,
-						exercise: 'read',
-						repetitionTime,
-						pastDue
-					}) *
-						(2 - k.level / 100)) /
-					2
-			},
-			{
-				...k,
-				exercise: (Math.random() > 0.75 ? 'write' : 'cloze') as Exercise,
-				score:
-					(calculateRepetitionValue(k, {
-						now: n,
-						exercise: 'write',
-						repetitionTime,
-						pastDue
-					}) *
-						(2 - k.level / 100)) /
-					2
-			}
-		],
-		[] as (AggKnowledgeForUser & { score: number; exercise: Exercise })[]
-	);
-	//		.filter((k) => k.score > 0.02);
+	const scores = knowledge
+		.reduce(
+			(acc, k) => [
+				...acc,
+				{
+					...k,
+					exercise: 'read' as Exercise,
+					score:
+						(calculateRepetitionValue(k, {
+							now: n,
+							exercise: 'read',
+							repetitionTime,
+							pastDue
+						}) *
+							(2 - k.level / 100)) /
+						2
+				},
+				{
+					...k,
+					exercise: (Math.random() > 0.75 ? 'write' : 'cloze') as Exercise,
+					score:
+						(calculateRepetitionValue(k, {
+							now: n,
+							exercise: 'write',
+							repetitionTime,
+							pastDue
+						}) *
+							(2 - k.level / 100)) /
+						2
+				}
+			],
+			[] as (AggKnowledgeForUser & { score: number; exercise: Exercise })[]
+		)
+		.filter((k) => k.score > 0.02);
 
 	const topScores = scores.sort((a, b) => b.score - a.score);
 
@@ -60,7 +61,7 @@ export function getNextWords(knowledge: AggKnowledgeForUser[], count = 5) {
 		'Next words:\n' +
 			topScores
 				.filter((s) => s.studied == undefined)
-				.slice(0, 50)
+				.slice(0, 10)
 				.map(
 					(i, j) =>
 						`${j + 1}. ${i.word} ${i.exercise} (${i.wordId}, score ${Math.round(i.score * 100)}%, age ${n - i.lastTime}, knowledge ${Math.round(

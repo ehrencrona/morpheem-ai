@@ -24,10 +24,11 @@ export const POST: ServerLoad = async ({ request, locals: { language, userId } }
 
 	const feedback = await generateWritingFeedback(sentence, word, language);
 
-	const [lemmatizedOriginal, lemmatizedCorrected] = await lemmatizeSentences(
-		[sentence, feedback.corrected],
-		{ language, ignoreErrors: true }
-	);
+	const [lemmatizedOriginal, lemmatizedCorrected] = await Promise.all([
+		// we do two different calls because chatgpt gets confused receiving two very similar sentences
+		lemmatizeSentences([sentence], { language, ignoreErrors: true }).then(([res]) => res),
+		lemmatizeSentences([feedback.corrected], { language, ignoreErrors: true }).then(([res]) => res)
+	]);
 
 	const newWordStrings = lemmatizedCorrected.filter((word) => !lemmatizedOriginal.includes(word));
 

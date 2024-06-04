@@ -111,7 +111,7 @@ ${examples[language.code]}`
 		sentences.map(async (sentence, i) => {
 			let lemmas: { word: string; lemma: string }[] = [];
 
-			const line = lines[i];
+			const line = lines[i] || '';
 			let matches = line.matchAll(/([^\s]+) \(([^\s]+)\)/g);
 
 			for (let match of matches) {
@@ -145,7 +145,7 @@ ${examples[language.code]}`
 						if (lemmas.length == 1) {
 							return lemmas[0].word;
 						} else {
-							error = `No lemma found for "${word}" in sentence "${sentence}", only ${Object.keys(lemmaByWord).join(', ')}`;
+							error = `No lemma found for "${word}" in sentence "${sentence}", only for ${lemmas.map((l) => l.word).join(', ')}`;
 
 							return standardized;
 						}
