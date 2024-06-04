@@ -162,7 +162,7 @@
 				),
 				clue: englishWord || '',
 				userAnswer: answered,
-				correctAnswer: word.word,
+				correctAnswer: conjugatedWord,
 				isWrongInflection: !isCorrectInflection && isCorrectLemma
 			});
 
