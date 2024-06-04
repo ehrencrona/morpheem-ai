@@ -1,8 +1,8 @@
-import { redirect, type ServerLoad } from '@sveltejs/kit';
+import { redirectToLogin } from '$lib/redirectToLogin';
+import { type ServerLoad } from '@sveltejs/kit';
 import { getRecentKnowledge } from '../../../db/knowledge';
 import { getActivity } from '../../../db/wordsKnown';
 import { getRecentWrittenSentences } from '../../../db/writtenSentences';
-import { redirectToLogin } from '$lib/redirectToLogin';
 
 export const load = (async ({ locals, url }) => {
 	const { language } = locals;

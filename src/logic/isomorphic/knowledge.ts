@@ -27,8 +27,20 @@ export function expectedKnowledgeOld({ alpha, lastTime }: AlphaBetaTime, { now }
 	return Math.min(Math.max(k - 2 * (1 - k) * c * (now - lastTime), 0), 1);
 }
 
-function valueFunction(time: number, optimalTime: number, sigma: number) {
-	return Math.exp(-Math.pow(Math.log(time) - Math.log(optimalTime), 2) / (2 * Math.pow(sigma, 2)));
+// function valueFunction(time: number, optimalTime: number, sigma: number) {
+// 	return Math.exp(-Math.pow(Math.log(time) - Math.log(optimalTime), 2) / (2 * Math.pow(sigma, 2)));
+// }
+
+function valueFunction(
+	time: number,
+	optimalTime: number,
+	sigma: number,
+	stretchForgetting: number
+): number {
+	const stretchedTime =
+		time <= optimalTime ? time : optimalTime + (time - optimalTime) / stretchForgetting;
+
+	return Math.exp(-(Math.log(stretchedTime / optimalTime) ** 2) / (2 * sigma ** 2));
 }
 
 /** How much is it worth to repeat this word now? */
@@ -38,28 +50,31 @@ export function calculateRepetitionValue(
 		now,
 		exercise,
 		repetitionTime,
-		newWordValue
-	}: { now: number; exercise: Exercise; repetitionTime?: number; newWordValue?: number }
+		pastDue
+	}: { now: number; exercise: Exercise; repetitionTime?: number; pastDue?: number }
 ) {
+	let knowledge: number;
+
 	if (studied === false) {
 		if (exercise == 'read') {
-			return 0.6 + (newWordValue || 0) / 10;
+			knowledge = nt;
+			lastTime = now - 7 * 24 * 60;
 		} else {
+			return 0;
+		}
+	} else {
+		knowledge = exercise == 'read' ? Math.max(alpha, beta || 0) : alpha > 0.8 ? beta || nt : -1;
+
+		if (knowledge == -1) {
 			return 0;
 		}
 	}
 
-	const knowledge = exercise == 'read' ? Math.max(alpha, beta || 0) : alpha > 0.8 ? beta || nt : -1;
-
-	if (knowledge == -1) {
-		return 0;
-	}
-
-	const optimalTime = Math.exp(knowledge * (12 + (repetitionTime || 0)));
+	const optimalTime = Math.exp(knowledge * (12 + 2 * (repetitionTime || 0)));
 
 	const time = now - lastTime;
 
-	return valueFunction(time, optimalTime, 1);
+	return valueFunction(time, optimalTime, 4, [1 / 25, 1 / 5, 1, 5, 25][(pastDue || 0) + 2]);
 }
 
 export function didNotKnowFirst(exercise: Exercise) {

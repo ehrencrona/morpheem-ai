@@ -1,7 +1,5 @@
 <script lang="ts">
 	import { getLanguageOnClient } from '../../api/api-call';
-	import { calculateRepetitionValue, now } from '../../../../logic/isomorphic/knowledge';
-	import { getRepetitionTime, getNewWordValue } from '../../../../lib/settings';
 	import type { PageData } from './$types';
 
 	export let data: PageData;

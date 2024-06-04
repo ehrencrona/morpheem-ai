@@ -8,12 +8,12 @@ export function setRepetitionTime(value: number): void {
 	localStorage.setItem('repetitionTime', value.toString());
 }
 
-export function getNewWordValue(): number {
-	const str = localStorage.getItem('newWordValue');
+export function getPastDue(): number {
+	const str = localStorage.getItem('pastDue');
 
 	return str == null ? 0 : Math.min(Math.max(parseInt(str), -2), 2);
 }
 
-export function setNewWordValue(value: number): void {
-	localStorage.setItem('newWordValue', value.toString());
+export function setPastDue(value: number): void {
+	localStorage.setItem('pastDue', value.toString());
 }

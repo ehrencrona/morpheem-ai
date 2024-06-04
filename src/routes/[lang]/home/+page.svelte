@@ -1,8 +1,8 @@
 <script lang="ts">
 	import {
-		getNewWordValue,
+		getPastDue,
 		getRepetitionTime,
-		setNewWordValue,
+		setPastDue,
 		setRepetitionTime
 	} from '$lib/settings';
 	import { onMount } from 'svelte';
@@ -23,11 +23,11 @@
 	}
 
 	let repetitionTime = 0;
-	let newWordValue = 0;
+	let pastDue = 0;
 
 	onMount(() => {
 		repetitionTime = getRepetitionTime();
-		newWordValue = getNewWordValue();
+		pastDue = getPastDue();
 	});
 </script>
 
@@ -45,14 +45,14 @@
 	<ul class="flex flex-1 justify-center pt-1">
 		{#each [-2, -1, 0, 1, 2] as i}
 			<li>
-				{#if newWordValue == i}
+				{#if pastDue == i}
 					<div class="inline-block w-4 h-4 rounded-full bg-blue-4 border border-blue-4 mr-2"></div>
 				{:else}
 					<button
 						type="button"
 						on:click={() => {
-							setNewWordValue(i);
-							newWordValue = i;
+							setPastDue(i);
+							pastDue = i;
 						}}
 					>
 						<div
