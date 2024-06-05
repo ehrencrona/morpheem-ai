@@ -68,10 +68,15 @@
 		englishWord = undefined;
 		englishSentence = undefined;
 		evaluation = undefined;
+		mnemonic = undefined;
+		inflections = [];
+		error = undefined;
+		
 
-		mnemonic = await fetchMnemonic(word.id, false);
-
-		inflections = await fetchInflections(word.id);
+		[mnemonic, inflections] = await Promise.all([
+			fetchMnemonic(word.id, false),
+			fetchInflections(word.id)
+		]);
 	}
 
 	$: if (word.id || sentence.id) {
@@ -231,7 +236,7 @@
 	wordId={word.id}
 	suggestions={[
 		'Can I express this differently?',
-		`How do you say "banana" in ${language.name}?`,
+		`How do you say 'banana' in ${language.name}?`,
 		...(revealed.length
 			? ['Etymology?', 'Other meanings?', 'Similar-sounding words?', 'Synonyms?', 'Examples?']
 			: [])
