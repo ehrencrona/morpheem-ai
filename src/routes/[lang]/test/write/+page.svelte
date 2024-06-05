@@ -2,8 +2,8 @@
 	import { goto } from '$app/navigation';
 	import SpinnerButton from '../../../../components/SpinnerButton.svelte';
 	import { getLanguageOnClient } from '../../api/api-call';
-	import Cloze from '../../learn/Cloze.svelte';
 	import { sendKnowledge } from '../../api/knowledge/client';
+	import Cloze from '../../learn/Cloze.svelte';
 	import type { PageData } from './$types';
 
 	export let data: PageData;
@@ -49,5 +49,6 @@
 		sentenceWords={word.sentenceWords}
 		language={getLanguageOnClient()}
 		{onNext}
+		source="unstudied"
 	/>
 {/if}

@@ -37,7 +37,8 @@ async function regenerateAggregateKnowledge() {
 		if (!aggWord) {
 			aggWord = {
 				...row,
-				...(row.knew ? knewFirst(exercise) : didNotKnowFirst(exercise))
+				...(row.knew ? knewFirst(exercise) : didNotKnowFirst(exercise)),
+				source: 'studied'
 			};
 		} else {
 			const now = dateToTime(row.time);

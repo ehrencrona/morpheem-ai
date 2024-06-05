@@ -1,11 +1,12 @@
 <script lang="ts">
+	import type { SendKnowledge } from '$lib/SendKnowledge';
 	import { dedupUnknown } from '$lib/dedupUnknown';
 	import Error from '../../../components/Error.svelte';
 	import { KNOWLEDGE_TYPE_CLOZE, KNOWLEDGE_TYPE_READ } from '../../../db/knowledgeTypes';
 	import * as DB from '../../../db/types';
 	import { standardize } from '../../../logic/isomorphic/standardize';
 	import { toWords, toWordsWithSeparators } from '../../../logic/toWords';
-	import type { Language, SentenceWord, WordKnowledge } from '../../../logic/types';
+	import type { Language, SentenceWord } from '../../../logic/types';
 	import { fetchClozeEvaluation } from '../api/cloze/client';
 	import { fetchTranslation } from '../api/sentences/[sentence]/english/client';
 	import { fetchInflections } from '../api/word/[id]/inflections/client';
@@ -22,7 +23,8 @@
 	export let sentenceWords: SentenceWord[];
 	export let knowledge: DB.AggKnowledgeForUser[] | undefined = undefined;
 	export let language: Language;
-	export let sendKnowledge: (words: (WordKnowledge & { word: DB.Word })[]) => void;
+	export let sendKnowledge: SendKnowledge;
+	export let source: DB.ExerciseSource;
 
 	let evaluation: string | undefined = undefined;
 
@@ -71,7 +73,6 @@
 		mnemonic = undefined;
 		inflections = [];
 		error = undefined;
-		
 
 		[mnemonic, inflections] = await Promise.all([
 			fetchMnemonic(word.id, false),
@@ -188,7 +189,19 @@
 					type: isCloze ? KNOWLEDGE_TYPE_CLOZE : KNOWLEDGE_TYPE_READ,
 					userId: -1
 				};
-			})
+			}),
+			!isCorrectInflection || source == 'userExercise'
+				? [
+						{
+							wordId: word.id,
+							word: word.word,
+							sentenceId: sentence.id,
+							isKnown: !!isCorrectInflection,
+							exercise: 'cloze',
+							level: word.level
+						}
+					]
+				: undefined
 		);
 
 		await onNext();

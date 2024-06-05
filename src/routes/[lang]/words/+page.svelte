@@ -1,9 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { fetchWordsByPrefix } from '../api/word/prefix/[prefix]/client';
-	import type { PageData } from './$types';
-
-	export let data: PageData;
 
 	let searchString: string;
 
@@ -41,9 +38,3 @@
 		{/each}
 	</div>
 </main>
-
-<style>
-	.word {
-		line-height: 140%;
-	}
-</style>

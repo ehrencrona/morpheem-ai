@@ -9,7 +9,8 @@ const knowledge: AggKnowledgeForUser[] = [
 		beta: 5333,
 		lastTime: 167898,
 		level: 1,
-		word: 'a'
+		word: 'a',
+		source: 'studied'
 	},
 	{
 		wordId: 661,
@@ -17,7 +18,8 @@ const knowledge: AggKnowledgeForUser[] = [
 		beta: 1,
 		lastTime: 167898,
 		level: 1,
-		word: 'b'
+		word: 'b',
+		source: 'studied'
 	}
 ];
 

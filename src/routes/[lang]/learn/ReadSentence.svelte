@@ -1,4 +1,5 @@
 <script lang="ts">
+	import type { SendKnowledge } from '$lib/SendKnowledge';
 	import { dedupUnknown } from '$lib/dedupUnknown';
 	import { KNOWLEDGE_TYPE_READ } from '../../../db/knowledgeTypes';
 	import * as DB from '../../../db/types';
@@ -19,7 +20,7 @@
 	export let word: DB.Word | undefined;
 	export let knowledge: DB.AggKnowledgeForUser[] | undefined = undefined;
 	export let language: Language;
-	export let sendKnowledge: (words: (WordKnowledge & { word: DB.Word })[]) => void;
+	export let sendKnowledge: SendKnowledge;
 
 	export let onNext: () => Promise<any>;
 

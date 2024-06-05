@@ -25,6 +25,17 @@ export const wordKnowledgeSchema = z.object({
 
 export type WordKnowledge = z.infer<typeof wordKnowledgeSchema>;
 
+export const exerciseKnowledgeSchema = z.object({
+	sentenceId: z.number(),
+	wordId: z.number().nullable(),
+	word: z.string().nullable(),
+	exercise: z.enum(['read', 'write', 'cloze']),
+	isKnown: z.boolean(),
+	level: z.number()
+});
+
+export type ExerciseKnowledge = z.infer<typeof exerciseKnowledgeSchema>;
+
 export interface SentenceWord extends DB.Word {
 	word_index: number;
 }

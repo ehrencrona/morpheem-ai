@@ -8,6 +8,7 @@ import { getWords } from '../db/words';
 import { calculateWordsKnown } from '../logic/isomorphic/wordsKnown';
 import { Language } from '../logic/types';
 import { KNOWLEDGE_TYPE_READ, KNOWLEDGE_TYPE_WRITE } from '../db/knowledgeTypes';
+import { ExerciseSource } from '../db/types';
 
 export async function calculateTestResult({
 	userId,
@@ -55,6 +56,7 @@ export async function calculateTestResult({
 		beta: number | null;
 		wordId: number;
 		lastTime: number;
+		source: ExerciseSource;
 	}[] = [];
 
 	const lastTime = Date.now();
@@ -71,7 +73,8 @@ export async function calculateTestResult({
 				alpha: Math.min(proficiency, 1),
 				beta: isWrite ? Math.min(proficiency, 1) : null,
 				wordId: word.id,
-				lastTime
+				lastTime,
+				source: 'studied'
 			});
 		}
 	}

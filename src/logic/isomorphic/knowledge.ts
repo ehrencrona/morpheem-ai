@@ -64,7 +64,12 @@ export function calculateRepetitionValue(
 			return 0;
 		}
 	} else {
-		knowledge = exercise == 'read' ? Math.max(alpha, beta || 0) : alpha > 0.8 ? beta || nt : -1;
+		knowledge =
+			exercise == 'read'
+				? Math.max(alpha, beta || 0)
+				: alpha > 0.8 || beta != null
+					? beta || nt
+					: -1;
 
 		if (knowledge == -1) {
 			return 0;

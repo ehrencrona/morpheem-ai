@@ -1,23 +1,24 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { CodedError } from '../../CodedError';
-	import { knowledgeTypeToExercise } from '../../db/knowledgeTypes';
+	import ErrorComponent from '../../components/Error.svelte';
 	import type * as DB from '../../db/types';
 	import {
-		getNextSentence,
 		getExercisesForKnowledge,
+		getNextSentence,
 		scoreExercises
 	} from '../../logic/isomorphic/getNext';
-	import {
-		didNotKnow,
-		didNotKnowFirst,
-		expectedKnowledge,
-		knew,
-		knewFirst,
-		now
-	} from '../../logic/isomorphic/knowledge';
+	import { expectedKnowledge, now } from '../../logic/isomorphic/knowledge';
+	import { updateKnowledge } from '../../logic/isomorphic/updateKnowledge';
+	import { updateUserExercises } from '../../logic/isomorphic/updateUserExercises';
 	import { calculateWordsKnown } from '../../logic/isomorphic/wordsKnown';
-	import type { ExerciseType, SentenceWord, WordKnowledge } from '../../logic/types';
+	import type {
+		CandidateSentenceWithWords,
+		ExerciseKnowledge,
+		ExerciseType,
+		SentenceWord,
+		WordKnowledge
+	} from '../../logic/types';
 	import type { PageData } from './$types';
 	import { getLanguageOnClient } from './api/api-call';
 	import {
@@ -35,7 +36,6 @@
 	import ReadSentence from './learn/ReadSentence.svelte';
 	import WriteSentence from './learn/WriteSentence.svelte';
 	import { trackActivity } from './learn/trackActivity';
-	import ErrorComponent from '../../components/Error.svelte';
 
 	export let data: PageData;
 
@@ -74,82 +74,26 @@
 		await showNextSentence();
 	}
 
-	const toPercent = (n: number | null) => (n != null ? Math.round(n * 100) + '%' : '-');
-
-	function sendKnowledge(words: (WordKnowledge & { word: DB.Word })[]) {
-		const byWord = new Map(words.map((w) => [w.wordId, w]));
-
+	function sendKnowledge(
+		words: (WordKnowledge & { word: DB.Word })[],
+		addUserExercises?: ExerciseKnowledge[]
+	) {
 		const knowledgeToSend = words.map(({ word, ...rest }) => rest);
 
-		sendKnowledgeClient(knowledgeToSend).catch((e) => {
+		sendKnowledgeClient(knowledgeToSend, addUserExercises).catch((e) => {
 			console.error(e);
 
 			setTimeout(() => {
-				sendKnowledgeClient(knowledgeToSend).catch((e) => {
+				sendKnowledgeClient(knowledgeToSend, addUserExercises).catch((e) => {
 					error = e;
 				});
 			}, 5000);
 		});
 
-		knowledge = knowledge.map((k) => {
-			const word = byWord.get(k.wordId);
+		knowledge = updateKnowledge(words, knowledge);
 
-			const lastTime = now();
-
-			if (word) {
-				byWord.delete(k.wordId);
-
-				const opts = { now: lastTime, exercise: knowledgeTypeToExercise(word.type) };
-
-				let aggKnowledge: DB.AggKnowledgeForUser;
-
-				const { wordId, word: wordString, level } = k;
-
-				aggKnowledge = {
-					wordId,
-					word: wordString,
-					level,
-					lastTime,
-					...(word.isKnown ? knew(k, opts) : didNotKnow(k, opts)),
-					source: 'studied'
-				};
-
-				console.log(
-					`Updated knowledge for word ${k.word} (${k.wordId}). knew: ${word.isKnown}, exercise: ${
-						opts.exercise
-					}, alpha: ${toPercent(aggKnowledge.alpha)} beta: ${toPercent(aggKnowledge.beta)}`
-				);
-
-				return aggKnowledge;
-			} else {
-				return k;
-			}
-		});
-
-		if (byWord.size) {
-			let newWords: DB.Word[] = Array.from(byWord.values()).map((w) => w.word);
-
-			const newKnowledge = new Array(...byWord).map(([, k]) => {
-				const exercise = knowledgeTypeToExercise(k.type);
-				const word = newWords.find((w) => w.id === k.wordId)!;
-
-				const aggKnowledge: DB.AggKnowledgeForUser = {
-					wordId: k.wordId,
-					lastTime: now(),
-					level: word.level,
-					word: word.word,
-					source: 'studied',
-					...(k.isKnown ? knewFirst(exercise) : didNotKnowFirst(exercise))
-				};
-
-				console.log(
-					`New knowledge for word ${aggKnowledge.word} (${aggKnowledge.wordId}). knew: ${k.isKnown}, exercise: ${exercise}, alpha: ${toPercent(aggKnowledge.alpha)} beta: ${toPercent(aggKnowledge.beta)}`
-				);
-
-				return aggKnowledge;
-			});
-
-			knowledge = [...knowledge, ...newKnowledge];
+		if (addUserExercises) {
+			userExercises = updateUserExercises(addUserExercises, userExercises);
 		}
 	}
 
@@ -169,7 +113,22 @@
 	}: {
 		exercises?: (ScoreableExercise & { score: number })[];
 		excludeWordId?: number;
-	}) {
+	}): Promise<
+		| {
+				sentence: CandidateSentenceWithWords;
+				wordId: number;
+				exercise: ExerciseType;
+				source: DB.ExerciseSource;
+				getNextPromise: () => Promise<any>;
+		  }
+		| {
+				sentence: CandidateSentenceWithWords;
+				wordId: null;
+				exercise: ExerciseType;
+				source: DB.ExerciseSource;
+				getNextPromise: () => Promise<any>;
+		  }
+	> {
 		if (!exercises.length) {
 			const unscored = ([] as ScoreableExercise[])
 				.concat(
@@ -178,8 +137,7 @@
 				.concat(
 					userExercises.map((e) => ({
 						...e,
-						source: 'userExercise' as DB.ExerciseSource,
-						word: null
+						source: 'userExercise' as DB.ExerciseSource
 					}))
 				);
 
@@ -188,6 +146,9 @@
 
 		{
 			const exercise = exercises[0];
+
+			// deleteme
+			exercise.exercise = 'cloze';
 
 			const n = now();
 			const toPercent = (n: number | null) => (n != null ? Math.round(n * 100) + '%' : '-');
@@ -204,7 +165,7 @@
 							.slice(0, 10)
 							.map(
 								(e, j) =>
-									`${j + 1}. ${e.word ? e.word : `sentence ${e.sentenceId}`} ${e.exercise} (${e.wordId}, score ${Math.round(e.score * 100)}%, age ${n - e.lastTime}, knowledge ${Math.round(
+									`${j + 1}.${e.word ? ' ' + e.word : ''} ${e.exercise}${e.sentenceId != null ? `, sentence ${e.sentenceId}` : ''} (${e.wordId}, score ${Math.round(e.score * 100)}%, age ${n - e.lastTime}, knowledge ${Math.round(
 										100 * expectedKnowledge(e, { now: n, exercise: e.exercise })
 									)}% level ${e.level})`
 							)
@@ -217,20 +178,20 @@
 
 		const { wordId, exercise, source, sentenceId } = exercises[0];
 
-		if (!wordId) {
-			if (!sentenceId) {
-				throw new Error('No wordId or sentenceId');
-			}
-
+		if (sentenceId != undefined) {
 			let sentence = await fetchCandidateSentence(sentenceId);
 
 			return {
 				sentence,
-				wordId: null,
-				getNextPromise: () => getNextExercise({ exercises: exercises.slice(1) }),
+				wordId,
 				exercise,
-				source
+				source,
+				getNextPromise: () => getNextExercise({ exercises: exercises.slice(1) })
 			};
+		}
+
+		if (!wordId) {
+			throw new Error('No wordId or sentenceId');
 		}
 
 		try {
@@ -266,12 +227,12 @@
 				sentence,
 				wordId,
 				source,
+				exercise,
 				getNextPromise: () =>
 					getNextExercise({
 						exercises: exercises.slice(1),
 						excludeWordId: wordId
-					}),
-				exercise
+					})
 			};
 		} catch (e: any) {
 			console.error(e);
@@ -421,6 +382,7 @@
 				{word}
 				{knowledge}
 				{onNext}
+				source={current.source}
 				sentence={current.sentence}
 				sentenceWords={current.words}
 				language={getLanguageOnClient()}

@@ -21,8 +21,8 @@ export async function getSentencesWithWord(
 export async function getCandidateSentence(
 	sentenceId: number,
 	language: Language
-): Promise<CandidateSentenceWithWords[]> {
-	return addWordsToSentences([await getSentence(sentenceId, language)], null, language);
+): Promise<CandidateSentenceWithWords> {
+	return (await addWordsToSentences([await getSentence(sentenceId, language)], null, language))[0];
 }
 
 export async function addWordsToSentences(

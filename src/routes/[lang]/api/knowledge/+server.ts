@@ -1,24 +1,32 @@
+import { redirectToLogin } from '$lib/redirectToLogin';
 import { json, type ServerLoad } from '@sveltejs/kit';
 import { z } from 'zod';
 import { storeSentenceDone } from '../../../../db/wordsKnown';
 import { getAggregateKnowledge } from '../../../../logic/getAggregateKnowledge';
-import { addKnowledge } from '../../../../logic/knowledge';
-import { wordKnowledgeSchema } from '../../../../logic/types';
+import { exerciseKnowledgeSchema, wordKnowledgeSchema } from '../../../../logic/types';
+import { updateKnowledge } from '../../../../logic/updateKnowledge';
+import { updateUserExercises } from '../../../../logic/updateUserExercises';
 
-export const POST: ServerLoad = async ({ request, locals: { userId, language } }) => {
-	let { words } = z
+export const POST: ServerLoad = async ({ url, request, locals: { userId, language } }) => {
+	if (!userId) {
+		return redirectToLogin(url);
+	}
+
+	let { words, userExercises } = z
 		.object({
 			words: z.array(wordKnowledgeSchema),
-			wordsKnown: z.number().optional()
+			userExercises: z.array(exerciseKnowledgeSchema).optional()
 		})
 		.parse(await request.json());
 
-	await addKnowledge(
-		words.map((word) => ({ ...word, userId: userId! })),
-		language
-	);
-
-	await storeSentenceDone(userId!, language);
+	await Promise.all([
+		userExercises ? updateUserExercises(userExercises, userId, language) : undefined,
+		updateKnowledge(
+			words.map((word) => ({ ...word, userId })),
+			language
+		),
+		storeSentenceDone(userId, language)
+	]);
 
 	return json({});
 };

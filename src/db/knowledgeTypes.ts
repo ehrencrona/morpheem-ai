@@ -16,3 +16,16 @@ export function knowledgeTypeToExercise(type: number): ExerciseType {
 			throw new Error(`Unknown knowledge type: ${type}`);
 	}
 }
+
+export function exerciseToKnowledgeType(exercise: ExerciseType): number {
+	switch (exercise) {
+		case 'read':
+			return KNOWLEDGE_TYPE_READ;
+		case 'write':
+			return KNOWLEDGE_TYPE_WRITE;
+		case 'cloze':
+			return KNOWLEDGE_TYPE_CLOZE;
+		default:
+			throw new Error(`Unknown exercise: ${exercise}`);
+	}
+}

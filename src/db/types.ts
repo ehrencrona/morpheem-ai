@@ -34,5 +34,6 @@ export interface AggKnowledgeForUser extends Scoreable {
 export interface UserExercise extends Scoreable {
 	sentenceId: number;
 	wordId: number | null;
+	word: string | null;
 	exercise: ExerciseType;
 }

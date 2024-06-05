@@ -1,7 +1,9 @@
 <script lang="ts">
+	import type { SendKnowledge } from '$lib/SendKnowledge';
 	import { slide } from 'svelte/transition';
+	import SpinnerButton from '../../../components/SpinnerButton.svelte';
 	import { KNOWLEDGE_TYPE_WRITE } from '../../../db/knowledgeTypes';
-	import type { Language, WordKnowledge } from '../../../logic/types';
+	import type { Language } from '../../../logic/types';
 	import type { UnknownWordResponse } from '../api/word/unknown/+server';
 	import { lookupUnknownWord } from '../api/word/unknown/client';
 	import { fetchAskMeAnything } from '../api/write/ama/client';
@@ -9,15 +11,13 @@
 	import { storeWrittenSentence } from '../api/write/client';
 	import { fetchWritingFeedback } from '../api/write/feedback/client';
 	import AMA from './AMA.svelte';
-	import SpinnerButton from '../../../components/SpinnerButton.svelte';
 	import WordCard from './WordCard.svelte';
-	import type * as DB from '../../../db/types';
 
 	export let word: { id: number; word: string };
 	export let onNext: () => Promise<any>;
 	export let fetchIdea: () => Promise<string>;
 	export let language: Language;
-	export let sendKnowledge: (words: (WordKnowledge & { word: DB.Word })[]) => void;
+	export let sendKnowledge: SendKnowledge;
 
 	let feedback: string | undefined;
 	let corrected: string | undefined;
