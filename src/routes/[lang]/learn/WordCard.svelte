@@ -1,14 +1,13 @@
 <script lang="ts">
 	import type * as DB from '../../../db/types';
 	import { expectedKnowledge, now } from '../../../logic/isomorphic/knowledge';
-	import type { AggKnowledgeForUser } from '../../../logic/types';
 	import { fetchMnemonic, storeMnemonic } from '../api/word/[id]/mnemonic/client';
 	import EditMnemonic from './EditMnemonic.svelte';
 	import WordCardDumb from './WordCardDumb.svelte';
 
 	export let onRemove: (() => void) | undefined = undefined;
 
-	export let knowledge: AggKnowledgeForUser[] | undefined = undefined;
+	export let knowledge: DB.AggKnowledgeForUser[] | undefined = undefined;
 
 	export let word: DB.Word;
 	export let english: string | undefined = undefined;

@@ -3,21 +3,21 @@
 	import { CodedError } from '../../CodedError';
 	import { knowledgeTypeToExercise } from '../../db/knowledgeTypes';
 	import type * as DB from '../../db/types';
-	import { getNextSentence, getNextWords } from '../../logic/isomorphic/getNext';
+	import {
+		getNextSentence,
+		getExercisesForKnowledge,
+		scoreExercises
+	} from '../../logic/isomorphic/getNext';
 	import {
 		didNotKnow,
 		didNotKnowFirst,
+		expectedKnowledge,
 		knew,
 		knewFirst,
 		now
 	} from '../../logic/isomorphic/knowledge';
 	import { calculateWordsKnown } from '../../logic/isomorphic/wordsKnown';
-	import type {
-		AggKnowledgeForUser,
-		Exercise,
-		SentenceWord,
-		WordKnowledge
-	} from '../../logic/types';
+	import type { ExerciseType, SentenceWord, WordKnowledge } from '../../logic/types';
 	import type { PageData } from './$types';
 	import { getLanguageOnClient } from './api/api-call';
 	import {
@@ -25,7 +25,7 @@
 		sendKnowledge as sendKnowledgeClient
 	} from './api/knowledge/client';
 	import { sendWordsKnown } from './api/knowledge/words-known/client';
-	import { markSentenceSeen } from './api/sentences/[sentence]/client';
+	import { fetchCandidateSentence, markSentenceSeen } from './api/sentences/[sentence]/client';
 	import { fetchTranslation } from './api/sentences/[sentence]/english/client';
 	import {
 		addSentencesForWord,
@@ -35,23 +35,32 @@
 	import ReadSentence from './learn/ReadSentence.svelte';
 	import WriteSentence from './learn/WriteSentence.svelte';
 	import { trackActivity } from './learn/trackActivity';
-	import Error from '../../components/Error.svelte';
+	import ErrorComponent from '../../components/Error.svelte';
 
 	export let data: PageData;
 
+	$: userExercises = data.userExercises;
 	$: languageCode = data.languageCode;
 
-	let knowledge: AggKnowledgeForUser[] = [];
+	let knowledge: DB.AggKnowledgeForUser[] = [];
 	let wordsKnown: { read: number; write: number };
 
 	let current:
-		| {
-				wordId: number;
+		| ({
 				sentence: DB.Sentence;
 				words: SentenceWord[];
-				exercise: Exercise;
-				studied: false | undefined;
-		  }
+				source: DB.ExerciseSource;
+		  } & (
+				| {
+						wordId: number;
+						words: SentenceWord[];
+						exercise: 'read' | 'cloze';
+				  }
+				| {
+						wordId: number | null;
+						exercise: 'write';
+				  }
+		  ))
 		| undefined;
 
 	$: word = current?.words.find(({ id }) => id == current?.wordId)!;
@@ -92,18 +101,18 @@
 
 				const opts = { now: lastTime, exercise: knowledgeTypeToExercise(word.type) };
 
-				let aggKnowledge: AggKnowledgeForUser;
+				let aggKnowledge: DB.AggKnowledgeForUser;
 
-				if (word.isKnown) {
-					aggKnowledge = { ...k, ...knew(k, opts), lastTime, studied: undefined };
-				} else {
-					aggKnowledge = {
-						...k,
-						...didNotKnow(k, opts),
-						lastTime,
-						studied: undefined
-					};
-				}
+				const { wordId, word: wordString, level } = k;
+
+				aggKnowledge = {
+					wordId,
+					word: wordString,
+					level,
+					lastTime,
+					...(word.isKnown ? knew(k, opts) : didNotKnow(k, opts)),
+					source: 'studied'
+				};
 
 				console.log(
 					`Updated knowledge for word ${k.word} (${k.wordId}). knew: ${word.isKnown}, exercise: ${
@@ -124,11 +133,12 @@
 				const exercise = knowledgeTypeToExercise(k.type);
 				const word = newWords.find((w) => w.id === k.wordId)!;
 
-				const aggKnowledge = {
+				const aggKnowledge: DB.AggKnowledgeForUser = {
 					wordId: k.wordId,
 					lastTime: now(),
 					level: word.level,
 					word: word.word,
+					source: 'studied',
 					...(k.isKnown ? knewFirst(exercise) : didNotKnowFirst(exercise))
 				};
 
@@ -143,22 +153,85 @@
 		}
 	}
 
-	let nextPromise: ReturnType<typeof calculateNextSentence>;
+	let nextPromise: ReturnType<typeof getNextExercise>;
 
-	async function calculateNextSentence({
-		wordIds = [],
+	interface ScoreableExercise extends DB.Scoreable {
+		word: string | null;
+		wordId: number | null;
+		sentenceId?: number;
+		exercise: ExerciseType;
+		source: DB.ExerciseSource;
+	}
+
+	async function getNextExercise({
+		exercises = [],
 		excludeWordId
 	}: {
-		wordIds?: { wordId: number; exercise: Exercise; studied: false | undefined }[];
+		exercises?: (ScoreableExercise & { score: number })[];
 		excludeWordId?: number;
 	}) {
-		if (!wordIds.length) {
-			wordIds = getNextWords(knowledge).filter(({ wordId }) => wordId !== excludeWordId);
+		if (!exercises.length) {
+			const unscored = ([] as ScoreableExercise[])
+				.concat(
+					getExercisesForKnowledge(knowledge).filter(({ wordId }) => wordId !== excludeWordId)
+				)
+				.concat(
+					userExercises.map((e) => ({
+						...e,
+						source: 'userExercise' as DB.ExerciseSource,
+						word: null
+					}))
+				);
+
+			exercises = scoreExercises(unscored);
 		}
 
-		const wordId = wordIds[0].wordId;
-		const exercise = wordIds[0].exercise;
-		const studied = wordIds[0].studied;
+		{
+			const exercise = exercises[0];
+
+			const n = now();
+			const toPercent = (n: number | null) => (n != null ? Math.round(n * 100) + '%' : '-');
+
+			console.log(
+				`Knowledge of ${exercise.wordId}: ${toPercent(exercise.alpha)}/${toPercent(exercise.beta)}, age ${n - exercise.lastTime} = ${toPercent(exercise.score)}`
+			);
+
+			for (const source of ['studied', 'userExercise', 'unstudied'] as const) {
+				console.log(
+					`Next ${source}:\n` +
+						exercises
+							.filter((s) => s.source == source)
+							.slice(0, 10)
+							.map(
+								(e, j) =>
+									`${j + 1}. ${e.word ? e.word : `sentence ${e.sentenceId}`} ${e.exercise} (${e.wordId}, score ${Math.round(e.score * 100)}%, age ${n - e.lastTime}, knowledge ${Math.round(
+										100 * expectedKnowledge(e, { now: n, exercise: e.exercise })
+									)}% level ${e.level})`
+							)
+							.join(`\n`)
+				);
+			}
+
+			exercises = exercises.filter((e) => e.score > 0.02).slice(0, 6);
+		}
+
+		const { wordId, exercise, source, sentenceId } = exercises[0];
+
+		if (!wordId) {
+			if (!sentenceId) {
+				throw new Error('No wordId or sentenceId');
+			}
+
+			let sentence = await fetchCandidateSentence(sentenceId);
+
+			return {
+				sentence,
+				wordId: null,
+				getNextPromise: () => getNextExercise({ exercises: exercises.slice(1) }),
+				exercise,
+				source
+			};
+		}
 
 		try {
 			let sentences = await fetchSentencesWithWord(wordId);
@@ -180,8 +253,8 @@
 				if (!nextSentence) {
 					console.error(`No sentences found for word ${wordId}`);
 
-					return calculateNextSentence({
-						wordIds: wordIds.slice(1),
+					return getNextExercise({
+						exercises: exercises.slice(1),
 						excludeWordId: wordId
 					});
 				}
@@ -192,16 +265,16 @@
 			return {
 				sentence,
 				wordId,
-				studied,
+				source,
 				getNextPromise: () =>
-					calculateNextSentence({
-						wordIds: wordIds.slice(1),
+					getNextExercise({
+						exercises: exercises.slice(1),
 						excludeWordId: wordId
 					}),
 				exercise
 			};
 		} catch (e: any) {
-			console.log(e);
+			console.error(e);
 
 			if (e instanceof CodedError && e.code == 'wrongLemma') {
 				knowledge = knowledge.filter((k) => wordId != k.wordId);
@@ -209,8 +282,8 @@
 				error = e.message;
 			}
 
-			return calculateNextSentence({
-				wordIds: wordIds.slice(1),
+			return getNextExercise({
+				exercises: exercises.slice(1),
 				excludeWordId: wordId
 			});
 		}
@@ -222,8 +295,8 @@
 			wordId,
 			getNextPromise: getNext,
 			exercise,
-			studied
-		} = await (nextPromise || calculateNextSentence({}));
+			source
+		} = await (nextPromise || getNextExercise({}));
 
 		nextPromise = getNext();
 
@@ -231,13 +304,27 @@
 			markSentenceSeen(sentence.id).catch((e) => (error = e));
 		}
 
-		current = {
-			wordId: wordId,
-			words: sentence.words,
-			sentence,
-			studied,
-			exercise
-		};
+		if (exercise == 'write') {
+			current = {
+				wordId: wordId,
+				words: sentence.words,
+				sentence,
+				source,
+				exercise
+			};
+		} else {
+			if (!wordId) {
+				throw new Error(`No wordId for ${exercise} exercise from ${source}`);
+			}
+
+			current = {
+				wordId: wordId,
+				words: sentence.words,
+				sentence,
+				source,
+				exercise
+			};
+		}
 
 		error = undefined;
 	}
@@ -264,7 +351,7 @@
 </script>
 
 <main class="font-sans bold w-full" use:trackActivity>
-	<Error {error} onClear={() => (error = undefined)} />
+	<ErrorComponent {error} onClear={() => (error = undefined)} />
 
 	{#if wordsKnown}
 		<a
@@ -281,7 +368,7 @@
 	{#if current}
 		<div class="flex mb-6">
 			<div class="flex-1 font-lato text-xs flex items-center">
-				{#if current.studied == false}
+				{#if current.source == 'unstudied'}
 					<div class="bg-red text-[#fff] px-1 font-sans text-xxs">NEW WORD</div>
 				{/if}
 			</div>

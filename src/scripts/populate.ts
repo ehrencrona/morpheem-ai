@@ -1,10 +1,10 @@
+import { parallelize } from '$lib/parallelize';
 import { FRENCH, POLISH } from '../constants';
 import { getWordsMissingExamples } from '../db/getWordsMissingExamples';
 import { addWord, deleteWord } from '../db/words';
 import { addSentencesForWord } from '../logic/addSentencesForWord';
-import { parallelize } from '../logic/knowledge';
 
-const language = POLISH;
+const language = FRENCH;
 
 export async function addSentencesForMissingWords() {
 	await addWord('maison', { language });
@@ -35,6 +35,6 @@ export async function addSentencesForMissingWords() {
 	);
 }
 
-for (let i = 0; i < 10; i++) {
+for (let i = 0; i < 5; i++) {
 	await addSentencesForMissingWords();
 }

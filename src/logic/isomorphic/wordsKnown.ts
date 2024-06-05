@@ -1,4 +1,4 @@
-import { AggKnowledgeForUser } from '../types';
+import { AggKnowledgeForUser } from '../../db/types';
 import { expectedKnowledge, now } from './knowledge';
 
 export function calculateWordsKnown(knowledge: Omit<AggKnowledgeForUser, 'word' | 'level'>[]) {

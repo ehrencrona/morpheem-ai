@@ -1,6 +1,6 @@
 import { expect, it } from 'vitest';
-import type { AggKnowledgeForUser } from '../types';
-import { getNextWord } from './getNext';
+import { AggKnowledgeForUser } from '../../db/types';
+import { getExerciseForKnowledge } from './getNext';
 
 const knowledge: AggKnowledgeForUser[] = [
 	{
@@ -22,7 +22,7 @@ const knowledge: AggKnowledgeForUser[] = [
 ];
 
 it('getNextWord', () => {
-	const word = getNextWord(knowledge);
+	const word = getExerciseForKnowledge(knowledge);
 
 	expect(word).toBe(661);
 });

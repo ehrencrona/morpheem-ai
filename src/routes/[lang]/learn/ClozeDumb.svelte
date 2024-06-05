@@ -3,7 +3,7 @@
 	import * as DB from '../../../db/types';
 	import { standardize } from '../../../logic/isomorphic/standardize';
 	import { isSeparator, toWords, toWordsWithSeparators } from '../../../logic/toWords';
-	import type { AggKnowledgeForUser, Language, SentenceWord } from '../../../logic/types';
+	import type { Language, SentenceWord } from '../../../logic/types';
 	import type { UnknownWordResponse } from '../api/word/unknown/+server';
 	import SpinnerButton from '../../../components/SpinnerButton.svelte';
 	import WordCard from './WordCard.svelte';
@@ -31,7 +31,7 @@
 	export let isCorrectLemma: boolean | undefined;
 
 	export let revealed: UnknownWordResponse[];
-	export let knowledge: AggKnowledgeForUser[] | undefined = undefined;
+	export let knowledge: DB.AggKnowledgeForUser[] | undefined = undefined;
 
 	export let onHint: () => Promise<any>;
 	export let onNext: () => Promise<any>;

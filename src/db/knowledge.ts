@@ -1,6 +1,7 @@
 import { dateToTime } from '../logic/isomorphic/knowledge';
-import type { AggKnowledgeForUser, Language } from '../logic/types';
+import type { Language } from '../logic/types';
 import { db } from './client';
+import { AggKnowledgeForUser } from './types';
 
 export function addKnowledge(
 	values: {
@@ -195,7 +196,8 @@ export async function getAggregateKnowledgeForUser({
 		word,
 		alpha,
 		beta,
-		lastTime: dateToTime(time)
+		lastTime: dateToTime(time),
+		source: 'studied'
 	}));
 }
 
@@ -223,7 +225,8 @@ export async function getRecentKnowledge({
 		word,
 		alpha,
 		beta,
-		lastTime: dateToTime(time)
+		lastTime: dateToTime(time),
+		source: 'studied'
 	}));
 }
 
@@ -255,7 +258,8 @@ export async function getAggregateKnowledgeForUserWords({
 		level,
 		alpha,
 		beta,
-		lastTime: dateToTime(time)
+		lastTime: dateToTime(time),
+		source: 'studied'
 	}));
 }
 

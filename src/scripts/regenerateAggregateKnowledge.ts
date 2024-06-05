@@ -1,5 +1,6 @@
 import { db } from '../db/client';
 import { knowledgeTypeToExercise } from '../db/knowledgeTypes';
+import { AggKnowledgeForUser } from '../db/types';
 import {
 	dateToTime,
 	didNotKnow,
@@ -9,7 +10,6 @@ import {
 	knewFirst,
 	now
 } from '../logic/isomorphic/knowledge';
-import { AggKnowledgeForUser } from '../logic/types';
 
 async function regenerateAggregateKnowledge() {
 	const agg = new Map<number, Omit<AggKnowledgeForUser, 'word' | 'level'>>();

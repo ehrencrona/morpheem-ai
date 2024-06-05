@@ -49,6 +49,10 @@ export async function addWord(
 }
 
 export async function getMultipleWordsByLemmas(lemmas: string[], language: Language) {
+	if (lemmas.length == 0) {
+		return [];
+	}
+
 	return db
 		.withSchema(language.schema)
 		.selectFrom('words')
@@ -58,6 +62,10 @@ export async function getMultipleWordsByLemmas(lemmas: string[], language: Langu
 }
 
 export async function getMultipleWordsByIds(wordIds: number[], language: Language) {
+	if (wordIds.length == 0) {
+		return [];
+	}
+
 	return db
 		.withSchema(language.schema)
 		.selectFrom('words')

@@ -1,12 +1,5 @@
-import { describe, expect, test } from 'vitest';
-import {
-	didNotKnow,
-	didNotKnowFirst,
-	expectedKnowledge,
-	knew,
-	knewFirst,
-	calculateRepetitionValue
-} from './knowledge';
+import { describe, test } from 'vitest';
+import { expectedKnowledge } from './knowledge';
 
 describe('knowledge', () => {
 	const inTen = { now: 10, lastTime: 0 };

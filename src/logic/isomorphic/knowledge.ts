@@ -1,4 +1,5 @@
-import type { AlphaBetaTime, Exercise } from '../types';
+import type { ExerciseSource, Knowledge, Scoreable } from '../../db/types';
+import type { ExerciseType } from '../types';
 
 const kn = 1.1;
 export const nt = 0.2;
@@ -11,8 +12,8 @@ const c = 3.28301466e-5;
 const [forgetting, correction] = [0, 0.01644545, 0.0077873];
 
 export function expectedKnowledge(
-	{ alpha, beta, lastTime }: AlphaBetaTime,
-	{ now, exercise }: { now: number; exercise: Exercise }
+	{ alpha, beta, lastTime }: Knowledge,
+	{ now, exercise }: { now: number; exercise: ExerciseType }
 ) {
 	const knowledge = exercise == 'read' ? alpha : beta || 0;
 	const time = Math.log(now - lastTime + Math.E);
@@ -21,7 +22,7 @@ export function expectedKnowledge(
 }
 
 /** Previous best fit */
-export function expectedKnowledgeOld({ alpha, lastTime }: AlphaBetaTime, { now }: { now: number }) {
+export function expectedKnowledgeOld({ alpha, lastTime }: Knowledge, { now }: { now: number }) {
 	const k = a * alpha + b;
 
 	return Math.min(Math.max(k - 2 * (1 - k) * c * (now - lastTime), 0), 1);
@@ -45,17 +46,17 @@ function valueFunction(
 
 /** How much is it worth to repeat this word now? */
 export function calculateRepetitionValue(
-	{ alpha, beta, lastTime, studied }: AlphaBetaTime & { studied?: boolean },
+	{ alpha, beta, lastTime, source }: Scoreable & { source: ExerciseSource },
 	{
 		now,
 		exercise,
 		repetitionTime,
 		pastDue
-	}: { now: number; exercise: Exercise; repetitionTime?: number; pastDue?: number }
+	}: { now: number; exercise: ExerciseType; repetitionTime?: number; pastDue?: number }
 ) {
 	let knowledge: number;
 
-	if (studied === false) {
+	if (source == 'unstudied') {
 		if (exercise == 'read') {
 			knowledge = nt;
 			lastTime = now - 7 * 24 * 60;
@@ -77,7 +78,7 @@ export function calculateRepetitionValue(
 	return valueFunction(time, optimalTime, 4, [1 / 25, 1 / 5, 1, 5, 25][(pastDue || 0) + 2]);
 }
 
-export function didNotKnowFirst(exercise: Exercise) {
+export function didNotKnowFirst(exercise: ExerciseType) {
 	if (exercise != 'read') {
 		return {
 			alpha: nt,
@@ -88,7 +89,7 @@ export function didNotKnowFirst(exercise: Exercise) {
 	return { alpha: nt, beta: null };
 }
 
-export function knewFirst(exercise: Exercise) {
+export function knewFirst(exercise: ExerciseType) {
 	if (exercise != 'read') {
 		return {
 			alpha: kn,
@@ -100,8 +101,8 @@ export function knewFirst(exercise: Exercise) {
 }
 
 export function didNotKnow(
-	{ alpha, beta, lastTime }: AlphaBetaTime,
-	{ now, exercise }: { now: number; exercise: Exercise }
+	{ alpha, beta, lastTime }: Knowledge,
+	{ now, exercise }: { now: number; exercise: ExerciseType }
 ) {
 	if (exercise == 'read') {
 		return { alpha: (1 - f) * alpha + f * nt, beta };
@@ -113,8 +114,8 @@ export function didNotKnow(
 }
 
 export function knew(
-	{ alpha, beta, lastTime }: AlphaBetaTime,
-	{ now, exercise }: { now: number; exercise: Exercise }
+	{ alpha, beta, lastTime }: Knowledge,
+	{ now, exercise }: { now: number; exercise: ExerciseType }
 ) {
 	if (exercise == 'read') {
 		return { alpha: Math.min((1 - f) * alpha + f * kn, 1), beta };

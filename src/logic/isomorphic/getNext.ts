@@ -1,91 +1,51 @@
 import { getPastDue, getRepetitionTime } from '$lib/settings';
-import type { AggKnowledgeForUser, CandidateSentenceWithWords, Exercise } from '../types';
+import { AggKnowledgeForUser, ExerciseSource, Scoreable } from '../../db/types';
+import type { CandidateSentenceWithWords, ExerciseType } from '../types';
 import { expectedKnowledge, calculateRepetitionValue, now } from './knowledge';
 
-export function getNextWord(knowledge: AggKnowledgeForUser[]) {
-	return getNextWords(knowledge)[0];
+export function getExerciseForKnowledge(knowledge: AggKnowledgeForUser[]) {
+	return getExercisesForKnowledge(knowledge)[0];
 }
 
-export function getNextWords(knowledge: AggKnowledgeForUser[], count = 5) {
+export function getExercisesForKnowledge(knowledge: AggKnowledgeForUser[]) {
+	return knowledge.reduce(
+		(acc, k) => [
+			...acc,
+			{
+				...k,
+				exercise: 'read' as ExerciseType
+			},
+			{
+				...k,
+				exercise: (Math.random() > 0.75 ? 'write' : 'cloze') as ExerciseType
+			}
+		],
+		[] as (AggKnowledgeForUser & { exercise: ExerciseType })[]
+	);
+}
+
+export function scoreExercises<
+	Exercise extends Scoreable & { exercise: ExerciseType; source: ExerciseSource }
+>(exercises: Exercise[]): (Exercise & { score: number })[] {
 	const n = now();
 
 	const repetitionTime = getRepetitionTime();
 	const pastDue = getPastDue();
 
-	const scores = knowledge
-		.reduce(
-			(acc, k) => [
-				...acc,
-				{
-					...k,
-					exercise: 'read' as Exercise,
-					score:
-						(calculateRepetitionValue(k, {
-							now: n,
-							exercise: 'read',
-							repetitionTime,
-							pastDue
-						}) *
-							(2 - k.level / 100)) /
-						2
-				},
-				{
-					...k,
-					exercise: (Math.random() > 0.75 ? 'write' : 'cloze') as Exercise,
-					score:
-						(calculateRepetitionValue(k, {
-							now: n,
-							exercise: 'write',
-							repetitionTime,
-							pastDue
-						}) *
-							(2 - k.level / 100)) /
-						2
-				}
-			],
-			[] as (AggKnowledgeForUser & { score: number; exercise: Exercise })[]
-		)
-		.filter((k) => k.score > 0.02);
+	const scores = exercises.map((e) => ({
+		...e,
+		score:
+			(calculateRepetitionValue(e, {
+				now: n,
+				exercise: e.exercise,
+				repetitionTime,
+				pastDue
+			}) *
+				(2 - e.level / 100)) /
+			2
+	}));
 
-	const topScores = scores.sort((a, b) => b.score - a.score);
-
-	const word = topScores[0];
-
-	const toPercent = (n: number | null) => (n != null ? Math.round(n * 100) + '%' : '-');
-
-	console.log(
-		`Knowledge of ${word.word}: ${toPercent(word.alpha)}/${toPercent(word.beta)}, age ${n - word.lastTime} = ${toPercent(word.score)}`
-	);
-
-	console.log(
-		'Next words:\n' +
-			topScores
-				.filter((s) => s.studied == undefined)
-				.slice(0, 10)
-				.map(
-					(i, j) =>
-						`${j + 1}. ${i.word} ${i.exercise} (${i.wordId}, score ${Math.round(i.score * 100)}%, age ${n - i.lastTime}, knowledge ${Math.round(
-							100 * expectedKnowledge(i, { now: n, exercise: i.exercise })
-						)}% level ${i.level})`
-				)
-				.join(`\n`)
-	);
-
-	console.log(
-		'Next unstudied words\n' +
-			topScores
-				.filter((s) => s.studied == false && s.score > 0)
-				.slice(0, 5)
-				.map(
-					(unstudied, i) =>
-						`${i + 1}. ${unstudied.word} ${unstudied.exercise} (${unstudied.wordId}, score ${Math.round(unstudied.score * 100)}%, level ${unstudied.level})`
-				)
-				.join('\n')
-	);
-
-	return topScores
-		.slice(0, count)
-		.map(({ wordId, exercise, studied }) => ({ wordId, exercise, studied }));
+	return scores.sort((a, b) => b.score - a.score);
 }
 
 export function getNextSentence(

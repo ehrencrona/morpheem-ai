@@ -1,21 +1,19 @@
 <script lang="ts">
 	import { slide } from 'svelte/transition';
+	import Error from '../../../components/Error.svelte';
+	import Spinner from '../../../components/Spinner.svelte';
+	import SpinnerButton from '../../../components/SpinnerButton.svelte';
 	import type * as DB from '../../../db/types';
-	import { expectedKnowledge, now } from '../../../logic/isomorphic/knowledge';
 	import { isSeparator, toWordsWithSeparators } from '../../../logic/toWords';
-	import type { AggKnowledgeForUser, Language } from '../../../logic/types';
+	import type { Language } from '../../../logic/types';
 	import type { UnknownWordResponse } from '../api/word/unknown/+server';
 	import { fetchAskMeAnything } from '../api/write/ama/client';
 	import Ama from './AMA.svelte';
-	import SpinnerButton from '../../../components/SpinnerButton.svelte';
 	import WordCard from './WordCard.svelte';
-	import BottomBar from '../../../components/BottomBar.svelte';
-	import Spinner from '../../../components/Spinner.svelte';
-	import Error from '../../../components/Error.svelte';
 
 	export let sentence: DB.Sentence;
 	export let word: DB.Word | undefined;
-	export let knowledge: AggKnowledgeForUser[] | undefined = undefined;
+	export let knowledge: DB.AggKnowledgeForUser[] | undefined = undefined;
 	export let language: Language;
 
 	export let revealed: UnknownWordResponse[];

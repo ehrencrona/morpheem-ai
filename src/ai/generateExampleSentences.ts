@@ -5,7 +5,7 @@ import { Language } from '../logic/types';
 
 const names = {
 	pl: `Marek, Jakub, Ewa, Agnieszka`,
-	fr: `Jacques, Pierre, Marie, Jeanne`
+	fr: `Jacques, Pierre, Charlotte, Jeanne`
 };
 
 export async function generateExampleSentences(

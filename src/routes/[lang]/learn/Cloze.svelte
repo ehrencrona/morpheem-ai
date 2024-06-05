@@ -5,12 +5,7 @@
 	import * as DB from '../../../db/types';
 	import { standardize } from '../../../logic/isomorphic/standardize';
 	import { toWords, toWordsWithSeparators } from '../../../logic/toWords';
-	import type {
-		AggKnowledgeForUser,
-		Language,
-		SentenceWord,
-		WordKnowledge
-	} from '../../../logic/types';
+	import type { Language, SentenceWord, WordKnowledge } from '../../../logic/types';
 	import { fetchClozeEvaluation } from '../api/cloze/client';
 	import { fetchTranslation } from '../api/sentences/[sentence]/english/client';
 	import { fetchInflections } from '../api/word/[id]/inflections/client';
@@ -25,7 +20,7 @@
 	export let sentence: DB.Sentence;
 	export let word: DB.Word;
 	export let sentenceWords: SentenceWord[];
-	export let knowledge: AggKnowledgeForUser[] | undefined = undefined;
+	export let knowledge: DB.AggKnowledgeForUser[] | undefined = undefined;
 	export let language: Language;
 	export let sendKnowledge: (words: (WordKnowledge & { word: DB.Word })[]) => void;
 
@@ -149,7 +144,9 @@
 		onReveal();
 		answered = standardize(answerGiven);
 
-		isCorrectLemma = answeredLemma ? answeredLemma == word.word : isDictionaryForm || isRightInflection;
+		isCorrectLemma = answeredLemma
+			? answeredLemma == word.word
+			: isDictionaryForm || isRightInflection;
 		isCorrectInflection = isRightInflection || (!answeredLemma && isDictionaryForm);
 
 		if (!((answeredLemma && isRightInflection) || (!answeredLemma && isCorrectLemma))) {

@@ -1,10 +1,11 @@
-import type { AggKnowledgeForUser, Exercise, Language, WordKnowledge } from './types';
+import type { Language, WordKnowledge } from './types';
 
+import { parallelize } from '$lib/parallelize';
 import { addKnowledge as addKnowledgeToDb, transformAggregateKnowledge } from '../db/knowledge';
+import { knowledgeTypeToExercise } from '../db/knowledgeTypes';
+import { AggKnowledgeForUser } from '../db/types';
 import { getWordsBelowLevel } from '../db/words';
 import { didNotKnow, didNotKnowFirst, knew, knewFirst, now } from './isomorphic/knowledge';
-import { knowledgeTypeToExercise } from '../db/knowledgeTypes';
-import { parallelize } from '$lib/parallelize';
 
 export async function addKnowledge(words: WordKnowledge[], language: Language) {
 	words = eliminateDuplicates(words);
@@ -43,7 +44,8 @@ export async function getBeginnerKnowledge(language: Language): Promise<AggKnowl
 		word: word.word,
 		lastTime: now(),
 		alpha: 1,
-		beta: 1
+		beta: 1,
+		source: 'unstudied'
 	}));
 }
 

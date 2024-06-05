@@ -1,11 +1,11 @@
 <script lang="ts">
 	import { dedupUnknown } from '$lib/dedupUnknown';
 	import { expectedKnowledge, now } from '../../../logic/isomorphic/knowledge';
-	import type { AggKnowledgeForUser } from '../../../logic/types';
 	import type { UnknownWordResponse } from '../api/word/unknown/+server';
 	import { lookupUnknownWord } from '../api/word/unknown/client';
 	import SpinnerButton from '../../../components/SpinnerButton.svelte';
 	import WordCard from '../learn/WordCard.svelte';
+	import type { AggKnowledgeForUser } from '../../../db/types';
 
 	export let knowledge: AggKnowledgeForUser[];
 

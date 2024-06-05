@@ -12,11 +12,7 @@ export interface AlphaBeta {
 	readonly beta: number | null;
 }
 
-export interface AlphaBetaTime extends AlphaBeta {
-	readonly lastTime: number;
-}
-
-export type Exercise = 'read' | 'write' | 'cloze';
+export type ExerciseType = 'read' | 'write' | 'cloze';
 
 export const wordKnowledgeSchema = z.object({
 	wordId: z.number(),
@@ -28,16 +24,6 @@ export const wordKnowledgeSchema = z.object({
 });
 
 export type WordKnowledge = z.infer<typeof wordKnowledgeSchema>;
-
-export interface AggKnowledgeForUser {
-	wordId: number;
-	alpha: number;
-	beta: number | null;
-	lastTime: number;
-	level: number;
-	word: string;
-	studied?: false;
-}
 
 export interface SentenceWord extends DB.Word {
 	word_index: number;

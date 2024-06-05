@@ -3,7 +3,6 @@
 	import { KNOWLEDGE_TYPE_READ } from '../../../db/knowledgeTypes';
 	import * as DB from '../../../db/types';
 	import type {
-		AggKnowledgeForUser,
 		Language,
 		SentenceWord,
 		WordKnowledge
@@ -18,7 +17,7 @@
 	export let sentence: DB.Sentence;
 	export let words: SentenceWord[];
 	export let word: DB.Word | undefined;
-	export let knowledge: AggKnowledgeForUser[] | undefined = undefined;
+	export let knowledge: DB.AggKnowledgeForUser[] | undefined = undefined;
 	export let language: Language;
 	export let sendKnowledge: (words: (WordKnowledge & { word: DB.Word })[]) => void;
 

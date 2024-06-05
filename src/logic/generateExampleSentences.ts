@@ -8,7 +8,7 @@ import { getAggregateKnowledgeForUserWords } from '../db/knowledge';
 import * as DB from '../db/types';
 import { addWord, getMultipleWordsByLemmas } from '../db/words';
 import { expectedKnowledge, now } from './isomorphic/knowledge';
-import { AggKnowledgeForUser, Language } from './types';
+import { Language } from './types';
 
 export async function generateExampleSentences(
 	lemma: string,
@@ -161,7 +161,7 @@ async function gradeSentences(
 	}));
 }
 
-const isHard = (word: DB.Word, knowledge: AggKnowledgeForUser[], hardLevel: number): boolean => {
+const isHard = (word: DB.Word, knowledge: DB.AggKnowledgeForUser[], hardLevel: number): boolean => {
 	const wordKnowledge = knowledge.find((k) => k.wordId === word.id);
 
 	if (word.cognate) {

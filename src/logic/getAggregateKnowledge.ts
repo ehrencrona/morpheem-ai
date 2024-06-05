@@ -16,7 +16,7 @@ export async function getAggregateKnowledge(userId: number, language: Language) 
 			level,
 			lastTime: now() - 5,
 			word,
-			studied: false
+			source: 'unstudied'
 		}))
 	);
 
