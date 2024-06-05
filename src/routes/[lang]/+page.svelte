@@ -147,9 +147,6 @@
 		{
 			const exercise = exercises[0];
 
-			// deleteme
-			exercise.exercise = 'cloze';
-
 			const n = now();
 			const toPercent = (n: number | null) => (n != null ? Math.round(n * 100) + '%' : '-');
 
