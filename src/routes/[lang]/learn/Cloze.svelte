@@ -239,7 +239,7 @@
 <Ama
 	ask={(question) =>
 		fetchAskMeAnything({
-			type: 'cloze',
+			exercise: 'cloze',
 			question,
 			word: word.word,
 			confusedWord: answered,

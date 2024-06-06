@@ -12,7 +12,7 @@ export interface AlphaBeta {
 	readonly beta: number | null;
 }
 
-export type ExerciseType = 'read' | 'write' | 'cloze';
+export type ExerciseType = 'read' | 'write' | 'cloze' | 'translate';
 
 export const wordKnowledgeSchema = z.object({
 	wordId: z.number(),
@@ -29,7 +29,7 @@ export const exerciseKnowledgeSchema = z.object({
 	sentenceId: z.number(),
 	wordId: z.number().nullable(),
 	word: z.string().nullable(),
-	exercise: z.enum(['read', 'write', 'cloze']),
+	exercise: z.enum(['read', 'write', 'cloze', 'translate']),
 	isKnown: z.boolean(),
 	level: z.number()
 });

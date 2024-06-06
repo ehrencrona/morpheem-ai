@@ -58,7 +58,7 @@
 				  }
 				| {
 						wordId: number | null;
-						exercise: 'write';
+						exercise: 'write' | 'translate';
 				  }
 		  ))
 		| undefined;
@@ -113,22 +113,13 @@
 	}: {
 		exercises?: (ScoreableExercise & { score: number })[];
 		excludeWordId?: number;
-	}): Promise<
-		| {
-				sentence: CandidateSentenceWithWords;
-				wordId: number;
-				exercise: ExerciseType;
-				source: DB.ExerciseSource;
-				getNextPromise: () => Promise<any>;
-		  }
-		| {
-				sentence: CandidateSentenceWithWords;
-				wordId: null;
-				exercise: ExerciseType;
-				source: DB.ExerciseSource;
-				getNextPromise: () => Promise<any>;
-		  }
-	> {
+	}): Promise<{
+		sentence: CandidateSentenceWithWords & { english?: string };
+		wordId: number | null;
+		exercise: ExerciseType;
+		source: DB.ExerciseSource;
+		getNextPromise: () => Promise<any>;
+	}> {
 		if (!exercises.length) {
 			const unscored = ([] as ScoreableExercise[])
 				.concat(
@@ -258,11 +249,11 @@
 
 		nextPromise = getNext();
 
-		if (exercise == 'read' || exercise == 'cloze') {
+		if (exercise != 'write') {
 			markSentenceSeen(sentence.id).catch((e) => (error = e));
 		}
 
-		if (exercise == 'write') {
+		if (exercise == 'write' || exercise == 'translate') {
 			current = {
 				wordId: wordId,
 				words: sentence.words,
@@ -366,13 +357,16 @@
 				{onNext}
 				{sendKnowledge}
 			/>
-		{:else if current.exercise == 'write'}
+		{:else if current.exercise == 'write' || current.exercise == 'translate'}
 			<WriteSentence
 				{word}
 				{onNext}
-				fetchIdea={getTranslation}
 				language={getLanguageOnClient()}
 				{sendKnowledge}
+				exercise={current.exercise}
+				sentenceId={current.sentence.id}
+				englishSentence={current.sentence.english || undefined}
+				fetchEnglishSentence={getTranslation}
 			/>
 		{:else if current.exercise == 'cloze'}
 			<Cloze

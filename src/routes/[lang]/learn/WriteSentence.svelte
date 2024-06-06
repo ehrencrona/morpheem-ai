@@ -3,26 +3,36 @@
 	import { slide } from 'svelte/transition';
 	import SpinnerButton from '../../../components/SpinnerButton.svelte';
 	import { KNOWLEDGE_TYPE_WRITE } from '../../../db/knowledgeTypes';
-	import type { Language } from '../../../logic/types';
+	import type { ExerciseKnowledge, Language } from '../../../logic/types';
 	import type { UnknownWordResponse } from '../api/word/unknown/+server';
 	import { lookupUnknownWord } from '../api/word/unknown/client';
 	import { fetchAskMeAnything } from '../api/write/ama/client';
 	import { fetchProvidedWordsInAnswer } from '../api/write/ama/provided/client';
-	import { storeWrittenSentence } from '../api/write/client';
+	import { sendWrittenSentence } from '../api/write/client';
 	import { fetchWritingFeedback } from '../api/write/feedback/client';
 	import AMA from './AMA.svelte';
 	import WordCard from './WordCard.svelte';
+	import Error from '../../../components/Error.svelte';
+	import type { WritingFeedbackResponse } from '../api/write/feedback/+server';
+	import type { TranslationFeedbackResponse } from '../api/write/translate/+server';
+	import { fetchTranslationFeedback } from '../api/write/translate/client';
 
-	export let word: { id: number; word: string };
+	export let word: { id: number; word: string; level: number };
 	export let onNext: () => Promise<any>;
-	export let fetchIdea: () => Promise<string>;
-	export let language: Language;
+	export let fetchEnglishSentence: () => Promise<string>;
 	export let sendKnowledge: SendKnowledge;
+	export let sentenceId: number;
+	export let language: Language;
 
-	let feedback: string | undefined;
-	let corrected: string | undefined;
+	export let exercise: 'write' | 'translate' = 'write';
+
+	/** The sentence to translate if translate, otherwise the writing idea. */
+	export let englishSentence: string | undefined;
+
+	let feedback: TranslationFeedbackResponse | WritingFeedbackResponse | undefined;
 	let sentence: string;
-	let idea: string | undefined;
+
+	let error: any;
 
 	let showChars: number = 0;
 	let unknownWords: UnknownWordResponse[] = [];
@@ -33,43 +43,80 @@
 
 	function clear() {
 		sentence = '';
-		feedback = '';
-		corrected = '';
-		idea = '';
+		feedback = undefined;
 		unknownWords = [];
 		showChars = 0;
+		lookedUpWord = undefined;
+
+		if (exercise == 'write') {
+			lookupUnknownWord(word.word, undefined)
+				.then((word) => (lookedUpWord = word))
+				.catch((e) => (error = e));
+		}
+
+		if (exercise === 'translate' && !englishSentence) {
+			getEnglishSentence().catch((e) => (error = e));
+		}
 	}
 
-	$: if (word) {
+	$: if (word || sentenceId) {
 		clear();
-
-		lookupUnknownWord(word.word, undefined)
-			.then((word) => (lookedUpWord = word))
-			.catch(console.error);
 	}
 
 	const onSubmit = async () => {
-		if (!sentence) return;
-
 		sentence = sentence.trim();
 
-		const res = await fetchWritingFeedback({ word: word.word, sentence });
+		if (!sentence) return;
 
-		({ feedback, corrected } = res);
+		feedback =
+			exercise == 'write'
+				? await fetchWritingFeedback({ word: word.word, sentence })
+				: await fetchTranslationFeedback({
+						sentenceId,
+						entered: sentence
+					});
 
-		unknownWords = dedup([...unknownWords, ...res.unknownWords]);
+		unknownWords = dedup([...unknownWords, ...feedback!.unknownWords]);
 	};
 
 	const clickedContinue = async () => {
+		if (!feedback) {
+			error = 'Invalid state';
+			return;
+		}
+
 		const studiedWordId = word.id;
-		const words = await storeWrittenSentence({
-			wordId: studiedWordId,
-			sentence: corrected!
-		});
+
+		let addExercises: ExerciseKnowledge[] = [];
+
+		let newSentenceId: number | undefined = undefined;
+
+		if (exercise == 'write') {
+			const sentence = await sendWrittenSentence({
+				wordId: studiedWordId,
+				sentence: feedback!.corrected
+			});
+
+			newSentenceId = sentence.id;
+		}
+
+		if (!feedback.isCorrect || exercise == 'translate') {
+			addExercises = [
+				{
+					wordId: studiedWordId,
+					sentenceId: newSentenceId || sentenceId,
+					exercise: 'translate',
+					word: word.word,
+					isKnown: feedback.isCorrect,
+					// just set a fixed value?
+					level: word.level
+				}
+			];
+		}
 
 		const unknownWordIds = unknownWords.map(({ id }) => id);
 
-		const knowledge = words.map((word) => ({
+		const knowledge = feedback.words.map((word) => ({
 			word,
 			wordId: word.id,
 			isKnown: !unknownWordIds.includes(word.id),
@@ -79,7 +126,7 @@
 			userId: -1
 		}));
 
-		sendKnowledge(knowledge);
+		sendKnowledge(knowledge, addExercises);
 
 		return onNext();
 	};
@@ -93,8 +140,8 @@
 		}
 	};
 
-	const getIdea = async () => {
-		idea = await fetchIdea();
+	const getEnglishSentence = async () => {
+		englishSentence = await fetchEnglishSentence();
 	};
 
 	function dedup(words: UnknownWordResponse[]) {
@@ -103,11 +150,11 @@
 
 	const askMeAnything = async (question: string) => {
 		const answer = await fetchAskMeAnything({
-			type: 'write',
+			exercise,
 			question,
 			word: word.word,
 			sentenceEntered: sentence,
-			sentenceCorrected: corrected
+			sentenceCorrected: feedback?.exercise == 'write' ? feedback.corrected : undefined
 		});
 
 		if (!feedback) {
@@ -120,20 +167,31 @@
 	};
 </script>
 
+<Error {error} onClear={() => (error = undefined)} />
+
 <div>
-	<h1 class="mb-4 text-xl">
-		{#if isRevealed}
-			{word.word}
-		{:else if lookedUpWord}"{lookedUpWord?.english}"{:else}...{/if}
-	</h1>
+	{#if exercise == 'write'}
+		<h1 class="mb-4 text-xl">
+			{#if isRevealed}
+				{word.word}
+			{:else if lookedUpWord}"{lookedUpWord?.english}"{:else}...{/if}
+		</h1>
+	{/if}
 
 	<form>
 		{#if !feedback}
-			<p class="mb-4 font-lato text-xs">
-				Write a sentence or fragment using the {language.name} word for "<b
-					>{lookedUpWord?.english || '...'}</b
-				>"
-			</p>
+			{#if exercise === 'translate'}
+				<div class="text-sm mb-6" in:slide>
+					<div class="text-xs font-lato">Translate into {language.name}:</div>
+					<div class="text-xl">"{englishSentence}"</div>
+				</div>
+			{:else}
+				<p class="mb-4 font-lato text-xs">
+					Write a sentence or fragment using the {language.name} word for "<b
+						>{lookedUpWord?.english || '...'}</b
+					>"
+				</p>
+			{/if}
 
 			<input
 				type="text"
@@ -148,24 +206,26 @@
 				</div>
 			{/if}
 
-			{#if idea}
+			{#if englishSentence && exercise == 'write'}
 				<div class="text-sm mb-6" in:slide>
 					<div class="text-xs font-lato">Maybe write this in {language.name}?</div>
-					<div class="text-xl">"{idea}"</div>
+					<div class="text-xl">"{englishSentence}"</div>
 				</div>
 			{/if}
 		{:else}
-			{#if corrected != sentence}
+			{#if !feedback.isCorrect}
 				<div class="text-xl font-bold mb-6 text-balance line-through">
 					{sentence}
 				</div>
 			{/if}
 
 			<div class="mb-6 font-lato text-xs">
-				{feedback}
+				{feedback.feedback}
 			</div>
 
-			<div class="text-xl font-bold mb-6 text-balance">{corrected}</div>
+			<div class="text-xl font-bold mb-6 text-balance">
+				{feedback.corrected}
+			</div>
 		{/if}
 
 		{#if unknownWords.length > 0}
@@ -183,20 +243,21 @@
 
 		<div class="mt-8">
 			{#if !feedback}
-				{#if !isRevealed}
-					<SpinnerButton onClick={onHint} type="secondary">Hint</SpinnerButton>
-				{/if}
+				{#if exercise === 'write'}
+					{#if !isRevealed}
+						<SpinnerButton onClick={onHint} type="secondary">Hint</SpinnerButton>
+					{/if}
 
-				{#if !idea}
-					<SpinnerButton onClick={getIdea} type="secondary">Idea</SpinnerButton>
+					{#if !englishSentence}
+						<SpinnerButton onClick={getEnglishSentence} type="secondary">Idea</SpinnerButton>
+					{/if}
 				{/if}
 
 				<SpinnerButton onClick={onSubmit} isSubmit={true}>Submit</SpinnerButton>
 			{:else}
 				<SpinnerButton
 					onClick={async () => {
-						feedback = '';
-						corrected = '';
+						feedback = undefined;
 					}}
 					type="secondary">Try again</SpinnerButton
 				>

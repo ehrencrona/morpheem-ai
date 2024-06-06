@@ -125,7 +125,7 @@
 <Ama
 	ask={(question) =>
 		fetchAskMeAnything({
-			type: 'read',
+			exercise: 'read',
 			question,
 			word: word?.word,
 			sentence: sentence.sentence,

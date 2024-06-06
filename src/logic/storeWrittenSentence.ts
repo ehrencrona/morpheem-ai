@@ -1,12 +1,10 @@
-import { filterUndefineds } from '$lib/filterUndefineds';
-import * as DB from '../db/types';
-import { getWordByLemma } from '../db/words';
 import { addWrittenSentence } from '../db/writtenSentences';
+import { addSentence } from './addSentence';
 import { lemmatizeSentences } from './lemmatize';
 import { Language } from './types';
 
 export async function storeWrittenSentence({
-	sentence,
+	sentence: sentenceString,
 	wordId,
 	userId,
 	language
@@ -15,32 +13,22 @@ export async function storeWrittenSentence({
 	wordId: number;
 	userId: number;
 	language: Language;
-}): Promise<DB.Word[]> {
-	const [lemmatized] = await lemmatizeSentences([sentence], { language });
+}) {
+	const [lemmatized] = await lemmatizeSentences([sentenceString], { language });
 
-	const words = filterUndefineds(
-		await Promise.all(
-			lemmatized.map(async (lemma) => {
-				try {
-					return await getWordByLemma(lemma, language);
-				} catch (e) {
-					console.error(`Unknown word: ${lemma}`);
-
-					return undefined;
-				}
-			})
-		)
-	);
+	const sentence = await addSentence(sentenceString, {
+		english: undefined,
+		lemmas: lemmatized,
+		language,
+		userId
+	});
 
 	await addWrittenSentence({
-		sentence,
+		sentence: sentenceString,
 		wordId,
 		userId,
 		language
 	});
 
-	console.log(`User ${userId} wrote: ${sentence}`);
-	console.log(`Words: ${words.map((w) => w.word).join(', ')}`);
-
-	return words;
+	return sentence;
 }

@@ -2,6 +2,8 @@ import { Language } from '../logic/types';
 import { Message, ask } from './ask';
 
 export async function askMeAnythingWrite({
+	exercise,
+	sentence,
 	sentenceEntered,
 	sentenceCorrected,
 	word,
@@ -9,6 +11,8 @@ export async function askMeAnythingWrite({
 	languagesSpoken,
 	language
 }: {
+	exercise: 'write' | 'translate';
+	sentence?: string;
 	sentenceEntered?: string;
 	sentenceCorrected?: string;
 	word: string;
@@ -21,7 +25,11 @@ export async function askMeAnythingWrite({
 		messages: [
 			{
 				role: 'system',
-				content: `The user is practicing writing in ${language.name}. Briefly but helpfully and friendly answer the question in English. If the user wrote an English word or phrase, provide the ${language.name} translation. Do not provide the whole sentence for the user (unless explicitly asked for).`
+				content: `${
+					exercise == 'translate'
+						? `The user is doing a translation exercise in ${language.name}.`
+						: `The user is practicing writing in ${language.name}`
+				}. Briefly but helpfully and friendly answer the question in English. If the user wrote an English word or phrase, provide the ${language.name} translation. Do not provide the whole sentence for the user (unless explicitly asked for).`
 			},
 			{
 				role: 'system',
@@ -29,7 +37,10 @@ export async function askMeAnythingWrite({
 			},
 			{
 				role: 'assistant',
-				content: `Write a ${language.name} sentence or fragment containing "${word}"`
+				content:
+					exercise == 'translate'
+						? `Translate the sentence "${sentence}" into ${language.name}`
+						: `Write a ${language.name} sentence or fragment containing "${word}"`
 			},
 			...(sentenceEntered?.trim()
 				? ([

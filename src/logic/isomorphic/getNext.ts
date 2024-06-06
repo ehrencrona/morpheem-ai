@@ -32,18 +32,20 @@ export function scoreExercises<
 	const repetitionTime = getRepetitionTime();
 	const pastDue = getPastDue();
 
-	const scores = exercises.map((e) => ({
-		...e,
-		score:
-			(calculateRepetitionValue(e, {
-				now: n,
-				exercise: e.exercise,
-				repetitionTime,
-				pastDue
-			}) *
-				(2 - e.level / 100)) /
-			2
-	}));
+	const scores = exercises
+		.filter((e) => e.source === 'userExercise')
+		.map((e) => ({
+			...e,
+			score:
+				(calculateRepetitionValue(e, {
+					now: n,
+					exercise: e.exercise,
+					repetitionTime,
+					pastDue
+				}) *
+					(2 - e.level / 100)) /
+				2
+		}));
 
 	return scores.sort((a, b) => b.score - a.score);
 }

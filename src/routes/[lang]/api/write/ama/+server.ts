@@ -6,15 +6,16 @@ export type PostSchema = z.infer<typeof postSchema>;
 
 const postSchema = z
 	.object({
-		type: z.literal('write'),
+		exercise: z.literal('write').or(z.literal('translate')),
 		sentenceEntered: z.string().optional(),
 		sentenceCorrected: z.string().optional(),
+		sentence: z.string().optional(),
 		word: z.string(),
 		question: z.string()
 	})
 	.or(
 		z.object({
-			type: z.literal('read').or(z.literal('cloze')),
+			exercise: z.literal('read').or(z.literal('cloze')),
 			question: z.string(),
 			sentence: z.string(),
 			translation: z.string().optional(),
@@ -26,8 +27,9 @@ const postSchema = z
 
 export const POST: ServerLoad = async ({ request, locals }) => {
 	const params = postSchema.parse(await request.json());
+	const { exercise } = params;
 
-	if (params.type === 'write') {
+	if (exercise === 'write' || exercise === 'translate') {
 		return json(
 			await askMeAnythingWrite({
 				...params,
@@ -35,7 +37,7 @@ export const POST: ServerLoad = async ({ request, locals }) => {
 				language: locals.language
 			})
 		);
-	} else {
+	} else if (exercise === 'read' || exercise === 'cloze') {
 		return json(
 			await askMeAnythingRead({
 				...params,
@@ -43,5 +45,7 @@ export const POST: ServerLoad = async ({ request, locals }) => {
 				language: locals.language
 			})
 		);
+	} else {
+		throw new Error('Invalid type');
 	}
 };

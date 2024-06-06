@@ -9,7 +9,7 @@ export async function markSentenceSeen(sentenceId: number): Promise<void> {
 
 export async function fetchCandidateSentence(
 	sentenceId: number
-): Promise<CandidateSentenceWithWords> {
+): Promise<CandidateSentenceWithWords & { english: string }> {
 	return apiCall(`/api/sentences/${sentenceId}`, {
 		method: 'GET'
 	});

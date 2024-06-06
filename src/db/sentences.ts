@@ -8,18 +8,20 @@ export async function addSentence(
 	{
 		english,
 		words,
-		language
+		language,
+		userId
 	}: {
 		english: string | undefined;
 		words: { id: number; word: string | null }[];
 		language: Language;
+		userId?: number;
 	}
-): Promise<Sentence | undefined> {
+): Promise<Sentence> {
 	const sentence = await db.transaction().execute(async (trx) => {
 		const sentence = await trx
 			.withSchema(language.schema)
 			.insertInto('sentences')
-			.values({ sentence: sentenceString, english })
+			.values({ sentence: sentenceString, english, user_id: userId })
 			.returning(['id', 'sentence', 'english'])
 			.onConflict((oc) => oc.column('sentence').doNothing())
 			.executeTakeFirst();
@@ -27,7 +29,12 @@ export async function addSentence(
 		if (!sentence) {
 			console.warn(`Sentence "${sentenceString}" already exists`);
 
-			return undefined;
+			return trx
+				.withSchema(language.schema)
+				.selectFrom('sentences')
+				.selectAll()
+				.where('sentence', '=', sentenceString)
+				.executeTakeFirstOrThrow();
 		}
 
 		const { id } = sentence;

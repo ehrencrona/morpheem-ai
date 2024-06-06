@@ -2,22 +2,33 @@ import { z } from 'zod';
 import { Language } from '../logic/types';
 import { askForJson } from './askForJson';
 
-const responseSchema = z.object({
+const writingResponseSchema = z.object({
 	feedback: z.string(),
-	corrected: z.string()
+	corrected: z.string(),
+	isCorrect: z.boolean()
+});
+
+const translationResponseSchema = z.object({
+	feedback: z.string(),
+	isCorrect: z.boolean()
 });
 
 export async function generateWritingFeedback(
 	sentence: string,
 	word: string,
 	language: Language
-): Promise<z.infer<typeof responseSchema>> {
+): Promise<z.infer<typeof writingResponseSchema>> {
 	return askForJson({
 		model: 'gpt-4o',
 		messages: [
 			{
 				role: 'system',
-				content: `Briefly but friendly point out any errors in the ${language.name} text entered by the user. If there are grammatical mistakes, spelling mistakes, unidiomatic constructs or inappropriate word choices, point them out. If the sentence is correct, praise the user. Also return the corrected text, applying all your suggestions. Write in English. Return JSON in the format {feedback: string, corrected: string}`
+				content:
+					`The user is learning ${language.name} and, as an exercise, is trying to write a sentence containing the word "${word}". ` +
+					`Briefly but friendly point out any grammatical mistakes, spelling mistakes or unidiomatic constructs. If the word is missing, say so. ` +
+					`If the sentence is correct, praise the user. Also return a corrected text, applying all your suggestions. ` +
+					`Finally, return a boolean indicating whether the sentence was grammatically correct (ignoring punctuation). ` +
+					`Write in English. Return JSON in the format {feedback: string, corrected: string, isCorrect: boolean}`
 			},
 			{
 				role: 'assistant',
@@ -30,6 +41,38 @@ export async function generateWritingFeedback(
 		],
 		temperature: 1,
 		logResponse: true,
-		schema: responseSchema
+		schema: writingResponseSchema
+	});
+}
+
+export async function generateTranslationFeedback(
+	{ english, correct, entered }: { english: string; correct: string; entered: string },
+	language: Language
+): Promise<z.infer<typeof translationResponseSchema>> {
+	return askForJson({
+		model: 'gpt-4o',
+		messages: [
+			{
+				role: 'system',
+				content:
+					`The user is learning ${language.name} and being asked to translate a sentence as an exercise. ` +
+					`The correct translation is "${correct}". The user will be shown it; no need to mention it. ` +
+					`Briefly but friendly point out any grammatical mistakes, spelling mistakes, unidiomatic constructs or divergences in meaning. ` +
+					`If the sentence generally captures the intended meaning and is grammatically correct (it does not need to match the provided translation), praise the user. ` +
+					`Return a boolean indicating whether it is a correct translation. ` +
+					`Write in English. Return JSON in the format {feedback: string, isCorrect:boolean}`
+			},
+			{
+				role: 'assistant',
+				content: `Translate the following sentence to ${language.name}: "${english}"`
+			},
+			{
+				role: 'user',
+				content: entered
+			}
+		],
+		temperature: 1,
+		logResponse: true,
+		schema: translationResponseSchema
 	});
 }

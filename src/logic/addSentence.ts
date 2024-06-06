@@ -10,19 +10,26 @@ export async function addSentence(
 	{
 		english,
 		lemmas,
-		language
+		language,
+		userId
 	}: {
 		english: string | undefined;
 		lemmas: string[];
 		language: Language;
+		userId?: number;
 	}
 ) {
-	console.log(`Adding sentence "${sentenceString}" (lemmas: ${lemmas.join(' ')})...`);
+	console.log(
+		`Adding sentence "${sentenceString}" (lemmas: ${lemmas.join(' ')})${userId ? ` by user ${userId}` : ''}...`
+	);
+
+	const words = await getSentenceWords(sentenceString, lemmas, language);
 
 	return sentences.addSentence(sentenceString, {
 		english,
-		words: await getSentenceWords(sentenceString, lemmas, language),
-		language
+		words,
+		language,
+		userId
 	});
 }
 
@@ -74,16 +81,6 @@ export async function getSentenceWords(
 				addWordToLemma(wordString, words.find((word) => word.word === lemma)!, language)
 			)
 	);
-
-	const indexOfWord = (word: string) => {
-		const result = lemmas.indexOf(word);
-
-		if (result === -1) {
-			throw new Error(`Word ${word} not found in lemmas`);
-		}
-
-		return result;
-	};
 
 	return lemmas.map((lemma, index) => {
 		const word = words.find((w) => w.word === lemma);
