@@ -3,20 +3,15 @@ import * as DB from '../../db/types';
 import type { ExerciseKnowledge } from '../types';
 import { didNotKnow, didNotKnowFirst, knew, knewFirst, now } from './knowledge';
 
-function toSentenceWord(e: { sentenceId: number; wordId: number | null }): string {
-	return e.sentenceId + '' + e.wordId;
-}
-
 export function updateUserExercises(adds: ExerciseKnowledge[], exercises: DB.UserExercise[]) {
-	const bySentenceWord = new Map(adds.map((e) => [toSentenceWord(e), e]));
+	const bySentenceWord = new Map(adds.map((e) => [e.sentenceId, e]));
 
 	exercises = exercises.map((e) => {
 		const lastTime = now();
-		const sentenceWord = toSentenceWord(e);
 
-		if (bySentenceWord.has(sentenceWord)) {
-			const add = bySentenceWord.get(sentenceWord)!;
-			bySentenceWord.delete(sentenceWord);
+		if (bySentenceWord.has(e.sentenceId)) {
+			const add = bySentenceWord.get(e.sentenceId)!;
+			bySentenceWord.delete(e.sentenceId);
 
 			const opts = { now: lastTime, exercise: e.exercise };
 			const newExercise = {
