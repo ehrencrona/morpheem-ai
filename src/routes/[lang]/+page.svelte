@@ -135,6 +135,10 @@
 			exercises = scoreExercises(unscored);
 		}
 
+		if (exercises.length == 0) {
+			throw new Error('No exercises found');
+		}
+
 		{
 			const exercise = exercises[0];
 
