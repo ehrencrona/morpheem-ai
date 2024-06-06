@@ -12,15 +12,15 @@ import {
 import { lemmatizeSentences } from '../../../../../logic/lemmatize';
 import { addEnglishToSentence } from '../../../../../logic/translate';
 import { UnknownWordResponse } from '../../word/unknown/+server';
+import { getWordInSentence } from '../../../../../logic/getWordInSentence';
 
 export type PostSchema = z.infer<typeof postSchema>;
-export type TranslationFeedbackResponse = Awaited<
-	ReturnType<typeof generateTranslationFeedback>
-> & {
+export type TranslationFeedbackResponse = Awaited<ReturnType<typeof generateTranslationFeedback>> & {
 	exercise: 'translate';
 	corrected: string;
 	unknownWords: UnknownWordResponse[];
 	words: DB.Word[];
+	wrongWordId?: number;
 };
 
 const postSchema = z.object({
@@ -55,11 +55,22 @@ export const POST: ServerLoad = async ({ request, locals: { language, userId } }
 
 	missedWords = await filterClearlyKnownWords(missedWords, userId!, language);
 
+	let wrongWordId: number | undefined;
+
+	if (feedback.word) {
+		try {
+			wrongWordId = (await getWordInSentence(feedback.word, sentenceId, correctWords, language)).id;
+		} catch (e) {
+			console.error(e);
+		}
+	}
+
 	return json({
 		...feedback,
 		exercise: 'translate',
 		corrected: sentence.sentence,
 		unknownWords: await wordsToUnknownWords(missedWords, userId!, language),
-		words: enteredWords
+		words: enteredWords,
+		wrongWordId
 	} satisfies TranslationFeedbackResponse);
 };

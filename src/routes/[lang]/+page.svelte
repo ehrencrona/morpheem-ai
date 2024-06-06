@@ -114,7 +114,7 @@
 		exercises?: (ScoreableExercise & { score: number })[];
 		excludeWordId?: number;
 	}): Promise<{
-		sentence: CandidateSentenceWithWords & { english?: string };
+		sentence: CandidateSentenceWithWords & { english?: string | null };
 		wordId: number | null;
 		exercise: ExerciseType;
 		source: DB.ExerciseSource;

@@ -1,16 +1,17 @@
-import { lemmatizeSentences } from '../logic/lemmatize';
 import { addWordToLemma, getLemmaIdsOfWord } from '../db/lemmas';
 import { getSentence } from '../db/sentences';
-import { addWord, getWordsOfSentence } from '../db/words';
+import { addWord } from '../db/words';
+import { lemmatizeSentences } from '../logic/lemmatize';
 import { toWords } from './toWords';
-import { Language } from './types';
+import { Language, SentenceWord } from './types';
 
 /**
  * @param wordString The word as it appears in the sentence.
  */
 export async function getWordInSentence(
 	wordString: string,
-	sentenceId: number,
+	sentenceId: number | undefined,
+	sentenceWords: SentenceWord[],
 	language: Language
 ) {
 	wordString = wordString.toLowerCase();
@@ -21,6 +22,12 @@ export async function getWordInSentence(
 	}, new Set<number>());
 
 	if (lemmaIds.size === 0) {
+		if (!sentenceId) {
+			throw new Error(
+				`sentenceId is required when word (${wordString}) is not found in word forms`
+			);
+		}
+
 		console.log(`Word "${wordString}" not found in word forms, adding...`);
 
 		const sentence = await getSentence(sentenceId, language);
@@ -50,13 +57,11 @@ export async function getWordInSentence(
 		return word;
 	}
 
-	const words = await getWordsOfSentence(sentenceId, language);
-
-	const word = words.find((w) => lemmaIds.has(w.id) || w.word === wordString);
+	const word = sentenceWords.find((w) => lemmaIds.has(w.id) || w.word === wordString);
 
 	if (!word) {
 		throw new Error(
-			`Word "${wordString}" not found in sentence ${sentenceId}, only ${words.map((w) => w.word).join(', ')}`
+			`Word "${wordString}" not found in sentence ${sentenceId}, only ${sentenceWords.map((w) => w.word).join(', ')}`
 		);
 	}
 

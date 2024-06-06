@@ -9,6 +9,8 @@ export async function upsertUserExercise(
 	userId: number,
 	language: Language
 ): Promise<void> {
+	const exercise_type = exerciseToKnowledgeType(exercise);
+
 	await db
 		.withSchema(language.code)
 		.insertInto('user_exercises')
@@ -16,17 +18,18 @@ export async function upsertUserExercise(
 			user_id: userId,
 			sentence_id: sentenceId,
 			word_id: wordId,
-			exercise_type: exerciseToKnowledgeType(exercise),
+			exercise_type,
 			level,
 			alpha,
 			beta,
 			last_time: new Date()
 		})
 		.onConflict((oc) =>
-			oc.columns(['user_id', 'sentence_id', 'word_id']).doUpdateSet({
+			oc.columns(['user_id', 'sentence_id']).doUpdateSet({
 				level,
 				alpha,
 				beta,
+				exercise_type,
 				last_time: new Date()
 			})
 		)

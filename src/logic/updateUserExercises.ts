@@ -30,7 +30,8 @@ export function updateUserExercises(
 			await upsertUserExercise(
 				{
 					...(existing || exercise),
-					...knowledge
+					...knowledge,
+					exercise: exercise.exercise
 				},
 				userId,
 				language

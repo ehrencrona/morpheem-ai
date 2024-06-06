@@ -9,12 +9,14 @@ import {
 } from '../../../../../logic/findProvidedWordsInAnswer';
 import { lemmatizeSentences } from '../../../../../logic/lemmatize';
 import { UnknownWordResponse } from '../../word/unknown/+server';
+import { getWordInSentence } from '../../../../../logic/getWordInSentence';
 
 export type PostSchema = z.infer<typeof postSchema>;
 export type WritingFeedbackResponse = Awaited<ReturnType<typeof generateWritingFeedback>> & {
 	exercise: 'write';
 	unknownWords: UnknownWordResponse[];
 	words: DB.Word[];
+	wrongWordId?: number;
 };
 
 const postSchema = z.object({
@@ -45,10 +47,21 @@ export const POST: ServerLoad = async ({ request, locals: { language, userId } }
 
 	newWords = await filterClearlyKnownWords(newWords, userId!, language);
 
+	let wrongWordId: number | undefined;
+
+	if (feedback.word) {
+		try {
+			wrongWordId = (await getWordInSentence(feedback.word, undefined, allWords, language)).id;
+		} catch (e) {
+			console.error(e);
+		}
+	}
+
 	return json({
 		...feedback,
 		exercise: 'write',
 		unknownWords: await wordsToUnknownWords(newWords, userId!, language),
-		words: allWords
+		words: allWords,
+		wrongWordId
 	} satisfies WritingFeedbackResponse);
 };

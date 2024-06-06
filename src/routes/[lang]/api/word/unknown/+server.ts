@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { getMnemonic } from '../../../../../db/mnemonics';
 import { getSentence } from '../../../../../db/sentences';
 import * as DB from '../../../../../db/types';
-import { getWordByLemma } from '../../../../../db/words';
+import { getWordByLemma, getWordsOfSentence } from '../../../../../db/words';
 import { getWordInSentence } from '../../../../../logic/getWordInSentence';
 import { addEnglishToSentence, translateWordInContext } from '../../../../../logic/translate';
 
@@ -35,7 +35,9 @@ export const POST: ServerLoad = async ({ request, locals }) => {
 		sentence = await addEnglishToSentence(await getSentence(sentenceId, language), language);
 
 		try {
-			word = await getWordInSentence(wordString, sentenceId, language);
+			const sentenceWords = await getWordsOfSentence(sentenceId, language);
+
+			word = await getWordInSentence(wordString, sentenceId, sentenceWords, language);
 		} catch (e) {
 			console.error(e);
 		}

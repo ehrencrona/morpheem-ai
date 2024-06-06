@@ -103,9 +103,9 @@
 		if (!feedback.isCorrect || exercise == 'translate') {
 			addExercises = [
 				{
-					wordId: studiedWordId,
+					wordId: feedback.wrongWordId || null,
 					sentenceId: newSentenceId || sentenceId,
-					exercise: 'translate',
+					exercise: feedback.wrongWordId ? 'cloze' : 'translate',
 					word: word.word,
 					isKnown: feedback.isCorrect,
 					// just set a fixed value?
