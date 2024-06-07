@@ -15,7 +15,7 @@ export async function askMeAnythingWrite({
 	sentence?: string;
 	sentenceEntered?: string;
 	sentenceCorrected?: string;
-	word: string;
+	word?: string;
 	question: string;
 	languagesSpoken: string;
 	language: Language;

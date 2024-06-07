@@ -63,7 +63,7 @@
 		  ))
 		| undefined;
 
-	$: word = current?.words.find(({ id }) => id == current?.wordId)!;
+	$: word = current?.words.find(({ id }) => id == current?.wordId);
 
 	async function init() {
 		knowledge = await fetchAggregateKnowledge();
@@ -372,7 +372,7 @@
 				englishSentence={current.sentence.english || undefined}
 				fetchEnglishSentence={getTranslation}
 			/>
-		{:else if current.exercise == 'cloze'}
+		{:else if current.exercise == 'cloze' && word}
 			<Cloze
 				{word}
 				{knowledge}
@@ -382,6 +382,11 @@
 				sentenceWords={current.words}
 				language={getLanguageOnClient()}
 				{sendKnowledge}
+			/>
+		{:else}
+			<ErrorComponent
+				error={`Unknown exercise type ${current.exercise}, word ${word?.word}`}
+				onClear={() => (error = undefined)}
 			/>
 		{/if}
 	{:else}

@@ -10,7 +10,7 @@ const postSchema = z
 		sentenceEntered: z.string().optional(),
 		sentenceCorrected: z.string().optional(),
 		sentence: z.string().optional(),
-		word: z.string(),
+		word: z.string().optional(),
 		question: z.string()
 	})
 	.or(

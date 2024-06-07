@@ -17,7 +17,7 @@
 	import type { TranslationFeedbackResponse } from '../api/write/translate/+server';
 	import { fetchTranslationFeedback } from '../api/write/translate/client';
 
-	export let word: { id: number; word: string; level: number };
+	export let word: { id: number; word: string; level: number } | undefined;
 	export let onNext: () => Promise<any>;
 	export let fetchEnglishSentence: () => Promise<string>;
 	export let sendKnowledge: SendKnowledge;
@@ -39,7 +39,7 @@
 
 	let lookedUpWord: UnknownWordResponse | undefined;
 
-	$: isRevealed = showChars > 2 || showChars > word.word.length - 1;
+	$: isRevealed = word && (showChars > 2 || showChars > word.word.length - 1);
 
 	function clear() {
 		sentence = '';
@@ -49,7 +49,7 @@
 		lookedUpWord = undefined;
 
 		if (exercise == 'write') {
-			lookupUnknownWord(word.word, undefined)
+			lookupUnknownWord(word!.word, undefined)
 				.then((word) => (lookedUpWord = word))
 				.catch((e) => (error = e));
 		}
@@ -70,7 +70,7 @@
 
 		feedback =
 			exercise == 'write'
-				? await fetchWritingFeedback({ word: word.word, sentence })
+				? await fetchWritingFeedback({ word: word!.word, sentence })
 				: await fetchTranslationFeedback({
 						sentenceId,
 						entered: sentence
@@ -85,7 +85,7 @@
 			return;
 		}
 
-		const studiedWordId = word.id;
+		const studiedWordId = word?.id;
 
 		let addExercises: ExerciseKnowledge[] = [];
 
@@ -93,7 +93,7 @@
 
 		if (exercise == 'write') {
 			const sentence = await sendWrittenSentence({
-				wordId: studiedWordId,
+				wordId: studiedWordId!,
 				sentence: feedback!.corrected
 			});
 
@@ -106,10 +106,10 @@
 					wordId: feedback.wrongWordId || null,
 					sentenceId: newSentenceId || sentenceId,
 					exercise: feedback.wrongWordId ? 'cloze' : 'translate',
-					word: word.word,
+					word: word?.word || null,
 					isKnown: feedback.isCorrect,
 					// just set a fixed value?
-					level: word.level
+					level: word?.level || 0
 				}
 			];
 		}
@@ -134,7 +134,7 @@
 	const onHint = async () => {
 		showChars++;
 
-		if ((showChars > 2 || showChars > word.word.length - 1) && lookedUpWord) {
+		if ((showChars > 2 || showChars > word!.word.length - 1) && lookedUpWord) {
 			unknownWords = [...unknownWords, lookedUpWord];
 			showChars = 99;
 		}
@@ -152,7 +152,7 @@
 		const answer = await fetchAskMeAnything({
 			exercise,
 			question,
-			word: word.word,
+			word: word?.word,
 			sentenceEntered: sentence,
 			sentenceCorrected: feedback?.exercise == 'write' ? feedback.corrected : undefined
 		});
@@ -173,7 +173,7 @@
 	{#if exercise == 'write'}
 		<h1 class="mb-4 text-xl">
 			{#if isRevealed}
-				{word.word}
+				{word?.word}
 			{:else if lookedUpWord}"{lookedUpWord?.english}"{:else}...{/if}
 		</h1>
 	{/if}
@@ -202,7 +202,7 @@
 
 			{#if showChars > 0 && !isRevealed}
 				<div class="text-xs font-lato mb-6">
-					The word starts with <b>"{word.word.slice(0, showChars)}..."</b>
+					The word starts with <b>"{word?.word.slice(0, showChars)}..."</b>
 				</div>
 			{/if}
 
