@@ -92,7 +92,7 @@ async function lemmatizeBatch(
 		
 		dáme (dar) un (uno) beso (beso)
 		
-		(treat un/una as forms of "uno", la as a form of "el", del as a form of "de" etc)`
+		(treat un/una as "uno", la as "el", al as "a", del as "de", me as "me")`
 	};
 
 	const response = await ask({
