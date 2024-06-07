@@ -9,6 +9,7 @@
 	import WordCard from './WordCard.svelte';
 	import Spinner from '../../../components/Spinner.svelte';
 	import Error from '../../../components/Error.svelte';
+	import { onMount } from 'svelte';
 
 	export let sentence: DB.Sentence;
 	export let sentenceWords: SentenceWord[];
@@ -52,7 +53,12 @@
 
 	$: if (sentence.id) {
 		clear();
+		input?.focus();
 	}
+
+	onMount(() => {
+		input.focus();
+	});
 
 	$: isRevealed = showChars >= word.word.length;
 
@@ -67,6 +73,7 @@
 
 	let isLoadingUnknown = false;
 	let error: any;
+	let input: HTMLInputElement;
 
 	function onSubmit() {
 		onAnswer(answer);
@@ -102,116 +109,121 @@
 	}
 </script>
 
-<form class="text-4xl mb-8 mt-8 font-medium" on:submit={onSubmit}>
-	{#each wordsWithSeparators as wordString, index}{#if !isSeparator(wordString)}{#if standardize(wordString) == standardize(conjugatedWord)}
-				{#if isRevealed}
-					<span class={isCorrectInflection ? 'text-green' : 'text-red'}>{wordString}</span>{:else}
-					<div class="inline-flex flex-col -mb-1">
-						<span class="whitespace-nowrap">
-							{wordString.slice(0, showChars)}<input
-								type="text"
-								class="border-b-4 border-b-red bg-blue-1 relative"
-								size={wordString.length - showChars}
-								bind:value={prefix}
-								autocapitalize="off"
-							/>
-						</span>
-						<span class="text-xs font-lato text-right">
-							"{englishWord || '...'}"
-						</span>
-					</div>
-				{/if}{:else}<span
-					style="cursor: pointer"
-					role="button"
-					tabindex={index}
-					class="hover:underline decoration-yellow"
-					on:click={() => onClickedWord(wordString)}>{wordString}</span
-				>{/if}{:else}{wordString}{/if}{/each}
-</form>
-
-{#if englishSentence}
-	<div class="text-sm mb-6" in:slide>
-		<div class="text-xs font-lato">The sentence means</div>
-		<div class="text-xl">"{englishSentence}"</div>
+<form on:submit={onSubmit}>
+	<div class="text-4xl mb-8 mt-8 font-medium">
+		{#each wordsWithSeparators as wordString, index}{#if !isSeparator(wordString)}{#if standardize(wordString) == standardize(conjugatedWord)}
+					{#if isRevealed}
+						<span class={isCorrectInflection ? 'text-green' : 'text-red'}>{wordString}</span>{:else}
+						<div class="inline-flex flex-col -mb-1">
+							<span class="whitespace-nowrap">
+								{wordString.slice(0, showChars)}<input
+									type="text"
+									class="border-b-4 border-b-red bg-blue-1 relative"
+									size={wordString.length - showChars}
+									bind:value={prefix}
+									autocapitalize="off"
+									bind:this={input}
+								/>
+							</span>
+							<span class="text-xs font-lato text-right">
+								"{englishWord || '...'}"
+							</span>
+						</div>
+					{/if}{:else}<span
+						style="cursor: pointer"
+						role="button"
+						tabindex={index}
+						class="hover:underline decoration-yellow"
+						on:click={() => onClickedWord(wordString)}>{wordString}</span
+					>{/if}{:else}{wordString}{/if}{/each}
 	</div>
-{/if}
 
-{#if !isRevealed}
-	{#if revealed.length > 0}
+	{#if englishSentence}
+		<div class="text-sm mb-6" in:slide>
+			<div class="text-xs font-lato">The sentence means</div>
+			<div class="text-xl">"{englishSentence}"</div>
+		</div>
+	{/if}
+
+	{#if !isRevealed}
+		{#if revealed.length > 0}
+			<div class="grid grid-cols-1 md:grid-cols-2 w-full gap-x-4 mt-8">
+				{#each revealed as word (word.id)}
+					<WordCard
+						{word}
+						mnemonic={word.mnemonic}
+						onRemove={() => onRemoveUnknown(word.word)}
+						english={word.english}
+					/>
+				{/each}
+				{#if isLoadingUnknown}
+					<div class="flex justify-center items-center">
+						<Spinner />
+					</div>
+				{/if}
+			</div>
+		{/if}
+
+		<div class="mt-8">
+			{#if answeredLemma}
+				<div class="text-xs font-lato mb-4">
+					Now pick the correct form of <b>{answeredLemma}</b>:
+				</div>
+			{/if}
+
+			<div class="flex overflow-x-auto md:flex-wrap gap-4 pb-4 mb-4 min-h-[50px] md:min-h-auto">
+				{#if isLoadingSuggestions}
+					<Spinner />
+				{/if}
+				{#each suggestedWords as suggestedWord}
+					<button
+						class="bg-blue-1 border-blue-1 rounded-lg px-5 py-1 whitespace-nowrap"
+						on:click={() => onAnswer(suggestedWord)}
+					>
+						{suggestedWord}
+					</button>
+				{/each}
+			</div>
+		</div>
+
+		<div class="mt-4 mb-4">
+			<SpinnerButton onClick={onHintLocal} type="secondary">Hint</SpinnerButton>
+
+			<SpinnerButton onClick={onTranslate} type="secondary">Translate</SpinnerButton>
+
+			<SpinnerButton onClick={onReveal}>Reveal</SpinnerButton>
+		</div>
+	{:else}
+		{#if isCorrectInflection}
+			<div class="mb-4">Correct!</div>
+		{:else if answered}
+			<div class="mb-4">
+				You picked <b>{answered}</b>{#if isCorrectLemma && !isCorrectInflection}, which is the wrong
+					form of the right word{/if}.
+				{evaluation || ''}
+			</div>
+		{/if}
+
 		<div class="grid grid-cols-1 md:grid-cols-2 w-full gap-x-4 mt-8">
+			<WordCard {word} english={englishWord} {mnemonic} />
+
 			{#each revealed as word (word.id)}
 				<WordCard
 					{word}
 					mnemonic={word.mnemonic}
 					onRemove={() => onRemoveUnknown(word.word)}
 					english={word.english}
+					{knowledge}
 				/>
 			{/each}
-			{#if isLoadingUnknown}
-				<div class="flex justify-center items-center">
-					<Spinner />
-				</div>
-			{/if}
+		</div>
+
+		<div class="mt-4">
+			<SpinnerButton onClick={onTranslate} type="secondary">Translate</SpinnerButton>
+
+			<SpinnerButton type="primary" onClick={onNext}>Continue</SpinnerButton>
 		</div>
 	{/if}
-
-	<div class="mt-8">
-		{#if answeredLemma}
-			<div class="text-xs font-lato mb-4">Now pick the correct form of <b>{answeredLemma}</b>:</div>
-		{/if}
-
-		<div class="flex overflow-x-auto md:flex-wrap gap-4 pb-4 mb-4 min-h-[50px] md:min-h-auto">
-			{#if isLoadingSuggestions}
-				<Spinner />
-			{/if}
-			{#each suggestedWords as suggestedWord}
-				<button
-					class="bg-blue-1 border-blue-1 rounded-lg px-5 py-1 whitespace-nowrap"
-					on:click={() => onAnswer(suggestedWord)}
-				>
-					{suggestedWord}
-				</button>
-			{/each}
-		</div>
-	</div>
-
-	<div class="mt-4 mb-4">
-		<SpinnerButton onClick={onHintLocal} type="secondary">Hint</SpinnerButton>
-
-		<SpinnerButton onClick={onTranslate} type="secondary">Translate</SpinnerButton>
-
-		<SpinnerButton onClick={onReveal}>Reveal</SpinnerButton>
-	</div>
-{:else}
-	{#if isCorrectInflection}
-		<div class="mb-4">Correct!</div>
-	{:else if answered}
-		<div class="mb-4">
-			You picked <b>{answered}</b>{#if isCorrectLemma && !isCorrectInflection}, which is the wrong
-				form of the right word{/if}.
-			{evaluation || ''}
-		</div>
-	{/if}
-
-	<div class="grid grid-cols-1 md:grid-cols-2 w-full gap-x-4 mt-8">
-		<WordCard {word} english={englishWord} {mnemonic} />
-
-		{#each revealed as word (word.id)}
-			<WordCard
-				{word}
-				mnemonic={word.mnemonic}
-				onRemove={() => onRemoveUnknown(word.word)}
-				english={word.english}
-				{knowledge}
-			/>
-		{/each}
-	</div>
-
-	<div class="mt-4">
-		<SpinnerButton onClick={onTranslate} type="secondary">Translate</SpinnerButton>
-
-		<SpinnerButton type="primary" onClick={onNext}>Continue</SpinnerButton>
-	</div>
-{/if}
+</form>
 
 <Error {error} onClear={() => (error = undefined)} />

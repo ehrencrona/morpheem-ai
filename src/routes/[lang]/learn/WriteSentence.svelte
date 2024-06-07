@@ -16,6 +16,7 @@
 	import type { WritingFeedbackResponse } from '../api/write/feedback/+server';
 	import type { TranslationFeedbackResponse } from '../api/write/translate/+server';
 	import { fetchTranslationFeedback } from '../api/write/translate/client';
+	import { onMount } from 'svelte';
 
 	export let word: { id: number; word: string; level: number } | undefined;
 	export let onNext: () => Promise<any>;
@@ -40,6 +41,8 @@
 
 	let lookedUpWord: UnknownWordResponse | undefined;
 
+	let form: HTMLFormElement;
+
 	$: isRevealed = word && (showChars > 2 || showChars > word.word.length - 1);
 
 	function clear() {
@@ -63,7 +66,13 @@
 
 	$: if (word || sentenceId) {
 		clear();
+
+		form?.focus();
 	}
+
+	onMount(() => {
+		form.focus();
+	});
 
 	const onSubmit = async () => {
 		sentence = sentence.trim();
@@ -189,7 +198,7 @@
 		</h1>
 	{/if}
 
-	<form>
+	<form bind:this={form}>
 		{#if !feedback}
 			{#if exercise === 'translate'}
 				<div class="text-sm mb-6" in:slide>
