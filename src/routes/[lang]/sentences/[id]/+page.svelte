@@ -19,5 +19,5 @@
 		{/each}
 	</ul>
 
-	<a href={`/${data.languageCode}/sentences/{data.sentence.id}/delete`} class="block text-red my-8">delete</a>
+	<a href={`/${data.languageCode}/sentences/${data.sentence.id}/delete`} class="block text-red my-8">delete</a>
 </main>

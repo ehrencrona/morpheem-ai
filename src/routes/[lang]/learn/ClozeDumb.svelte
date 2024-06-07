@@ -210,7 +210,7 @@
 	<div class="mt-4">
 		<SpinnerButton onClick={onTranslate} type="secondary">Translate</SpinnerButton>
 
-		<SpinnerButton type="primary" onClick={() => onNext()}>Continue</SpinnerButton>
+		<SpinnerButton type="primary" onClick={onNext}>Continue</SpinnerButton>
 	</div>
 {/if}
 

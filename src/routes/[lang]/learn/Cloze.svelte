@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { SendKnowledge } from '$lib/SendKnowledge';
 	import { dedupUnknown } from '$lib/dedupUnknown';
-	import Error from '../../../components/Error.svelte';
+	import ErrorComponent from '../../../components/Error.svelte';
 	import { KNOWLEDGE_TYPE_CLOZE, KNOWLEDGE_TYPE_READ } from '../../../db/knowledgeTypes';
 	import * as DB from '../../../db/types';
 	import { standardize } from '../../../logic/isomorphic/standardize';
@@ -109,6 +109,8 @@
 
 	async function onReveal() {
 		showChars = 100;
+		isCorrectInflection = false;
+		isCorrectLemma = false;
 	}
 
 	async function onTranslate() {
@@ -177,8 +179,7 @@
 
 	async function storeAndContinue() {
 		if (isCorrectLemma == undefined) {
-			error = `Invalid state, isCorrectLemma is undefined`;
-			return;
+			throw new Error(`Invalid state, isCorrectLemma is undefined`);
 		}
 
 		sendKnowledge(
@@ -261,4 +262,4 @@
 	]}
 />
 
-<Error {error} onClear={() => (error = undefined)} />
+<ErrorComponent {error} onClear={() => (error = undefined)} />
