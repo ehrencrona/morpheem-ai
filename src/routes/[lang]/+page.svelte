@@ -146,7 +146,7 @@
 			const toPercent = (n: number | null) => (n != null ? Math.round(n * 100) + '%' : '-');
 
 			console.log(
-				`Knowledge of ${exercise.wordId}: ${toPercent(exercise.alpha)}/${toPercent(exercise.beta)}, age ${n - exercise.lastTime} = ${toPercent(exercise.score)}`
+				`Choosing ${exercise.word || exercise.wordId|| `sentence ${exercise.sentenceId}`}, ${exercise.exercise}: ${toPercent(exercise.alpha)}/${toPercent(exercise.beta)}, age ${n - exercise.lastTime} = ${toPercent(exercise.score)}`
 			);
 
 			for (const source of ['studied', 'userExercise', 'unstudied'] as const) {
