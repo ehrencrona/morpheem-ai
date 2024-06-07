@@ -36,6 +36,7 @@
 	import ReadSentence from './learn/ReadSentence.svelte';
 	import WriteSentence from './learn/WriteSentence.svelte';
 	import { trackActivity } from './learn/trackActivity';
+	import SpinnerButton from '../../components/SpinnerButton.svelte';
 
 	export let data: PageData;
 
@@ -146,7 +147,7 @@
 			const toPercent = (n: number | null) => (n != null ? Math.round(n * 100) + '%' : '-');
 
 			console.log(
-				`Choosing ${exercise.word || exercise.wordId || `sentence ${exercise.sentenceId}`}, ${exercise.exercise}: ${toPercent(exercise.alpha)}/${toPercent(exercise.beta)}, age ${n - exercise.lastTime} = ${toPercent(exercise.score)}`
+				`Choosing ${exercise.word ? `${exercise.word} (${exercise.wordId})` : `sentence ${exercise.sentenceId}`}, ${exercise.exercise}: ${toPercent(exercise.alpha)}/${toPercent(exercise.beta)}, age ${n - exercise.lastTime} = ${toPercent(exercise.score)}`
 			);
 
 			for (const source of ['studied', 'userExercise', 'unstudied'] as const) {
@@ -178,7 +179,8 @@
 				wordId,
 				exercise,
 				source,
-				getNextPromise: () => getNextExercise({ exercises: exercises.slice(1) })
+				getNextPromise: () =>
+					getNextExercise({ exercises: exercises.slice(1), excludeWordId: wordId || undefined })
 			};
 		}
 
@@ -394,6 +396,8 @@
 				error={`Unknown exercise type ${current.exercise}, word ${word?.word}`}
 				onClear={() => (error = undefined)}
 			/>
+
+			<SpinnerButton onClick={onNext}>Next</SpinnerButton>
 		{/if}
 	{:else}
 		<div class="text-center mt-12">
