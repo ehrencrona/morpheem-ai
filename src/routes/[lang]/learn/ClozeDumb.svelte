@@ -179,6 +179,7 @@
 					<button
 						class="bg-blue-1 border-blue-1 rounded-lg px-5 py-1 whitespace-nowrap"
 						on:click={() => onAnswer(suggestedWord)}
+						type="button"
 					>
 						{suggestedWord}
 					</button>
