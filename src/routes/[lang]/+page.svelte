@@ -48,6 +48,7 @@
 
 	let current:
 		| ({
+				word: DB.Word | undefined;
 				sentence: DB.Sentence;
 				words: SentenceWord[];
 				source: DB.ExerciseSource;
@@ -63,8 +64,6 @@
 				  }
 		  ))
 		| undefined;
-
-	$: word = current?.words.find(({ id }) => id == current?.wordId);
 
 	async function init() {
 		knowledge = await fetchAggregateKnowledge();
@@ -265,8 +264,19 @@
 			markSentenceSeen(sentence.id).catch((e) => (error = e));
 		}
 
+		const word = sentence.words.find(({ id }) => id == wordId);
+
+		if (!word && wordId) {
+			console.warn(
+				`Sentence ${sentence.id} ("${sentence.sentence}") has no word ${word} (${wordId}), only ${sentence.words.map(({ id }) => id).join(', ')}`
+			);
+
+			return showNextSentence();
+		}
+
 		if (exercise == 'write' || exercise == 'translate') {
 			current = {
+				word,
 				wordId: wordId,
 				words: sentence.words,
 				sentence,
@@ -279,7 +289,8 @@
 			}
 
 			current = {
-				wordId: wordId,
+				word,
+				wordId,
 				words: sentence.words,
 				sentence,
 				source,
@@ -337,8 +348,10 @@
 			<div class="font-lato text-xs flex gap-2 justify-end">
 				<a href={`/${languageCode}/home`} class="underline text-red"> History </a>
 
-				{#if word}
-					<a href={`/${languageCode}/words/${word.id}"`} class="underline text-red"> Word </a>
+				{#if current.wordId}
+					<a href={`/${languageCode}/words/${current.wordId}"`} class="underline text-red">
+						Word
+					</a>
 				{/if}
 
 				<a
@@ -361,7 +374,7 @@
 
 		{#if current.exercise == 'read'}
 			<ReadSentence
-				{word}
+				word={current.word}
 				{knowledge}
 				sentence={current.sentence}
 				words={current.words}
@@ -371,7 +384,7 @@
 			/>
 		{:else if current.exercise == 'write' || current.exercise == 'translate'}
 			<WriteSentence
-				{word}
+				word={current.word}
 				{onNext}
 				language={getLanguageOnClient()}
 				{sendKnowledge}
@@ -380,9 +393,9 @@
 				englishSentence={current.sentence.english || undefined}
 				fetchEnglishSentence={getTranslation}
 			/>
-		{:else if current.exercise == 'cloze' && word}
+		{:else if current.exercise == 'cloze' && current.word}
 			<Cloze
-				{word}
+				word={current.word}
 				{knowledge}
 				{onNext}
 				source={current.source}
@@ -393,7 +406,7 @@
 			/>
 		{:else}
 			<ErrorComponent
-				error={`Unknown exercise type ${current.exercise}, word ${word?.word}`}
+				error={`Unknown exercise type ${current.exercise}`}
 				onClear={() => (error = undefined)}
 			/>
 
