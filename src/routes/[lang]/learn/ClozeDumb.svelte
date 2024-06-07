@@ -88,6 +88,18 @@
 			isLoadingUnknown = false;
 		}
 	}
+
+	function onHintLocal() {
+		let oldShowChars = showChars;
+
+		onHint();
+
+		setTimeout(() => {
+			if (showChars > oldShowChars) {
+				prefix = prefix?.slice(showChars - oldShowChars) || null;
+			}
+		});
+	}
 </script>
 
 <form class="text-4xl mb-8 mt-8 font-medium" on:submit={onSubmit}>
@@ -164,7 +176,7 @@
 	</div>
 
 	<div class="mt-4 mb-4">
-		<SpinnerButton onClick={onHint} type="secondary">Hint</SpinnerButton>
+		<SpinnerButton onClick={onHintLocal} type="secondary">Hint</SpinnerButton>
 
 		<SpinnerButton onClick={onTranslate} type="secondary">Translate</SpinnerButton>
 
