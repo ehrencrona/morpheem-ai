@@ -109,10 +109,12 @@
 
 	async function getNextExercise({
 		exercises = [],
-		excludeWordId
+		excludeWordId,
+		excludeSentenceId
 	}: {
 		exercises?: (ScoreableExercise & { score: number })[];
 		excludeWordId?: number;
+		excludeSentenceId?: number;
 	}): Promise<{
 		sentence: CandidateSentenceWithWords & { english?: string | null };
 		wordId: number | null;
@@ -122,14 +124,16 @@
 	}> {
 		if (!exercises.length) {
 			const unscored = ([] as ScoreableExercise[])
-				.concat(
-					getExercisesForKnowledge(knowledge).filter(({ wordId }) => wordId !== excludeWordId)
-				)
+				.concat(getExercisesForKnowledge(knowledge))
 				.concat(
 					userExercises.map((e) => ({
 						...e,
 						source: 'userExercise' as DB.ExerciseSource
 					}))
+				)
+				.filter(
+					({ wordId, sentenceId }) =>
+						wordId != excludeWordId && (!excludeSentenceId || sentenceId != excludeSentenceId)
 				);
 
 			exercises = scoreExercises(unscored);
@@ -179,7 +183,11 @@
 				exercise,
 				source,
 				getNextPromise: () =>
-					getNextExercise({ exercises: exercises.slice(1), excludeWordId: wordId || undefined })
+					getNextExercise({
+						exercises: exercises.slice(1),
+						excludeWordId: wordId || undefined,
+						excludeSentenceId: sentenceId
+					})
 			};
 		}
 
@@ -188,7 +196,9 @@
 		}
 
 		try {
-			let sentences = await fetchSentencesWithWord(wordId);
+			let sentences = (await fetchSentencesWithWord(wordId)).filter(
+				({ id }) => id != excludeSentenceId
+			);
 			let nextSentence = getNextSentence(sentences, knowledge, wordId, exercise);
 
 			if (!nextSentence || (nextSentence.score < 0.93 && exercise != 'write')) {
@@ -256,7 +266,11 @@
 			getNextPromise: getNext,
 			exercise,
 			source
-		} = await (nextPromise || getNextExercise({}));
+		} = await (nextPromise ||
+			getNextExercise({
+				excludeSentenceId: current?.sentence.id || undefined,
+				excludeWordId: current?.wordId || undefined
+			}));
 
 		nextPromise = getNext();
 
