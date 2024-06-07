@@ -5,7 +5,7 @@
 
 	export let ask: (question: string) => Promise<string>;
 	export let explanation: string | undefined = undefined;
-	export let wordId: number;
+	export let wordId: number|undefined;
 
 	export let suggestions: string[] = [];
 

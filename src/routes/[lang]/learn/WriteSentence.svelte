@@ -270,6 +270,6 @@
 	<AMA
 		suggestions={[`How do you say "to scratch"?`, `traffic light in ${language.name}?`]}
 		ask={askMeAnything}
-		wordId={word.id}
+		wordId={word?.id}
 	/>
 </div>
