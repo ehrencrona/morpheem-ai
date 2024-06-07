@@ -30,6 +30,7 @@ export async function upsertUserExercise(
 				alpha,
 				beta,
 				exercise_type,
+				word_id: wordId,
 				last_time: new Date()
 			})
 		)

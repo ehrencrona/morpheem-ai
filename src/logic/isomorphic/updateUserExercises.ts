@@ -18,7 +18,8 @@ export function updateUserExercises(adds: ExerciseKnowledge[], exercises: DB.Use
 				...e,
 				...(add.isKnown ? knew(e, opts) : didNotKnow(e, opts)),
 				lastTime,
-				exercise: add.exercise
+				exercise: add.exercise,
+				wordId: add.wordId
 			};
 
 			console.log(
