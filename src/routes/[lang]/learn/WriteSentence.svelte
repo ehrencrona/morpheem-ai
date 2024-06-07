@@ -28,6 +28,7 @@
 
 	/** The sentence to translate if translate, otherwise the writing idea. */
 	export let englishSentence: string | undefined;
+	let showIdea = false;
 
 	let feedback: TranslationFeedbackResponse | WritingFeedbackResponse | undefined;
 	let sentence: string;
@@ -47,6 +48,7 @@
 		unknownWords = [];
 		showChars = 0;
 		lookedUpWord = undefined;
+		showIdea = false;
 
 		if (exercise == 'write') {
 			lookupUnknownWord(word!.word, undefined)
@@ -165,6 +167,15 @@
 
 		return answer;
 	};
+
+	const onIdea = async () => {
+		try {
+			await getEnglishSentence();
+			showIdea = true;
+		} catch (e) {
+			error = e;
+		}
+	};
 </script>
 
 <Error {error} onClear={() => (error = undefined)} />
@@ -206,7 +217,7 @@
 				</div>
 			{/if}
 
-			{#if englishSentence && exercise == 'write'}
+			{#if showIdea && englishSentence}
 				<div class="text-sm mb-6" in:slide>
 					<div class="text-xs font-lato">Maybe write this in {language.name}?</div>
 					<div class="text-xl">"{englishSentence}"</div>
@@ -249,7 +260,7 @@
 					{/if}
 
 					{#if !englishSentence}
-						<SpinnerButton onClick={getEnglishSentence} type="secondary">Idea</SpinnerButton>
+						<SpinnerButton onClick={onIdea} type="secondary">Idea</SpinnerButton>
 					{/if}
 				{/if}
 
