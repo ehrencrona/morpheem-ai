@@ -103,7 +103,7 @@
 		if (showChars < 2) {
 			showChars++;
 		} else {
-			showChars = 100;
+			onReveal();
 		}
 	}
 
