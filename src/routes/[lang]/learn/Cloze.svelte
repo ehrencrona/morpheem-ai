@@ -176,6 +176,11 @@
 	}
 
 	async function storeAndContinue() {
+		if (isCorrectLemma == undefined) {
+			error = `Invalid state, isCorrectLemma is undefined`;
+			return;
+		}
+
 		sendKnowledge(
 			sentenceWords.map((sentenceWord) => {
 				const isCloze = sentenceWord.id == word.id;
