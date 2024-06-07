@@ -146,7 +146,7 @@
 			const toPercent = (n: number | null) => (n != null ? Math.round(n * 100) + '%' : '-');
 
 			console.log(
-				`Choosing ${exercise.word || exercise.wordId|| `sentence ${exercise.sentenceId}`}, ${exercise.exercise}: ${toPercent(exercise.alpha)}/${toPercent(exercise.beta)}, age ${n - exercise.lastTime} = ${toPercent(exercise.score)}`
+				`Choosing ${exercise.word || exercise.wordId || `sentence ${exercise.sentenceId}`}, ${exercise.exercise}: ${toPercent(exercise.alpha)}/${toPercent(exercise.beta)}, age ${n - exercise.lastTime} = ${toPercent(exercise.score)}`
 			);
 
 			for (const source of ['studied', 'userExercise', 'unstudied'] as const) {
@@ -168,7 +168,7 @@
 			exercises = exercises.filter((e) => e.score > 0.02).slice(0, 6);
 		}
 
-		const { wordId, exercise, source, sentenceId } = exercises[0];
+		let { wordId, exercise, source, sentenceId } = exercises[0];
 
 		if (sentenceId != undefined) {
 			let sentence = await fetchCandidateSentence(sentenceId);
@@ -188,9 +188,9 @@
 
 		try {
 			let sentences = await fetchSentencesWithWord(wordId);
-			let nextSentence = getNextSentence(sentences, knowledge, wordId);
+			let nextSentence = getNextSentence(sentences, knowledge, wordId, exercise);
 
-			if (!nextSentence || nextSentence.score < 0.93) {
+			if (!nextSentence || (nextSentence.score < 0.93 && exercise != 'write')) {
 				try {
 					sentences = sentences.concat(await addSentencesForWord(wordId));
 				} catch (e) {
@@ -201,7 +201,7 @@
 					`Added ${sentences.length} sentences for word ${wordId}: ${sentences.map((s) => s.sentence) + '\n'}`
 				);
 
-				nextSentence = getNextSentence(sentences, knowledge, wordId);
+				nextSentence = getNextSentence(sentences, knowledge, wordId, exercise);
 
 				if (!nextSentence) {
 					console.error(`No sentences found for word ${wordId}`);
@@ -214,6 +214,12 @@
 			}
 
 			const { sentence, score } = nextSentence;
+
+			if (score > 0.8 && exercise == 'write' && Math.random() < 0.5) {
+				console.log(`Turning write exercise into translate for ${sentence.id}.`);
+
+				exercise = 'translate';
+			}
 
 			return {
 				sentence,

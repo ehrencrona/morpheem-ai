@@ -15,7 +15,7 @@ export function expectedKnowledge(
 	{ alpha, beta, lastTime }: Knowledge,
 	{ now, exercise }: { now: number; exercise: ExerciseType }
 ) {
-	const knowledge = exercise == 'read' ? alpha : beta || 0;
+	const knowledge = exercise == 'read' ? alpha : beta != null ? beta : alpha / 2;
 	const time = Math.log(now - lastTime + Math.E);
 
 	return Math.min(Math.max(knowledge - forgetting * time + correction, 0), 1);

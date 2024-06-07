@@ -35,7 +35,8 @@ export const load: ServerLoad = async ({ url, locals: { language, userId } }) =>
 		await Promise.all(
 			words.map(
 				async (word) =>
-					getNextSentence(await getSentencesWithWord(word, language), knowledge, word.id)?.sentence
+					getNextSentence(await getSentencesWithWord(word, language), knowledge, word.id, 'read')
+						?.sentence
 			)
 		)
 	);

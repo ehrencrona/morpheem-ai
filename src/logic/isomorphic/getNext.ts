@@ -51,7 +51,8 @@ export function scoreExercises<
 export function getNextSentence(
 	sentences: CandidateSentenceWithWords[],
 	knowledge: AggKnowledgeForUser[],
-	wordStudied: number
+	wordStudied: number,
+	exercise: ExerciseType
 ) {
 	const messages: { score: number; message: string }[] = [];
 
@@ -81,7 +82,7 @@ export function getNextSentence(
 
 			const score = expectedKnowledge(wordKnowledge, {
 				now: now(),
-				exercise: 'read'
+				exercise: exercise == 'read' || exercise == 'cloze' ? 'read' : 'write'
 			});
 
 			message += ` (${word.id}, ${Math.round(score * 100)}% known)`;
