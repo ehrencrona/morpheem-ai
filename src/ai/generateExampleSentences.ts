@@ -4,8 +4,9 @@ import { askForJson } from './askForJson';
 import { Language } from '../logic/types';
 
 const names = {
-	pl: `Marek, Jakub, Ewa, Agnieszka`,
-	fr: `Jacques, Pierre, Charlotte, Jeanne`
+	pl: `Marek, Ewa, Jakub, Agnieszka`,
+	fr: `Jacques, Charlotte, Pierre, Jeanne`,
+	es: `Juan, María, Pedro, Ana`
 };
 
 export async function generateExampleSentences(

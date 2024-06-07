@@ -27,6 +27,13 @@ export function toWords(sentence: string, language: Language) {
 		});
 
 		return splitTokens.map((t) => t.toLowerCase());
+	} else if (language.code == 'es') {
+		return sentence
+			.replace(/[^a-zA-ZáéíóúüñÁÉÍÓÚÜÑ-]/g, ' ')
+			.split(' ')
+			.filter((word) => word.length > 0)
+			.filter((word) => word != '-')
+			.map((word) => word.toLowerCase()); // Convert to lowercase
 	} else {
 		throw new Error('Unsupported language');
 	}
@@ -57,6 +64,8 @@ export function toWordsWithSeparators(sentence: string, language: Language) {
 		}
 
 		return splitTokens;
+	} else if (language.code == 'es') {
+		return sentence.split(/([^a-zA-ZáéíóúüñÁÉÍÓÚÜÑ-]+)/).filter((word) => word.length > 0);
 	} else {
 		throw new Error('Unsupported language');
 	}
@@ -64,7 +73,7 @@ export function toWordsWithSeparators(sentence: string, language: Language) {
 
 export function isSeparator(word: string) {
 	return (
-		word.match(/[^a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻàâçéèêëîïôûùüÿÀÂÇÉÈÊËÎÏÔÛÙÜŸ'-]/) ||
+		word.match(/[^a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻàâçéèêëîïôûùüÿÀÂÇÉÈÊËÎÏÔÛÙÜŸáéíóúüñÁÉÍÓÚÜÑ'-]+/) ||
 		/* apostrophe is part of words in french */
 		word == "'"
 	);

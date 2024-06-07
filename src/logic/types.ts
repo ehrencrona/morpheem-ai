@@ -2,7 +2,7 @@ import { z } from 'zod';
 import * as DB from '../db/types';
 
 export interface Language {
-	code: 'pl' | 'fr';
+	code: 'pl' | 'fr' | 'es';
 	name: string;
 	schema: string;
 }

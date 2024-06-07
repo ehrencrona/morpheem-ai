@@ -1,6 +1,18 @@
 import { expect, it } from 'vitest';
-import { FRENCH, POLISH } from '../constants';
+import { FRENCH, POLISH, SPANISH } from '../constants';
 import { lemmatizeSentences } from './lemmatize';
+
+it.only('handles ambiguous words in Spanish', async () => {
+	const lemmas = await lemmatizeSentences(
+		[`Juan tiene mucho trabajo esta semana.`, `Miguel tiene un vuelo a las 8 de la mañana.`],
+		{
+			language: SPANISH
+		}
+	);
+
+	expect(lemmas[1][3]).toEqual('vuelo');
+	expect(lemmas[0][3]).toEqual('trabajo');
+});
 
 it('handles ambiguous words', async () => {
 	const lemmas = await lemmatizeSentences([`J'aime le soleil d'été.`, `Je l'ai toujours été.`], {

@@ -79,7 +79,20 @@ async function lemmatizeBatch(
 		
 		becomes
 		
-		ils (ils) ont (avoir) une (un) télé (télé) dorée (doré)`
+		ils (ils) ont (avoir) une (un) télé (télé) dorée (doré)`,
+		es: `cómo va el trabajo
+		
+		becomes
+		
+		cómo (cómo) va (ir) el (el) trabajo (trabajo)
+		
+		dáme un beso
+		
+		becomes 
+		
+		dáme (dar) un (uno) beso (beso)
+		
+		(treat un/una as forms of "uno", la as a form of "el", del as a form of "de" etc)`
 	};
 
 	const response = await ask({
@@ -112,7 +125,7 @@ ${examples[language.code]}`
 			let lemmas: { word: string; lemma: string }[] = [];
 
 			const line = lines[i] || '';
-			let matches = line.matchAll(/([^\s]+) \(([^\s]+)\)/g);
+			let matches = line.matchAll(/([^\s]+) \(([^\)]+)\)/g);
 
 			for (let match of matches) {
 				let [, word, lemma] = match;
@@ -129,9 +142,9 @@ ${examples[language.code]}`
 
 					let lemma: { word: string; lemma: string } | undefined = lemmas[i];
 
-					if (lemma.word != standardized) {
+					if (!lemma || lemma.word != standardized) {
 						console.warn(
-							`There's a mismatch between the word "${word}" and the lemma "${lemmas[i].word}" in sentence "${sentence}". Got ${lemmas.map((l) => l.word).join(', ')}`
+							`There's a mismatch between the word "${word}" and the lemma "${lemmas[i]?.word}" in sentence "${sentence}". Got ${lemmas.map((l) => l.word).join(', ')}`
 						);
 
 						lemma = lemmas.find((l) => l.word == standardized)!;

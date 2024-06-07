@@ -148,7 +148,10 @@ export async function findProvidedWordsInAnswer(
 		fr:
 			'Q: "How do you say white cats?" A: "chats blancs" -> "chat, blanc"\n' +
 			'Q: "How is parler conjugated with ils?" A: "parlent" -> "" (because parler was in the question)\n' +
-			'Q: "Give it to me?" A: "donne le moi" -> "donner, le, moi"\n'
+			'Q: "Give it to me?" A: "donne le moi" -> "donner, le, moi"\n',
+		es:
+			'Q: "How do you say white cats?" A: "gatos blancos" -> "gato, blanco"\n' +
+			'Q: "How is hablar conjugated with ellos?" A: "hablan" -> "" (because hablar was in the question)\n'
 	};
 
 	const wordString = await ask({

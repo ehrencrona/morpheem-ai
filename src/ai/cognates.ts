@@ -27,17 +27,29 @@ export async function findCognates(words: string[], language: Language): Promise
 		louis: L o u i s, name
 		instant: m o m e n t, no
 		armée: a r m y, cognate
+		`,
+		es: `máquina: m a c c h i n a, cognate
+		chopin: C h o p i n, name
+		mi: m i o, cognate
+		de: d i, cognate
+		creer: c r e d e r e, cognate
+		trabajo: l a v o r o, no
+		madrid: M a d r i d, name
+		baile: d a n z a, cognate
+		venta: v e n d i t a, cognate
 		`
 	};
+
+	const cognateTo = language.code != 'es' ? 'English' : 'Italian';
 
 	const response = await ask({
 		messages: [
 			{
 				role: 'system',
 				content:
-					`I want to find which ${language.name} words have English cognates. ` +
-					`For each entered word, print it and the most similar sounding English translation with spaces between each letter. ` +
-					`Then, if the ${language.name} word would look instantly familiar to an English speaker, print "cognate". ` +
+					`I want to find which ${language.name} words have ${cognateTo} cognates. ` +
+					`For each entered word, print it and the most similar sounding ${cognateTo} translation with spaces between each letter. ` +
+					`Then, if the ${language.name} word would look instantly familiar to an ${cognateTo} speaker, print "cognate". ` +
 					`If not, print "no". For names print "name". Do not print anything more. E.g. \n${examples[language.code]}`
 			},
 			{ role: 'user', content: words.join('\n') }

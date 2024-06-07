@@ -8,7 +8,7 @@ export async function addWord(
 	lemma: string,
 	{ language, isCognate }: { language: Language; isCognate?: boolean }
 ): Promise<DB.Word> {
-	if (['a', 'an', 'the', 'they', 'this', 'big'].includes(lemma)) {
+	if (['an', 'the', 'they', 'this', 'big'].includes(lemma)) {
 		throw new Error(`"${lemma}" is English`);
 	}
 

@@ -11,3 +11,9 @@ export const FRENCH: Language = {
 	name: 'French',
 	schema: 'fr'
 };
+
+export const SPANISH: Language = {
+	code: 'es',
+	name: 'Spanish',
+	schema: 'es'
+};
