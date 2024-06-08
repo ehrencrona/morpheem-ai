@@ -171,19 +171,21 @@
 				</div>
 			{/if}
 
-			<div class="flex overflow-x-auto md:flex-wrap gap-4 pb-4 mb-4 min-h-[50px] md:min-h-[150px] items-start">
-				{#if isLoadingSuggestions}
-					<Spinner />
-				{/if}
-				{#each suggestedWords as suggestedWord}
-					<button
-						class="bg-blue-1 border-blue-1 rounded-lg px-5 py-1 whitespace-nowrap"
-						on:click={() => onAnswer(suggestedWord)}
-						type="button"
-					>
-						{suggestedWord}
-					</button>
-				{/each}
+			<div class="min-h-[50px] md:min-h-[150px]">
+				<div class="flex overflow-x-auto md:flex-wrap gap-4 pt-1 pb-4 mb-4">
+					{#if isLoadingSuggestions}
+						<Spinner />
+					{/if}
+					{#each suggestedWords as suggestedWord}
+						<button
+							class="bg-blue-1 border-blue-1 rounded-lg px-5 py-1 whitespace-nowrap"
+							on:click={() => onAnswer(suggestedWord)}
+							type="button"
+						>
+							{suggestedWord}
+						</button>
+					{/each}
+				</div>
 			</div>
 		</div>
 

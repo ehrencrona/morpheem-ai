@@ -122,6 +122,12 @@
 		source: DB.ExerciseSource;
 		getNextPromise: () => Promise<any>;
 	}> {
+		const filter = ({ wordId, sentenceId }: ScoreableExercise) =>
+			!(excludeWordId && wordId == excludeWordId) &&
+			!(excludeSentenceId && sentenceId == excludeSentenceId);
+
+		exercises = exercises.filter(filter);
+
 		if (!exercises.length) {
 			const unscored = ([] as ScoreableExercise[])
 				.concat(getExercisesForKnowledge(knowledge))
@@ -135,11 +141,7 @@
 			exercises = scoreExercises(unscored);
 		}
 
-		exercises = exercises.filter(
-			({ wordId, sentenceId }) =>
-				!(excludeWordId && wordId == excludeWordId) &&
-				!(excludeSentenceId && sentenceId == excludeSentenceId)
-		);
+		exercises = exercises.filter(filter);
 
 		if (exercises.length == 0) {
 			throw new Error('No exercises found');
@@ -178,23 +180,21 @@
 
 		if (sentenceId != undefined) {
 			try {
-
 				let sentence = await fetchCandidateSentence(sentenceId);
-				
+
 				return {
 					sentence,
 					wordId,
 					exercise,
 					source,
 					getNextPromise: () =>
-					getNextExercise({
-						exercises: exercises.slice(1),
-						excludeWordId: wordId || undefined,
-						excludeSentenceId: sentenceId
-					})
+						getNextExercise({
+							exercises: exercises.slice(1),
+							excludeWordId: wordId || undefined,
+							excludeSentenceId: sentenceId
+						})
 				};
-			}
-			catch (e) {
+			} catch (e) {
 				console.error(`While fetching sentence ${sentenceId}: ${e}`);
 			}
 		}
