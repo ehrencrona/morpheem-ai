@@ -171,7 +171,7 @@
 				</div>
 			{/if}
 
-			<div class="flex overflow-x-auto md:flex-wrap gap-4 pb-4 mb-4 min-h-[50px] md:min-h-[150px]">
+			<div class="flex overflow-x-auto md:flex-wrap gap-4 pb-4 mb-4 min-h-[50px] md:min-h-[150px] items-start">
 				{#if isLoadingSuggestions}
 					<Spinner />
 				{/if}
