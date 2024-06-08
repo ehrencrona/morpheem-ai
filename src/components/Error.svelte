@@ -4,7 +4,9 @@
 	export let error: any | undefined;
 	export let onClear: () => any;
 
-	console.log(error);
+	$: if (error) {
+		console.log(error);
+	}
 </script>
 
 {#if error}

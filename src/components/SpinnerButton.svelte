@@ -37,7 +37,7 @@
 
 	onMount(() => {
 		if (grabFocus) {
-			button.focus();
+			setTimeout(() => button?.focus());
 		}
 	});
 </script>
