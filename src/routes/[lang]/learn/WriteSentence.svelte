@@ -41,7 +41,7 @@
 
 	let lookedUpWord: UnknownWordResponse | undefined;
 
-	let form: HTMLFormElement;
+	let input: HTMLInputElement;
 
 	$: isRevealed = word && (showChars > 2 || showChars > word.word.length - 1);
 
@@ -67,11 +67,11 @@
 	$: if (word || sentenceId) {
 		clear();
 
-		form?.focus();
+		input?.focus();
 	}
 
 	onMount(() => {
-		form.focus();
+		input.focus();
 	});
 
 	const onSubmit = async () => {
@@ -198,7 +198,7 @@
 		</h1>
 	{/if}
 
-	<form bind:this={form}>
+	<form>
 		{#if !feedback}
 			{#if exercise === 'translate'}
 				<div class="text-sm mb-6" in:slide>
@@ -214,6 +214,7 @@
 			{/if}
 
 			<input
+				bind:this={input}
 				type="text"
 				bind:value={sentence}
 				class="bg-blue-1 rounded-sm block w-full p-2 text-lg mb-6"
