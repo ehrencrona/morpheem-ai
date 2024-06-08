@@ -1,4 +1,8 @@
 <script lang="ts">
+	import { getRepetitionTime } from '$lib/settings';
+	import {
+		calculateOptimalTime
+	} from '../../../../logic/isomorphic/knowledge';
 	import { getLanguageOnClient } from '../../api/api-call';
 	import type { PageData } from './$types';
 
@@ -112,6 +116,14 @@
 	</p>
 
 	<p class="text-xs font-sans">
-		Repetition value: {toPercent(data.repetitionValueRead)} (read), {toPercent(data.repetitionValueWrite)} (write)
+		Optimal repetition time: after {calculateOptimalTime(data.readKnowledge, getRepetitionTime())} min
+		(read),
+		{calculateOptimalTime(data.writeKnowledge, getRepetitionTime())} min (write)
+	</p>
+
+	<p class="text-xs font-sans">
+		Repetition value: {toPercent(data.repetitionValueRead)} (read), {toPercent(
+			data.repetitionValueWrite
+		)} (write)
 	</p>
 </main>

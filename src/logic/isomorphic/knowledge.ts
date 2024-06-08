@@ -76,11 +76,15 @@ export function calculateRepetitionValue(
 		}
 	}
 
-	const optimalTime = Math.exp(knowledge * (12 + 2 * (repetitionTime || 0)));
+	const optimalTime = calculateOptimalTime(knowledge, repetitionTime);
 
 	const time = now - lastTime;
 
 	return valueFunction(time, optimalTime, 4, [1 / 25, 1 / 5, 1, 5, 25][(pastDue || 0) + 2]);
+}
+
+export function calculateOptimalTime(knowledge: number, repetitionTime: number | undefined) {
+	return Math.round(Math.exp(knowledge * (12 + 2 * (repetitionTime || 0))));
 }
 
 export function didNotKnowFirst(exercise: ExerciseType) {
