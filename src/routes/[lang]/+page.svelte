@@ -130,14 +130,16 @@
 						...e,
 						source: 'userExercise' as DB.ExerciseSource
 					}))
-				)
-				.filter(
-					({ wordId, sentenceId }) =>
-						wordId != excludeWordId && (!excludeSentenceId || sentenceId != excludeSentenceId)
 				);
 
 			exercises = scoreExercises(unscored);
 		}
+
+		exercises = exercises.filter(
+			({ wordId, sentenceId }) =>
+				!(excludeWordId && wordId == excludeWordId) &&
+				!(excludeSentenceId && sentenceId == excludeSentenceId)
+		);
 
 		if (exercises.length == 0) {
 			throw new Error('No exercises found');
