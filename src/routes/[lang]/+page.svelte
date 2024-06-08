@@ -177,20 +177,26 @@
 		let { wordId, exercise, source, sentenceId } = exercises[0];
 
 		if (sentenceId != undefined) {
-			let sentence = await fetchCandidateSentence(sentenceId);
+			try {
 
-			return {
-				sentence,
-				wordId,
-				exercise,
-				source,
-				getNextPromise: () =>
+				let sentence = await fetchCandidateSentence(sentenceId);
+				
+				return {
+					sentence,
+					wordId,
+					exercise,
+					source,
+					getNextPromise: () =>
 					getNextExercise({
 						exercises: exercises.slice(1),
 						excludeWordId: wordId || undefined,
 						excludeSentenceId: sentenceId
 					})
-			};
+				};
+			}
+			catch (e) {
+				console.error(`While fetching sentence ${sentenceId}: ${e}`);
+			}
 		}
 
 		if (!wordId) {

@@ -22,7 +22,17 @@ export async function getCandidateSentence(
 	sentenceId: number,
 	language: Language
 ): Promise<CandidateSentenceWithWords> {
-	return (await addWordsToSentences([await getSentence(sentenceId, language)], null, language))[0];
+	const sentences = await addWordsToSentences(
+		[await getSentence(sentenceId, language)],
+		null,
+		language
+	);
+
+	if (sentences.length === 0) {
+		throw new Error(`Sentence ${sentenceId} not retrievable`);
+	}
+
+	return sentences[0];
 }
 
 export async function addWordsToSentences(
