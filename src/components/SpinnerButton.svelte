@@ -2,9 +2,11 @@
 	import { fade } from 'svelte/transition';
 	import Error from './Error.svelte';
 	import Spinner from './Spinner.svelte';
+	import { onMount } from 'svelte';
 
 	export let onClick: () => Promise<any>;
 	export let isSubmit = false;
+	export let grabFocus = false;
 	export let type: 'primary' | 'secondary' = 'primary';
 	export let className =
 		'text-blue-1 rounded-md py-2 px-8 md:px-6 md:py-1 m-2 ml-0 text-lg md:text-base whitespace-nowrap ' +
@@ -12,6 +14,7 @@
 
 	let isLoading = false;
 	let showSpinner = false;
+	let button: HTMLButtonElement;
 	let error: string | undefined = undefined;
 
 	async function didClick() {
@@ -31,6 +34,12 @@
 			showSpinner = false;
 		}
 	}
+
+	onMount(() => {
+		if (grabFocus) {
+			button.focus();
+		}
+	});
 </script>
 
 <Error
@@ -45,6 +54,7 @@
 	on:click|preventDefault={didClick}
 	disabled={isLoading}
 	type={isSubmit ? 'submit' : 'button'}
+	bind:this={button}
 >
 	{#if showSpinner}
 		<div

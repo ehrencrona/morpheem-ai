@@ -288,7 +288,7 @@
 					type="secondary">Try again</SpinnerButton
 				>
 
-				<SpinnerButton onClick={clickedContinue}>Continue</SpinnerButton>
+				<SpinnerButton onClick={clickedContinue} grabFocus={true}>Continue</SpinnerButton>
 			{/if}
 		</div>
 	</form>

@@ -222,7 +222,7 @@
 		<div class="mt-4">
 			<SpinnerButton onClick={onTranslate} type="secondary">Translate</SpinnerButton>
 
-			<SpinnerButton type="primary" onClick={onNext}>Continue</SpinnerButton>
+			<SpinnerButton type="primary" onClick={onNext} grabFocus={true}>Continue</SpinnerButton>
 		</div>
 	{/if}
 </form>
