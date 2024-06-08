@@ -118,5 +118,6 @@ export function getNextSentence(
 			console.log(`${m.message} => ${Math.round(m.score * 100)}%`);
 		});
 
+
 	return { sentence: sentences[maxIndex], score: scores[maxIndex] };
 }

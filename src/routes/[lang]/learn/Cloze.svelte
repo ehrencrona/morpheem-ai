@@ -83,7 +83,21 @@
 	$: if (word.id || sentence.id) {
 		let wordWas = word;
 
-		lookupUnknownWord(word.word, sentence.id)
+		const wordStrings = toWords(sentence.sentence, language);
+
+		let wordString = word.word; // fallback
+
+		const wordIndex = sentenceWords.findIndex(({ id }) => id === word.id);
+
+		if (wordIndex >= 0 && sentenceWords.length == wordStrings.length) {
+			wordString = wordStrings[wordIndex];
+		} else {
+			console.warn(
+				`Word ${word.word} not found in sentence "${sentence.sentence}" (${sentence.id})`
+			);
+		}
+
+		lookupUnknownWord(wordString, sentence.id)
 			.then((translated) => {
 				if (word.word == translated.word && word.id == wordWas.id) {
 					englishWord = translated.english;
