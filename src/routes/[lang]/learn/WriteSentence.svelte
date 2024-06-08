@@ -208,7 +208,7 @@
 			{#if exercise === 'translate'}
 				<div class="text-sm mb-6" in:slide>
 					<div class="text-xs font-lato">Translate into {language.name}:</div>
-					<div class="text-xl">"{englishSentence}"</div>
+					<div class="text-xl">"{englishSentence || '...'}"</div>
 				</div>
 			{:else}
 				<p class="mb-4 font-lato text-xs">
