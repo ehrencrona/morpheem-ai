@@ -16,7 +16,15 @@ export function expectedKnowledge(
 	{ now, exercise }: { now: number; exercise: ExerciseType }
 ) {
 	const knowledge = exercise == 'read' ? alpha : beta != null ? beta : alpha / 2;
-	const time = Math.log(now - lastTime + Math.E);
+
+	let age = now - lastTime;
+
+	if (age < 0) {
+		console.warn('Negative age', { now, lastTime });
+		age = 0;
+	}
+
+	const time = Math.log(age + Math.E);
 
 	return Math.min(Math.max(knowledge - forgetting * time + correction, 0), 1);
 }
