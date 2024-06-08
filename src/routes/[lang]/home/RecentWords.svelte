@@ -43,6 +43,7 @@
 			<button
 				class="bg-light-gray rounded-md px-4 py-3 w-full mb-4 text-left inline-flex"
 				on:click={() => onUnknown(word.knowledge)}
+				type="button"
 			>
 				<div class="text-xs flex items-center w-full">
 					<span class="flex-1">{word.knowledge.word}</span>

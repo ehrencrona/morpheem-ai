@@ -71,7 +71,8 @@
 				.replace(/\n/g, '<br>')}
 			<button
 				on:click={() => (answer = undefined) && (question = undefined)}
-				class="text-red underline ml-1">Clear</button
+				class="text-red underline ml-1"
+				type="button">Clear</button
 			>
 		</div>
 	{/if}

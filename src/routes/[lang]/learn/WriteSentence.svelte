@@ -66,7 +66,9 @@
 
 	$: if (word || sentenceId) {
 		clear();
+	}
 
+	$: if (word || sentenceId) {
 		input?.focus();
 	}
 
@@ -77,7 +79,10 @@
 	const onSubmit = async () => {
 		sentence = sentence.trim();
 
-		if (!sentence) return;
+		if (!sentence) {
+			error = 'Please enter a sentence';
+			return;
+		}
 
 		feedback =
 			exercise == 'write'
@@ -214,9 +219,9 @@
 			{/if}
 
 			<input
-				bind:this={input}
 				type="text"
 				bind:value={sentence}
+				bind:this={input}
 				class="bg-blue-1 rounded-sm block w-full p-2 text-lg mb-6"
 				lang="pl"
 			/>
