@@ -117,13 +117,23 @@
 		englishSentence = await fetchTranslation(sentence.id);
 	}
 
+	let typeCount = 0;
+
 	async function onType(prefix: string) {
 		const timer = setTimeout(() => {
 			isLoadingSuggestions = true;
-		}, 200);
+		}, 100);
+
+		typeCount++;
 
 		try {
-			suggestedWords = prefix.length > 0 && showChars < 100 ? await fetchWordsByPrefix(prefix) : [];
+			let oldTypeCount = typeCount;
+
+			const sw = prefix.length > 0 && showChars < 100 ? await fetchWordsByPrefix(prefix) : [];
+
+			if (oldTypeCount == typeCount) {
+				suggestedWords = sw;
+			}
 		} catch (e) {
 			console.error(e);
 			error = e;
