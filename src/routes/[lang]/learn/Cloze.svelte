@@ -220,7 +220,7 @@
 					userId: -1
 				};
 			}),
-			!isCorrectInflection || source == 'userExercise'
+			(!isCorrectInflection && isCorrectLemma) || source == 'userExercise'
 				? [
 						{
 							wordId: word.id,
