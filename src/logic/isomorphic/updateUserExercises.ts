@@ -35,7 +35,7 @@ export function updateUserExercises(adds: ExerciseKnowledge[], exercises: DB.Use
 			};
 
 			console.log(
-				`Updated user exercise for word ${add.wordId} and sentence ${add.sentenceId}. exercise: ${add.exercise}, alpha: ${toPercent(newExercise.alpha)} beta: ${toPercent(newExercise.beta)}`
+				`Updated user exercise for word ${add.word} (${add.wordId}) and sentence ${add.sentenceId}. exercise: ${add.exercise}, alpha: ${toPercent(newExercise.alpha)} beta: ${toPercent(newExercise.beta)}`
 			);
 
 			return newExercise;
