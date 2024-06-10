@@ -1,9 +1,11 @@
 <script lang="ts">
 	import type { SendKnowledge } from '$lib/SendKnowledge';
+	import { onMount } from 'svelte';
 	import { slide } from 'svelte/transition';
+	import Error from '../../../components/Error.svelte';
 	import SpinnerButton from '../../../components/SpinnerButton.svelte';
-	import { KNOWLEDGE_TYPE_WRITE } from '../../../db/knowledgeTypes';
-	import type { ExerciseKnowledge, Language } from '../../../logic/types';
+	import type { WritingFeedbackResponse } from '../../../logic/generateWritingFeedback';
+	import type { Language } from '../../../logic/types';
 	import type { UnknownWordResponse } from '../api/word/unknown/+server';
 	import { lookupUnknownWord } from '../api/word/unknown/client';
 	import { fetchAskMeAnything } from '../api/write/ama/client';
@@ -12,9 +14,6 @@
 	import { fetchWritingFeedback } from '../api/write/feedback/client';
 	import AMA from './AMA.svelte';
 	import WordCard from './WordCard.svelte';
-	import Error from '../../../components/Error.svelte';
-	import { onMount } from 'svelte';
-	import type { WritingFeedbackResponse } from '../../../logic/generateWritingFeedback';
 
 	export let word: { id: number; word: string; level: number } | undefined;
 	export let onNext: () => Promise<any>;
@@ -117,7 +116,7 @@
 
 		const studiedWordId = word?.id;
 
-		let newSentenceId: number;
+		let newSentenceId = sentenceId;
 
 		const sentence = await sendWrittenSentence({
 			wordId: studiedWordId!,
@@ -132,7 +131,8 @@
 
 		const knowledge = feedback.knowledge.map((k) => ({
 			...k,
-			studiedWordId
+			studiedWordId,
+			sentenceId: newSentenceId
 		}));
 
 		const userExercises = feedback.userExercises.map((e) => ({
