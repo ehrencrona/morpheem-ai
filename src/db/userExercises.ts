@@ -25,12 +25,11 @@ export async function upsertUserExercise(
 			last_time: new Date()
 		})
 		.onConflict((oc) =>
-			oc.columns(['user_id', 'sentence_id']).doUpdateSet({
+			oc.columns(['user_id', 'sentence_id', 'word_id']).doUpdateSet({
 				level,
 				alpha,
 				beta,
 				exercise_type,
-				word_id: wordId,
 				last_time: new Date()
 			})
 		)

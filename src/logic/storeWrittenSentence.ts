@@ -5,26 +5,33 @@ import { Language } from './types';
 
 export async function storeWrittenSentence({
 	sentence: sentenceString,
+	entered,
 	wordId,
 	userId,
-	language
+	language,
+	createNewSentence
 }: {
 	sentence: string;
+	entered: string;
 	wordId: number;
 	userId: number;
 	language: Language;
+	createNewSentence: boolean;
 }) {
 	const [lemmatized] = await lemmatizeSentences([sentenceString], { language });
 
-	const sentence = await addSentence(sentenceString, {
-		english: undefined,
-		lemmas: lemmatized,
-		language,
-		userId
-	});
+	const sentence = createNewSentence
+		? await addSentence(sentenceString, {
+				english: undefined,
+				lemmas: lemmatized,
+				language,
+				userId
+			})
+		: undefined;
 
 	await addWrittenSentence({
 		sentence: sentenceString,
+		entered,
 		wordId,
 		userId,
 		language

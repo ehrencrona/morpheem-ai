@@ -18,6 +18,7 @@
 	export let englishWord: string | undefined;
 	export let englishSentence: string | undefined;
 	export let mnemonic: string | undefined;
+	export let exercise: 'cloze' | 'cloze-inflection' = 'cloze';
 
 	export let language: Language;
 
@@ -96,7 +97,7 @@
 		}
 	}
 
-	function onHintLocal() {
+	async function onHintLocal() {
 		let oldShowChars = showChars;
 
 		onHint();
@@ -167,7 +168,11 @@
 		<div class="mt-8">
 			{#if answeredLemma}
 				<div class="text-xs font-lato mb-4">
-					Now pick the correct form of <b>{answeredLemma}</b>:
+					{#if exercise === 'cloze-inflection'}
+						Pick
+					{:else}
+						Now pick
+					{/if} the correct form of <b>{answeredLemma}</b>:
 				</div>
 			{/if}
 
@@ -190,7 +195,9 @@
 		</div>
 
 		<div class="mt-4 mb-4">
-			<SpinnerButton onClick={onHintLocal} type="secondary">Hint</SpinnerButton>
+			{#if exercise === 'cloze'}
+				<SpinnerButton onClick={onHintLocal} type="secondary">Hint</SpinnerButton>
+			{/if}
 
 			<SpinnerButton onClick={onTranslate} type="secondary">Translate</SpinnerButton>
 

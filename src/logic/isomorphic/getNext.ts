@@ -17,7 +17,9 @@ export function getExercisesForKnowledge(knowledge: AggKnowledgeForUser[]) {
 			},
 			{
 				...k,
-				exercise: (Math.random() > 0.75 ? 'write' : 'cloze') as ExerciseType
+				exercise: import.meta.env.DEV
+					? 'write'
+					: ((Math.random() > 0.75 ? 'write' : 'cloze') as ExerciseType)
 			}
 		],
 		[] as (AggKnowledgeForUser & { exercise: ExerciseType })[]
@@ -117,7 +119,6 @@ export function getNextSentence(
 		.forEach((m) => {
 			console.log(`${m.message} => ${Math.round(m.score * 100)}%`);
 		});
-
 
 	return { sentence: sentences[maxIndex], score: scores[maxIndex] };
 }

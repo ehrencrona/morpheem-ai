@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { SendKnowledge } from '$lib/SendKnowledge';
 	import { dedupUnknown } from '$lib/dedupUnknown';
+	import { filterUndefineds } from '$lib/filterUndefineds';
 	import ErrorComponent from '../../../components/Error.svelte';
 	import { KNOWLEDGE_TYPE_CLOZE, KNOWLEDGE_TYPE_READ } from '../../../db/knowledgeTypes';
 	import * as DB from '../../../db/types';
@@ -25,6 +26,7 @@
 	export let language: Language;
 	export let sendKnowledge: SendKnowledge;
 	export let source: DB.ExerciseSource;
+	export let exercise: 'cloze' | 'cloze-inflection' = 'cloze';
 
 	let evaluation: string | undefined = undefined;
 
@@ -78,6 +80,12 @@
 			fetchMnemonic(word.id, false),
 			fetchInflections(word.id)
 		]);
+
+		if (exercise == 'cloze-inflection') {
+			suggestedWords = inflections;
+			answeredLemma = word.word;
+			isCorrectLemma = true;
+		}
 	}
 
 	$: if (word.id || sentence.id) {
@@ -124,7 +132,7 @@
 	async function onReveal() {
 		showChars = 100;
 		isCorrectInflection = false;
-		isCorrectLemma = false;
+		isCorrectLemma = exercise == 'cloze-inflection';
 	}
 
 	async function onTranslate() {
@@ -207,19 +215,27 @@
 		}
 
 		sendKnowledge(
-			sentenceWords.map((sentenceWord) => {
-				const isCloze = sentenceWord.id == word.id;
+			filterUndefineds(
+				sentenceWords.map((sentenceWord) => {
+					const isClozeWord = sentenceWord.id == word.id;
 
-				return {
-					word: sentenceWord,
-					wordId: sentenceWord.id,
-					sentenceId: sentence.id,
-					isKnown: isCloze ? isCorrectLemma! : !revealed.find(({ id }) => id === sentenceWord.id),
-					studiedWordId: word.id,
-					type: isCloze ? KNOWLEDGE_TYPE_CLOZE : KNOWLEDGE_TYPE_READ,
-					userId: -1
-				};
-			}),
+					if (exercise == 'cloze-inflection' && isClozeWord) {
+						return undefined;
+					}
+
+					return {
+						word: sentenceWord,
+						wordId: sentenceWord.id,
+						sentenceId: sentence.id,
+						isKnown: isClozeWord
+							? isCorrectLemma!
+							: !revealed.find(({ id }) => id === sentenceWord.id),
+						studiedWordId: word.id,
+						type: isClozeWord ? KNOWLEDGE_TYPE_CLOZE : KNOWLEDGE_TYPE_READ,
+						userId: -1
+					};
+				})
+			),
 			(!isCorrectInflection && isCorrectLemma) || source == 'userExercise'
 				? [
 						{
@@ -227,7 +243,12 @@
 							word: word.word,
 							sentenceId: sentence.id,
 							isKnown: !!isCorrectInflection,
-							exercise: 'cloze',
+							exercise:
+								isCorrectInflection && source == 'userExercise'
+									? exercise
+									: isCorrectLemma
+										? 'cloze-inflection'
+										: 'cloze',
 							level: word.level
 						}
 					]
@@ -243,6 +264,7 @@
 	{word}
 	{sentenceWords}
 	{evaluation}
+	{exercise}
 	{onHint}
 	onNext={storeAndContinue}
 	{onUnknown}

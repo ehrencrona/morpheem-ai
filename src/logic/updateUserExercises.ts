@@ -7,6 +7,14 @@ export function updateUserExercises(
 	userId: number,
 	language: Language
 ) {
+	for (const { exercise, wordId } of exercises) {
+		const shouldHaveWord = exercise != 'translate' && exercise != 'write';
+
+		if (shouldHaveWord != (wordId != null)) {
+			throw new Error(`WordId was ${wordId} for exercise ${exercise}`);
+		}
+	}
+
 	return Promise.all(
 		exercises.map(async (exercise) => {
 			const existing = await getUserExercise({ ...exercise, userId }, language);

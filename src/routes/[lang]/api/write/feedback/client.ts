@@ -1,5 +1,6 @@
+import type { WritingFeedbackResponse } from '../../../../../logic/generateWritingFeedback';
 import { apiCall } from '../../api-call';
-import type { WritingFeedbackResponse, PostSchema } from './+server';
+import type { PostSchema } from './+server';
 
 export async function fetchWritingFeedback(params: PostSchema): Promise<WritingFeedbackResponse> {
 	return apiCall(`/api/write/feedback`, {

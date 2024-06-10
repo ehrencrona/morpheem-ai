@@ -46,6 +46,10 @@ export async function getSentenceWords(
 		);
 	}
 
+	if (wordStrings.length === 0) {
+		return [];
+	}
+
 	let words = await getMultipleWordsByLemmas(lemmas, language);
 
 	let missingWords = lemmas.filter((lemma) => !words.some((word) => word.word == lemma));

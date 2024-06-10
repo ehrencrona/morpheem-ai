@@ -4,7 +4,9 @@ import { storeWrittenSentence } from '../../../../logic/storeWrittenSentence';
 
 const postSchema = z.object({
 	sentence: z.string(),
-	wordId: z.number()
+	entered: z.string(),
+	wordId: z.number(),
+	createNewSentence: z.boolean()
 });
 
 export type PostSchema = z.infer<typeof postSchema>;
@@ -14,5 +16,5 @@ export const POST: ServerLoad = async ({ request, locals }) => {
 	const userId = locals.user!.num;
 	const { language } = locals;
 
-	return json(await storeWrittenSentence({ ...body, userId, language }));
+	return json((await storeWrittenSentence({ ...body, userId, language })) || {});
 };

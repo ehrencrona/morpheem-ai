@@ -56,7 +56,7 @@
 				| {
 						wordId: number;
 						words: SentenceWord[];
-						exercise: 'read' | 'cloze';
+						exercise: 'read' | 'cloze' | 'cloze-inflection';
 				  }
 				| {
 						wordId: number | null;
@@ -413,9 +413,10 @@
 				exercise={current.exercise}
 				sentenceId={current.sentence.id}
 				englishSentence={current.sentence.english || undefined}
+				correctSentence={current.sentence.sentence}
 				fetchEnglishSentence={getTranslation}
 			/>
-		{:else if current.exercise == 'cloze' && current.word}
+		{:else if ['cloze', 'cloze-inflection'].includes(current.exercise) && current.word}
 			<Cloze
 				word={current.word}
 				{knowledge}
@@ -425,6 +426,7 @@
 				sentenceWords={current.words}
 				language={getLanguageOnClient()}
 				{sendKnowledge}
+				exercise={current.exercise}
 			/>
 		{:else}
 			<ErrorComponent

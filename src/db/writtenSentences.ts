@@ -3,11 +3,13 @@ import { db } from './client';
 
 export async function addWrittenSentence({
 	sentence,
+	entered,
 	wordId,
 	userId,
 	language
 }: {
 	sentence: string;
+	entered?: string;
 	wordId: number;
 	userId: number;
 	language: Language;
@@ -17,6 +19,7 @@ export async function addWrittenSentence({
 		.insertInto('written_sentences')
 		.values({
 			sentence,
+			entered,
 			word_id: wordId,
 			user_id: userId
 		})

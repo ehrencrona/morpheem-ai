@@ -13,10 +13,8 @@
 	import AMA from './AMA.svelte';
 	import WordCard from './WordCard.svelte';
 	import Error from '../../../components/Error.svelte';
-	import type { WritingFeedbackResponse } from '../api/write/feedback/+server';
-	import type { TranslationFeedbackResponse } from '../api/write/translate/+server';
-	import { fetchTranslationFeedback } from '../api/write/translate/client';
 	import { onMount } from 'svelte';
+	import type { WritingFeedbackResponse } from '../../../logic/generateWritingFeedback';
 
 	export let word: { id: number; word: string; level: number } | undefined;
 	export let onNext: () => Promise<any>;
@@ -29,10 +27,13 @@
 
 	/** The sentence to translate if translate, otherwise the writing idea. */
 	export let englishSentence: string | undefined;
+	/** The target language sentence if translate. */
+	export let correctSentence: string | undefined;
+
 	let showIdea = false;
 
-	let feedback: TranslationFeedbackResponse | WritingFeedbackResponse | undefined;
-	let sentence: string;
+	let feedback: WritingFeedbackResponse | undefined;
+	let entered: string;
 
 	let error: any;
 
@@ -46,7 +47,7 @@
 	$: isRevealed = word && (showChars > 2 || showChars > word.word.length - 1);
 
 	function clear() {
-		sentence = '';
+		entered = '';
 		feedback = undefined;
 		unknownWords = [];
 		showChars = 0;
@@ -77,20 +78,33 @@
 	});
 
 	const onSubmit = async () => {
-		sentence = sentence.trim();
+		entered = entered.trim();
 
-		if (!sentence) {
+		if (!entered) {
 			error = 'Please enter a sentence';
 			return;
 		}
 
 		feedback =
 			exercise == 'write'
-				? await fetchWritingFeedback({ word: word!.word, sentence })
-				: await fetchTranslationFeedback({
-						sentenceId,
-						entered: sentence
+				? await fetchWritingFeedback({
+						exercise,
+						word: word!.word,
+						entered
+					})
+				: await fetchWritingFeedback({
+						exercise,
+						entered,
+						english: englishSentence!,
+						correct: correctSentence!
 					});
+
+		console.log(
+			`Feedback on "${entered}":\nCorrected sentence: ${feedback.correctedSentence}\n` +
+				`Corrected part: ${feedback.correctedPart}\n` +
+				`Unknown words: ${feedback.unknownWords.map((u) => u.word).join(', ')}\n` +
+				`User exercises: ${feedback.userExercises.map((e) => `${e.isKnown ? 'knew' : 'did not know'} ${e.exercise} (word ${e.word})`).join(', ')}`
+		);
 
 		unknownWords = dedup([...unknownWords, ...feedback!.unknownWords]);
 	};
@@ -103,46 +117,30 @@
 
 		const studiedWordId = word?.id;
 
-		let addExercises: ExerciseKnowledge[] = [];
+		let newSentenceId: number;
 
-		let newSentenceId: number | undefined = undefined;
+		const sentence = await sendWrittenSentence({
+			wordId: studiedWordId!,
+			sentence: feedback.correctedSentence!,
+			entered,
+			createNewSentence: exercise == 'write'
+		});
 
-		if (exercise == 'write') {
-			const sentence = await sendWrittenSentence({
-				wordId: studiedWordId!,
-				sentence: feedback!.corrected
-			});
-
+		if (sentence?.id) {
 			newSentenceId = sentence.id;
 		}
 
-		if (!feedback.isCorrect || exercise == 'translate') {
-			addExercises = [
-				{
-					wordId: feedback.wrongWordId || null,
-					sentenceId: newSentenceId || sentenceId,
-					exercise: feedback.wrongWordId ? 'cloze' : 'translate',
-					word: word?.word || null,
-					isKnown: feedback.isCorrect,
-					// just set a fixed value?
-					level: word?.level || 0
-				}
-			];
-		}
-
-		const unknownWordIds = unknownWords.map(({ id }) => id);
-
-		const knowledge = feedback.words.map((word) => ({
-			word,
-			wordId: word.id,
-			isKnown: !unknownWordIds.includes(word.id),
-			studiedWordId,
-			sentenceId: undefined,
-			type: KNOWLEDGE_TYPE_WRITE,
-			userId: -1
+		const knowledge = feedback.knowledge.map((k) => ({
+			...k,
+			studiedWordId
 		}));
 
-		sendKnowledge(knowledge, addExercises);
+		const userExercises = feedback.userExercises.map((e) => ({
+			...e,
+			sentenceId: newSentenceId
+		}));
+
+		sendKnowledge(knowledge, userExercises);
 
 		return onNext();
 	};
@@ -169,8 +167,8 @@
 			exercise,
 			question,
 			word: word?.word,
-			sentenceEntered: sentence,
-			sentenceCorrected: feedback?.exercise == 'write' ? feedback.corrected : undefined
+			sentenceEntered: entered,
+			sentenceCorrected: exercise == 'write' ? feedback?.correctedSentence || undefined : undefined
 		});
 
 		if (!feedback) {
@@ -220,7 +218,7 @@
 
 			<input
 				type="text"
-				bind:value={sentence}
+				bind:value={entered}
 				bind:this={input}
 				class="bg-blue-1 rounded-sm block w-full p-2 text-lg mb-6"
 				lang="pl"
@@ -239,9 +237,9 @@
 				</div>
 			{/if}
 		{:else}
-			{#if !feedback.isCorrect}
+			{#if !!feedback.correctedPart}
 				<div class="text-xl font-bold mb-6 text-balance line-through">
-					{sentence}
+					{entered}
 				</div>
 			{/if}
 
@@ -250,7 +248,7 @@
 			</div>
 
 			<div class="text-xl font-bold mb-6 text-balance">
-				{feedback.corrected}
+				{exercise == 'write' ? feedback.correctedSentence : correctSentence}
 			</div>
 		{/if}
 
@@ -294,7 +292,7 @@
 	</form>
 
 	<AMA
-		suggestions={[`How do you say "to scratch"?`, `traffic light in ${language.name}?`]}
+		suggestions={[`How do you say 'to scratch'?`, `traffic light in ${language.name}?`]}
 		ask={askMeAnything}
 		wordId={word?.id}
 	/>
