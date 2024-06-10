@@ -17,9 +17,7 @@ export function getExercisesForKnowledge(knowledge: AggKnowledgeForUser[]) {
 			},
 			{
 				...k,
-				exercise: import.meta.env.DEV
-					? 'write'
-					: ((Math.random() > 0.75 ? 'write' : 'cloze') as ExerciseType)
+				exercise: (Math.random() > 0.75 ? 'write' : 'cloze') as ExerciseType
 			}
 		],
 		[] as (AggKnowledgeForUser & { exercise: ExerciseType })[]
