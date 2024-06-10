@@ -12,7 +12,7 @@ export async function addWord(
 		throw new Error(`"${lemma}" is English`);
 	}
 
-	if (language.code == 'pl' && ['ta', 'wielu'].includes(lemma)) {
+	if (language.code == 'pl' && ['ta', 'wielu', 'można'].includes(lemma)) {
 		throw new Error(`"${lemma}" is not the dictionary form`);
 	}
 

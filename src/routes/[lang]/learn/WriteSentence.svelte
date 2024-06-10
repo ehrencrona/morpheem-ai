@@ -248,7 +248,7 @@
 			</div>
 
 			<div class="text-xl font-bold mb-6 text-balance">
-				{exercise == 'write' ? feedback.correctedSentence : correctSentence}
+				{exercise == 'write' ? feedback.correctedSentence || entered : correctSentence}
 			</div>
 		{/if}
 
@@ -272,7 +272,7 @@
 						<SpinnerButton onClick={onHint} type="secondary">Hint</SpinnerButton>
 					{/if}
 
-					{#if !englishSentence}
+					{#if englishSentence}
 						<SpinnerButton onClick={onIdea} type="secondary">Idea</SpinnerButton>
 					{/if}
 				{/if}
