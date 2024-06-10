@@ -37,11 +37,14 @@
 	import WriteSentence from './learn/WriteSentence.svelte';
 	import { trackActivity } from './learn/trackActivity';
 	import SpinnerButton from '../../components/SpinnerButton.svelte';
+	import { page } from '$app/stores';
 
 	export let data: PageData;
 
 	$: userExercises = data.userExercises;
 	$: languageCode = data.languageCode;
+
+	let exerciseFilter = $page.url.searchParams.get('exercise');
 
 	let knowledge: DB.AggKnowledgeForUser[] = [];
 	let wordsKnown: { read: number; write: number };
@@ -122,9 +125,10 @@
 		source: DB.ExerciseSource;
 		getNextPromise: () => Promise<any>;
 	}> {
-		const filter = ({ wordId, sentenceId }: ScoreableExercise) =>
+		const filter = ({ wordId, sentenceId, exercise }: ScoreableExercise) =>
 			!(excludeWordId && wordId == excludeWordId) &&
-			!(excludeSentenceId && sentenceId == excludeSentenceId);
+			!(excludeSentenceId && sentenceId == excludeSentenceId) &&
+			(!exerciseFilter || exercise == exerciseFilter);
 
 		exercises = exercises.filter(filter);
 
@@ -138,12 +142,10 @@
 					}))
 				);
 
-			exercises = scoreExercises(unscored);
+			exercises = scoreExercises(unscored).filter(filter);
 		}
 
-		exercises = exercises.filter(filter);
-
-		if (exercises.length == 0) {
+		if (!exercises.length ) {
 			throw new Error('No exercises found');
 		}
 
