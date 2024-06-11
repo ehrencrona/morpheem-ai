@@ -14,6 +14,7 @@
 	import { fetchWritingFeedback } from '../api/write/feedback/client';
 	import AMA from './AMA.svelte';
 	import WordCard from './WordCard.svelte';
+	import Speak from '../../../components/Speak.svelte';
 
 	export let word: { id: number; word: string; level: number } | undefined;
 	export let onNext: () => Promise<any>;
@@ -279,16 +280,17 @@
 
 				<SpinnerButton onClick={onSubmit} isSubmit={true}>Submit</SpinnerButton>
 			{:else}
-				<SpinnerButton
-					onClick={async () => {
-						feedback = undefined;
-					}}
-					type="secondary">Try again</SpinnerButton
-				>
+				<SpinnerButton onClick={async () => (feedback = undefined)} type="secondary">
+					Try again
+				</SpinnerButton>
 
 				<SpinnerButton onClick={clickedContinue} grabFocus={true}>Continue</SpinnerButton>
 			{/if}
 		</div>
+
+		{#if feedback && exercise == 'translate'}
+			<Speak url={`/${language.code}/api/sentences/${sentenceId}/tts.opus`} />
+		{/if}
 	</form>
 
 	<AMA

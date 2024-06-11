@@ -1,13 +1,10 @@
 <script lang="ts">
 	import type { SendKnowledge } from '$lib/SendKnowledge';
 	import { dedupUnknown } from '$lib/dedupUnknown';
+	import Speak from '../../../components/Speak.svelte';
 	import { KNOWLEDGE_TYPE_READ } from '../../../db/knowledgeTypes';
 	import * as DB from '../../../db/types';
-	import type {
-		Language,
-		SentenceWord,
-		WordKnowledge
-	} from '../../../logic/types';
+	import type { Language, SentenceWord } from '../../../logic/types';
 	import { fetchTranslation } from '../api/sentences/[sentence]/english/client';
 	import { fetchHint } from '../api/sentences/[sentence]/hint/client';
 	import type { UnknownWordResponse } from '../api/word/unknown/+server';
@@ -75,3 +72,5 @@
 	{language}
 	onNext={storeAndContinue}
 />
+
+<Speak url={`/${language.code}/api/sentences/${sentence.id}/tts.opus`} />

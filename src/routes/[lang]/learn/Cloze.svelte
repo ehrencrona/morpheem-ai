@@ -3,6 +3,7 @@
 	import { dedupUnknown } from '$lib/dedupUnknown';
 	import { filterUndefineds } from '$lib/filterUndefineds';
 	import ErrorComponent from '../../../components/Error.svelte';
+	import Speak from '../../../components/Speak.svelte';
 	import { KNOWLEDGE_TYPE_CLOZE, KNOWLEDGE_TYPE_READ } from '../../../db/knowledgeTypes';
 	import * as DB from '../../../db/types';
 	import { standardize } from '../../../logic/isomorphic/standardize';
@@ -287,6 +288,10 @@
 	{language}
 	{isLoadingSuggestions}
 />
+
+{#if showChars >= word.word.length}
+	<Speak url={`/${language.code}/api/sentences/${sentence.id}/tts.opus`} />
+{/if}
 
 <Ama
 	ask={(question) =>
