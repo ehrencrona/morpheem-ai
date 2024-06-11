@@ -15,8 +15,10 @@ const postSchema = z.object({
 });
 
 export interface UnknownWordResponse extends DB.Word {
+	inflected: string;
 	english: string;
 	mnemonic?: string;
+	form?: string;
 }
 
 export const POST: ServerLoad = async ({ request, locals }) => {
@@ -47,11 +49,11 @@ export const POST: ServerLoad = async ({ request, locals }) => {
 		word = await getWordByLemma(wordString, language);
 	}
 
-	const { english } = await translateWordInContext(word, { wordString, sentence, language });
+	const { english, form } = await translateWordInContext(word, { wordString, sentence, language });
 
 	const mnemonic = await getMnemonic({ wordId: word.id, userId, language });
 
 	console.log(`Unknown: ${wordString} (${word.word}) -> ${english}`);
 
-	return json({ ...word, english, mnemonic } as UnknownWordResponse);
+	return json({ ...word, english, inflected: wordString, form, mnemonic } as UnknownWordResponse);
 };

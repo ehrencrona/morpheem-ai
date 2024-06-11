@@ -5,6 +5,7 @@ import {
 import { storeEnglish } from '../db/sentences';
 import * as DB from '../db/types';
 import { addWordTranslations, getWordTranslation } from '../db/wordTranslations';
+import { standardize } from './isomorphic/standardize';
 import { Language } from './types';
 
 export async function addEnglishToSentence(
@@ -34,19 +35,24 @@ export async function translateWordInContext(
 		wordString?: string;
 	}
 ) {
-	let translation: { english: string } | undefined = await getWordTranslation(
+	let translation: { english: string; form?: string } | undefined = await getWordTranslation(
 		lemma.id,
 		sentence?.id || null,
 		language
 	);
 
 	if (!translation) {
-		translation = await translateWordInContextAi(wordString || lemma.word, sentence, language);
+		translation = await translateWordInContextAi(
+			wordString ? standardize(wordString) : lemma.word,
+			sentence,
+			language
+		);
 
 		await addWordTranslations({
 			wordId: lemma.id,
 			sentenceId: sentence?.id,
 			english: translation.english,
+			form: translation.form || undefined,
 			language
 		});
 	}

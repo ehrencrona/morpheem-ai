@@ -25,7 +25,10 @@ export async function translateWordInContext(
 					(sentence
 						? `What is the English translation of the word "${lemma}" in the sentence?`
 						: `What is the English translation of the ${language.name} word "${lemma}"?`) +
-					` Only answer with the definition (as a fragment; no final full stop). `
+					` Only answer with the definition (as a fragment; no final full stop). ` +
+					(language.code == 'pl' && sentence
+						? `On a second line, provide the case and number in the sentence e.g. "genitive plural, feminine" or "past participle".`
+						: '')
 			}
 		],
 		temperature: 0.5,
@@ -34,7 +37,9 @@ export async function translateWordInContext(
 		model: 'gpt-4o'
 	});
 
-	return { english: definition };
+	const lines = definition.split('\n');
+
+	return { english: lines[0], form: lines[1] || undefined };
 }
 
 export async function translateWords(words: string[], language: Language) {

@@ -255,12 +255,11 @@
 
 		{#if unknownWords.length > 0}
 			<div class="grid grid-cols-1 md:grid-cols-2 w-full gap-x-4 mt-8" transition:slide>
-				{#each unknownWords as unknownWord}
+				{#each unknownWords as word}
 					<WordCard
-						word={unknownWord}
-						english={unknownWord.english}
-						onRemove={() =>
-							(unknownWords = unknownWords.filter((word) => word.id != unknownWord.id))}
+						{...word}
+						{word}
+						onRemove={() => (unknownWords = unknownWords.filter((word) => word.id != word.id))}
 					/>
 				{/each}
 			</div>

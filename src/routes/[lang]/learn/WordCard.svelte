@@ -1,15 +1,14 @@
 <script lang="ts">
 	import type * as DB from '../../../db/types';
-	import { expectedKnowledge, now } from '../../../logic/isomorphic/knowledge';
 	import { fetchMnemonic, storeMnemonic } from '../api/word/[id]/mnemonic/client';
 	import EditMnemonic from './EditMnemonic.svelte';
 	import WordCardDumb from './WordCardDumb.svelte';
 
 	export let onRemove: (() => void) | undefined = undefined;
 
-	export let knowledge: DB.AggKnowledgeForUser[] | undefined = undefined;
-
 	export let word: DB.Word;
+	export let inflected: string | undefined = undefined;
+	export let form: string | undefined = undefined;
 	export let english: string | undefined = undefined;
 	export let mnemonic: string | undefined = undefined;
 
@@ -28,30 +27,16 @@
 
 		editMnemonic = undefined;
 	}
-
-	function getExpectedKnowledge(word: DB.Word) {
-		if (!knowledge) return undefined;
-
-		const wordKnowledge = knowledge.find((k) => k.wordId === word.id);
-
-		if (wordKnowledge) {
-			return (
-				Math.round(100 * expectedKnowledge(wordKnowledge, { now: now(), exercise: 'read' })) +
-				'% known'
-			);
-		} else {
-			return 'first time';
-		}
-	}
 </script>
 
 <WordCardDumb
 	{word}
+	{form}
+	{inflected}
 	{onRemove}
 	{mnemonic}
 	{english}
 	onEditMnemonic={async (word, mnemonic) => (editMnemonic = mnemonic || '')}
-	expectedKnowledge={getExpectedKnowledge(word)}
 />
 
 {#if editMnemonic != undefined}

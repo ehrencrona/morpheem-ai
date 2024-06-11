@@ -37,7 +37,6 @@
 				word={word.word}
 				english={word.word.english}
 				mnemonic={word.word.mnemonic}
-				knowledge={[word.knowledge]}
 			/>
 		{:else}
 			<button

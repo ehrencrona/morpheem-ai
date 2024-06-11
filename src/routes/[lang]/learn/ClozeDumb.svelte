@@ -150,12 +150,7 @@
 		{#if revealed.length > 0}
 			<div class="grid grid-cols-1 md:grid-cols-2 w-full gap-x-4 mt-8">
 				{#each revealed as word (word.id)}
-					<WordCard
-						{word}
-						mnemonic={word.mnemonic}
-						onRemove={() => onRemoveUnknown(word.word)}
-						english={word.english}
-					/>
+					<WordCard {...word} {word} onRemove={() => onRemoveUnknown(word.word)} />
 				{/each}
 				{#if isLoadingUnknown}
 					<div class="flex justify-center items-center">
@@ -215,16 +210,10 @@
 		{/if}
 
 		<div class="grid grid-cols-1 md:grid-cols-2 w-full gap-x-4 mt-8">
-			<WordCard {word} english={englishWord} {mnemonic} />
+			<WordCard inflected={conjugatedWord} {word} english={englishWord} {mnemonic} />
 
 			{#each revealed as word (word.id)}
-				<WordCard
-					{word}
-					mnemonic={word.mnemonic}
-					onRemove={() => onRemoveUnknown(word.word)}
-					english={word.english}
-					{knowledge}
-				/>
+				<WordCard {...word} {word} onRemove={() => onRemoveUnknown(word.word)} />
 			{/each}
 		</div>
 

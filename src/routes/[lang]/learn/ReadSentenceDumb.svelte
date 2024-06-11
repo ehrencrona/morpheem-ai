@@ -89,11 +89,9 @@
 <div class="grid grid-cols-1 md:grid-cols-2 w-full gap-x-4">
 	{#each revealed as word (word.id)}
 		<WordCard
+			{...word}
 			{word}
-			mnemonic={word.mnemonic}
 			onRemove={() => onRemoveUnknown(word.word)}
-			english={word.english}
-			{knowledge}
 		/>
 	{/each}
 	{#if isLoadingUnknown}

@@ -4,40 +4,48 @@
 	import { getLanguageOnClient } from '../api/api-call';
 
 	export let word: DB.Word;
+	export let form: string | undefined = undefined;
+	export let inflected: string | undefined = undefined;
 	export let onRemove: (() => void) | undefined = undefined;
-	export let expectedKnowledge: string | undefined = undefined;
 
 	export let mnemonic: string | undefined = undefined;
 	export let english: string | undefined = undefined;
 
 	export let onEditMnemonic: (word: DB.Word, mnemonic?: string) => Promise<any>;
+
+	$: showLemma = inflected && (word.word !== inflected || form);
 </script>
 
-<div class="bg-light-gray rounded-md px-4 py-3 w-full border border-gray md:max-w-[500px] mb-4">
-	<div class="font-medium mb-1 flex">
-		<a href="/{getLanguageOnClient().code}/words/{word.id}" class="flex-1 text-base decoration-yellow underline">{word.word}</a>
-
-		{#if expectedKnowledge != null}
-			<span class="text-xxs font-lato ml-1">{expectedKnowledge}</span>
+<div class="bg-light-gray rounded-md w-full border border-gray md:max-w-[500px] mb-4">
+	<div class="font-medium mb-1 flex bg-blue-3 text-[#fff] px-3 py-2 rounded-t-md items-baseline">
+		<a
+			href="/{getLanguageOnClient().code}/words/{word.id}"
+			class={`text-base ${showLemma ? '' : 'flex-1'}`}
+			>{inflected || word.word}
+		</a>
+		{#if showLemma}
+			<span class="text-xs font-lato flex-1 ml-2">
+				{#if word.word != inflected}{word.word}{/if}{#if form}
+					<span>{#if word.word != inflected}, {/if}{form}</span>
+				{/if}
+			</span>
 		{/if}
 
 		{#if onRemove}
 			<button
 				type="button"
 				on:click={onRemove}
-				class="flex justify-center items-center p-[6px] mt-[-6px] mr-[-6px] ml-1"
+				class="flex justify-center items-center p-[4px] mr-[-6px] ml-1"
 			>
 				<svg
-					fill="#000000"
-					height="800px"
-					width="800px"
+					fill="#fff"
 					version="1.1"
 					id="Layer_1"
 					xmlns="http://www.w3.org/2000/svg"
 					xmlns:xlink="http://www.w3.org/1999/xlink"
 					viewBox="0 0 512 512"
 					xml:space="preserve"
-					class="w-2 h-2"
+					class="w-[10px] h-[10px]"
 				>
 					<g>
 						<g>
@@ -52,30 +60,32 @@
 		{/if}
 	</div>
 
-	{#if english}
-		<div class="text-balance font-lato mt-2">{english}</div>
-	{/if}
-
-	<div class="text-xs font-lato mt-2">
-		{#if mnemonic}
-			<p class="text-balance">
-				{mnemonic}
-				<SpinnerButton
-					className="underline pt-1 pl-1"
-					onClick={async () => onEditMnemonic(word, mnemonic)}
-				>
-					Edit
-				</SpinnerButton>
-			</p>
-		{:else}
-			<div class="flex justify-end mt-1">
-				<SpinnerButton
-					className="underline pt-1 pl-5"
-					onClick={async () => onEditMnemonic(word, mnemonic)}
-				>
-					Mnemonic
-				</SpinnerButton>
-			</div>
+	<div class="px-3 pb-4">
+		{#if english}
+			<div class="text-balance font-lato mt-2">{english}</div>
 		{/if}
+
+		<div class="text-xs font-lato mt-2">
+			{#if mnemonic}
+				<p class="text-balance leading-4">
+					{mnemonic}
+					<SpinnerButton
+						className="text-xs font-lato underline p-0 ml-1"
+						onClick={async () => onEditMnemonic(word, mnemonic)}
+					>
+						Edit
+					</SpinnerButton>
+				</p>
+			{:else}
+				<div class="flex justify-end mt-1">
+					<SpinnerButton
+						className="underline pt-1 pl-5"
+						onClick={async () => onEditMnemonic(word, mnemonic)}
+					>
+						Mnemonic
+					</SpinnerButton>
+				</div>
+			{/if}
+		</div>
 	</div>
 </div>
