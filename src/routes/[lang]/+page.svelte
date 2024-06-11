@@ -399,7 +399,6 @@
 		{#if current.exercise == 'read'}
 			<ReadSentence
 				word={current.word}
-				{knowledge}
 				sentence={current.sentence}
 				words={current.words}
 				language={getLanguageOnClient()}
@@ -421,7 +420,6 @@
 		{:else if ['cloze', 'cloze-inflection'].includes(current.exercise) && current.word}
 			<Cloze
 				word={current.word}
-				{knowledge}
 				{onNext}
 				source={current.source}
 				sentence={current.sentence}

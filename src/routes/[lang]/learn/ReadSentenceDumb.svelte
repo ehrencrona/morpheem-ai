@@ -13,7 +13,6 @@
 
 	export let sentence: DB.Sentence;
 	export let word: DB.Word | undefined;
-	export let knowledge: DB.AggKnowledgeForUser[] | undefined = undefined;
 	export let language: Language;
 
 	export let revealed: UnknownWordResponse[];

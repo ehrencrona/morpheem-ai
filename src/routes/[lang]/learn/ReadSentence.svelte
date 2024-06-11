@@ -15,7 +15,6 @@
 	export let sentence: DB.Sentence;
 	export let words: SentenceWord[];
 	export let word: DB.Word | undefined;
-	export let knowledge: DB.AggKnowledgeForUser[] | undefined = undefined;
 	export let language: Language;
 	export let sendKnowledge: SendKnowledge;
 
@@ -68,7 +67,6 @@
 	{onUnknown}
 	{onRemoveUnknown}
 	{getTranslation}
-	{knowledge}
 	{language}
 	onNext={storeAndContinue}
 />

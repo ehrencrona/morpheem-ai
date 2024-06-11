@@ -15,9 +15,9 @@ const postSchema = z.object({
 });
 
 export interface UnknownWordResponse extends DB.Word {
-	inflected: string;
 	english: string;
 	mnemonic?: string;
+	inflected?: string;
 	form?: string;
 }
 
@@ -55,5 +55,11 @@ export const POST: ServerLoad = async ({ request, locals }) => {
 
 	console.log(`Unknown: ${wordString} (${word.word}) -> ${english}`);
 
-	return json({ ...word, english, inflected: wordString, form, mnemonic } as UnknownWordResponse);
+	return json({
+		...word,
+		english,
+		inflected: wordString != word.word ? wordString : undefined,
+		form,
+		mnemonic
+	} as UnknownWordResponse);
 };

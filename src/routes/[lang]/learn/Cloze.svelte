@@ -23,7 +23,6 @@
 	export let sentence: DB.Sentence;
 	export let word: DB.Word;
 	export let sentenceWords: SentenceWord[];
-	export let knowledge: DB.AggKnowledgeForUser[] | undefined = undefined;
 	export let language: Language;
 	export let sendKnowledge: SendKnowledge;
 	export let source: DB.ExerciseSource;
@@ -284,7 +283,6 @@
 	{answered}
 	{answeredLemma}
 	{revealed}
-	{knowledge}
 	{language}
 	{isLoadingSuggestions}
 />

@@ -33,7 +33,6 @@
 	export let isCorrectLemma: boolean | undefined;
 
 	export let revealed: UnknownWordResponse[];
-	export let knowledge: DB.AggKnowledgeForUser[] | undefined = undefined;
 
 	export let onHint: () => Promise<any>;
 	export let onNext: () => Promise<any>;

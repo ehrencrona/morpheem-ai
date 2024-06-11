@@ -43,31 +43,35 @@ export async function wordStringsToWords(
 	return filterUndefineds(
 		await Promise.all(
 			wordStrings.map(async (wordString) => {
+				let word: DB.Word;
+
 				try {
-					return await getWordByLemma(wordString, language);
+					word = await getWordByLemma(wordString, language);
 				} catch (e) {
 					const lemmaIds = await getLemmaIdsOfWord(wordString, language);
 
 					if (lemmaIds.length == 1) {
-						return getWordById(lemmaIds[0].lemma_id, language);
+						word = await getWordById(lemmaIds[0].lemma_id, language);
 					} else {
 						console.error(
 							`The word ${wordString} was provided in the answer "${sentence}" but does not exist. Adding it.`
 						);
 
-						return (await addWords([wordString], language))[0];
+						word = (await addWords([wordString], language))[0];
 					}
 				}
+
+				return { ...word, inflected: wordString };
 			})
 		)
 	);
 }
 
-export async function filterClearlyKnownWords(
-	unknownWords: DB.Word[],
+export async function filterClearlyKnownWords<W extends DB.Word>(
+	unknownWords: W[],
 	userId: number,
 	language: Language
-): Promise<DB.Word[]> {
+): Promise<W[]> {
 	const knowledge = await getAggregateKnowledgeForUserWords({
 		userId,
 		wordIds: unknownWords.map(({ id }) => id),
@@ -87,7 +91,7 @@ export async function filterClearlyKnownWords(
 }
 
 export function wordsToUnknownWords(
-	words: DB.Word[],
+	words: (DB.Word & { inflected?: string })[],
 	userId: number,
 	language: Language
 ): Promise<UnknownWordResponse[]> {
