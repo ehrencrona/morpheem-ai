@@ -12,9 +12,10 @@ export async function addSeenSentence(
 		.insertInto('sentences_seen')
 		.values({ sentence_id: sentenceId, user_id: userId })
 		.onConflict((oc) =>
-			oc.columns(['sentence_id', 'user_id']).doUpdateSet({
+			oc.columns(['sentence_id', 'user_id']).doUpdateSet((eb) => ({
+				times: eb('sentences_seen.times', '+', 1),
 				time: new Date()
-			})
+			}))
 		)
 		.execute();
 }

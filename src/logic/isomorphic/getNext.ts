@@ -55,6 +55,7 @@ export function getNextSentence(
 	exercise: ExerciseType
 ) {
 	const messages: { score: number; message: string }[] = [];
+	const n = now();
 
 	const scores = sentences.map((sentence) => {
 		let message = `${sentence.sentence}: `;
@@ -95,7 +96,7 @@ export function getNextSentence(
 		}
 
 		const score = Math.pow(
-			wordScore.reduce((a, b) => a * b, 1) * (sentence.lastSeen ? 0.5 : 1),
+			wordScore.reduce((a, b) => a * b, 1) * lastSeenFactor(sentence.lastSeen, n),
 			1 / (sentence.words.length + 1)
 		);
 
@@ -119,4 +120,20 @@ export function getNextSentence(
 		});
 
 	return { sentence: sentences[maxIndex], score: scores[maxIndex] };
+}
+
+function lastSeenFactor(lastSeen: number | undefined, now: number) {
+	if (!lastSeen) {
+		return 1;
+	}
+
+	const age = now - lastSeen;
+
+	if (age < 60) {
+		return 0.1;
+	} else if (age < 24 * 60) {
+		return 0.2;
+	} else {
+		return 0.3;
+	}
 }
