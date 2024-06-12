@@ -30,14 +30,12 @@
 	function play() {
 		if (url == lastUrl) {
 			audioPlayer.currentTime = 0;
-		}
-		else {
+			audioPlayer.play();
+		} else {
 			audioPlayer.src = url;
 			audioPlayer.load();
 			lastUrl = url;
 		}
-		
-		audioPlayer.play();
 	}
 
 	// Function to toggle autoplay setting
@@ -48,7 +46,7 @@
 	}
 </script>
 
-<audio bind:this={audioPlayer}></audio>
+<audio bind:this={audioPlayer} autoplay></audio>
 
 <div class="flex gap-4 mt-8">
 	<button class="text-xs font-lato underline text-red" on:click={play}>Play</button>
