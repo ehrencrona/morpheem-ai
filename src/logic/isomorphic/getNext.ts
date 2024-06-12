@@ -41,7 +41,7 @@ export function scoreExercises<
 				repetitionTime,
 				pastDue
 			}) *
-				(2 - e.level / 100)) /
+				(2 - Math.sqrt(e.level / 100))) /
 			2
 	}));
 
