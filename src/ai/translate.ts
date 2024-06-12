@@ -26,8 +26,10 @@ export async function translateWordInContext(
 						? `What is the English translation of the word "${lemma}" in the sentence?`
 						: `What is the English translation of the ${language.name} word "${lemma}"?`) +
 					` Only answer with the definition (as a fragment; no final full stop). ` +
-					(language.code == 'pl' && sentence
-						? `On a second line, provide the case and number in the sentence e.g. "genitive plural, feminine" or "past participle".`
+					(sentence
+						? language.code == 'pl'
+							? `On a second line, provide the form of the word in the sentence e.g. "genitive plural, feminine" or "past participle".`
+							: `On a second line, provide the form of the word in the sentence e.g. "plural, feminine" or "past participle, perfective".`
 						: '')
 			}
 		],
