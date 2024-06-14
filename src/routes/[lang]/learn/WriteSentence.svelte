@@ -60,7 +60,7 @@
 				.catch((e) => (error = e));
 		}
 
-		if (exercise === 'translate' && !englishSentence) {
+		if (!englishSentence) {
 			getEnglishSentence().catch((e) => (error = e));
 		}
 	}
