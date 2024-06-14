@@ -62,7 +62,7 @@
 	let showChars = 0;
 	let suggestedWords: SuggestedWords = {
 		words: [],
-		type: 'lemmas'
+		type: 'lemma'
 	};
 	let answered: string | undefined;
 	let answeredLemma: string | undefined;
@@ -74,7 +74,7 @@
 		showChars = 0;
 		suggestedWords = {
 			words: [],
-			type: 'lemmas'
+			type: 'lemma'
 		};
 		answered = undefined;
 		answeredLemma = undefined;
@@ -91,7 +91,7 @@
 		]);
 
 		if (exercise == 'cloze-inflection') {
-			suggestedWords = { type: 'inflections', words: inflections };
+			suggestedWords = { type: 'inflection', words: inflections };
 			answeredLemma = word.word;
 		}
 	}
@@ -165,7 +165,7 @@
 			const sw = prefix.length > 0 && showChars < 100 ? await fetchWordsByPrefix(prefix) : [];
 
 			if (oldTypeCount == typeCount) {
-				suggestedWords = { type: 'lemmas', words: sw };
+				suggestedWords = { type: 'lemma', words: sw };
 			}
 		} catch (e) {
 			console.error(e);
@@ -176,28 +176,33 @@
 		}
 	}
 
-	async function onAnswer(answerGiven: string) {
+	async function onAnswer(newAnswered: string) {
+		answered = standardize(newAnswered);
+
 		const conjugatedWord = toWords(sentence.sentence, language)[
 			sentenceWords.findIndex((w) => w.id === word.id)
 		];
 
-		const isDictionaryForm = standardize(answerGiven) == word.word;
-		let isCorrectInflection = standardize(answerGiven) == conjugatedWord;
-		let isCorrectLemma = answeredLemma ? answeredLemma == word.word : isCorrectInflection;
+		const isDictionaryForm = answered == word.word;
+		let isCorrectInflection = answered == conjugatedWord;
+		let isAnyInflection = inflections.includes(answered);
+
+		let isCorrectLemma = answeredLemma
+			? answeredLemma == word.word
+			: isCorrectInflection || isAnyInflection;
 
 		if (!answeredLemma && isDictionaryForm && !isCorrectInflection && inflections.length) {
 			suggestedWords = {
-				type: 'inflections',
+				type: 'inflection',
 				words: inflections
 			};
 
-			answeredLemma = answerGiven;
+			answeredLemma = answered;
 
 			return;
 		}
 
 		onReveal();
-		answered = standardize(answerGiven);
 
 		if (!((answeredLemma && isCorrectInflection) || (!answeredLemma && isCorrectLemma))) {
 			const wordWas = word;

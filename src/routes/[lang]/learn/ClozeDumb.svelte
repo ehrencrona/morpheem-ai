@@ -1,6 +1,6 @@
 <script lang="ts" context="module">
 	export interface SuggestedWords {
-		type: 'inflections' | 'lemmas';
+		type: 'inflection' | 'lemma';
 		words: string[];
 	}
 </script>
@@ -32,7 +32,7 @@
 	export let showChars: number;
 
 	export let suggestedWords: SuggestedWords = {
-		type: 'lemmas',
+		type: 'lemma',
 		words: []
 	};
 	export let answered: string | undefined;
@@ -188,7 +188,7 @@
 					{/if}
 					{#each suggestedWords.words as suggestedWord}
 						<button
-							class={(suggestedWords.type == 'lemmas' ? 'bg-blue-4 text-white' : 'bg-blue-1') +
+							class={(suggestedWords.type == 'inflection' ? 'bg-blue-4 text-white' : 'bg-blue-1') +
 								' border-blue-1 rounded-lg px-5 py-1 whitespace-nowrap'}
 							on:click={() => onAnswer(suggestedWord)}
 							type="button"
