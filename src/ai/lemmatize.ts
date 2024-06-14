@@ -101,7 +101,7 @@ async function lemmatizeBatch(
 			[
 				{
 					role: 'system',
-					content: `For every ${language.name} word entered, print it followed by the dictionary form. Print nothing else.
+					content: `For every ${language.name} word entered, print it followed by the dictionary form. For any words that are not ${language.name}, use the word itself as the dictionary form. Print nothing else.
 					Example:
 
 ${examples[language.code]}`

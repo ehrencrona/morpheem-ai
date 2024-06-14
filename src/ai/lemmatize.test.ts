@@ -2,7 +2,7 @@ import { expect, it } from 'vitest';
 import { FRENCH, POLISH, SPANISH } from '../constants';
 import { lemmatizeSentences } from './lemmatize';
 
-it.only('handles ambiguous words in Spanish', async () => {
+it('handles ambiguous words in Spanish', async () => {
 	const lemmas = await lemmatizeSentences(
 		[`Juan tiene mucho trabajo esta semana.`, `Miguel tiene un vuelo a las 8 de la mañana.`],
 		{
@@ -52,6 +52,14 @@ it('should return lemmas for French sentences', async () => {
 			language: FRENCH
 		})
 	).toEqual([['elle', 'vouloir', 'célébrer', 'le', 'réussite', 'avec', 'son', 'ami']]);
+});
+
+it('handles broken sentences', async () => {
+	const lemmas = await lemmatizeSentences(['mi planirujem excursija na jezero'], {
+		language: POLISH
+	});
+
+	expect(lemmas).toEqual([['mi', 'planirujem', 'excursija', 'na', 'jezero']]);
 });
 
 it('lemmatizes French', async () => {
