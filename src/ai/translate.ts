@@ -41,7 +41,7 @@ export async function translateWordInContext(
 
 	const lines = definition.split('\n');
 
-	return { english: lines[0], form: lines[1] || undefined };
+	return { english: lines[0].trim(), form: lines[1] || undefined };
 }
 
 export async function translateWords(words: string[], language: Language) {
