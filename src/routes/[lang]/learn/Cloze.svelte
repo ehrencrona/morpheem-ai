@@ -29,7 +29,12 @@
 	export let source: DB.ExerciseSource;
 	export let exercise: 'cloze' | 'cloze-inflection' = 'cloze';
 
-	let evaluation: string | undefined = undefined;
+	interface Evaluation {
+		isCorrectLemma: boolean;
+		isCorrectInflection: boolean;
+		message?: string;
+		isPossibleDifferentWord?: DB.Word;
+	}
 
 	let error: any;
 	let isLoadingSuggestions = false;
@@ -61,8 +66,7 @@
 	};
 	let answered: string | undefined;
 	let answeredLemma: string | undefined;
-	let isCorrectLemma: boolean | undefined;
-	let isCorrectInflection: boolean | undefined;
+	let evaluation: Evaluation | undefined = undefined;
 
 	let inflections: string[] = [];
 
@@ -74,8 +78,6 @@
 		};
 		answered = undefined;
 		answeredLemma = undefined;
-		isCorrectLemma = undefined;
-		isCorrectInflection = undefined;
 		englishWord = undefined;
 		englishSentence = undefined;
 		evaluation = undefined;
@@ -84,14 +86,13 @@
 		error = undefined;
 
 		[mnemonic, inflections] = await Promise.all([
-			fetchMnemonic(word.id, false),
-			fetchInflections(word.id)
+			fetchMnemonic(word.id, false).catch((e) => (error = e)),
+			fetchInflections(word.id).catch((e) => (error = e))
 		]);
 
 		if (exercise == 'cloze-inflection') {
 			suggestedWords = { type: 'inflections', words: inflections };
 			answeredLemma = word.word;
-			isCorrectLemma = true;
 		}
 	}
 
@@ -138,8 +139,11 @@
 
 	async function onReveal() {
 		showChars = 100;
-		isCorrectInflection = false;
-		isCorrectLemma = exercise == 'cloze-inflection';
+
+		evaluation = {
+			isCorrectLemma: exercise == 'cloze-inflection',
+			isCorrectInflection: false
+		};
 	}
 
 	async function onTranslate() {
@@ -178,9 +182,10 @@
 		];
 
 		const isDictionaryForm = standardize(answerGiven) == word.word;
-		const isRightInflection = standardize(answerGiven) == conjugatedWord;
+		let isCorrectInflection = standardize(answerGiven) == conjugatedWord;
+		let isCorrectLemma = answeredLemma ? answeredLemma == word.word : isCorrectInflection;
 
-		if (!answeredLemma && isDictionaryForm && !isRightInflection && inflections.length) {
+		if (!answeredLemma && isDictionaryForm && !isCorrectInflection && inflections.length) {
 			suggestedWords = {
 				type: 'inflections',
 				words: inflections
@@ -194,12 +199,7 @@
 		onReveal();
 		answered = standardize(answerGiven);
 
-		isCorrectLemma = answeredLemma
-			? answeredLemma == word.word
-			: isDictionaryForm || isRightInflection;
-		isCorrectInflection = isRightInflection || (!answeredLemma && isDictionaryForm);
-
-		if (!((answeredLemma && isRightInflection) || (!answeredLemma && isCorrectLemma))) {
+		if (!((answeredLemma && isCorrectInflection) || (!answeredLemma && isCorrectLemma))) {
 			const wordWas = word;
 			const gotEvaluation = await fetchClozeEvaluation({
 				cloze: toWordsWithSeparators(sentence.sentence, language).reduce(
@@ -214,23 +214,41 @@
 			});
 
 			if (word.id == wordWas.id) {
-				evaluation = gotEvaluation;
+				if (gotEvaluation.isPossible) {
+					isCorrectLemma = true;
+					isCorrectInflection = true;
+				}
+
+				evaluation = {
+					isCorrectLemma,
+					isCorrectInflection,
+					message: gotEvaluation.message,
+					isPossibleDifferentWord: gotEvaluation.isPossible
+						? gotEvaluation.differentWord
+						: undefined
+				};
 			}
 		}
 	}
 
 	async function storeAndContinue() {
-		if (isCorrectLemma == undefined) {
-			throw new Error(`Invalid state, isCorrectLemma is undefined`);
+		if (!evaluation) {
+			throw new Error(`Invalid state, evaluation is undefined`);
 		}
+
+		const { isCorrectInflection, isCorrectLemma, isPossibleDifferentWord } = evaluation;
 
 		sendKnowledge(
 			filterUndefineds(
-				sentenceWords.map((sentenceWord) => {
+				sentenceWords.map((sentenceWord: DB.Word) => {
 					const isClozeWord = sentenceWord.id == word.id;
 
 					if (exercise == 'cloze-inflection' && isClozeWord) {
 						return undefined;
+					}
+
+					if (isClozeWord && isPossibleDifferentWord) {
+						sentenceWord = isPossibleDifferentWord;
 					}
 
 					return {
@@ -238,7 +256,7 @@
 						wordId: sentenceWord.id,
 						sentenceId: sentence.id,
 						isKnown: isClozeWord
-							? isCorrectLemma!
+							? isCorrectLemma && !showChars
 							: !revealed.find(({ id }) => id === sentenceWord.id),
 						studiedWordId: word.id,
 						type: isClozeWord ? KNOWLEDGE_TYPE_CLOZE : KNOWLEDGE_TYPE_READ,
@@ -273,7 +291,7 @@
 	{sentence}
 	{word}
 	{sentenceWords}
-	{evaluation}
+	evaluation={evaluation?.message}
 	{exercise}
 	{onHint}
 	onNext={storeAndContinue}
@@ -283,8 +301,9 @@
 	{onType}
 	{onAnswer}
 	{onTranslate}
-	{isCorrectInflection}
-	{isCorrectLemma}
+	isCorrectInflection={evaluation?.isCorrectInflection}
+	isCorrectLemma={evaluation?.isCorrectLemma}
+	isPossibleDifferentWord={!!evaluation?.isPossibleDifferentWord}
 	{englishWord}
 	{englishSentence}
 	{mnemonic}

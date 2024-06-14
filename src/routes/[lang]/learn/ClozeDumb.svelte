@@ -41,6 +41,7 @@
 	export let isLoadingSuggestions = false;
 	export let isCorrectInflection: boolean | undefined;
 	export let isCorrectLemma: boolean | undefined;
+	export let isPossibleDifferentWord: Boolean | undefined;
 
 	export let revealed: UnknownWordResponse[];
 
@@ -210,7 +211,11 @@
 		</div>
 	{:else}
 		{#if isCorrectInflection}
-			<div class="mb-4">Correct!</div>
+			{#if !isPossibleDifferentWord}
+				<div class="mb-4">Correct!</div>
+			{:else}
+				<div class="mb-4">Not the word we were looking for, but your answer is also correct.</div>
+			{/if}
 		{:else if answered}
 			<div class="mb-4">
 				You picked <b>{answered}</b>{#if isCorrectLemma && !isCorrectInflection}, which is the wrong
