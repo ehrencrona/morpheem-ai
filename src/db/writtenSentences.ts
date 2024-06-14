@@ -10,7 +10,7 @@ export async function addWrittenSentence({
 }: {
 	sentence: string;
 	entered?: string;
-	wordId: number;
+	wordId?: number;
 	userId: number;
 	language: Language;
 }) {

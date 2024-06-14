@@ -13,7 +13,7 @@ export async function storeWrittenSentence({
 }: {
 	sentence: string;
 	entered: string;
-	wordId: number;
+	wordId?: number;
 	userId: number;
 	language: Language;
 	createNewSentence: boolean;

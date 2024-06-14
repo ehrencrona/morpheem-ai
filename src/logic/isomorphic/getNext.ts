@@ -48,6 +48,25 @@ export function scoreExercises<
 	return scores.sort((a, b) => b.score - a.score);
 }
 
+export function canWriteAllWords(
+	sentence: CandidateSentenceWithWords,
+	knowledge: AggKnowledgeForUser[]
+) {
+	const n = now();
+
+	return sentence.words.every((word) => {
+		const wordKnowledge = knowledge.find((k) => k.wordId === word.id);
+
+		return (
+			wordKnowledge &&
+			expectedKnowledge(wordKnowledge, {
+				now: n,
+				exercise: 'write'
+			}) > 0.8
+		);
+	});
+}
+
 export function getNextSentence(
 	sentences: CandidateSentenceWithWords[],
 	knowledge: AggKnowledgeForUser[],
