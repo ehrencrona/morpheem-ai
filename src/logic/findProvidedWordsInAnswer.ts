@@ -80,7 +80,7 @@ export async function filterClearlyKnownWords<W extends DB.Word>(
 
 	return unknownWords.filter((word) => {
 		const k = knowledge.find(({ wordId }) => wordId === word.id);
-		const knew = k && expectedKnowledge(k, { now: now(), exercise: 'write' }) > 0.8;
+		const knew = k && expectedKnowledge(k, { now: now(), exercise: 'write' }) > 0.9;
 
 		if (knew) {
 			console.log(`User already knew the word ${word.word}.`);
