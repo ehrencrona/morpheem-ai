@@ -65,7 +65,7 @@
 		type: 'lemma'
 	};
 	let answered: string | undefined;
-	let answeredLemma: string | undefined;
+	let isPickingInflection = false;
 	let evaluation: Evaluation | undefined = undefined;
 
 	let inflections: string[] = [];
@@ -77,7 +77,7 @@
 			type: 'lemma'
 		};
 		answered = undefined;
-		answeredLemma = undefined;
+		isPickingInflection = false;
 		englishWord = undefined;
 		englishSentence = undefined;
 		evaluation = undefined;
@@ -92,7 +92,7 @@
 
 		if (exercise == 'cloze-inflection') {
 			suggestedWords = { type: 'inflection', words: inflections };
-			answeredLemma = word.word;
+			isPickingInflection = true;
 		}
 	}
 
@@ -162,10 +162,14 @@
 		try {
 			let oldTypeCount = typeCount;
 
-			const sw = prefix.length > 0 && showChars < 100 ? await fetchWordsByPrefix(prefix) : [];
+			const sw = isPickingInflection
+				? inflections.filter((w) => w.startsWith(prefix))
+				: prefix.length > 0 && showChars < 100
+					? await fetchWordsByPrefix(prefix)
+					: [];
 
 			if (oldTypeCount == typeCount) {
-				suggestedWords = { type: 'lemma', words: sw };
+				suggestedWords = { type: isPickingInflection ? 'inflection' : 'lemma', words: sw };
 			}
 		} catch (e) {
 			console.error(e);
@@ -187,24 +191,39 @@
 		let isCorrectInflection = answered == conjugatedWord;
 		let isAnyInflection = inflections.includes(answered);
 
-		let isCorrectLemma = answeredLemma
-			? answeredLemma == word.word
-			: isCorrectInflection || isAnyInflection;
+		let isCorrectLemma = isPickingInflection ? true : isCorrectInflection || isAnyInflection;
 
-		if (!answeredLemma && isDictionaryForm && !isCorrectInflection && inflections.length) {
+		console.log('onAnswer', {
+			answered,
+			conjugatedWord,
+			isDictionaryForm,
+			isCorrectInflection,
+			isAnyInflection,
+			isCorrectLemma,
+			isPickingInflection
+		});
+
+		if (!isPickingInflection && isDictionaryForm && !isCorrectInflection && inflections.length) {
 			suggestedWords = {
 				type: 'inflection',
 				words: inflections
 			};
 
-			answeredLemma = answered;
+			isPickingInflection = true;
 
 			return;
 		}
 
 		onReveal();
 
-		if (!((answeredLemma && isCorrectInflection) || (!answeredLemma && isCorrectLemma))) {
+		evaluation = {
+			isCorrectLemma,
+			isCorrectInflection
+		};
+
+		if (
+			!((isPickingInflection && isCorrectInflection) || (!isPickingInflection && isCorrectLemma))
+		) {
 			const wordWas = word;
 			const gotEvaluation = await fetchClozeEvaluation({
 				cloze: toWordsWithSeparators(sentence.sentence, language).reduce(
@@ -309,13 +328,13 @@
 	isCorrectInflection={evaluation?.isCorrectInflection}
 	isCorrectLemma={evaluation?.isCorrectLemma}
 	isPossibleDifferentWord={!!evaluation?.isPossibleDifferentWord}
+	{isPickingInflection}
 	{englishWord}
 	{englishSentence}
 	{mnemonic}
 	{showChars}
 	{suggestedWords}
 	{answered}
-	{answeredLemma}
 	{revealed}
 	{language}
 	{isLoadingSuggestions}

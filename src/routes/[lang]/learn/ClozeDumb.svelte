@@ -36,8 +36,8 @@
 		words: []
 	};
 	export let answered: string | undefined;
-	export let answeredLemma: string | undefined;
 	export let evaluation: string | undefined;
+	export let isPickingInflection: boolean;
 	export let isLoadingSuggestions = false;
 	export let isCorrectInflection: boolean | undefined;
 	export let isCorrectLemma: boolean | undefined;
@@ -171,13 +171,13 @@
 		{/if}
 
 		<div class="mt-8">
-			{#if answeredLemma}
+			{#if isPickingInflection}
 				<div class="text-xs font-lato mb-4">
 					{#if exercise === 'cloze-inflection'}
 						Pick
 					{:else}
 						Now pick
-					{/if} the correct form of <b>{answeredLemma}</b>:
+					{/if} the correct form of <b>{word.word}</b>:
 				</div>
 			{/if}
 
