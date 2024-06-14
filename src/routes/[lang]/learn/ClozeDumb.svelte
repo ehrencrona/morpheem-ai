@@ -1,3 +1,10 @@
+<script lang="ts" context="module">
+	export interface SuggestedWords {
+		type: 'inflections' | 'lemmas';
+		words: string[];
+	}
+</script>
+
 <script lang="ts">
 	import { slide } from 'svelte/transition';
 	import * as DB from '../../../db/types';
@@ -24,7 +31,10 @@
 
 	export let showChars: number;
 
-	export let suggestedWords: string[] = [];
+	export let suggestedWords: SuggestedWords = {
+		type: 'lemmas',
+		words: []
+	};
 	export let answered: string | undefined;
 	export let answeredLemma: string | undefined;
 	export let evaluation: string | undefined;
@@ -175,9 +185,10 @@
 					{#if isLoadingSuggestions}
 						<Spinner />
 					{/if}
-					{#each suggestedWords as suggestedWord}
+					{#each suggestedWords.words as suggestedWord}
 						<button
-							class="bg-blue-1 border-blue-1 rounded-lg px-5 py-1 whitespace-nowrap"
+							class={(suggestedWords.type == 'lemmas' ? 'bg-blue-4 text-white' : 'bg-blue-1') +
+								' border-blue-1 rounded-lg px-5 py-1 whitespace-nowrap'}
 							on:click={() => onAnswer(suggestedWord)}
 							type="button"
 						>

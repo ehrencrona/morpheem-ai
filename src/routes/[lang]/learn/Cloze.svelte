@@ -19,6 +19,7 @@
 	import { fetchAskMeAnything } from '../api/write/ama/client';
 	import Ama from './AMA.svelte';
 	import ClozeDumb from './ClozeDumb.svelte';
+	import type { SuggestedWords } from './ClozeDumb.svelte';
 
 	export let sentence: DB.Sentence;
 	export let word: DB.Word;
@@ -54,7 +55,10 @@
 	let englishSentence: string | undefined = undefined;
 	let mnemonic: string | undefined = undefined;
 	let showChars = 0;
-	let suggestedWords: string[] = [];
+	let suggestedWords: SuggestedWords = {
+		words: [],
+		type: 'lemmas'
+	};
 	let answered: string | undefined;
 	let answeredLemma: string | undefined;
 	let isCorrectLemma: boolean | undefined;
@@ -64,7 +68,10 @@
 
 	async function clear() {
 		showChars = 0;
-		suggestedWords = [];
+		suggestedWords = {
+			words: [],
+			type: 'lemmas'
+		};
 		answered = undefined;
 		answeredLemma = undefined;
 		isCorrectLemma = undefined;
@@ -82,7 +89,7 @@
 		]);
 
 		if (exercise == 'cloze-inflection') {
-			suggestedWords = inflections;
+			suggestedWords = { type: 'inflections', words: inflections };
 			answeredLemma = word.word;
 			isCorrectLemma = true;
 		}
@@ -154,7 +161,7 @@
 			const sw = prefix.length > 0 && showChars < 100 ? await fetchWordsByPrefix(prefix) : [];
 
 			if (oldTypeCount == typeCount) {
-				suggestedWords = sw;
+				suggestedWords = { type: 'lemmas', words: sw };
 			}
 		} catch (e) {
 			console.error(e);
@@ -174,7 +181,10 @@
 		const isRightInflection = standardize(answerGiven) == conjugatedWord;
 
 		if (!answeredLemma && isDictionaryForm && !isRightInflection && inflections.length) {
-			suggestedWords = inflections;
+			suggestedWords = {
+				type: 'inflections',
+				words: inflections
+			};
 
 			answeredLemma = answerGiven;
 

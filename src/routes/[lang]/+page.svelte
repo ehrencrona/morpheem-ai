@@ -145,7 +145,7 @@
 			exercises = scoreExercises(unscored).filter(filter);
 		}
 
-		if (!exercises.length ) {
+		if (!exercises.length) {
 			throw new Error('No exercises found');
 		}
 
@@ -156,7 +156,7 @@
 			const toPercent = (n: number | null) => (n != null ? Math.round(n * 100) + '%' : '-');
 
 			console.log(
-				`Choosing ${exercise.word ? `${exercise.word} (${exercise.wordId})` : `sentence ${exercise.sentenceId}`}, ${exercise.exercise}: ${toPercent(exercise.alpha)}/${toPercent(exercise.beta)}, age ${n - exercise.lastTime} = ${toPercent(exercise.score)}`
+				`Choosing ${exercise.exercise} ${exercise.word ? `${exercise.word} (${exercise.wordId}), ` : ''}sentence ${exercise.sentenceId}: ${toPercent(exercise.alpha)}/${toPercent(exercise.beta)}, age ${n - exercise.lastTime} = ${toPercent(exercise.score)}`
 			);
 
 			for (const source of ['studied', 'userExercise', 'unstudied'] as const) {
