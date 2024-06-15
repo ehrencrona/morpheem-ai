@@ -130,7 +130,7 @@ export async function generateWritingFeedback(
 		wordId: null,
 		word: null,
 		// ?
-		level: 50,
+		level: enteredWords.concat(newWords).reduce((acc, word) => Math.max(acc, word.level), 0),
 		exercise: 'translate',
 		isKnown: knewOverallSentence
 	});
