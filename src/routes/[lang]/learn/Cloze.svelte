@@ -172,8 +172,8 @@
 		}
 	}
 
-	async function onAnswer(newAnswered: string) {
-const		answered = standardize(newAnswered);
+	async function onAnswer(answered: string) {
+		answered = standardize(answered);
 
 		const conjugatedWord = toWords(sentence.sentence, language)[
 			sentenceWords.findIndex((w) => w.id === word.id)
@@ -184,16 +184,6 @@ const		answered = standardize(newAnswered);
 		let isAnyInflection = inflections.includes(answered);
 
 		let isCorrectLemma = isPickingInflection ? true : isCorrectInflection || isAnyInflection;
-
-		console.log('onAnswer', {
-			answered,
-			conjugatedWord,
-			isDictionaryForm,
-			isCorrectInflection,
-			isAnyInflection,
-			isCorrectLemma,
-			isPickingInflection
-		});
 
 		if (!isPickingInflection && isDictionaryForm && !isCorrectInflection && inflections.length) {
 			suggestedWords = {
@@ -206,13 +196,15 @@ const		answered = standardize(newAnswered);
 			return;
 		}
 
-		onReveal();
-
 		evaluation = {
 			answered,
 			isCorrectLemma,
 			isCorrectInflection
 		};
+
+		console.log(
+			`Answered "${answered}". Correct conjugated: "${conjugatedWord}". isCorrectLemma: ${isCorrectLemma}`
+		);
 
 		if (
 			!((isPickingInflection && isCorrectInflection) || (!isPickingInflection && isCorrectLemma))
@@ -232,6 +224,9 @@ const		answered = standardize(newAnswered);
 
 			if (word === wordWas) {
 				if (gotEvaluation.isPossible) {
+					console.log(
+						`${gotEvaluation.differentWord?.word} (${gotEvaluation.differentWord?.id}) was unexpected but possible. Expected ${word.word} (${word.id}).`
+					);
 					isCorrectLemma = true;
 					isCorrectInflection = true;
 				}

@@ -128,7 +128,9 @@
 	<div class="text-4xl mb-8 mt-8 font-medium">
 		{#each wordsWithSeparators as wordString, index}{#if !isSeparator(wordString)}{#if standardize(wordString) == standardize(conjugatedWord)}
 					{#if evaluation}
-						<span class={evaluation.isCorrectInflection ? 'text-green' : 'text-red'}>{wordString}</span>{:else}
+						<span class={evaluation.isCorrectInflection ? 'text-green' : 'text-red'}
+							>{wordString}</span
+						>{:else}
 						<div class="inline-flex flex-col -mb-1">
 							<span class="whitespace-nowrap">
 								{wordString.slice(0, showChars)}<input
@@ -220,10 +222,11 @@
 			{:else}
 				<div class="mb-4">Not the word we were looking for, but your answer is also correct.</div>
 			{/if}
-		{:else}
+		{:else if evaluation.answered}
 			<div class="mb-4">
-				You picked <b>{evaluation.answered}</b>{#if evaluation.isCorrectLemma && !evaluation.isCorrectInflection}, which is the wrong
-					form of the right word{/if}.
+				You picked <b>{evaluation.answered}</b
+				>{#if evaluation.isCorrectLemma && !evaluation.isCorrectInflection}, which is the wrong form
+					of the right word{/if}.
 				{evaluation.message || ''}
 			</div>
 		{/if}
