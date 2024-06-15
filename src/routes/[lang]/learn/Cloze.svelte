@@ -19,7 +19,7 @@
 	import { fetchAskMeAnything } from '../api/write/ama/client';
 	import Ama from './AMA.svelte';
 	import ClozeDumb from './ClozeDumb.svelte';
-	import type { SuggestedWords } from './ClozeDumb.svelte';
+	import type { Evaluation, SuggestedWords } from './ClozeDumb.svelte';
 
 	export let sentence: DB.Sentence;
 	export let word: DB.Word;
@@ -28,13 +28,6 @@
 	export let sendKnowledge: SendKnowledge;
 	export let source: DB.ExerciseSource;
 	export let exercise: 'cloze' | 'cloze-inflection' = 'cloze';
-
-	interface Evaluation {
-		isCorrectLemma: boolean;
-		isCorrectInflection: boolean;
-		message?: string;
-		isPossibleDifferentWord?: DB.Word;
-	}
 
 	let error: any;
 	let isLoadingSuggestions = false;
@@ -64,7 +57,6 @@
 		words: [],
 		type: 'lemma'
 	};
-	let answered: string | undefined;
 	let isPickingInflection = false;
 	let evaluation: Evaluation | undefined = undefined;
 
@@ -76,7 +68,6 @@
 			words: [],
 			type: 'lemma'
 		};
-		answered = undefined;
 		isPickingInflection = false;
 		englishWord = undefined;
 		englishSentence = undefined;
@@ -141,6 +132,7 @@
 		showChars = 100;
 
 		evaluation = {
+			answered: '',
 			isCorrectLemma: exercise == 'cloze-inflection',
 			isCorrectInflection: false
 		};
@@ -181,7 +173,7 @@
 	}
 
 	async function onAnswer(newAnswered: string) {
-		answered = standardize(newAnswered);
+const		answered = standardize(newAnswered);
 
 		const conjugatedWord = toWords(sentence.sentence, language)[
 			sentenceWords.findIndex((w) => w.id === word.id)
@@ -217,6 +209,7 @@
 		onReveal();
 
 		evaluation = {
+			answered,
 			isCorrectLemma,
 			isCorrectInflection
 		};
@@ -237,13 +230,14 @@
 				isWrongInflection: !isCorrectInflection && isCorrectLemma
 			});
 
-			if (word.id == wordWas.id) {
+			if (word === wordWas) {
 				if (gotEvaluation.isPossible) {
 					isCorrectLemma = true;
 					isCorrectInflection = true;
 				}
 
 				evaluation = {
+					answered,
 					isCorrectLemma,
 					isCorrectInflection,
 					message: gotEvaluation.message,
@@ -315,7 +309,7 @@
 	{sentence}
 	{word}
 	{sentenceWords}
-	evaluation={evaluation?.message}
+	{evaluation}
 	{exercise}
 	{onHint}
 	onNext={storeAndContinue}
@@ -325,16 +319,12 @@
 	{onType}
 	{onAnswer}
 	{onTranslate}
-	isCorrectInflection={evaluation?.isCorrectInflection}
-	isCorrectLemma={evaluation?.isCorrectLemma}
-	isPossibleDifferentWord={!!evaluation?.isPossibleDifferentWord}
 	{isPickingInflection}
 	{englishWord}
 	{englishSentence}
 	{mnemonic}
 	{showChars}
 	{suggestedWords}
-	{answered}
 	{revealed}
 	{language}
 	{isLoadingSuggestions}
@@ -350,7 +340,7 @@
 			exercise: 'cloze',
 			question,
 			word: word.word,
-			confusedWord: answered,
+			confusedWord: evaluation?.answered,
 			sentence: sentence.sentence,
 			revealed
 		})}

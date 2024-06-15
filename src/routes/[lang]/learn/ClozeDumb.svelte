@@ -3,6 +3,14 @@
 		type: 'inflection' | 'lemma';
 		words: string[];
 	}
+
+	export interface Evaluation {
+		answered: string;
+		isCorrectLemma: boolean;
+		isCorrectInflection: boolean;
+		message?: string;
+		isPossibleDifferentWord?: DB.Word;
+	}
 </script>
 
 <script lang="ts">
@@ -35,13 +43,11 @@
 		type: 'lemma',
 		words: []
 	};
-	export let answered: string | undefined;
-	export let evaluation: string | undefined;
+
+	export let evaluation: Evaluation | undefined;
+
 	export let isPickingInflection: boolean;
 	export let isLoadingSuggestions = false;
-	export let isCorrectInflection: boolean | undefined;
-	export let isCorrectLemma: boolean | undefined;
-	export let isPossibleDifferentWord: Boolean | undefined;
 
 	export let revealed: UnknownWordResponse[];
 
@@ -70,8 +76,6 @@
 	onMount(() => {
 		input.focus();
 	});
-
-	$: isRevealed = showChars >= word.word.length;
 
 	$: if (prefix != null || showChars > 0) {
 		onType(answer);
@@ -123,8 +127,8 @@
 <form on:submit={onSubmit}>
 	<div class="text-4xl mb-8 mt-8 font-medium">
 		{#each wordsWithSeparators as wordString, index}{#if !isSeparator(wordString)}{#if standardize(wordString) == standardize(conjugatedWord)}
-					{#if isRevealed}
-						<span class={isCorrectInflection ? 'text-green' : 'text-red'}>{wordString}</span>{:else}
+					{#if evaluation}
+						<span class={evaluation.isCorrectInflection ? 'text-green' : 'text-red'}>{wordString}</span>{:else}
 						<div class="inline-flex flex-col -mb-1">
 							<span class="whitespace-nowrap">
 								{wordString.slice(0, showChars)}<input
@@ -156,7 +160,7 @@
 		</div>
 	{/if}
 
-	{#if !isRevealed}
+	{#if !evaluation}
 		{#if revealed.length > 0}
 			<div class="grid grid-cols-1 md:grid-cols-2 w-full gap-x-4 mt-8">
 				{#each revealed as word (word.id)}
@@ -210,17 +214,17 @@
 			<SpinnerButton onClick={onReveal}>Reveal</SpinnerButton>
 		</div>
 	{:else}
-		{#if isCorrectInflection}
-			{#if !isPossibleDifferentWord}
+		{#if evaluation.isCorrectInflection}
+			{#if !evaluation.isPossibleDifferentWord}
 				<div class="mb-4">Correct!</div>
 			{:else}
 				<div class="mb-4">Not the word we were looking for, but your answer is also correct.</div>
 			{/if}
-		{:else if answered}
+		{:else}
 			<div class="mb-4">
-				You picked <b>{answered}</b>{#if isCorrectLemma && !isCorrectInflection}, which is the wrong
+				You picked <b>{evaluation.answered}</b>{#if evaluation.isCorrectLemma && !evaluation.isCorrectInflection}, which is the wrong
 					form of the right word{/if}.
-				{evaluation || ''}
+				{evaluation.message || ''}
 			</div>
 		{/if}
 
