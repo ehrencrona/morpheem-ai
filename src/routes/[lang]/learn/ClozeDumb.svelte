@@ -221,7 +221,7 @@
 				<div class="mb-4">Correct!</div>
 			{:else}
 				<div class="mb-4">
-					We were actually looking for the word <b>{word.word}</b>, but your answer is also correct.
+					We were actually looking for the word <b>{conjugatedWord}</b>, but your answer is also correct.
 				</div>
 			{/if}
 		{:else if evaluation.answered}
