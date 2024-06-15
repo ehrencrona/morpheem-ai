@@ -129,7 +129,7 @@
 		{#each wordsWithSeparators as wordString, index}{#if !isSeparator(wordString)}{#if standardize(wordString) == standardize(conjugatedWord)}
 					{#if evaluation}
 						<span class={evaluation.isCorrectInflection ? 'text-green' : 'text-red'}
-							>{wordString}</span
+							>{evaluation.isPossibleDifferentWord ? evaluation.answered : wordString}</span
 						>{:else}
 						<div class="inline-flex flex-col -mb-1">
 							<span class="whitespace-nowrap">
@@ -220,7 +220,9 @@
 			{#if !evaluation.isPossibleDifferentWord}
 				<div class="mb-4">Correct!</div>
 			{:else}
-				<div class="mb-4">Not the word we were looking for, but your answer is also correct.</div>
+				<div class="mb-4">
+					We were actually looking for the word <b>{word.word}</b>, but your answer is also correct.
+				</div>
 			{/if}
 		{:else if evaluation.answered}
 			<div class="mb-4">

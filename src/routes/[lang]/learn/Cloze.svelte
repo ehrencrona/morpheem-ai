@@ -186,6 +186,10 @@
 		let isCorrectLemma = isPickingInflection ? true : isCorrectInflection || isAnyInflection;
 
 		if (!isPickingInflection && isDictionaryForm && !isCorrectInflection && inflections.length) {
+			console.log(
+				`Picked dictionary form ${answered} but wrong inflection (${conjugatedWord}). Pick inflection among ${inflections.join(', ')}.`
+			);
+
 			suggestedWords = {
 				type: 'inflection',
 				words: inflections
