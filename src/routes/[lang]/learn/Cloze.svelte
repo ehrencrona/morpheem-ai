@@ -174,7 +174,7 @@
 	}
 
 	async function onPickedWord(answered: string) {
-		if (!isPickingInflection && inflections.length > 1) {
+		if (!isPickingInflection && answered == word.word && inflections.length > 1) {
 			console.log(`Picked word "${answered}". Pick inflection among ${inflections.join(', ')}.`);
 
 			suggestedWords = {
