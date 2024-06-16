@@ -210,9 +210,7 @@
 			`Answered "${answered}". Correct conjugated: "${conjugatedWord}". isCorrectLemma: ${isCorrectLemma}`
 		);
 
-		if (
-			!((isPickingInflection && isCorrectInflection) || (!isPickingInflection && isCorrectLemma))
-		) {
+		if (!(isCorrectLemma && isCorrectInflection)) {
 			const wordWas = word;
 			const gotEvaluation = await fetchClozeEvaluation({
 				cloze: toWordsWithSeparators(sentence.sentence, language).reduce(
