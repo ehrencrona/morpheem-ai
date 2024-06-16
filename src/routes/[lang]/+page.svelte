@@ -176,7 +176,13 @@
 				);
 			}
 
-			exercises = exercises.filter((e) => e.score > 0.02).slice(0, 6);
+			const isRelevant = (e: { score: number }) => e.score > 0.02;
+
+			if (exercises.some(isRelevant)) {
+				exercises = exercises.filter(isRelevant).slice(0, 6);
+			} else {
+				console.warn(`All exercises had very low score.`);
+			}
 		}
 
 		let { wordId, exercise, source, sentenceId } = exercises[0];
