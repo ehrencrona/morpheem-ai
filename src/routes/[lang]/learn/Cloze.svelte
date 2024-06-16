@@ -81,7 +81,7 @@
 			fetchInflections(word.id).catch((e) => (error = e))
 		]);
 
-		if (exercise == 'cloze-inflection') {
+		if (exercise == 'cloze-inflection' && inflections.length > 1) {
 			suggestedWords = { type: 'inflection', words: inflections };
 			isPickingInflection = true;
 		}
@@ -134,7 +134,8 @@
 		evaluation = {
 			answered: '',
 			isCorrectLemma: exercise == 'cloze-inflection',
-			isCorrectInflection: false
+			isCorrectInflection: false,
+			isTypo: false
 		};
 	}
 
@@ -202,7 +203,8 @@
 		evaluation = {
 			answered,
 			isCorrectLemma,
-			isCorrectInflection
+			isCorrectInflection,
+			isTypo: false
 		};
 
 		console.log(
@@ -219,27 +221,23 @@
 				),
 				clue: englishWord || '',
 				userAnswer: answered,
-				correctAnswer: conjugatedWord,
+				correctAnswer: {
+					id: word.id,
+					conjugated: conjugatedWord
+				},
 				isWrongInflection: !isCorrectInflection && isCorrectLemma
 			});
 
 			if (word === wordWas) {
-				if (gotEvaluation.isPossible) {
+				if (gotEvaluation.differentWord) {
 					console.log(
 						`${gotEvaluation.differentWord?.word} (${gotEvaluation.differentWord?.id}) was unexpected but possible. Expected ${word.word} (${word.id}).`
 					);
-					isCorrectLemma = true;
-					isCorrectInflection = true;
 				}
 
 				evaluation = {
 					answered,
-					isCorrectLemma,
-					isCorrectInflection,
-					message: gotEvaluation.message,
-					isPossibleDifferentWord: gotEvaluation.isPossible
-						? gotEvaluation.differentWord
-						: undefined
+					...gotEvaluation
 				};
 			}
 		}
@@ -250,7 +248,7 @@
 			throw new Error(`Invalid state, evaluation is undefined`);
 		}
 
-		const { isCorrectInflection, isCorrectLemma, isPossibleDifferentWord } = evaluation;
+		const { isCorrectInflection, isCorrectLemma, differentWord } = evaluation;
 
 		sendKnowledge(
 			filterUndefineds(
@@ -261,8 +259,8 @@
 						return undefined;
 					}
 
-					if (isClozeWord && isPossibleDifferentWord) {
-						sentenceWord = isPossibleDifferentWord;
+					if (isClozeWord && differentWord) {
+						sentenceWord = differentWord;
 					}
 
 					return {

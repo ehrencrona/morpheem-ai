@@ -6,7 +6,7 @@ const postSchema = z.object({
 	cloze: z.string(),
 	clue: z.string(),
 	userAnswer: z.string(),
-	correctAnswer: z.string(),
+	correctAnswer: z.object({ conjugated: z.string(), id: z.number() }),
 	isWrongInflection: z.boolean()
 });
 

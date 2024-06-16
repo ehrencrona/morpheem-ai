@@ -8,8 +8,9 @@
 		answered: string;
 		isCorrectLemma: boolean;
 		isCorrectInflection: boolean;
-		message?: string;
-		isPossibleDifferentWord?: DB.Word;
+		isTypo: boolean;
+		evaluation?: string;
+		differentWord?: DB.Word & { conjugated: string };
 	}
 </script>
 
@@ -130,7 +131,7 @@
 		{#each wordsWithSeparators as wordString, index}{#if !isSeparator(wordString)}{#if standardize(wordString) == standardize(conjugatedWord)}
 					{#if evaluation}
 						<span class={evaluation.isCorrectInflection ? 'text-green' : 'text-red'}
-							>{evaluation.isPossibleDifferentWord ? evaluation.answered : wordString}</span
+							>{evaluation.differentWord?.conjugated || wordString}</span
 						>{:else}
 						<div class="inline-flex flex-col -mb-1">
 							<span class="whitespace-nowrap">
@@ -228,21 +229,24 @@
 		</div>
 	{:else}
 		{#if evaluation.isCorrectInflection}
-			{#if !evaluation.isPossibleDifferentWord}
+			{#if !evaluation.differentWord}
 				<div class="mb-4">Correct!</div>
 			{:else}
 				<div class="mb-4">
 					We were actually looking for the word <b>{conjugatedWord}</b>, but your answer is also
-					correct.
-					{evaluation.message || ''}
+					possible.
+					{evaluation.evaluation || ''}
 				</div>
 			{/if}
-		{:else if evaluation.answered}
+			{#if evaluation.isTypo}
+				<div class="mb-4">However, it is not spelled "{evaluation.answered}".</div>
+			{/if}
+		{:else}
 			<div class="mb-4">
 				You picked <b>{evaluation.answered}</b
 				>{#if evaluation.isCorrectLemma && !evaluation.isCorrectInflection}, which is the wrong form
 					of the right word{/if}.
-				{evaluation.message || ''}
+				{evaluation.evaluation || ''}
 			</div>
 		{/if}
 

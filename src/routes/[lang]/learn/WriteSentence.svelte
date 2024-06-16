@@ -169,7 +169,7 @@
 			question,
 			word: word?.word,
 			sentenceEntered: entered,
-			sentenceCorrected: exercise == 'write' ? feedback?.correctedSentence || undefined : undefined,
+			sentenceCorrected: exercise == 'write' ? feedback?.correctedSentence || undefined : undefined, 
 			correctTranslation: exercise == 'translate' ? correctSentence : undefined
 		});
 
