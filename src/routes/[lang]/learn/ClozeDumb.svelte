@@ -58,7 +58,7 @@
 	export let onReveal: () => Promise<any>;
 	export let onTranslate: () => Promise<any>;
 	export let onType: (prefix: string) => void;
-	export let onAnswer: (wordString: string) => void;
+	export let onAnswer: (wordString: string) => Promise<void>;
 
 	$: answer = conjugatedWord.slice(0, showChars) + (prefix?.trim() || '');
 
@@ -219,7 +219,11 @@
 
 			<SpinnerButton onClick={onTranslate} type="secondary">Translate</SpinnerButton>
 
-			<SpinnerButton onClick={onReveal}>Reveal</SpinnerButton>
+			{#if prefix}
+				<SpinnerButton onClick={() => onAnswer(prefix || '')}>Submit</SpinnerButton>
+			{:else}
+				<SpinnerButton onClick={onReveal}>Reveal</SpinnerButton>
+			{/if}
 		</div>
 	{:else}
 		{#if evaluation.isCorrectInflection}
