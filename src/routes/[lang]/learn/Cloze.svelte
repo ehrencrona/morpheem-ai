@@ -121,7 +121,7 @@
 	}
 
 	async function onHint() {
-		if (showChars < 2) {
+		if (showChars < 2 && showChars < word.word.length - 1) {
 			showChars++;
 		} else {
 			onReveal();
@@ -329,7 +329,7 @@
 	{isLoadingSuggestions}
 />
 
-{#if showChars >= word.word.length}
+{#if evaluation}
 	<Speak url={`/${language.code}/api/sentences/${sentence.id}/tts.opus`} />
 {/if}
 
