@@ -9,6 +9,7 @@ const postSchema = z
 		exercise: z.literal('write').or(z.literal('translate')),
 		sentenceEntered: z.string().optional(),
 		sentenceCorrected: z.string().optional(),
+		correctTranslation: z.string().optional(),
 		sentence: z.string().optional(),
 		word: z.string().optional(),
 		question: z.string()

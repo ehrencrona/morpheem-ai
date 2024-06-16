@@ -6,6 +6,7 @@ export async function askMeAnythingWrite({
 	sentence,
 	sentenceEntered,
 	sentenceCorrected,
+	correctTranslation,
 	word,
 	question,
 	languagesSpoken,
@@ -15,6 +16,7 @@ export async function askMeAnythingWrite({
 	sentence?: string;
 	sentenceEntered?: string;
 	sentenceCorrected?: string;
+	correctTranslation?: string;
 	word?: string;
 	question: string;
 	languagesSpoken: string;
@@ -27,7 +29,7 @@ export async function askMeAnythingWrite({
 				role: 'system',
 				content: `${
 					exercise == 'translate'
-						? `The user is doing a translation exercise in ${language.name}.`
+						? `The user is doing a translation exercise in ${language.name}. The expected translation is "${correctTranslation}"`
 						: `The user is practicing writing in ${language.name}`
 				}. Briefly but helpfully and friendly answer the question in English. If the user wrote an English word or phrase, provide the ${language.name} translation. Do not provide the whole sentence for the user (unless explicitly asked for).`
 			},
