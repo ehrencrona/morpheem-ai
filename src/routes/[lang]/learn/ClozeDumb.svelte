@@ -14,17 +14,17 @@
 </script>
 
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import { slide } from 'svelte/transition';
+	import Error from '../../../components/Error.svelte';
+	import Spinner from '../../../components/Spinner.svelte';
+	import SpinnerButton from '../../../components/SpinnerButton.svelte';
 	import * as DB from '../../../db/types';
 	import { standardize } from '../../../logic/isomorphic/standardize';
 	import { isSeparator, toWords, toWordsWithSeparators } from '../../../logic/toWords';
 	import type { Language, SentenceWord } from '../../../logic/types';
 	import type { UnknownWordResponse } from '../api/word/unknown/+server';
-	import SpinnerButton from '../../../components/SpinnerButton.svelte';
 	import WordCard from './WordCard.svelte';
-	import Spinner from '../../../components/Spinner.svelte';
-	import Error from '../../../components/Error.svelte';
-	import { onMount } from 'svelte';
 
 	export let sentence: DB.Sentence;
 	export let sentenceWords: SentenceWord[];
@@ -143,7 +143,13 @@
 								/>
 							</span>
 							<span class="text-xs font-lato text-right">
-								"{englishWord || '...'}"
+								{#if englishWord}
+									"{englishWord}"
+								{:else}
+									<div class="w-full flex items-center justify-center">
+										<Spinner />
+									</div>
+								{/if}
 							</span>
 						</div>
 					{/if}{:else}<span
@@ -221,7 +227,8 @@
 				<div class="mb-4">Correct!</div>
 			{:else}
 				<div class="mb-4">
-					We were actually looking for the word <b>{conjugatedWord}</b>, but your answer is also correct.
+					We were actually looking for the word <b>{conjugatedWord}</b>, but your answer is also
+					correct.
 				</div>
 			{/if}
 		{:else if evaluation.answered}
