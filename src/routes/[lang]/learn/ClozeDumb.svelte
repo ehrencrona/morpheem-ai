@@ -59,6 +59,7 @@
 	export let onTranslate: () => Promise<any>;
 	export let onType: (prefix: string) => void;
 	export let onAnswer: (wordString: string) => Promise<void>;
+	export let onPickedWord: (wordString: string) => Promise<void>;
 
 	$: answer = conjugatedWord.slice(0, showChars) + (prefix?.trim() || '');
 
@@ -202,7 +203,7 @@
 						<button
 							class={(suggestedWords.type == 'inflection' ? 'bg-blue-4 text-white' : 'bg-blue-1') +
 								' border-blue-1 rounded-lg px-5 py-1 whitespace-nowrap'}
-							on:click={() => onAnswer(suggestedWord)}
+							on:click={() => onPickedWord(suggestedWord)}
 							type="button"
 						>
 							{suggestedWord}

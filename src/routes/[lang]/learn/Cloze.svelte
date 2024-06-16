@@ -172,23 +172,9 @@
 		}
 	}
 
-	async function onAnswer(answered: string) {
-		answered = standardize(answered);
-
-		const conjugatedWord = toWords(sentence.sentence, language)[
-			sentenceWords.findIndex((w) => w.id === word.id)
-		];
-
-		const isDictionaryForm = answered == word.word;
-		let isCorrectInflection = answered == conjugatedWord;
-		let isAnyInflection = inflections.includes(answered);
-
-		let isCorrectLemma = isPickingInflection ? true : isCorrectInflection || isAnyInflection;
-
-		if (!isPickingInflection && isDictionaryForm && !isCorrectInflection && inflections.length) {
-			console.log(
-				`Picked dictionary form ${answered} but wrong inflection (${conjugatedWord}). Pick inflection among ${inflections.join(', ')}.`
-			);
+	async function onPickedWord(answered: string) {
+		if (!isPickingInflection && inflections.length > 1) {
+			console.log(`Picked word "${answered}". Pick inflection among ${inflections.join(', ')}.`);
 
 			suggestedWords = {
 				type: 'inflection',
@@ -196,9 +182,22 @@
 			};
 
 			isPickingInflection = true;
-
-			return;
+		} else {
+			await onAnswer(answered);
 		}
+	}
+
+	async function onAnswer(answered: string) {
+		answered = standardize(answered);
+
+		const conjugatedWord = toWords(sentence.sentence, language)[
+			sentenceWords.findIndex((w) => w.id === word.id)
+		];
+
+		let isCorrectInflection = answered == conjugatedWord;
+		let isAnyInflection = inflections.includes(answered);
+
+		let isCorrectLemma = isCorrectInflection || isAnyInflection;
 
 		evaluation = {
 			answered,
@@ -315,6 +314,7 @@
 	{onReveal}
 	{onType}
 	{onAnswer}
+	{onPickedWord}
 	{onTranslate}
 	{isPickingInflection}
 	{englishWord}
