@@ -229,6 +229,7 @@
 				<div class="mb-4">
 					We were actually looking for the word <b>{conjugatedWord}</b>, but your answer is also
 					correct.
+					{evaluation.message || ''}
 				</div>
 			{/if}
 		{:else if evaluation.answered}
