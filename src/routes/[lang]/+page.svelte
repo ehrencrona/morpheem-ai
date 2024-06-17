@@ -277,6 +277,8 @@
 	}
 
 	async function showNextSentence() {
+		error = undefined;
+
 		const {
 			sentence,
 			wordId,
@@ -328,8 +330,6 @@
 				exercise
 			};
 		}
-
-		error = undefined;
 	}
 
 	onMount(() => init().catch((e) => (error = e)));

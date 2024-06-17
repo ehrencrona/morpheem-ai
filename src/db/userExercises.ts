@@ -11,29 +11,40 @@ export async function upsertUserExercise(
 ): Promise<void> {
 	const exercise_type = exerciseToKnowledgeType(exercise);
 
-	await db
-		.withSchema(language.code)
-		.insertInto('user_exercises')
-		.values({
-			user_id: userId,
-			sentence_id: sentenceId,
-			word_id: wordId,
-			exercise_type,
-			level,
-			alpha,
-			beta,
-			last_time: new Date()
-		})
-		.onConflict((oc) =>
-			oc.columns(['user_id', 'sentence_id', 'word_id']).doUpdateSet({
+	try {
+		await db
+			.withSchema(language.code)
+			.insertInto('user_exercises')
+			.values({
+				user_id: userId,
+				sentence_id: sentenceId,
+				word_id: wordId,
+				exercise_type,
 				level,
 				alpha,
 				beta,
-				exercise_type,
 				last_time: new Date()
 			})
-		)
-		.execute();
+			.execute();
+	} catch (e: any) {
+		// constraint violation. we can't do oc here because there's a partial index to handle null values
+		// and I can't seem to target that one
+		if (e.code == '23503') {
+			await db
+				.withSchema(language.code)
+				.updateTable('user_exercises')
+				.set({
+					level,
+					alpha,
+					beta,
+					exercise_type,
+					last_time: new Date()
+				})
+				.execute();
+		} else {
+			throw e;
+		}
+	}
 }
 
 export async function getUserExercise(
