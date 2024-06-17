@@ -16,6 +16,7 @@
 	import WordCard from './WordCard.svelte';
 	import Speak from '../../../components/Speak.svelte';
 	import Spinner from '../../../components/Spinner.svelte';
+	import { splitIntoDiff } from '$lib/splitIntoDiff';
 
 	export let word: { id: number; word: string; level: number } | undefined;
 	export let onNext: () => Promise<any>;
@@ -46,6 +47,11 @@
 	let input: HTMLInputElement;
 
 	$: isRevealed = word && (showChars > 2 || showChars > word.word.length - 1);
+
+
+	$: correct = exercise == 'write' ? feedback?.correctedSentence || entered : correctSentence;
+	$: correctParts = splitIntoDiff(correct || '', entered);
+	$: enteredParts = splitIntoDiff(entered || '', correct || '');
 
 	function clear() {
 		entered = '';
@@ -249,8 +255,8 @@
 			{/if}
 		{:else}
 			{#if !!feedback.correctedPart}
-				<div class="text-xl font-bold mb-6 text-balance line-through">
-					{entered}
+				<div class="text-xl font-bold mb-6 text-balance">
+					{enteredParts[0]}<span class="line-through">{enteredParts[1]}</span>{enteredParts[2]}
 				</div>
 			{/if}
 
@@ -259,7 +265,7 @@
 			</div>
 
 			<div class="text-xl font-bold mb-6 text-balance">
-				{exercise == 'write' ? feedback.correctedSentence || entered : correctSentence}
+				{correctParts[0]}<span class="text-red">{correctParts[1]}</span>{correctParts[2]}
 			</div>
 		{/if}
 
