@@ -4,7 +4,7 @@
 	import { slide } from 'svelte/transition';
 	import Error from '../../../components/Error.svelte';
 	import SpinnerButton from '../../../components/SpinnerButton.svelte';
-	import type { WritingFeedbackResponse } from '../../../logic/generateWritingFeedback';
+	import type { WritingFeedbackResponse } from '../../../logic/evaluateWrite';
 	import type { Language } from '../../../logic/types';
 	import type { UnknownWordResponse } from '../api/word/unknown/+server';
 	import { lookupUnknownWord } from '../api/word/unknown/client';
@@ -15,6 +15,7 @@
 	import AMA from './AMA.svelte';
 	import WordCard from './WordCard.svelte';
 	import Speak from '../../../components/Speak.svelte';
+	import Spinner from '../../../components/Spinner.svelte';
 
 	export let word: { id: number; word: string; level: number } | undefined;
 	export let onNext: () => Promise<any>;
@@ -169,7 +170,7 @@
 			question,
 			word: word?.word,
 			sentenceEntered: entered,
-			sentenceCorrected: exercise == 'write' ? feedback?.correctedSentence || undefined : undefined, 
+			sentenceCorrected: exercise == 'write' ? feedback?.correctedSentence || undefined : undefined,
 			correctTranslation: exercise == 'translate' ? correctSentence : undefined
 		});
 
@@ -199,7 +200,9 @@
 		<h1 class="mb-4 text-xl">
 			{#if isRevealed}
 				{word?.word}
-			{:else if lookedUpWord}"{lookedUpWord?.english}"{:else}...{/if}
+			{:else if lookedUpWord}"{lookedUpWord?.english}"{:else}
+				<Spinner />
+			{/if}
 		</h1>
 	{/if}
 
@@ -208,7 +211,13 @@
 			{#if exercise === 'translate'}
 				<div class="text-sm mb-6" in:slide>
 					<div class="text-xs font-lato">Translate into {language.name}:</div>
-					<div class="text-xl">"{englishSentence || '...'}"</div>
+					<div class="text-xl">
+						{#if englishSentence}
+							"{englishSentence}"
+						{:else}
+							<Spinner />
+						{/if}
+					</div>
 				</div>
 			{:else}
 				<p class="mb-4 font-lato text-xs">
