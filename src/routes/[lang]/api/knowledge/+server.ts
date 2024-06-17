@@ -19,6 +19,16 @@ export const POST: ServerLoad = async ({ url, request, locals: { userId, languag
 		})
 		.parse(await request.json());
 
+	console.log(
+		`Updating knowledge ${words
+			.map((k) => `word ${k.wordId} ${k.isKnown ? 'knew' : 'did not know'}`)
+			.join(', ')}, user exercises ${(
+			userExercises?.map(
+				(k) => `word ${k.wordId} sentence ${k.sentenceId} ${k.isKnown ? 'knew' : 'did not know'}`
+			) || []
+		).join(', ')} for user ${userId} in language ${language}`
+	);
+
 	await Promise.all([
 		userExercises ? updateUserExercises(userExercises, userId, language) : undefined,
 		updateKnowledge(
