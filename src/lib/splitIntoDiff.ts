@@ -1,4 +1,4 @@
-export function splitIntoDiff(a: string, b: string) {
+export function splitIntoDiff(a: string | undefined, b: string | undefined) {
 	if (!a) {
 		return ['', '', ''];
 	}
