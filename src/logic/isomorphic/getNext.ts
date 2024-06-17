@@ -67,6 +67,11 @@ export function canWriteAllWords(
 	});
 }
 
+/** If a word is cognate, we discount the level. */
+export function getLevelForCognate(level: number) {
+	return Math.round(level / 4);
+}
+
 export function getNextSentence(
 	sentences: CandidateSentenceWithWords[],
 	knowledge: AggKnowledgeForUser[],
@@ -89,14 +94,17 @@ export function getNextSentence(
 			const wordKnowledge = knowledge.find((k) => k.wordId === word.id);
 
 			if (!wordKnowledge) {
+				const scoreForLevel = (level: number) => (100 - level) / 100 / 1.5;
+
 				if (word.cognate) {
-					message += ' (cognate)';
-					return 0.8;
+					message += ` (cognate, ${word.level}% level)`;
+
+					return scoreForLevel(getLevelForCognate(word.level));
 				} else {
 					message += ` (${word.level}% level)`;
 
 					// TODO: this should consider what level the user is at.
-					return (100 - word.level) / 100 / 1.5;
+					return scoreForLevel(word.level);
 				}
 			}
 

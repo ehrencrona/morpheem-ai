@@ -4,6 +4,7 @@ import { toWords } from './toWords';
 
 import * as sentences from '../db/sentences';
 import { Language } from './types';
+import { getLevelForCognate } from './isomorphic/getNext';
 
 export async function addSentence(
 	sentenceString: string,
@@ -36,7 +37,10 @@ export async function addSentence(
 
 export function calculateSentenceLevel(words: { level: number; cognate: boolean | null }[]) {
 	return Math.round(
-		words.reduce((acc, { level, cognate }) => acc * (cognate ? 10 : level + 1), 1) **
+		words.reduce(
+			(acc, { level, cognate }) => acc * ((cognate ? getLevelForCognate(level) : level) + 1),
+			1
+		) **
 			(1 / words.length)
 	);
 }

@@ -241,7 +241,7 @@
 				}
 			}
 
-			const { sentence, score } = nextSentence;
+			const { sentence } = nextSentence;
 
 			if (canWriteAllWords(sentence, knowledge) && exercise == 'write') {
 				console.log(`Turning write exercise into translate for ${sentence.id}.`);
