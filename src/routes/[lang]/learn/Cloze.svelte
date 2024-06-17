@@ -200,17 +200,39 @@
 	}
 
 	async function onPickedWord(answered: string) {
-		if (!isPickingInflection && answered == word.word && inflections.length > 1) {
-			console.log(`Picked word "${answered}". Pick inflection among ${inflections.join(', ')}.`);
+		if (!isPickingInflection) {
+			if (answered == word.word) {
+				if (inflections.length <= 1) {
+					return onAnswer(answered);
+				}
 
-			suggestedWords = {
-				type: 'inflection',
-				words: inflections
-			};
+				console.log(`Picked word "${answered}". Pick inflection among ${inflections.join(', ')}.`);
+
+				suggestedWords = {
+					type: 'inflection',
+					words: inflections
+				};
+			} else {
+				console.log(`Picked unexpected word "${answered}". Loading inflections.`);
+
+				try {
+					suggestedWords = {
+						type: 'inflection',
+						words: await fetchInflections(word.id)
+					};
+				} catch (e) {
+					error = e;
+					return;
+				}
+
+				if (suggestedWords.words.length <= 1) {
+					return onAnswer(answered);
+				}
+			}
 
 			isPickingInflection = true;
 		} else {
-			await onAnswer(answered);
+			return onAnswer(answered);
 		}
 	}
 
