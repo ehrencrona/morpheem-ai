@@ -1,11 +1,15 @@
 import { test } from 'vitest';
 import { POLISH } from '../constants';
 import { upsertUserExercise } from './userExercises';
+import { getSentenceIds } from './sentences';
 
 test('userExercises', async ({}) => {
+	const sentenceId = (await getSentenceIds(POLISH))[0].id;
+	const userId = 4711;
+
 	await upsertUserExercise(
 		{
-			sentenceId: 1,
+			sentenceId,
 			exercise: 'cloze',
 			level: 1,
 			alpha: 1,
@@ -13,13 +17,13 @@ test('userExercises', async ({}) => {
 			word: null,
 			wordId: null
 		},
-		1,
+		userId,
 		POLISH
 	);
 
 	await upsertUserExercise(
 		{
-			sentenceId: 1,
+			sentenceId,
 			exercise: 'cloze',
 			level: 1,
 			alpha: 1,
@@ -27,7 +31,7 @@ test('userExercises', async ({}) => {
 			word: null,
 			wordId: null
 		},
-		1,
+		userId,
 		POLISH
 	);
 });

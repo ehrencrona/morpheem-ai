@@ -29,7 +29,7 @@ export async function upsertUserExercise(
 	} catch (e: any) {
 		// constraint violation. we can't do oc here because there's a partial index to handle null values
 		// and I can't seem to target that one
-		if (e.code == '23503') {
+		if (e.detail.includes('already exists')) {
 			await db
 				.withSchema(language.code)
 				.updateTable('user_exercises')
