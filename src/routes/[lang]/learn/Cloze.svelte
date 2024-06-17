@@ -2,10 +2,12 @@
 	import type { SendKnowledge } from '$lib/SendKnowledge';
 	import { dedupUnknown } from '$lib/dedupUnknown';
 	import { filterUndefineds } from '$lib/filterUndefineds';
+	import { toPercent } from '$lib/toPercent';
 	import ErrorComponent from '../../../components/Error.svelte';
 	import Speak from '../../../components/Speak.svelte';
 	import { KNOWLEDGE_TYPE_CLOZE, KNOWLEDGE_TYPE_READ } from '../../../db/knowledgeTypes';
 	import * as DB from '../../../db/types';
+	import { expectedKnowledge, now } from '../../../logic/isomorphic/knowledge';
 	import { standardize } from '../../../logic/isomorphic/standardize';
 	import { toWords, toWordsWithSeparators } from '../../../logic/toWords';
 	import type { Language, SentenceWord } from '../../../logic/types';
@@ -29,10 +31,13 @@
 	export let source: DB.ExerciseSource;
 	export let exercise: 'cloze' | 'cloze-inflection' = 'cloze';
 
+	export let knowledge: DB.AggKnowledgeForUser[];
+
 	let error: any;
 	let isLoadingSuggestions = false;
 	let isFetchingEvaluation = false;
 	let revealed: UnknownWordResponse[] = [];
+	let offerSuggestions = true;
 
 	$: if (sentence.id) {
 		revealed = [];
@@ -85,6 +90,22 @@
 		if (exercise == 'cloze-inflection' && inflections.length > 1) {
 			suggestedWords = { type: 'inflection', words: inflections };
 			isPickingInflection = true;
+		}
+
+		const wordKnowledge = knowledge?.find((k) => k.wordId === word.id);
+		let chanceOfKnowing = 0;
+
+		if (wordKnowledge) {
+			chanceOfKnowing = expectedKnowledge(wordKnowledge, {
+				now: now(),
+				exercise: 'cloze'
+			});
+		}
+
+		console.log(`Chance of knowing ${word.word}: ${toPercent(chanceOfKnowing)}`);
+
+		if (chanceOfKnowing > 0.8) {
+			offerSuggestions = false;
 		}
 	}
 
@@ -147,6 +168,10 @@
 	let typeCount = 0;
 
 	async function onType(prefix: string) {
+		if (!offerSuggestions) {
+			return;
+		}
+
 		const timer = setTimeout(() => {
 			isLoadingSuggestions = true;
 		}, 100);

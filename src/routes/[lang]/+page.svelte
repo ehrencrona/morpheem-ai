@@ -434,6 +434,7 @@
 				language={getLanguageOnClient()}
 				{sendKnowledge}
 				exercise={current.exercise}
+				{knowledge}
 			/>
 		{:else}
 			<ErrorComponent
