@@ -8,10 +8,12 @@ export function updateUserExercises(
 	language: Language
 ) {
 	for (const { exercise, wordId } of exercises) {
-		const shouldHaveWord = exercise != 'translate' && exercise != 'write';
+		const shouldHaveWord = exercise != 'translate';
 
-		if (shouldHaveWord != (wordId != null)) {
-			throw new Error(`WordId was ${wordId} for exercise ${exercise}`);
+		if (shouldHaveWord && !wordId) {
+			throw new Error(`Word ID was missing for user exercise ${JSON.stringify(exercise)}`);
+		} else if (!shouldHaveWord && !!wordId) {
+			console.warn(`Word ID should not be set for user exercise ${JSON.stringify(exercise)}`);
 		}
 	}
 

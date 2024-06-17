@@ -87,11 +87,13 @@
 		sendKnowledgeClient(knowledgeToSend, addUserExercises).catch((e) => {
 			console.error(e);
 
-			setTimeout(() => {
-				sendKnowledgeClient(knowledgeToSend, addUserExercises).catch((e) => {
-					error = e;
-				});
-			}, 5000);
+			setTimeout(
+				() =>
+					sendKnowledgeClient(knowledgeToSend, addUserExercises).catch((e) => {
+						error = e;
+					}),
+				5000
+			);
 		});
 
 		knowledge = updateKnowledge(words, knowledge);

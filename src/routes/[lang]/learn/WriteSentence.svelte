@@ -91,25 +91,26 @@
 			return;
 		}
 
-		feedback =
+		feedback = await fetchWritingFeedback(
 			exercise == 'write'
-				? await fetchWritingFeedback({
+				? {
 						exercise,
+						entered,
 						word: word!.word,
-						entered
-					})
-				: await fetchWritingFeedback({
+					}
+				: {
 						exercise,
 						entered,
 						english: englishSentence!,
 						correct: correctSentence!
-					});
+					}
+		);
 
 		console.log(
 			`Feedback on "${entered}":\nCorrected sentence: ${feedback.correctedSentence}\n` +
 				`Corrected part: ${feedback.correctedPart}\n` +
 				`Unknown words: ${feedback.unknownWords.map((u) => u.word).join(', ')}\n` +
-				`User exercises: ${feedback.userExercises.map((e) => `${e.isKnown ? 'knew' : 'did not know'} ${e.exercise} (word ${e.word})`).join(', ')}`
+				`User exercises: ${feedback.userExercises.map((e) => `${e.isKnown ? 'knew' : 'did not know'} ${e.exercise} (word ${e.word || '-'})`).join(', ')}`
 		);
 
 		unknownWords = dedup([...unknownWords, ...feedback!.unknownWords]);
