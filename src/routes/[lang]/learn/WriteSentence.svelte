@@ -48,10 +48,9 @@
 
 	$: isRevealed = word && (showChars > 2 || showChars > word.word.length - 1);
 
-
 	$: correct = exercise == 'write' ? feedback?.correctedSentence || entered : correctSentence;
-	$: correctParts = splitIntoDiff(correct || '', entered);
-	$: enteredParts = splitIntoDiff(entered || '', correct || '');
+	$: correctParts = splitIntoDiff(correct, entered);
+	$: enteredParts = splitIntoDiff(entered, correct);
 
 	function clear() {
 		entered = '';

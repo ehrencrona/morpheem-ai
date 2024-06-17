@@ -1,4 +1,12 @@
 export function splitIntoDiff(a: string, b: string) {
+	if (!a) {
+		return ['', '', ''];
+	}
+
+	if (!b) {
+		return ['', a, ''];
+	}
+
 	let prefix = [...a].findIndex((c, i) => c != b[i]);
 
 	if (prefix == -1) {
