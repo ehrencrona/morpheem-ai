@@ -40,7 +40,7 @@ export async function findCognates(words: string[], language: Language): Promise
 		`
 	};
 
-	const cognateTo = language.code != 'es' ? 'English' : 'Italian';
+	const cognateTo = 'English';
 
 	const response = await ask({
 		messages: [
