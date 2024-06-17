@@ -15,4 +15,6 @@ test('splitIntoDiff', (t) => {
 	expect(splitIntoDiff('', 'def')).toEqual(['', '', '']);
 
 	expect(splitIntoDiff('abc', '')).toEqual(['', 'abc', '']);
+
+	expect(splitIntoDiff('abcd', 'aed')).toEqual(['a', 'bc', 'd']);
 });

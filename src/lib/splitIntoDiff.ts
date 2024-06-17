@@ -13,11 +13,17 @@ export function splitIntoDiff(a: string | undefined, b: string | undefined) {
 		prefix = a.length;
 	}
 
-	let suffix = [...a].findLastIndex((c, i) => c != b[i]);
+	let suffix = [...a].findLastIndex((c, i) => {
+		console.log(c, b[i - a.length + b.length]);
+
+		return c != b[i - a.length + b.length];
+	});
 
 	if (suffix == -1) {
 		suffix = a.length;
+	} else {
+		suffix++;
 	}
 
-	return [a.slice(0, prefix), a.slice(prefix, suffix + 1), a.slice(suffix + 1)];
+	return [a.slice(0, prefix), a.slice(prefix, suffix), a.slice(suffix)];
 }
