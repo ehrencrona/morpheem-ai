@@ -49,6 +49,7 @@
 
 	export let isPickingInflection: boolean;
 	export let isLoadingSuggestions = false;
+	export let isFetchingEvaluation = false;
 
 	export let revealed: UnknownWordResponse[];
 
@@ -228,30 +229,32 @@
 			{/if}
 		</div>
 	{:else}
-		{#if evaluation.isCorrectInflection}
-			{#if !evaluation.differentWord}
-				<div class="mb-4">Correct!</div>
-			{:else}
-				<div class="mb-4">
-					We were actually looking for the word <b>{conjugatedWord}</b>, but your answer is also
-					possible.
-					{evaluation.evaluation || ''}
-				</div>
-			{/if}
-			{#if evaluation.isTypo}
-				<div class="mb-4">However, it is not spelled "{evaluation.answered}".</div>
-			{/if}
+		{#if evaluation.differentWord}
+			<div class="mb-4">
+				We were actually looking for the word <b>{conjugatedWord}</b>. {evaluation.evaluation}
+			</div>
+		{:else if evaluation.isCorrectInflection && evaluation.isCorrectLemma}
+			<div class="mb-4">Correct!</div>
 		{:else}
 			<div class="mb-4">
 				You picked <b>{evaluation.answered}</b
 				>{#if evaluation.isCorrectLemma && !evaluation.isCorrectInflection}, which is the wrong form
 					of the right word{/if}.
+
+				{#if isFetchingEvaluation}
+					<Spinner />
+				{/if}
+				
 				{evaluation.evaluation || ''}
 			</div>
 		{/if}
 
+		{#if evaluation.isTypo}
+			<div class="mb-4">However, it is not spelled "{evaluation.answered}".</div>
+		{/if}
+
 		<div class="grid grid-cols-1 md:grid-cols-2 w-full gap-x-4 mt-8">
-			{#if !evaluation.isCorrectLemma}
+			{#if !evaluation.isCorrectLemma || evaluation.differentWord}
 				<WordCard inflected={conjugatedWord} {word} english={englishWord} {mnemonic} />
 			{/if}
 

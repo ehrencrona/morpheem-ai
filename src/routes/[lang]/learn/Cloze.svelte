@@ -31,6 +31,7 @@
 
 	let error: any;
 	let isLoadingSuggestions = false;
+	let isFetchingEvaluation = false;
 	let revealed: UnknownWordResponse[] = [];
 
 	$: if (sentence.id) {
@@ -213,6 +214,8 @@
 
 		if (!(isCorrectLemma && isCorrectInflection)) {
 			const wordWas = word;
+			isFetchingEvaluation = true;
+
 			const gotEvaluation = await fetchClozeEvaluation({
 				cloze: toWordsWithSeparators(sentence.sentence, language).reduce(
 					(cloze, word) =>
@@ -226,7 +229,7 @@
 					conjugated: conjugatedWord
 				},
 				isWrongInflection: !isCorrectInflection && isCorrectLemma
-			});
+			}).finally(() => (isFetchingEvaluation = false));
 
 			if (word === wordWas) {
 				if (gotEvaluation.differentWord) {
@@ -315,6 +318,7 @@
 	{onPickedWord}
 	{onTranslate}
 	{isPickingInflection}
+	{isFetchingEvaluation}
 	{englishWord}
 	{englishSentence}
 	{mnemonic}

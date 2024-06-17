@@ -21,10 +21,14 @@ export async function evaluateCloze(
 		language: Language;
 	}
 ) {
-	let { userWordWithTypoCorrected, isPossibleWord, isCorrectInflection, evaluation } =
-		await evaluateClozeAi(opts, {
-			language
-		});
+	let {
+		userWordWithTypoCorrected,
+		isPossibleWord,
+		isCorrectInflection,
+		shortEvaluation: evaluation
+	} = await evaluateClozeAi(opts, {
+		language
+	});
 
 	const { correctAnswer, cloze } = opts;
 
