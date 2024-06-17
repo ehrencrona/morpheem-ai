@@ -9,10 +9,10 @@ export async function getSentencesWithWord(
 	word: DB.Word,
 	language: Language
 ): Promise<CandidateSentenceWithWords[]> {
-	const limit = 1000;
+	const limit = 200;
 
 	return addWordsToSentences(
-		await getSentencesWithWordFromDd(word.id, language, limit),
+		await getSentencesWithWordFromDd(word.id, language, limit, 'level asc'),
 		word,
 		language
 	);

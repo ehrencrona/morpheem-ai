@@ -9,19 +9,21 @@ export async function addSentence(
 		english,
 		words,
 		language,
-		userId
+		userId,
+		level
 	}: {
 		english: string | undefined;
 		words: { id: number; word: string | null }[];
 		language: Language;
 		userId?: number;
+		level: number;
 	}
 ): Promise<Sentence> {
 	const sentence = await db.transaction().execute(async (trx) => {
 		const sentence = await trx
 			.withSchema(language.schema)
 			.insertInto('sentences')
-			.values({ sentence: sentenceString, english, user_id: userId })
+			.values({ sentence: sentenceString, english, user_id: userId, level })
 			.returning(['id', 'sentence', 'english'])
 			.onConflict((oc) => oc.column('sentence').doNothing())
 			.executeTakeFirst();
@@ -61,7 +63,7 @@ export function getSentences(language: Language) {
 	return db
 		.withSchema(language.schema)
 		.selectFrom('sentences')
-		.select(['id', 'sentence'])
+		.select(['id', 'sentence', 'level'])
 		.orderBy('id asc')
 		.execute();
 }
@@ -97,7 +99,8 @@ export async function getSentence(id: number, language: Language) {
 export async function getSentencesWithWord(
 	wordId: number,
 	language: Language,
-	limit?: number
+	limit?: number,
+	orderBy?: 'level asc'
 ): Promise<Sentence[]> {
 	let select = db
 		.withSchema(language.schema)
@@ -105,6 +108,10 @@ export async function getSentencesWithWord(
 		.innerJoin('sentences', 'sentence_id', 'id')
 		.select(['id', 'sentence', 'english'])
 		.where('word_id', '=', wordId);
+
+	if (orderBy) {
+		select = select.orderBy(orderBy);
+	}
 
 	if (limit) {
 		select = select.limit(limit);

@@ -29,8 +29,16 @@ export async function addSentence(
 		english,
 		words,
 		language,
-		userId
+		userId,
+		level: calculateSentenceLevel(words)
 	});
+}
+
+export function calculateSentenceLevel(words: { level: number; cognate: boolean | null }[]) {
+	return Math.round(
+		words.reduce((acc, { level, cognate }) => acc * (cognate ? 10 : level + 1), 1) **
+			(1 / words.length)
+	);
 }
 
 export async function getSentenceWords(
