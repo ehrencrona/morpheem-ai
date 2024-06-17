@@ -20,7 +20,7 @@ const writingResponseSchema = translationResponseSchema.extend({
 	correctedSentence: z.string().optional()
 });
 
-export async function generateWritingFeedback(
+export async function evaluateWrite(
 	{ entered: sentence, word }: { entered: string; word: string },
 	language: Language
 ): Promise<z.infer<typeof writingResponseSchema>> {
@@ -29,13 +29,18 @@ export async function generateWritingFeedback(
 		messages: [
 			{
 				role: 'system',
-				content:
-					`The user is learning ${language.name} and, as an exercise, is trying to write a sentence containing the word "${word}". ` +
-					`Briefly but friendly point out any grammatical mistakes, spelling mistakes or unidiomatic constructs. If the word is missing, say so. Write in English. ` +
-					`If the sentence is correct, praise the user. If there are errors, return a corrected text, applying all your suggestions. ` +
-					`Also return just the that part of the sentence that was incorrect (if any) as a fragment, ignoring punctuation and minor typos, as well as what that part was corrected to. ` +
-					`Return a list of individual words with errors and the type of error. Inflection errors are about choosing the wrong inflection form of the right word; typos or wrong word choices are "other". ` +
-					`Return JSON in the format {feedback: string, correctedSentence?: string, wrongPart?:string, correctedPart?: string, errors: {word: string, shouldBe: string, error: 'inflection'|'other}[]}`
+				content: `I am learning ${language.name} and am doing an exercise to write a sentence using "${word}". 
+
+You are a helpful teacher. Give feedback by briefly but friendly pointing out any errors. For grammatical errors, explain why it is wrong using grammatical terms. If the word "${word}" is missing, say so. 
+Write in English. If the sentence is correct, praise the user. 
+
+If there are errors, return a corrected text, applying all your suggestions. 
+
+Also return just the that part of the sentence that was incorrect (if any) as a fragment, ignoring punctuation and minor typos, as well as what that part was corrected to. 
+
+Return a list of individual words with errors and the type of error. Inflection errors are about choosing the wrong inflection form of the right word; typos or wrong word choices are "other". 
+
+Return all this in JSON in the format {correctedSentence?: string, feedback: string, wrongPart?:string, correctedPart?: string, errors: {word: string, shouldBe: string, error: 'inflection'|'other}[]}`
 			},
 			{
 				role: 'assistant',

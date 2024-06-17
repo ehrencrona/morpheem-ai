@@ -1,8 +1,8 @@
 import { z } from 'zod';
 import {
 	generateTranslationFeedback as generateTranslationFeedbackAi,
-	generateWritingFeedback as generateWritingFeedbackAi
-} from '../ai/generateWritingFeedback';
+	evaluateWrite as evaluateWriteAi
+} from '../ai/evaluateWrite';
 import { KNOWLEDGE_TYPE_WRITE } from '../db/knowledgeTypes';
 import * as DB from '../db/types';
 import { getMultipleWordsByLemmas, getWordByLemma } from '../db/words';
@@ -38,7 +38,7 @@ export const writingFeedbackOptsSchema = z
 		})
 	);
 
-export async function generateWritingFeedback(
+export async function evaluateWrite(
 	opts: z.infer<typeof writingFeedbackOptsSchema>,
 	{ language, userId }: { language: Language; userId: number }
 ): Promise<WritingFeedbackResponse> {
@@ -47,7 +47,7 @@ export async function generateWritingFeedback(
 	const feedback =
 		opts.exercise == 'translate'
 			? await generateTranslationFeedbackAi(opts, language)
-			: await generateWritingFeedbackAi(opts, language);
+			: await evaluateWriteAi(opts, language);
 
 	const correctedWordStrings = toWords(feedback.correctedPart || '', language);
 

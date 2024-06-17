@@ -1,4 +1,4 @@
-import { generateWritingFeedback } from '../logic/generateWritingFeedback';
+import { evaluateWrite } from './evaluateWrite';
 import { POLISH } from '../constants';
 import { describe, expect, test } from 'vitest';
 
@@ -12,9 +12,9 @@ import { describe, expect, test } from 'vitest';
 
 // Delikatnie kwiaty są piękny w ogrodze. -> Delikatne kwiaty są piękne w ogrodzie.
 
-describe('generateWritingFeedback', async () => {
+describe('evaluateWrite', async () => {
 	test('handles single inflection wrong', async () => {
-		const feedback = await generateWritingFeedback(
+		const feedback = await evaluateWrite(
 			{
 				exercise: 'write',
 				entered: `Trzeba myć zęb każdego dnia.`,
@@ -46,7 +46,7 @@ describe('generateWritingFeedback', async () => {
 	});
 
 	test('handles single word wrong', async () => {
-		const feedback = await generateWritingFeedback(
+		const feedback = await evaluateWrite(
 			{
 				exercise: 'write',
 				entered: `Oni znaleźli swoje dzietsi.`,
@@ -69,7 +69,7 @@ describe('generateWritingFeedback', async () => {
 	});
 
 	test('handles a major mess', async () => {
-		const feedback = await generateWritingFeedback(
+		const feedback = await evaluateWrite(
 			{
 				exercise: 'write',
 				entered: `Oni znaleźli swoje dzieci, aby nie wiedzieli, gdzie swoj przyjaciele.`,
@@ -87,7 +87,7 @@ describe('generateWritingFeedback', async () => {
 	});
 
 	test('handles an unknown word', async () => {
-		const feedback = await generateWritingFeedback(
+		const feedback = await evaluateWrite(
 			{
 				exercise: 'translate',
 				entered: `Czy znasz dobrego tichera angielskiego?`,

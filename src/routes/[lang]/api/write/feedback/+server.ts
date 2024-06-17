@@ -2,9 +2,9 @@ import { redirectToLogin } from '$lib/redirectToLogin';
 import { ServerLoad, json } from '@sveltejs/kit';
 import {
 	WritingFeedbackOpts,
-	generateWritingFeedback,
+	evaluateWrite,
 	writingFeedbackOptsSchema
-} from '../../../../../logic/generateWritingFeedback';
+} from '../../../../../logic/evaluateWrite';
 
 export type PostSchema = WritingFeedbackOpts;
 const postSchema = writingFeedbackOptsSchema;
@@ -16,5 +16,5 @@ export const POST: ServerLoad = async ({ url, request, locals: { language, userI
 		return redirectToLogin(url);
 	}
 
-	return json(await generateWritingFeedback(post, { language, userId }));
+	return json(await evaluateWrite(post, { language, userId }));
 };

@@ -1,4 +1,4 @@
-import type { WritingFeedbackResponse } from '../../../../../logic/generateWritingFeedback';
+import type { WritingFeedbackResponse } from '../../../../../logic/evaluateWrite';
 import { apiCall } from '../../api-call';
 import type { PostSchema } from './+server';
 
