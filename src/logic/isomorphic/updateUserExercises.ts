@@ -10,7 +10,7 @@ function toSentenceWord(e: { sentenceId: number; wordId: number | null }): strin
 export function updateUserExercises(adds: ExerciseKnowledge[], exercises: DB.UserExercise[]) {
 	const bySentenceWord = new Map(adds.map((e) => [toSentenceWord(e), e]));
 
-	for (const { exercise, wordId } of exercises) {
+	for (const { exercise, wordId } of adds) {
 		const shouldHaveWord = exercise != 'translate';
 
 		if (shouldHaveWord && !wordId) {
