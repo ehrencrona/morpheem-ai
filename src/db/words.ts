@@ -8,6 +8,10 @@ export async function addWord(
 	lemma: string,
 	{ language, isCognate }: { language: Language; isCognate?: boolean }
 ): Promise<DB.Word> {
+	if (!lemma) {
+		throw new Error('Lemma cannot be empty');
+	}
+
 	if (['an', 'the', 'they', 'this', 'big'].includes(lemma)) {
 		throw new Error(`"${lemma}" is English`);
 	}

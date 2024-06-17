@@ -50,7 +50,12 @@ export async function wordStringsToWords(
 				} catch (e) {
 					const lemmaIds = await getLemmaIdsOfWord(wordString, language);
 
-					if (lemmaIds.length == 1) {
+					if (lemmaIds.length >= 1) {
+						if (lemmaIds.length > 1) {
+							console.warn(
+								`The word ${wordString} was provided in the answer "${sentence}" has multiple lemmas. Using the first one.`
+							);
+						}
 						word = await getWordById(lemmaIds[0].lemma_id, language);
 					} else {
 						console.error(

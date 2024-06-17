@@ -78,9 +78,11 @@ export async function evaluateWrite(
 		const i = correctedWordStrings.indexOf(error.shouldBe);
 
 		if (i == -1) {
-			throw new Error(
+			console.warn(
 				`Could not find the word "${error.shouldBe}" in the corrected sentence part "${feedback.correctedPart}".`
 			);
+
+			return undefined;
 		}
 
 		const lemma = correctedLemmas[i];
@@ -95,9 +97,9 @@ export async function evaluateWrite(
 		// no exercise.
 	} else if (!errors.some((error) => error.error != 'inflection') && errors.length < 3) {
 		for (const error of errors || []) {
-			try {
-				const word = await getCorrectedWord(error);
+			const word = await getCorrectedWord(error);
 
+			if (word) {
 				userExercises.push({
 					wordId: word.id,
 					word: word.word,
@@ -106,22 +108,25 @@ export async function evaluateWrite(
 					exercise: 'cloze-inflection',
 					isKnown: false
 				});
-			} catch (e) {
+			} else {
 				knewOverallSentence = false;
-				console.error(e);
 			}
 		}
 	} else if (errors.length == 1) {
 		const word = await getCorrectedWord(errors[0]);
 
-		userExercises.push({
-			wordId: word.id,
-			word: word.word || null,
-			// just set a fixed value?
-			level: word.level,
-			exercise: 'cloze',
-			isKnown: false
-		});
+		if (word) {
+			userExercises.push({
+				wordId: word.id,
+				word: word.word || null,
+				// just set a fixed value?
+				level: word.level,
+				exercise: 'cloze',
+				isKnown: false
+			});
+		} else {
+			knewOverallSentence = false;
+		}
 	} else {
 		knewOverallSentence = false;
 	}
