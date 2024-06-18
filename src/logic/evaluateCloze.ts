@@ -22,7 +22,7 @@ export async function evaluateCloze(
 	}
 ) {
 	let {
-		userWordWithTypoCorrected,
+		corrected,
 		isPossibleWord,
 		isCorrectInflection,
 		shortEvaluation: evaluation
@@ -34,13 +34,13 @@ export async function evaluateCloze(
 
 	let differentWord: (DB.Word & { conjugated: string }) | undefined;
 
-	if (userWordWithTypoCorrected && userWordWithTypoCorrected !== opts.userAnswer) {
+	if (corrected && corrected !== opts.userAnswer) {
 		console.log(
-			`Cloze "${cloze}" evaluated "${opts.userAnswer}" as typo, fixed to "${userWordWithTypoCorrected}".`
+			`Cloze "${cloze}" evaluated "${opts.userAnswer}" as typo, fixed to "${corrected}".`
 		);
 	}
 
-	let userAnswer = standardize(userWordWithTypoCorrected || opts.userAnswer);
+	let userAnswer = standardize(corrected || opts.userAnswer);
 	let isCorrectLemma = false;
 	let isTypo = userAnswer != standardize(opts.userAnswer) && !!isCorrectInflection;
 
