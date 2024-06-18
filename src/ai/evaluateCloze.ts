@@ -34,7 +34,7 @@ export async function evaluateCloze(
 					`I am a ${language.name} learner trying to solve a cloze exercise; you are a helpful teacher giving me feedback.\n\n` +
 					`The expected answer is "${correctAnswer.conjugated}".\n` +
 					(isWrongInflection
-						? `Very briefly explain which grammatical form of the word is required and why. Also explain what form I picked. Return JSON in the form \`{ shortEvaluation: string }\``
+						? `If incorrect, very briefly explain which grammatical form/inflection is required and why. Also explain what form I picked. Return JSON in the form \`{ shortEvaluation: string, isCorrectInflection: boolean }\``
 						: `Evaluate whether whether my answer is logically possible, what the expected grammatical form is and what grammatical form my answer is in${examples[language.code] || ''}.
 
 						Then summarize it into a short evaluation. The following cases exist: 
