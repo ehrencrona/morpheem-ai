@@ -34,18 +34,18 @@ export async function evaluateCloze(
 					`I am a ${language.name} learner trying to solve a cloze exercise; you are a helpful teacher giving me feedback.\n\n` +
 					`The expected answer is "${correctAnswer.conjugated}".\n` +
 					(isWrongInflection
-						? `If incorrect, very briefly explain which grammatical form/inflection is required and why. Also explain what form I picked. Return JSON in the form \`{ shortEvaluation: string, isCorrectInflection: boolean }\``
-						: `Evaluate whether whether my answer is logically possible, what the expected grammatical form is and what grammatical form my answer is in${examples[language.code] || ''}.
+						? `If incorrect, very briefly explain which grammatical form/inflection is required and why. Also explain what form I picked. Return JSON in the form \`{ evaluation: string, isCorrectInflection: boolean }\``
+						: `Evaluate whether whether my answer correctly spelled, logically possible, what the expected grammatical form is and what grammatical form my answer is in${examples[language.code] || ''}.
 
-						Then summarize it into a short evaluation. The following cases exist: 
+						The following cases exist: 
 						 - My answer is correct but a typo. If so, briefly explain the typo and return the corrected word in \`corrected\`.
-						 - My answer is possible: the word I chose works logically and structurally in the sentence. 
-						   If I choose a possible word (\`isPossibleWord\`) but the wrong form of it (\`!isCorrectInflection\`), explain the grammatical forms involved and return the right form in \`corrected\`.
-						 - My answer is not possible. Explain what word I chose means and when it is used.
+						 - My answer is possible: the word I chose works logically in the sentence. 
+						   If I choose a possible word (\`isPossibleWord\`) but the wrong form of it (\`!isCorrectInflection\`), return the right form in \`corrected\`.
+						 - My answer is not possible. Explain what the word I chose means and when it is used.
 						
 						I will be shown the right answer so no need to repeat it. Also no need to repeat my answer. 
 						
-						Return JSON in the form \`{ longEvaluation: string, shortEvaluation: string, isPossibleWord: boolean, isCorrectInflection: boolean, corrected?: string }\``)
+						Return JSON in the form \`{ evaluation: string, isPossibleWord: boolean, isCorrectInflection: boolean, corrected?: string }\``)
 			},
 			{
 				role: 'assistant',
@@ -57,7 +57,7 @@ export async function evaluateCloze(
 		temperature: 0.5,
 		logResponse: true,
 		schema: z.object({
-			shortEvaluation: z.string(),
+			evaluation: z.string(),
 			isPossibleWord: z.boolean().optional(),
 			isCorrectInflection: z.boolean().optional(),
 			corrected: z.string().optional()

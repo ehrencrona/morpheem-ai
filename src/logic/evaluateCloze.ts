@@ -1,11 +1,11 @@
 import { evaluateCloze as evaluateClozeAi } from '../ai/evaluateCloze';
+import { getLemmaIdsOfWord } from '../db/lemmas';
+import * as DB from '../db/types';
 import { getWordByLemma } from '../db/words';
 import { standardize } from './isomorphic/standardize';
 import { lemmatizeSentences } from './lemmatize';
 import { toWords } from './toWords';
 import { Language } from './types';
-import * as DB from '../db/types';
-import { getLemmaIdsOfWord } from '../db/lemmas';
 
 export async function evaluateCloze(
 	opts: {
@@ -21,12 +21,7 @@ export async function evaluateCloze(
 		language: Language;
 	}
 ) {
-	let {
-		corrected,
-		isPossibleWord,
-		isCorrectInflection,
-		shortEvaluation: evaluation
-	} = await evaluateClozeAi(opts, {
+	let { corrected, isPossibleWord, isCorrectInflection, evaluation } = await evaluateClozeAi(opts, {
 		language
 	});
 
