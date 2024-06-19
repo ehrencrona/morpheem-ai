@@ -41,7 +41,7 @@ export async function evaluateCloze(
 						 - My answer is correct but a typo. If so, briefly explain the typo and return the corrected word in \`corrected\`.
 						 - My answer is possible: the word I chose works logically and structurally in the sentence. 
 						   If I choose a possible word (\`isPossibleWord\`) but the wrong form of it (\`!isCorrectInflection\`), explain the grammatical forms involved and return the right form in \`corrected\`.
-						 - My answer is not possible. Explain when to use the word I chose.
+						 - My answer is not possible. Explain what word I chose means and when it is used.
 						
 						I will be shown the right answer so no need to repeat it. Also no need to repeat my answer. 
 						

@@ -146,7 +146,7 @@
 								/>
 							</span>
 							<span class="text-xs font-lato text-right">
-								{#if  englishWord}
+								{#if englishWord}
 									<span class="-mt-1">"{englishWord}"</span>
 								{:else}
 									<div class="w-full flex items-center justify-center my-[3px]">
