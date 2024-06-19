@@ -218,7 +218,7 @@
 				try {
 					suggestedWords = {
 						type: 'inflection',
-						words: await fetchInflections(word.id)
+						words: await fetchInflections(answered)
 					};
 				} catch (e) {
 					error = e;

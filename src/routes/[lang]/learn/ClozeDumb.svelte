@@ -192,7 +192,7 @@
 						Pick
 					{:else}
 						Now pick
-					{/if} the correct form of <b>{word.word}</b>:
+					{/if} the correct form:
 				</div>
 			{/if}
 

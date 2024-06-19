@@ -1,11 +1,12 @@
 import { json, type ServerLoad } from '@sveltejs/kit';
 import { getInflections } from '../../../../../../db/lemmas';
+import { getWordByLemma } from '../../../../../../db/words';
 
 export const GET: ServerLoad = async ({ params, locals: { language } }) => {
-	const wordId = parseInt(params.id!);
+	let wordId = parseInt(params.id!);
 
 	if (isNaN(wordId)) {
-		throw new Error('Invalid word ID');
+		wordId = (await getWordByLemma(params.id!, language)).id;
 	}
 
 	return json(await getInflections(wordId, language));
