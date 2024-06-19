@@ -381,7 +381,7 @@
 			<div class="font-lato text-xs flex gap-2 justify-end">
 				<a href={`/${languageCode}/home`} class="underline text-red"> History </a>
 
-				{#if current.wordId}
+				{#if data.user == 'ehrencrona' && current.wordId}
 					<a href={`/${languageCode}/words/${current.wordId}"`} class="underline text-red">
 						Word
 					</a>
