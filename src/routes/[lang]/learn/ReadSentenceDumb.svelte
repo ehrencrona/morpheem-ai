@@ -100,7 +100,7 @@
 	{/if}
 </div>
 
-<div class="flex gap-2 mt-4">
+<div class="flex flex-wrap gap-2 mt-4">
 	{#if !hint && !translation}
 		<SpinnerButton type="secondary" onClick={() => getHint().then((got) => (hint = got))}>
 			Hint
