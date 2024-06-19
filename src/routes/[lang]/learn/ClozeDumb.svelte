@@ -139,7 +139,7 @@
 							<span class="whitespace-nowrap">
 								{wordString.slice(0, showChars)}<input
 									type="text"
-									class="border-b-4 border-b-red bg-blue-1 relative"
+									class="border-b-4 border-b-red bg-blue-1 relative px-1"
 									size={wordString.length - showChars}
 									bind:value={prefix}
 									autocapitalize="off"
