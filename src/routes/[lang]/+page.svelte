@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { CodedError } from '../../CodedError';
-	import ErrorComponent from '../../components/Error.svelte';
+	import ErrorMessage from '../../components/ErrorMessage.svelte';
 	import type * as DB from '../../db/types';
 	import {
 		canWriteAllWords,
@@ -39,6 +39,7 @@
 	import { trackActivity } from './learn/trackActivity';
 	import SpinnerButton from '../../components/SpinnerButton.svelte';
 	import { page } from '$app/stores';
+	import { logError } from '$lib/logError';
 
 	export let data: PageData;
 
@@ -85,13 +86,10 @@
 		const knowledgeToSend = words.map(({ word, ...rest }) => rest);
 
 		sendKnowledgeClient(knowledgeToSend, addUserExercises).catch((e) => {
-			console.error(e);
+			logError(e);
 
 			setTimeout(
-				() =>
-					sendKnowledgeClient(knowledgeToSend, addUserExercises).catch((e) => {
-						error = e;
-					}),
+				() => sendKnowledgeClient(knowledgeToSend, addUserExercises).catch(logError),
 				5000
 			);
 		});
@@ -206,7 +204,7 @@
 						})
 				};
 			} catch (e) {
-				console.error(`While fetching sentence ${sentenceId}: ${e}`);
+				logError(`While fetching sentence ${sentenceId}: ${e}`);
 			}
 		}
 
@@ -224,7 +222,7 @@
 				try {
 					sentences = sentences.concat(await addSentencesForWord(wordId));
 				} catch (e) {
-					console.error(`While adding sentences for ${wordId}: ${e}`);
+					logError(`While adding sentences for ${wordId}: ${e}`);
 				}
 
 				console.log(
@@ -263,12 +261,10 @@
 					})
 			};
 		} catch (e: any) {
-			console.error(e);
-
 			if (e instanceof CodedError && e.code == 'wrongLemma') {
 				knowledge = knowledge.filter((k) => wordId != k.wordId);
 			} else {
-				error = e.message;
+				logError(e);
 			}
 
 			return getNextExercise({
@@ -279,8 +275,6 @@
 	}
 
 	async function showNextSentence() {
-		error = undefined;
-
 		const {
 			sentence,
 			wordId,
@@ -296,7 +290,7 @@
 		nextPromise = getNext();
 
 		if (exercise != 'write') {
-			markSentenceSeen(sentence.id).catch((e) => (error = e));
+			markSentenceSeen(sentence.id).catch(logError);
 		}
 
 		const word = sentence.words.find(({ id }) => id == wordId);
@@ -334,30 +328,22 @@
 		}
 	}
 
-	onMount(() => init().catch((e) => (error = e)));
+	onMount(() => init().catch(logError));
 
 	const getTranslation = () => fetchTranslation(current!.sentence.id);
 
-	let error: string | undefined = undefined;
-
 	async function onNext() {
-		try {
-			wordsKnown = calculateWordsKnown(knowledge);
+		wordsKnown = calculateWordsKnown(knowledge);
 
-			sendWordsKnown(wordsKnown).catch((e) => (error = e));
+		throw new Error('bla')
 
-			await showNextSentence();
-		} catch (e: any) {
-			console.error(e);
+		sendWordsKnown(wordsKnown).catch(logError);
 
-			error = e.message;
-		}
+		await showNextSentence();
 	}
 </script>
 
 <main class="font-sans bold w-full" use:trackActivity>
-	<ErrorComponent {error} onClear={() => (error = undefined)} />
-
 	{#if wordsKnown}
 		<a
 			href="{languageCode}/home"
@@ -387,11 +373,8 @@
 					</a>
 				{/if}
 
-				<a href="mailto:andreas.ehrencrona@velik.it" class="underline text-red">
-					Contact
-				</a>
+				<a href="mailto:andreas.ehrencrona@velik.it" class="underline text-red"> Contact </a>
 
-				
 				<a
 					href={`/${languageCode}/sentences/${current?.sentence.id}/delete`}
 					class="underline text-red"
@@ -447,10 +430,7 @@
 				{knowledge}
 			/>
 		{:else}
-			<ErrorComponent
-				error={`Unknown exercise type ${current.exercise}`}
-				onClear={() => (error = undefined)}
-			/>
+			<p class="text-red">Unknown exercise type ${current.exercise}</p>
 
 			<SpinnerButton onClick={onNext}>Next</SpinnerButton>
 		{/if}
@@ -478,4 +458,6 @@
 			</svg>
 		</div>
 	{/if}
+
+	<ErrorMessage />
 </main>

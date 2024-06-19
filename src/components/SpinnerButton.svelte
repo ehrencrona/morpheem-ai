@@ -1,8 +1,8 @@
 <script lang="ts">
-	import { fade } from 'svelte/transition';
-	import Error from './Error.svelte';
-	import Spinner from './Spinner.svelte';
+	import { logError } from '$lib/logError';
 	import { onMount } from 'svelte';
+	import { fade } from 'svelte/transition';
+	import Spinner from './Spinner.svelte';
 
 	export let onClick: () => Promise<any>;
 	export let isSubmit = false;
@@ -26,7 +26,7 @@
 		} catch (e: any) {
 			error = e.message || e.toString();
 
-			console.error(e);
+			logError(e);
 		} finally {
 			clearTimeout(timeout);
 
@@ -41,13 +41,6 @@
 		}
 	});
 </script>
-
-<Error
-	{error}
-	onClear={() => {
-		error = undefined;
-	}}
-/>
 
 <button
 	class={`${className} ${error ? 'bg-red' : ''} relative`}

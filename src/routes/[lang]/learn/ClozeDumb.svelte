@@ -17,7 +17,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { slide } from 'svelte/transition';
-	import Error from '../../../components/Error.svelte';
 	import Spinner from '../../../components/Spinner.svelte';
 	import SpinnerButton from '../../../components/SpinnerButton.svelte';
 	import * as DB from '../../../db/types';
@@ -27,6 +26,7 @@
 	import type { UnknownWordResponse } from '../api/word/unknown/+server';
 	import WordCard from './WordCard.svelte';
 	import type { Translation } from '../api/sentences/[sentence]/english/client';
+	import { logError } from '$lib/logError';
 
 	export let sentence: DB.Sentence;
 	export let sentenceWords: SentenceWord[];
@@ -91,7 +91,6 @@
 	$: wordsWithSeparators = toWordsWithSeparators(sentence.sentence, language);
 
 	let isLoadingUnknown = false;
-	let error: any;
 	let input: HTMLInputElement;
 
 	function onSubmit() {
@@ -106,9 +105,7 @@
 
 			await onUnknown(wordString);
 		} catch (e) {
-			console.error(e);
-
-			error = e;
+			logError(e);
 		} finally {
 			clearTimeout(timer);
 			isLoadingUnknown = false;
@@ -282,5 +279,3 @@
 		</div>
 	{/if}
 </form>
-
-<Error {error} onClear={() => (error = undefined)} />

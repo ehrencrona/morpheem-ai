@@ -1,16 +1,16 @@
 <script lang="ts">
+	import { logError } from '$lib/logError';
 	import { slide } from 'svelte/transition';
-	import Error from '../../../components/Error.svelte';
 	import Spinner from '../../../components/Spinner.svelte';
 	import SpinnerButton from '../../../components/SpinnerButton.svelte';
 	import type * as DB from '../../../db/types';
 	import { isSeparator, toWordsWithSeparators } from '../../../logic/toWords';
 	import type { Language } from '../../../logic/types';
+	import type { Translation } from '../api/sentences/[sentence]/english/client';
 	import type { UnknownWordResponse } from '../api/word/unknown/+server';
 	import { fetchAskMeAnything } from '../api/write/ama/client';
 	import Ama from './AMA.svelte';
 	import WordCard from './WordCard.svelte';
-	import type { Translation } from '../api/sentences/[sentence]/english/client';
 
 	export let sentence: DB.Sentence;
 	export let word: DB.Word | undefined;
@@ -25,7 +25,6 @@
 	let hint: string | undefined;
 	let translation: Translation | undefined;
 	let isLoadingUnknown = false;
-	let error: any;
 
 	export let getHint: () => Promise<string>;
 	export let getTranslation: () => Promise<Translation>;
@@ -49,9 +48,7 @@
 
 			await onUnknown(wordString);
 		} catch (e) {
-			console.error(e);
-
-			error = e;
+			logError(e);
 		} finally {
 			clearTimeout(timer);
 			isLoadingUnknown = false;
@@ -142,5 +139,3 @@
 			: [])
 	]}
 />
-
-<Error {error} onClear={() => (error = undefined)} />

@@ -6,6 +6,7 @@ import * as DB from '../../../../../db/types';
 import { getWordByLemma, getWordsOfSentence } from '../../../../../db/words';
 import { getWordInSentence } from '../../../../../logic/getWordInSentence';
 import { addEnglishToSentence, translateWordInContext } from '../../../../../logic/translate';
+import { logError } from '$lib/logError';
 
 export type PostSchema = z.infer<typeof postSchema>;
 
@@ -42,7 +43,7 @@ export const POST: ServerLoad = async ({ request, locals }) => {
 
 			word = await getWordInSentence(wordString, sentenceId, sentenceWords, language);
 		} catch (e) {
-			console.error(e);
+			logError(e);
 		}
 	}
 

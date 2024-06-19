@@ -1,3 +1,4 @@
+import { logError } from '$lib/logError';
 import {
 	translateSentences,
 	translateWordInContext as translateWordInContextAi
@@ -21,7 +22,7 @@ export async function addEnglishToSentence(
 		sentence.transliteration = transliterations?.[0] || null;
 
 		storeEnglish({ english: sentence.english || '' }, { sentenceId: sentence.id, language }).catch(
-			console.error
+			logError
 		);
 	}
 

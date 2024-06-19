@@ -10,6 +10,7 @@ import {
 	generatePersonalizedExampleSentences
 } from './generateExampleSentences';
 import { Language } from './types';
+import { logError } from '$lib/logError';
 
 /** Makes up new sentences for the specified word */
 export async function addSentencesForWord(
@@ -35,7 +36,7 @@ export async function addSentencesForWord(
 		} catch (e: any) {
 			if (e.code == 'noLemmaFound' && retriesLeft > 0) {
 				// most likely, the sentence contained a word that doesn't actually exist
-				console.error(e.message);
+				logError(e);
 
 				return getSentences(retriesLeft - 1);
 			}

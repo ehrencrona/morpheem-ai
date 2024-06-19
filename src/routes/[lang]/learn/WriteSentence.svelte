@@ -2,7 +2,6 @@
 	import type { SendKnowledge } from '$lib/SendKnowledge';
 	import { onMount } from 'svelte';
 	import { slide } from 'svelte/transition';
-	import Error from '../../../components/Error.svelte';
 	import SpinnerButton from '../../../components/SpinnerButton.svelte';
 	import type { WritingFeedbackResponse } from '../../../logic/evaluateWrite';
 	import type { Language } from '../../../logic/types';
@@ -19,6 +18,7 @@
 	import { splitIntoDiff } from '$lib/splitIntoDiff';
 	import type { Translation } from '../api/sentences/[sentence]/english/client';
 	import Tutorial from '../../../components/Tutorial.svelte';
+	import { logError } from '$lib/logError';
 
 	export let word: { id: number; word: string; level: number } | undefined;
 	export let onNext: () => Promise<any>;
@@ -38,8 +38,6 @@
 
 	let feedback: WritingFeedbackResponse | undefined;
 	let entered: string;
-
-	let error: any;
 
 	let showChars: number = 0;
 	let unknownWords: UnknownWordResponse[] = [];
@@ -65,11 +63,11 @@
 		if (exercise == 'write') {
 			lookupUnknownWord(word!.word, undefined)
 				.then((word) => (lookedUpWord = word))
-				.catch((e) => (error = e));
+				.catch(logError);
 		}
 
 		if (!translation) {
-			getTranslation().catch((e) => (error = e));
+			getTranslation().catch(logError);
 		}
 	}
 
@@ -89,8 +87,7 @@
 		entered = entered.trim();
 
 		if (!entered) {
-			error = 'Please enter a sentence';
-			return;
+			throw new Error('Please enter a sentence');
 		}
 
 		feedback = await fetchWritingFeedback(
@@ -120,8 +117,7 @@
 
 	const clickedContinue = async () => {
 		if (!feedback) {
-			error = 'Invalid state';
-			return;
+			throw new Error('Invalid state');
 		}
 
 		const studiedWordId = word?.id;
@@ -185,23 +181,17 @@
 		if (!feedback) {
 			fetchProvidedWordsInAnswer({ question, answer })
 				.then((words) => (unknownWords = dedup([...unknownWords, ...words])))
-				.catch(console.error);
+				.catch(logError);
 		}
 
 		return answer;
 	};
 
 	const onIdea = async () => {
-		try {
-			await getTranslation();
-			showIdea = true;
-		} catch (e) {
-			error = e;
-		}
+		await getTranslation();
+		showIdea = true;
 	};
 </script>
-
-<Error {error} onClear={() => (error = undefined)} />
 
 <div>
 	{#if exercise == 'write'}

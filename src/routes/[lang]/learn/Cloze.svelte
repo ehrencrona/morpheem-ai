@@ -2,8 +2,8 @@
 	import type { SendKnowledge } from '$lib/SendKnowledge';
 	import { dedupUnknown } from '$lib/dedupUnknown';
 	import { filterUndefineds } from '$lib/filterUndefineds';
+	import { logError } from '$lib/logError';
 	import { toPercent } from '$lib/toPercent';
-	import ErrorComponent from '../../../components/Error.svelte';
 	import Speak from '../../../components/Speak.svelte';
 	import Tutorial from '../../../components/Tutorial.svelte';
 	import { KNOWLEDGE_TYPE_CLOZE, KNOWLEDGE_TYPE_READ } from '../../../db/knowledgeTypes';
@@ -35,7 +35,6 @@
 
 	export let knowledge: DB.AggKnowledgeForUser[] | undefined = undefined;
 
-	let error: any;
 	let isLoadingSuggestions = false;
 	let isFetchingEvaluation = false;
 	let revealed: UnknownWordResponse[] = [];
@@ -82,12 +81,14 @@
 		evaluation = undefined;
 		mnemonic = undefined;
 		inflections = [];
-		error = undefined;
 
 		[mnemonic, inflections] = await Promise.all([
-			fetchMnemonic(word.id, false).catch((e) => (error = e)),
-			fetchInflections(word.id).catch((e) => (error = e))
-		]);
+			fetchMnemonic(word.id, false),
+			fetchInflections(word.id)
+		]).catch((e) => {
+			logError(e);
+			return [undefined, []];
+		});
 
 		if (exercise == 'cloze-inflection' && inflections.length > 1) {
 			suggestedWords = { type: 'inflection', words: inflections };
@@ -134,10 +135,7 @@
 					wordTranslation = translated.english;
 				}
 			})
-			.catch((e) => {
-				console.error(e);
-				error = e;
-			});
+			.catch(logError);
 	}
 
 	$: if (sentence.id) {
@@ -193,8 +191,7 @@
 				suggestedWords = { type: isPickingInflection ? 'inflection' : 'lemma', words: sw };
 			}
 		} catch (e) {
-			console.error(e);
-			error = e;
+			logError(e);
 		} finally {
 			clearTimeout(timer);
 			isLoadingSuggestions = false;
@@ -235,7 +232,7 @@
 							onAnswer(answered);
 						}
 					})
-					.catch((e) => (error = e))
+					.catch(logError)
 					.finally(() => (isLoadingSuggestions = false));
 			}
 
@@ -432,5 +429,3 @@
 			: [])
 	]}
 />
-
-<ErrorComponent {error} onClear={() => (error = undefined)} />
