@@ -235,7 +235,7 @@
 			</div>
 		{:else if evaluation.isCorrectInflection && evaluation.isCorrectLemma}
 			<div class="mb-4">Correct!</div>
-		{:else}
+		{:else if evaluation.answered}
 			<div class="mb-4">
 				You picked <b>{evaluation.answered}</b
 				>{#if evaluation.isCorrectLemma && !evaluation.isCorrectInflection}, which is the wrong form
@@ -244,7 +244,7 @@
 				{#if isFetchingEvaluation}
 					<Spinner />
 				{/if}
-				
+
 				{evaluation.evaluation || ''}
 			</div>
 		{/if}
