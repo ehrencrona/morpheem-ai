@@ -215,19 +215,26 @@
 			} else {
 				console.log(`Picked unexpected word "${answered}". Loading inflections.`);
 
-				try {
-					suggestedWords = {
-						type: 'inflection',
-						words: await fetchInflections(answered)
-					};
-				} catch (e) {
-					error = e;
-					return;
-				}
+				suggestedWords = {
+					type: 'inflection',
+					words: []
+				};
 
-				if (suggestedWords.words.length <= 1) {
-					return onAnswer(answered);
-				}
+				isLoadingSuggestions = true;
+
+				fetchInflections(answered)
+					.then((words) => {
+						suggestedWords = {
+							type: 'inflection',
+							words
+						};
+
+						if (suggestedWords.words.length <= 1) {
+							onAnswer(answered);
+						}
+					})
+					.catch((e) => (error = e))
+					.finally(() => (isLoadingSuggestions = false));
 			}
 
 			isPickingInflection = true;

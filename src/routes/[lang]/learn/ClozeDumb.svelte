@@ -134,7 +134,7 @@
 						<span class={evaluation.isCorrectInflection ? 'text-green' : 'text-red'}
 							>{evaluation.differentWord?.conjugated || wordString}</span
 						>{:else}
-						<div class="inline-flex flex-col -mb-1">
+						<div class="inline-flex flex-col">
 							<span class="whitespace-nowrap">
 								{wordString.slice(0, showChars)}<input
 									type="text"
@@ -146,10 +146,10 @@
 								/>
 							</span>
 							<span class="text-xs font-lato text-right">
-								{#if englishWord}
-									"{englishWord}"
+								{#if  englishWord}
+									<span class="-mt-1">"{englishWord}"</span>
 								{:else}
-									<div class="w-full flex items-center justify-center">
+									<div class="w-full flex items-center justify-center my-[3px]">
 										<Spinner />
 									</div>
 								{/if}
@@ -186,17 +186,23 @@
 		{/if}
 
 		<div class="mt-8">
-			{#if isPickingInflection}
-				<div class="text-xs font-lato mb-4">
+			<div class="text-xs font-lato mb-4">
+				{#if !prefix}
+					Find the missing word.
+				{:else if prefix && suggestedWords.words.length == 0 && !isLoadingSuggestions}
+					Press Submit to check your answer.
+				{:else if isPickingInflection}
 					{#if exercise === 'cloze-inflection'}
 						Pick
 					{:else}
 						Now pick
 					{/if} the correct form:
-				</div>
-			{/if}
+				{:else}
+					Pick the word:
+				{/if}
+			</div>
 
-			<div class="min-h-[50px] md:min-h-[150px]">
+			<div class="min-h-[52px] md:min-h-[150px]">
 				<div class="flex overflow-x-auto md:flex-wrap gap-4 pt-1 pb-4 mb-4">
 					{#if isLoadingSuggestions}
 						<Spinner />
