@@ -33,7 +33,7 @@
 	<div class="flex gap-2 flex-wrap mt-4">
 		{#each words as word}
 			<div class="bg-blue-1 border-blue-1 rounded-lg px-5 py-1 whitespace-nowrap">
-				<a href={`words/${encodeURIComponent(word)}`}>{word}</a>
+				<a href={`words/${word}`}>{word}</a>
 			</div>
 		{/each}
 	</div>

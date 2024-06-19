@@ -20,18 +20,22 @@ import {
 	now
 } from '../../../../logic/isomorphic/knowledge';
 import { AlphaBeta } from '../../../../logic/types';
+import * as DB from '../../../../db/types';
 
 export const load: ServerLoad = async ({ params, locals: { language, userId } }) => {
 	const wordId = parseInt(params.id!);
 
 	if (isNaN(wordId)) {
-		try {
-			const word = await getWordByLemma(params.id!, language);
+		let word: DB.Word;
 
-			return redirect(302, `/${language.code}/words/${word.id}`);
+		try {
+			word = await getWordByLemma(params.id!, language);
 		} catch (e) {
+			console.log(e);
 			return error(404, 'Word not found');
 		}
+
+		redirect(302, `/${language.code}/words/${word.id}`);
 	}
 
 	const word = await getWordById(wordId, language);
