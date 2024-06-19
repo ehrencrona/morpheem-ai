@@ -78,7 +78,7 @@ let lastThrottleTime = 0;
 let logCount = 0;
 
 export const handleError: HandleServerError = async ({ error, event, status, message }) => {
-	console.log('error', error);
+	console.error(error);
 
 	const errorId = crypto.randomUUID();
 
