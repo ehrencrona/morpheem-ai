@@ -6,7 +6,8 @@ import { Language } from '../logic/types';
 const names = {
 	pl: `Marek, Ewa, Jakub, Agnieszka`,
 	fr: `Jacques, Charlotte, Pierre, Jeanne`,
-	es: `Juan, María, Pedro, Ana`
+	es: `Juan, María, Pedro, Ana`,
+	ko: `민준, 서연, 서준, 지우`
 };
 
 export async function generateExampleSentences(
@@ -17,20 +18,21 @@ export async function generateExampleSentences(
 ) {
 	let { examples } = await askForJson({
 		messages: toMessages({
-			instruction: `Return JSON in the format { "examples": [ ... ]}. Do not translate. Use simple words.`,
+			instruction: `Return JSON in the format { "examples": [ ... ]}. Do not translate.`,
 			prompt:
 				`Give ${count} ${language.name} sentences illustrating the use of the word "${lemma}". If the word is not a ${language.name} word, do not return anything. ` +
 				`The sentences are intended for adults. If you need names of people, use ${names[language.code]}.` +
 				(level != 'normal'
 					? level == 'beginner'
-						? ` Use only simple words.`
-						: ' Use only beginner words.'
+						? ` Use only very simple words.`
+						: ' Use only simple words.'
 					: '')
 		}),
 		temperature: 1,
 		max_tokens: 6 * 200,
 		schema: z.object({ examples: z.array(z.string()) }),
-		model: 'gpt-4o'
+		model: 'gpt-4o',
+		logResponse: true
 	});
 
 	if (examples.length != count) {

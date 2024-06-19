@@ -24,7 +24,7 @@ export async function addSentence(
 			.withSchema(language.schema)
 			.insertInto('sentences')
 			.values({ sentence: sentenceString, english, user_id: userId, level })
-			.returning(['id', 'sentence', 'english'])
+			.returning(['id', 'sentence', 'english', 'transliteration'])
 			.onConflict((oc) => oc.column('sentence').doNothing())
 			.executeTakeFirst();
 
@@ -76,7 +76,7 @@ export async function getSentencesByIds(ids: number[], language: Language) {
 	return db
 		.withSchema(language.schema)
 		.selectFrom('sentences')
-		.select(['id', 'sentence', 'english'])
+		.select(['id', 'sentence', 'english', 'transliteration'])
 		.where('id', 'in', ids)
 		.execute();
 }
@@ -85,7 +85,7 @@ export async function getSentence(id: number, language: Language) {
 	const sentence = await db
 		.withSchema(language.schema)
 		.selectFrom('sentences')
-		.select(['id', 'sentence', 'english'])
+		.select(['id', 'sentence', 'english', 'transliteration'])
 		.where('id', '=', id)
 		.executeTakeFirst();
 
@@ -106,7 +106,7 @@ export async function getSentencesWithWord(
 		.withSchema(language.schema)
 		.selectFrom('word_sentences')
 		.innerJoin('sentences', 'sentence_id', 'id')
-		.select(['id', 'sentence', 'english'])
+		.select(['id', 'sentence', 'english', 'transliteration'])
 		.where('word_id', '=', wordId);
 
 	if (orderBy) {
@@ -128,11 +128,14 @@ export async function deleteSentence(sentenceId: number, language: Language) {
 		.execute();
 }
 
-export async function storeEnglish(english: string, sentenceId: number, language: Language) {
+export async function storeEnglish(
+	{ english, transliteration }: { english: string; transliteration?: string },
+	{ sentenceId, language }: { sentenceId: number; language: Language }
+) {
 	await db
 		.withSchema(language.schema)
 		.updateTable('sentences')
-		.set({ english })
+		.set({ english, transliteration })
 		.where('id', '=', sentenceId)
 		.execute();
 }

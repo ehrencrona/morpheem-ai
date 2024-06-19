@@ -33,11 +33,7 @@
 <div class="grid grid-cols-1 md:grid-cols-2 w-full gap-x-4">
 	{#each showAll ? words : words.slice(0, 8) as word (word.knowledge.wordId)}
 		{#if word.word}
-			<WordCard
-				word={word.word}
-				english={word.word.english}
-				mnemonic={word.word.mnemonic}
-			/>
+			<WordCard word={word.word} />
 		{:else}
 			<button
 				class="bg-light-gray rounded-md px-4 py-3 w-full mb-4 text-left inline-flex"

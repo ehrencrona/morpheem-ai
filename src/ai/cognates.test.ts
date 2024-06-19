@@ -1,6 +1,7 @@
 import { expect, test } from 'vitest';
-import { findCognates } from './cognates';
-import { POLISH } from '../constants';
+import { findCognates, findKoreanCognates } from './cognates';
+import { KOREAN, POLISH } from '../constants';
+import { shuffle } from 'simple-statistics';
 
 test('cognates', async ({}) => {
 	const cognates = await findCognates(
@@ -82,5 +83,51 @@ test('cognates', async ({}) => {
 		if (!possibleCognates.includes(cognate) && !definiteCognates.includes(cognate)) {
 			throw new Error(`Unexpected cognate: ${cognate}`);
 		}
+	}
+});
+
+test.only('Korean cognates', async ({}) => {
+	const knownCognates = [
+		'컴퓨터',
+		'인터넷',
+		'카메라',
+		'티비',
+		'커피',
+		'핸드폰',
+		'치즈',
+		'초콜릿',
+		'버스',
+		'택시',
+		'아파트',
+		'사이다',
+		'샴푸',
+		'브랜드',
+		'인터뷰',
+		'미팅'
+	];
+
+	const knownNonCognates = [
+		'사랑',
+		'친구',
+		'음식',
+		'학교',
+		'책',
+		'바다',
+		'하늘',
+		'노래',
+		'집',
+		'사람'
+	];
+
+	const cognates = await findCognates(shuffle(knownCognates.concat(knownNonCognates)), KOREAN);
+
+	console.log(cognates);
+
+	for (const expectedCognate of knownCognates) {
+		expect(cognates).toContain(expectedCognate);
+	}
+
+	for (const nonCognate of knownNonCognates) {
+		expect(cognates).not.toContain(nonCognate);
 	}
 });

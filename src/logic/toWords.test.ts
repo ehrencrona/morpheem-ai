@@ -1,6 +1,6 @@
 import { describe, expect } from 'vitest';
 import { toWords, toWordsWithSeparators } from './toWords';
-import { FRENCH, POLISH } from '../constants';
+import { FRENCH, KOREAN, POLISH } from '../constants';
 
 describe('toWords', (it) => {
 	it('should split a sentence into words', () => {
@@ -104,6 +104,16 @@ describe('toWords', (it) => {
 			' ',
 			'française',
 			'.'
+		]);
+	});
+
+	it('should split a Korean sentence into words', () => {
+		expect(toWords(`내일 중요한 결정을 내려야 합니다`, KOREAN)).toEqual([
+			'내일',
+			'중요한',
+			'결정을',
+			'내려야',
+			'합니다'
 		]);
 	});
 });

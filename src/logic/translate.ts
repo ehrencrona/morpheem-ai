@@ -13,11 +13,16 @@ export async function addEnglishToSentence(
 	language: Language
 ): Promise<DB.Sentence & { english: string }> {
 	if (!sentence.english) {
-		const englishes = await translateSentences([sentence.sentence], { language });
+		const { translations, transliterations } = await translateSentences([sentence.sentence], {
+			language
+		});
 
-		sentence.english = englishes[0];
+		sentence.english = translations[0];
+		sentence.transliteration = transliterations?.[0] || null;
 
-		storeEnglish(sentence.english, sentence.id, language).catch(console.error);
+		storeEnglish({ english: sentence.english || '' }, { sentenceId: sentence.id, language }).catch(
+			console.error
+		);
 	}
 
 	return sentence as DB.Sentence & { english: string };
@@ -35,11 +40,8 @@ export async function translateWordInContext(
 		wordString?: string;
 	}
 ) {
-	let translation: { english: string; form?: string } | undefined = await getWordTranslation(
-		lemma.id,
-		sentence?.id || null,
-		language
-	);
+	let translation: { english: string; form?: string; transliteration?: string } | undefined =
+		await getWordTranslation(lemma.id, sentence?.id || null, language);
 
 	if (!translation) {
 		translation = await translateWordInContextAi(
@@ -53,6 +55,7 @@ export async function translateWordInContext(
 			sentenceId: sentence?.id,
 			english: translation.english,
 			form: translation.form || undefined,
+			transliteration: translation.transliteration,
 			language
 		});
 	}

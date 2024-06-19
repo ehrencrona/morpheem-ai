@@ -1,18 +1,19 @@
 import { expect, it } from 'vitest';
-import { translateSentences, translateWordInContext, translateWords } from './translate';
+import { translateSentences, translateWordInContext } from './translate';
 import { POLISH } from '../constants';
 
 it('translates sentences', async () => {
 	expect(
-		await translateSentences(['Co robiłeś wczoraj wieczorem?', 'Ten film bardzo mi się podoba.'], {
-			temperature: 0,
-			language: POLISH
-		})
+		(
+			await translateSentences(
+				['Co robiłeś wczoraj wieczorem?', 'Ten film bardzo mi się podoba.'],
+				{
+					temperature: 0,
+					language: POLISH
+				}
+			)
+		).translations
 	).toEqual(['What were you doing last night?', 'I really like this movie.']);
-});
-
-it('translates words', async () => {
-	expect(await translateWords(['piękny', 'kot'], POLISH)).toEqual(['beautiful', 'cat']);
 });
 
 it('translates word in context', async () => {

@@ -1,6 +1,6 @@
 import { json, type Handle } from '@sveltejs/kit';
 import { lucia } from './db/lucia';
-import { FRENCH, POLISH, SPANISH } from './constants';
+import { FRENCH, KOREAN, POLISH, SPANISH } from './constants';
 
 export const handle: Handle = async ({ event, resolve }) => {
 	const sessionId = event.cookies.get(lucia.sessionCookieName);
@@ -49,9 +49,9 @@ export const handle: Handle = async ({ event, resolve }) => {
 
 	const languageCode = event.url.pathname.split('/')[1];
 
-	const language = { pl: POLISH, fr: FRENCH, es: SPANISH }[languageCode];
+	const language = { pl: POLISH, fr: FRENCH, es: SPANISH, ko: KOREAN }[languageCode];
 
-	event.locals.language = language || POLISH;
+	event.locals.language = language; // || POLISH;
 
 	let startTime = Date.now();
 

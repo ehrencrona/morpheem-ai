@@ -1,6 +1,6 @@
 import { page } from '$app/stores';
 import { get } from 'svelte/store';
-import { FRENCH, POLISH, SPANISH } from '../../../constants';
+import { FRENCH, KOREAN, POLISH, SPANISH } from '../../../constants';
 
 export async function apiCall(path: string, options: RequestInit) {
 	const lang = getLanguageOnClient().code;
@@ -33,6 +33,8 @@ export function getLanguageOnClient() {
 		return POLISH;
 	} else if (code == 'es') {
 		return SPANISH;
+	} else if (code == 'ko') {
+		return KOREAN;
 	} else {
 		throw new Error(`Unsupported language: ${code}`);
 	}

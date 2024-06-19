@@ -19,6 +19,7 @@ export interface UnknownWordResponse extends DB.Word {
 	mnemonic?: string;
 	inflected?: string;
 	form?: string;
+	transliteration?: string;
 }
 
 export const POST: ServerLoad = async ({ request, locals }) => {
@@ -49,7 +50,11 @@ export const POST: ServerLoad = async ({ request, locals }) => {
 		word = await getWordByLemma(wordString, language);
 	}
 
-	const { english, form } = await translateWordInContext(word, { wordString, sentence, language });
+	const { english, form, transliteration } = await translateWordInContext(word, {
+		wordString,
+		sentence,
+		language
+	});
 
 	const mnemonic = await getMnemonic({ wordId: word.id, userId, language });
 
@@ -60,6 +65,7 @@ export const POST: ServerLoad = async ({ request, locals }) => {
 		english,
 		inflected: wordString != word.word ? wordString : undefined,
 		form,
-		mnemonic
-	} as UnknownWordResponse);
+		mnemonic,
+		transliteration
+	} satisfies UnknownWordResponse);
 };

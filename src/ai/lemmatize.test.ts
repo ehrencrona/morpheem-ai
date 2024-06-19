@@ -1,5 +1,5 @@
 import { expect, it } from 'vitest';
-import { FRENCH, POLISH, SPANISH } from '../constants';
+import { FRENCH, KOREAN, POLISH, SPANISH } from '../constants';
 import { lemmatizeSentences } from './lemmatize';
 
 it('handles ambiguous words in Spanish', async () => {
@@ -110,4 +110,10 @@ it('lemmatizes French', async () => {
 
 it('lemmatizes single words', async () => {
 	expect(await lemmatizeSentences(['fletnię'], { language: POLISH })).toEqual([['fletnia']]);
+});
+
+it('lemmatizes Korean', async () => {
+	expect(
+		await lemmatizeSentences(['집 앞에 있는 정원이 정말 아름다워요.'], { language: KOREAN })
+	).toEqual([['집', '앞', '있다', '정원', '정말', '아름답다']]);
 });

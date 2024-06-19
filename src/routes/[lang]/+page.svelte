@@ -422,9 +422,12 @@
 				{sendKnowledge}
 				exercise={current.exercise}
 				sentenceId={current.sentence.id}
-				englishSentence={current.sentence.english || undefined}
+				translation={{
+					english: current.sentence.english || '',
+					transliteration: current.sentence.transliteration || ''
+				}}
 				correctSentence={current.sentence.sentence}
-				fetchEnglishSentence={getTranslation}
+				fetchTranslation={getTranslation}
 			/>
 		{:else if ['cloze', 'cloze-inflection'].includes(current.exercise) && current.word}
 			<Cloze

@@ -26,13 +26,14 @@
 	import type { Language, SentenceWord } from '../../../logic/types';
 	import type { UnknownWordResponse } from '../api/word/unknown/+server';
 	import WordCard from './WordCard.svelte';
+	import type { Translation } from '../api/sentences/[sentence]/english/client';
 
 	export let sentence: DB.Sentence;
 	export let sentenceWords: SentenceWord[];
 
 	export let word: DB.Word;
-	export let englishWord: string | undefined;
-	export let englishSentence: string | undefined;
+	export let wordTranslation: string | undefined;
+	export let sentenceTranslation: Translation | undefined;
 	export let mnemonic: string | undefined;
 	export let exercise: 'cloze' | 'cloze-inflection' = 'cloze';
 
@@ -146,8 +147,8 @@
 								/>
 							</span>
 							<span class="text-xs font-lato text-right">
-								{#if englishWord}
-									<span class="-mt-1">"{englishWord}"</span>
+								{#if wordTranslation}
+									<span class="-mt-1">"{wordTranslation}"</span>
 								{:else}
 									<div class="w-full flex items-center justify-center my-[3px]">
 										<Spinner />
@@ -164,10 +165,13 @@
 					>{/if}{:else}{wordString}{/if}{/each}
 	</div>
 
-	{#if englishSentence}
+	{#if sentenceTranslation}
 		<div class="text-sm mb-6" in:slide>
 			<div class="text-xs font-lato">The sentence means</div>
-			<div class="text-xl">"{englishSentence}"</div>
+			<div class="text-xl">"{sentenceTranslation.english}"</div>
+			{#if sentenceTranslation.transliteration}
+				<div class="text-xs font-lato">{sentenceTranslation.transliteration}</div>
+			{/if}
 		</div>
 	{/if}
 
@@ -175,7 +179,7 @@
 		{#if revealed.length > 0}
 			<div class="grid grid-cols-1 md:grid-cols-2 w-full gap-x-4 mt-8">
 				{#each revealed as word (word.id)}
-					<WordCard {...word} {word} onRemove={() => onRemoveUnknown(word.word)} />
+					<WordCard {word} onRemove={() => onRemoveUnknown(word.word)} />
 				{/each}
 				{#if isLoadingUnknown}
 					<div class="flex justify-center items-center">
@@ -248,7 +252,7 @@
 					of the right word{/if}.
 
 				{#if isFetchingEvaluation}
-					<Spinner />
+					<div class="mt-2"><Spinner /></div>
 				{/if}
 
 				{evaluation.evaluation || ''}
@@ -261,11 +265,13 @@
 
 		<div class="grid grid-cols-1 md:grid-cols-2 w-full gap-x-4 mt-8">
 			{#if !evaluation.isCorrectLemma || evaluation.differentWord}
-				<WordCard inflected={conjugatedWord} {word} english={englishWord} {mnemonic} />
+				<WordCard
+					word={{ ...word, inflected: conjugatedWord, english: wordTranslation || '', mnemonic }}
+				/>
 			{/if}
 
 			{#each revealed as word (word.id)}
-				<WordCard {...word} {word} onRemove={() => onRemoveUnknown(word.word)} />
+				<WordCard {word} onRemove={() => onRemoveUnknown(word.word)} />
 			{/each}
 		</div>
 

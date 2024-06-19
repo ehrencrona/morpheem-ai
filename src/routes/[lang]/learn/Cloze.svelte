@@ -13,6 +13,7 @@
 	import type { Language, SentenceWord } from '../../../logic/types';
 	import { fetchClozeEvaluation } from '../api/cloze/client';
 	import { fetchTranslation } from '../api/sentences/[sentence]/english/client';
+	import type { Translation } from '../api/sentences/[sentence]/english/client';
 	import { fetchInflections } from '../api/word/[id]/inflections/client';
 	import { fetchMnemonic } from '../api/word/[id]/mnemonic/client';
 	import { fetchWordsByPrefix } from '../api/word/prefix/[prefix]/client';
@@ -31,7 +32,7 @@
 	export let source: DB.ExerciseSource;
 	export let exercise: 'cloze' | 'cloze-inflection' = 'cloze';
 
-	export let knowledge: DB.AggKnowledgeForUser[];
+	export let knowledge: DB.AggKnowledgeForUser[] | undefined = undefined;
 
 	let error: any;
 	let isLoadingSuggestions = false;
@@ -55,8 +56,8 @@
 
 	export let onNext: () => Promise<any>;
 
-	let englishWord: string | undefined = undefined;
-	let englishSentence: string | undefined = undefined;
+	let wordTranslation: string | undefined = undefined;
+	let sentenceTranslation: Translation | undefined = undefined;
 	let mnemonic: string | undefined = undefined;
 	let showChars = 0;
 	let suggestedWords: SuggestedWords = {
@@ -75,8 +76,8 @@
 			type: 'lemma'
 		};
 		isPickingInflection = false;
-		englishWord = undefined;
-		englishSentence = undefined;
+		wordTranslation = undefined;
+		sentenceTranslation = undefined;
 		evaluation = undefined;
 		mnemonic = undefined;
 		inflections = [];
@@ -129,7 +130,7 @@
 		lookupUnknownWord(wordString, sentence.id)
 			.then((translated) => {
 				if (word.word == translated.word && word.id == wordWas.id) {
-					englishWord = translated.english;
+					wordTranslation = translated.english;
 				}
 			})
 			.catch((e) => {
@@ -162,7 +163,7 @@
 	}
 
 	async function onTranslate() {
-		englishSentence = await fetchTranslation(sentence.id);
+		sentenceTranslation = await fetchTranslation(sentence.id);
 	}
 
 	let typeCount = 0;
@@ -276,7 +277,7 @@
 						cloze + (standardize(word) == standardize(conjugatedWord) ? '______' : word),
 					''
 				),
-				clue: englishWord || '',
+				clue: wordTranslation || '',
 				userAnswer: answered,
 				correctAnswer: {
 					id: word.id,
@@ -373,8 +374,8 @@
 	{onTranslate}
 	{isPickingInflection}
 	{isFetchingEvaluation}
-	{englishWord}
-	{englishSentence}
+	{wordTranslation}
+	{sentenceTranslation}
 	{mnemonic}
 	{showChars}
 	{suggestedWords}

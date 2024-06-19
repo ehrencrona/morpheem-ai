@@ -17,10 +17,11 @@
 	import Speak from '../../../components/Speak.svelte';
 	import Spinner from '../../../components/Spinner.svelte';
 	import { splitIntoDiff } from '$lib/splitIntoDiff';
+	import type { Translation } from '../api/sentences/[sentence]/english/client';
 
 	export let word: { id: number; word: string; level: number } | undefined;
 	export let onNext: () => Promise<any>;
-	export let fetchEnglishSentence: () => Promise<string>;
+	export let fetchTranslation: () => Promise<Translation>;
 	export let sendKnowledge: SendKnowledge;
 	export let sentenceId: number;
 	export let language: Language;
@@ -28,7 +29,7 @@
 	export let exercise: 'write' | 'translate' = 'write';
 
 	/** The sentence to translate if translate, otherwise the writing idea. */
-	export let englishSentence: string | undefined;
+	export let translation: Translation | undefined;
 	/** The target language sentence if translate. */
 	export let correctSentence: string | undefined;
 
@@ -66,8 +67,8 @@
 				.catch((e) => (error = e));
 		}
 
-		if (!englishSentence) {
-			getEnglishSentence().catch((e) => (error = e));
+		if (!translation) {
+			getTranslation().catch((e) => (error = e));
 		}
 	}
 
@@ -96,12 +97,12 @@
 				? {
 						exercise,
 						entered,
-						word: word!.word,
+						word: word!.word
 					}
 				: {
 						exercise,
 						entered,
-						english: englishSentence!,
+						english: translation?.english||'',
 						correct: correctSentence!
 					}
 		);
@@ -162,8 +163,8 @@
 		}
 	};
 
-	const getEnglishSentence = async () => {
-		englishSentence = await fetchEnglishSentence();
+	const getTranslation = async () => {
+		translation = await fetchTranslation();
 	};
 
 	function dedup(words: UnknownWordResponse[]) {
@@ -191,7 +192,7 @@
 
 	const onIdea = async () => {
 		try {
-			await getEnglishSentence();
+			await getTranslation();
 			showIdea = true;
 		} catch (e) {
 			error = e;
@@ -218,8 +219,8 @@
 				<div class="text-sm mb-6" in:slide>
 					<div class="text-xs font-lato">Translate into {language.name}:</div>
 					<div class="text-xl">
-						{#if englishSentence}
-							"{englishSentence}"
+						{#if translation}
+							"{translation.english}"
 						{:else}
 							<Spinner />
 						{/if}
@@ -247,10 +248,10 @@
 				</div>
 			{/if}
 
-			{#if showIdea && englishSentence}
+			{#if showIdea && translation}
 				<div class="text-sm mb-6" in:slide>
 					<div class="text-xs font-lato">Maybe write this in {language.name}?</div>
-					<div class="text-xl">"{englishSentence}"</div>
+					<div class="text-xl">"{translation.english}"</div>
 				</div>
 			{/if}
 		{:else}
@@ -273,7 +274,6 @@
 			<div class="grid grid-cols-1 md:grid-cols-2 w-full gap-x-4 mt-8" transition:slide>
 				{#each unknownWords as word}
 					<WordCard
-						{...word}
 						{word}
 						onRemove={() => (unknownWords = unknownWords.filter((word) => word.id != word.id))}
 					/>
@@ -288,7 +288,7 @@
 						<SpinnerButton onClick={onHint} type="secondary">Hint</SpinnerButton>
 					{/if}
 
-					{#if englishSentence}
+					{#if translation}
 						<SpinnerButton onClick={onIdea} type="secondary">Idea</SpinnerButton>
 					{/if}
 				{/if}

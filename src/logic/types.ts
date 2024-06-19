@@ -2,9 +2,10 @@ import { z } from 'zod';
 import * as DB from '../db/types';
 
 export interface Language {
-	code: 'pl' | 'fr' | 'es';
+	code: 'pl' | 'fr' | 'es' | 'ko';
 	name: string;
 	schema: string;
+	isLatin: boolean;
 }
 
 export interface AlphaBeta {

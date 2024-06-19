@@ -2,7 +2,11 @@ import { Language } from '../logic/types';
 import { ask } from './ask';
 
 export async function findCognates(words: string[], language: Language): Promise<string[]> {
-	// single-letter words are translates as a letter and thus always cognate
+	if (language.code == 'ko') {
+		return findKoreanCognates(words);
+	}
+
+	// single-letter words are translated as a letter and thus always cognate
 	words = words.filter((word) => word.length > 1);
 
 	const examples = {
@@ -123,4 +127,23 @@ function isPlausibleCognate(word: string, translation: string) {
 	}
 
 	return isPlausible;
+}
+
+async function findKoreanCognates(words: string[]) {
+	const response = await ask({
+		messages: [
+			{
+				role: 'system',
+				content: `List those of the following Korean words that are derived from English. One word per line. Print nothing else.`
+			},
+			{ role: 'user', content: words.join('\n') }
+		],
+		model: 'gpt-4o',
+		temperature: 0,
+		logResponse: true
+	});
+
+	const lines = response!.split('\n').map((word) => word.trim());
+
+	return lines;
 }

@@ -6,13 +6,15 @@ export function addWordTranslations({
 	sentenceId,
 	english,
 	language,
-	form
+	form,
+	transliteration
 }: {
 	wordId: number;
 	sentenceId?: number;
 	english: string;
 	language: Language;
 	form?: string;
+	transliteration?: string;
 }) {
 	return db
 		.withSchema(language.schema)
@@ -21,7 +23,8 @@ export function addWordTranslations({
 			word_id: wordId,
 			sentence_id: sentenceId,
 			english,
-			form
+			form,
+			transliteration
 		})
 		.execute();
 }
@@ -50,5 +53,9 @@ export function getWordTranslation(wordId: number, sentenceId: number | null, la
 
 	return select
 		.executeTakeFirst()
-		.then((res) => (res ? { ...res, form: res.form || undefined } : undefined));
+		.then((res) =>
+			res
+				? { ...res, form: res.form || undefined, transliteration: res.transliteration || undefined }
+				: undefined
+		);
 }

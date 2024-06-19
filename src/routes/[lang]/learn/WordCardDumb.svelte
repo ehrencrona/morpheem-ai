@@ -10,6 +10,7 @@
 
 	export let mnemonic: string | undefined = undefined;
 	export let english: string | undefined = undefined;
+	export let transliteration: string | undefined = undefined;
 
 	export let onEditMnemonic: (word: DB.Word, mnemonic?: string) => Promise<any>;
 
@@ -26,7 +27,10 @@
 		{#if showLemma}
 			<span class="text-xs font-lato flex-1 ml-2">
 				{#if word.word != inflected}{word.word}{/if}{#if form}
-					<span>{#if word.word != inflected}, {/if}{form}</span>
+					<span
+						>{#if word.word != inflected},
+						{/if}{form}</span
+					>
 				{/if}
 			</span>
 		{/if}
@@ -63,6 +67,10 @@
 	<div class="px-3 pb-4">
 		{#if english}
 			<div class="text-balance font-lato mt-2">{english}</div>
+		{/if}
+
+		{#if transliteration}
+			<div class="text-xs font-lato mt-2">{transliteration}</div>
 		{/if}
 
 		<div class="text-xs font-lato mt-2">

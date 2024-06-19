@@ -34,6 +34,11 @@ export function toWords(sentence: string, language: Language) {
 			.filter((word) => word.length > 0)
 			.filter((word) => word != '-')
 			.map((word) => word.toLowerCase()); // Convert to lowercase
+	} else if (language.code == 'ko') {
+		return sentence
+			.replace(/[^가-힣]/gu, ' ')
+			.split(' ')
+			.filter((word) => word.length > 0);
 	} else {
 		throw new Error('Unsupported language');
 	}
@@ -66,6 +71,8 @@ export function toWordsWithSeparators(sentence: string, language: Language) {
 		return splitTokens;
 	} else if (language.code == 'es') {
 		return sentence.split(/([^a-zA-ZáéíóúüñÁÉÍÓÚÜÑ-]+)/).filter((word) => word.length > 0);
+	} else if (language.code == 'ko') {
+		return sentence.split(/([^가-힣]+)/u).filter((word) => word.length > 0);
 	} else {
 		throw new Error('Unsupported language');
 	}
@@ -73,7 +80,7 @@ export function toWordsWithSeparators(sentence: string, language: Language) {
 
 export function isSeparator(word: string) {
 	return (
-		word.match(/[^a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻàâçéèêëîïôûùüÿÀÂÇÉÈÊËÎÏÔÛÙÜŸáéíóúüñÁÉÍÓÚÜÑ'-]+/) ||
+		word.match(/[^a-zA-Z가-힣ąćęłńóśźżĄĆĘŁŃÓŚŹŻàâçéèêëîïôûùüÿÀÂÇÉÈÊËÎÏÔÛÙÜŸáéíóúüñÁÉÍÓÚÜÑ'-]+/) ||
 		/* apostrophe is part of words in french */
 		word == "'"
 	);

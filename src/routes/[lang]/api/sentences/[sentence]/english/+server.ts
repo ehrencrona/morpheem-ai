@@ -9,7 +9,10 @@ export const GET: ServerLoad = async ({ params, locals: { language } }) => {
 		throw new Error('Invalid sentence ID');
 	}
 
-	const sentence = await addEnglishToSentence(await getSentence(sentenceId, language), language);
+	const { english, transliteration } = await addEnglishToSentence(
+		await getSentence(sentenceId, language),
+		language
+	);
 
-	return json(sentence.english);
+	return json({ english, transliteration });
 };

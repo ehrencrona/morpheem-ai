@@ -10,6 +10,7 @@
 	import { fetchAskMeAnything } from '../api/write/ama/client';
 	import Ama from './AMA.svelte';
 	import WordCard from './WordCard.svelte';
+	import type { Translation } from '../api/sentences/[sentence]/english/client';
 
 	export let sentence: DB.Sentence;
 	export let word: DB.Word | undefined;
@@ -22,12 +23,12 @@
 	export let onNext: () => Promise<any>;
 
 	let hint: string | undefined;
-	let translation: string | undefined;
+	let translation: Translation | undefined;
 	let isLoadingUnknown = false;
 	let error: any;
 
 	export let getHint: () => Promise<string>;
-	export let getTranslation: () => Promise<string>;
+	export let getTranslation: () => Promise<Translation>;
 
 	$: wordsWithSeparators = toWordsWithSeparators(sentence.sentence, language);
 
@@ -59,7 +60,7 @@
 </script>
 
 <div class="text-xs font-lato">
-	Click any word you don't understand. This marks it for later repetition.
+	Read the sentence and click any word you don't understand. This marks them for later repetition.
 </div>
 
 <div class="text-4xl mb-4 mt-2 font-medium">
@@ -81,17 +82,18 @@
 				How the text might continue:
 			{/if}
 		</div>
-		<div class="text-xl">"{translation || hint}"</div>
+		<div class="text-xl">"{translation?.english || hint}"</div>
+		{#if translation?.transliteration}
+			<div class="text-xs font-lato">
+				{translation.transliteration}
+			</div>
+		{/if}
 	</div>
 {/if}
 
 <div class="grid grid-cols-1 md:grid-cols-2 w-full gap-x-4">
 	{#each revealed as word (word.id)}
-		<WordCard
-			{...word}
-			{word}
-			onRemove={() => onRemoveUnknown(word.word)}
-		/>
+		<WordCard {word} onRemove={() => onRemoveUnknown(word.word)} />
 	{/each}
 	{#if isLoadingUnknown}
 		<div class="flex justify-center items-center">
@@ -127,7 +129,7 @@
 			word: word?.word,
 			sentence: sentence.sentence,
 			revealed,
-			translation
+			translation: translation?.english
 		})}
 	wordId={sentence.id}
 	suggestions={[
