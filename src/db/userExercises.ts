@@ -27,10 +27,12 @@ export async function upsertUserExercise(
 			})
 			.execute();
 	} catch (e: any) {
+		console.log('d', e.detail);
+
 		// constraint violation. we can't do oc here because there's a partial index to handle null values
 		// and I can't seem to target that one
-		if (e.detail.includes('already exists') || e.detail.includes('duplicate key')) {
-			await db
+		if (e.detail.includes('already exists')) {
+			let select = db
 				.withSchema(language.code)
 				.updateTable('user_exercises')
 				.set({
@@ -41,7 +43,16 @@ export async function upsertUserExercise(
 					word_id: wordId,
 					last_time: new Date()
 				})
-				.execute();
+				.where('user_id', '=', userId)
+				.where('sentence_id', '=', sentenceId);
+
+			if (wordId) {
+				select = select.where('word_id', '=', wordId);
+			} else {
+				select = select.where('word_id', 'is', null);
+			}
+
+			await select.execute();
 		} else {
 			throw e;
 		}
