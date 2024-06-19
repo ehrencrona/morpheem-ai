@@ -335,8 +335,6 @@
 	async function onNext() {
 		wordsKnown = calculateWordsKnown(knowledge);
 
-		throw new Error('bla')
-
 		sendWordsKnown(wordsKnown).catch(logError);
 
 		await showNextSentence();
