@@ -93,10 +93,10 @@ async function lemmatizeBatch(
 		dáme (dar) un (uno) beso (beso)
 		
 		(treat un/una as "uno", la as "el", al as "a", del as "de", me as "me")`,
-		ko: `우리는 (우리) 결과를 (결과) 예상했습니다 (예상하다)
-		비 (비) 때문에 (때문) 늦었어요 (늦다)
-		언제부터 (언제부터) 공부했어요 (공부하다)
-		긴 (길다)`
+		ko: `우리는 결과를 예상했습니다 becomes 우리는 (우리) 결과를 (결과) 예상했습니다 (예상하다)
+비 때문에 늦었어요 becomes 비 (비) 때문에 (때문) 늦었어요 (늦다)
+언제부터 공부했어요 becomes 언제부터 (언제부터) 공부했어요 (공부하다)
+긴 becomes 긴 (길다)`
 	};
 
 	const response = await ask({
