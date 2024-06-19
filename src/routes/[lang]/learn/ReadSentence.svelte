@@ -72,12 +72,24 @@
 	onNext={storeAndContinue}
 />
 
-<Tutorial
-	paragraphs={[
-		`To grow your vocabulary, we show you sentences at a level you should find challenging.`,
-		`By clicking words you don't know, you mark them for later repetition.`
-	]}
-	id="read"
-/>
+{#if revealed.length}
+	<Tutorial
+		paragraphs={[
+			`Take your time to memorize the word. You will get it again in future exercises.`,
+			`You can ask questions about it in "ask me anything". Try asking "etymology?", "similar-sounding words?" or "other meanings?"`,
+			`Click "mnemonic" to store a phrase to help you remember the word. It will be displayed with the word in the future.`
+		]}
+		id="unknown"
+	/>
+{:else}
+	<Tutorial
+		paragraphs={[
+			`To grow your vocabulary, we show you sentences at a level you should find challenging.`,
+			`By clicking words you don't know, you mark them for later repetition.`,
+			`Click "I understand" to go to the next exercise.`
+		]}
+		id="read"
+	/>
+{/if}
 
 <Speak url={`/${language.code}/api/sentences/${sentence.id}/tts.opus`} />
