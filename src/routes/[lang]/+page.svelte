@@ -387,6 +387,11 @@
 					</a>
 				{/if}
 
+				<a href="mailto:andreas.ehrencrona@velik.it" class="underline text-red">
+					Contact
+				</a>
+
+				
 				<a
 					href={`/${languageCode}/sentences/${current?.sentence.id}/delete`}
 					class="underline text-red"

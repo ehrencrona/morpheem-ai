@@ -1,6 +1,16 @@
-import { json, type Handle } from '@sveltejs/kit';
+import { HandleServerError, json, type Handle } from '@sveltejs/kit';
 import { lucia } from './db/lucia';
 import { FRENCH, KOREAN, POLISH, SPANISH } from './constants';
+import { init, captureException } from '@sentry/browser';
+
+const isLoggingEnabled = import.meta.env.RENDER;
+
+if (isLoggingEnabled) {
+	init({
+		dsn: 'https://f962852f91c7442fb3e1f503735ca05f@app.glitchtip.com/7067',
+		tracesSampleRate: 0.01
+	});
+}
 
 export const handle: Handle = async ({ event, resolve }) => {
 	const sessionId = event.cookies.get(lucia.sessionCookieName);
@@ -62,4 +72,27 @@ export const handle: Handle = async ({ event, resolve }) => {
 	);
 
 	return response;
+};
+
+let lastThrottleTime = 0;
+let logCount = 0;
+
+export const handleError: HandleServerError = async ({ error, event, status, message }) => {
+	console.log('error', error);
+
+	const errorId = crypto.randomUUID();
+
+	if (isLoggingEnabled && (logCount < 4 || Date.now() - lastThrottleTime > 60000)) {
+		lastThrottleTime = Date.now();
+		logCount = 0;
+
+		captureException(error, {
+			extra: { event, errorId, status }
+		});
+	}
+
+	return {
+		message,
+		errorId
+	};
 };

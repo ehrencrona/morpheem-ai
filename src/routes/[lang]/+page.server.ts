@@ -13,6 +13,7 @@ export const load: ServerLoad = async ({ locals: { user, language }, url }) => {
 
 	return {
 		languageCode: language.code,
-		userExercises: await getUserExercises(user.num, language)
+		userExercises: await getUserExercises(user.num, language),
+		user: user.username
 	};
 };

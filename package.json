@@ -33,6 +33,7 @@
 	"type": "module",
 	"dependencies": {
 		"@lucia-auth/adapter-postgresql": "^3.1.2",
+		"@sentry/browser": "^8.9.2",
 		"@sveltejs/adapter-node": "^5.0.1",
 		"groq-sdk": "^0.3.3",
 		"kysely": "^0.27.3",

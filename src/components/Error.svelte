@@ -1,11 +1,32 @@
+<script lang="ts" context="module">
+	let lastThrottleTime = 0;
+	let logCount = 0;
+</script>
+
 <script lang="ts">
 	import { fade } from 'svelte/transition';
 
 	export let error: any | undefined;
 	export let onClear: () => any;
 
+	import { captureException } from '@sentry/browser';
+
 	$: if (error) {
 		console.log(error);
+
+		logCount++;
+
+		let isWorthLogging =
+			error.message != 'Failed to fetch' &&
+			typeof document !== 'undefined' &&
+			document.location.hostname !== 'localhost';
+
+		if (isWorthLogging && (logCount < 4 || Date.now() - lastThrottleTime > 60000)) {
+			lastThrottleTime = Date.now();
+			logCount = 0;
+
+			captureException(error);
+		}
 	}
 </script>
 

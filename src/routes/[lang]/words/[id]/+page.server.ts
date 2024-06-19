@@ -1,4 +1,4 @@
-import { redirect, type ServerLoad } from '@sveltejs/kit';
+import { error, redirect, type ServerLoad } from '@sveltejs/kit';
 import {
 	getAggregateKnowledgeForUserWords,
 	getRawKnowledgeForUser
@@ -25,9 +25,13 @@ export const load: ServerLoad = async ({ params, locals: { language, userId } })
 	const wordId = parseInt(params.id!);
 
 	if (isNaN(wordId)) {
-		const word = await getWordByLemma(params.id!, language);
+		try {
+			const word = await getWordByLemma(params.id!, language);
 
-		return redirect(302, `/${language.code}/words/${word.id}`);
+			return redirect(302, `/${language.code}/words/${word.id}`);
+		} catch (e) {
+			return error(404, 'Word not found');
+		}
 	}
 
 	const word = await getWordById(wordId, language);
