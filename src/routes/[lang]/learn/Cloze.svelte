@@ -107,7 +107,7 @@
 
 		console.log(`Chance of knowing ${word.word}: ${toPercent(chanceOfKnowing)}`);
 
-		if (chanceOfKnowing > 0.8) {
+		if (chanceOfKnowing > 0.8 && exercise == 'cloze') {
 			offerSuggestions = false;
 		}
 	}
