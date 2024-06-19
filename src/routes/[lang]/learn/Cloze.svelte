@@ -5,6 +5,7 @@
 	import { toPercent } from '$lib/toPercent';
 	import ErrorComponent from '../../../components/Error.svelte';
 	import Speak from '../../../components/Speak.svelte';
+	import Tutorial from '../../../components/Tutorial.svelte';
 	import { KNOWLEDGE_TYPE_CLOZE, KNOWLEDGE_TYPE_READ } from '../../../db/knowledgeTypes';
 	import * as DB from '../../../db/types';
 	import { expectedKnowledge, now } from '../../../logic/isomorphic/knowledge';
@@ -383,6 +384,30 @@
 	{language}
 	{isLoadingSuggestions}
 />
+
+{#if !offerSuggestions}
+	<Tutorial
+		paragraphs={[
+			`When you already know a word well there are no suggestions; you have to type the word unaided.`
+		]}
+		id="no-suggestions"
+	/>
+{:else if exercise == 'cloze-inflection'}
+	<Tutorial
+		paragraphs={[
+			`You have chosen the wrong form of this word before, so this exercise is only about chosing the right form.`
+		]}
+		id="cloze-inflection"
+	/>
+{:else}
+	<Tutorial
+		paragraphs={[
+			`Fill-in-the blanks exercises test your ability to produce words in context.`,
+			`They test words you already have a good passive knowledge of.`
+		]}
+		id="cloze"
+	/>
+{/if}
 
 {#if evaluation}
 	<Speak url={`/${language.code}/api/sentences/${sentence.id}/tts.opus`} />

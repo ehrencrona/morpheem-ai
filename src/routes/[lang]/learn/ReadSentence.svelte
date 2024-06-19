@@ -2,6 +2,7 @@
 	import type { SendKnowledge } from '$lib/SendKnowledge';
 	import { dedupUnknown } from '$lib/dedupUnknown';
 	import Speak from '../../../components/Speak.svelte';
+	import Tutorial from '../../../components/Tutorial.svelte';
 	import { KNOWLEDGE_TYPE_READ } from '../../../db/knowledgeTypes';
 	import * as DB from '../../../db/types';
 	import type { Language, SentenceWord } from '../../../logic/types';
@@ -69,6 +70,14 @@
 	{getTranslation}
 	{language}
 	onNext={storeAndContinue}
+/>
+
+<Tutorial
+	paragraphs={[
+		`To grow your vocabulary, we show you sentences at a level you should find challenging.`,
+		`By clicking words you don't know, you mark them for later repetition.`
+	]}
+	id="read"
 />
 
 <Speak url={`/${language.code}/api/sentences/${sentence.id}/tts.opus`} />

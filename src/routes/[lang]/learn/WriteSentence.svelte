@@ -18,6 +18,7 @@
 	import Spinner from '../../../components/Spinner.svelte';
 	import { splitIntoDiff } from '$lib/splitIntoDiff';
 	import type { Translation } from '../api/sentences/[sentence]/english/client';
+	import Tutorial from '../../../components/Tutorial.svelte';
 
 	export let word: { id: number; word: string; level: number } | undefined;
 	export let onNext: () => Promise<any>;
@@ -102,7 +103,7 @@
 				: {
 						exercise,
 						entered,
-						english: translation?.english||'',
+						english: translation?.english || '',
 						correct: correctSentence!
 					}
 		);
@@ -285,11 +286,11 @@
 			{#if !feedback}
 				{#if exercise === 'write'}
 					{#if !isRevealed}
-						<SpinnerButton onClick={onHint} type="secondary">Hint</SpinnerButton>
+						<SpinnerButton onClick={onHint} type="secondary">Hint word</SpinnerButton>
 					{/if}
 
 					{#if translation}
-						<SpinnerButton onClick={onIdea} type="secondary">Idea</SpinnerButton>
+						<SpinnerButton onClick={onIdea} type="secondary">Writing idea</SpinnerButton>
 					{/if}
 				{/if}
 
@@ -307,6 +308,15 @@
 			<Speak url={`/${language.code}/api/sentences/${sentenceId}/tts.opus`} />
 		{/if}
 	</form>
+
+	<Tutorial
+		paragraphs={[
+			`Use "ask me anything" if you need help with vocabulary or grammar.`,
+			`Don't worry about making mistakes; that's how you learn.`,
+			`If you use a word correctly, we'll remember that you know it. Any mistakes will be turned into new exercises for you.`
+		]}
+		id="write"
+	/>
 
 	<AMA
 		suggestions={[`How do you say 'to scratch'?`, `traffic light in ${language.name}?`]}
