@@ -94,9 +94,11 @@ async function lemmatizeBatch(
 		
 		(treat un/una as "uno", la as "el", al as "a", del as "de", me as "me")`,
 		ko: `우리는 결과를 예상했습니다 becomes 우리는 (우리) 결과를 (결과) 예상했습니다 (예상하다)
-비 때문에 늦었어요 becomes 비 (비) 때문에 (때문) 늦었어요 (늦다)
+비 때문에 늦었어요 becomes 비 (비) 때문에 (때문에) 늦었어요 (늦다)
 언제부터 공부했어요 becomes 언제부터 (언제부터) 공부했어요 (공부하다)
-긴 becomes 긴 (길다)`
+긴 becomes 긴 (길다)
+가지 마세요 becomes 가지 (가다) 마세요 (마세요)
+물 주세요 becomes 물 (물) 주세요 (주다)`
 	};
 
 	const response = await ask({
@@ -105,7 +107,9 @@ async function lemmatizeBatch(
 			[
 				{
 					role: 'system',
-					content: `For every ${language.name} word entered, print it followed by the dictionary form. For any words that are not ${language.name}, use the word itself as the dictionary form. Print nothing else.
+					content: `For every ${language.name} word entered, print it followed by the dictionary form. For any words that are not ${language.name}${
+						language.code == 'ko' ? ' or that are not standalone words' : ''
+					}, use the word itself as the dictionary form. Print nothing else.
 					Example:
 
 ${examples[language.code]}`

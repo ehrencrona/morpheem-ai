@@ -134,7 +134,7 @@ async function findKoreanCognates(words: string[]) {
 		messages: [
 			{
 				role: 'system',
-				content: `List those of the following Korean words that are derived from English. One word per line. Print nothing else.`
+				content: `List those of the following Korean words that are derived from (or same as in) English. One word per line. Print nothing else.`
 			},
 			{ role: 'user', content: words.join('\n') }
 		],
