@@ -196,16 +196,6 @@
 </script>
 
 <div>
-	{#if exercise == 'write'}
-		<h1 class="mb-4 text-xl">
-			{#if isRevealed}
-				{word?.word}
-			{:else if lookedUpWord}"{lookedUpWord?.english}"{:else}
-				<Spinner />
-			{/if}
-		</h1>
-	{/if}
-
 	<form>
 		{#if !feedback}
 			{#if exercise === 'translate'}
@@ -315,7 +305,7 @@
 				`Use "ask me anything" if you need help with vocabulary or grammar.`,
 				`Don't worry about making mistakes; that's how you learn.`,
 				`If you use a word correctly, we'll remember that you know it. Any mistakes will be turned into new exercises for you.`
-			]}
+			].concat(exercise == 'write' ? `Use "hint word" if you're not sure which the word is meant.` : [])}
 			id="write"
 		/>
 	{/if}
