@@ -34,7 +34,7 @@
 
 	<div class="my-4">
 		<p><b>Level</b>: {data.word.level}%</p>
-		<p><b>Cognate</b>: {data.word.cognate}</p>
+		<p><b>Type</b>: {data.word.type}</p>
 		<p><b>Mnemonic</b>: {data.mnemonic || '-'}</p>
 	</div>
 

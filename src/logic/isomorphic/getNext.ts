@@ -96,7 +96,7 @@ export function getNextSentence(
 			if (!wordKnowledge) {
 				const scoreForLevel = (level: number) => (100 - level) / 100 / 1.5;
 
-				if (word.cognate) {
+				if (word.type == 'cognate') {
 					message += ` (cognate, ${word.level}% level)`;
 
 					return scoreForLevel(getLevelForCognate(word.level));

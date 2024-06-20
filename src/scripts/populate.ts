@@ -7,7 +7,7 @@ import { addSentencesForWord } from '../logic/addSentencesForWord';
 const language = KOREAN;
 
 export async function addSentencesForMissingWords() {
-	await addWord('집', { language });
+	await addWord('집', { language, type: null });
 
 	const words = await getWordsMissingExamples({
 		minSentenceCount: 3,

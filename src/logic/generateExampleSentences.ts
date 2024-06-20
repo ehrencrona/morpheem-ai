@@ -1,12 +1,13 @@
-import { findCognates } from '../ai/cognates';
+import { filterUndefineds } from '$lib/filterUndefineds';
+import { classifyLemmas } from '../ai/classifyLemmas';
 import {
 	generateExampleSentences as generateExampleSentencesAi,
 	simplifySentences
 } from '../ai/generateExampleSentences';
-import { lemmatizeSentences } from '../logic/lemmatize';
 import { getAggregateKnowledgeForUserWords } from '../db/knowledge';
 import * as DB from '../db/types';
 import { addWord, getMultipleWordsByLemmas } from '../db/words';
+import { lemmatizeSentences } from '../logic/lemmatize';
 import { expectedKnowledge, now } from './isomorphic/knowledge';
 import { Language } from './types';
 
@@ -136,7 +137,11 @@ async function gradeSentences(
 		language
 	}: { exceptLemma: string; hardLevel: number; userId: number; language: Language }
 ) {
-	const { words, lemmas } = await toWords(sentences, { language });
+	const res = await toWords(sentences, { language });
+	const { words, lemmas } = res;
+
+	// it might discard invalid sentences.
+	sentences = res.sentences;
 
 	const knowledge = await getAggregateKnowledgeForUserWords({
 		wordIds: words.map(({ id }) => id),
@@ -164,7 +169,7 @@ async function gradeSentences(
 const isHard = (word: DB.Word, knowledge: DB.AggKnowledgeForUser[], hardLevel: number): boolean => {
 	const wordKnowledge = knowledge.find((k) => k.wordId === word.id);
 
-	if (word.cognate) {
+	if (word.type == 'cognate') {
 		return false;
 	}
 
@@ -185,23 +190,20 @@ export async function toWords(sentences: string[], { language }: { language: Lan
 	if (missingWords.length) {
 		const wordsAdded = await addWords(missingWords, language);
 
-		for (const word of missingWords) {
-			const addedWord = wordsAdded.find((w) => w.word === word);
+		words.push(...wordsAdded);
 
-			if (addedWord) {
-				words.push(addedWord);
-			} else {
-				words.push({
-					id: -1,
-					word,
-					level: 99,
-					cognate: false
-				});
+		sentences = sentences.filter((sentence, i) => {
+			const foundAllLemmas = lemmas[i].every((lemma) => words.some((word) => word.word === lemma));
+
+			if (!foundAllLemmas) {
+				console.warn(`Could not find all lemmas for sentence: ${sentence}`);
 			}
-		}
+
+			return foundAllLemmas;
+		});
 	}
 
-	return { words, lemmas };
+	return { words, lemmas, sentences };
 }
 
 export async function addWords(wordStrings: string[], language: Language) {
@@ -209,24 +211,25 @@ export async function addWords(wordStrings: string[], language: Language) {
 		throw new Error('No words to add');
 	}
 
-	const [cognates, lemmas] = await Promise.all([
-		findCognates(wordStrings, language),
-		// try to double check that we actually got the dictionary form
-		lemmatizeSentences([wordStrings.join(' ')], { language })
-	]);
+	const lemmaTypes = await classifyLemmas(wordStrings, { language, throwOnInvalid: false });
 
-	wordStrings = wordStrings.filter((word) => {
-		const isLemmaDoubleCheck = lemmas[0].includes(word);
-
-		if (!isLemmaDoubleCheck) {
-			console.warn(`Double check: ${word} not found in lemmas`);
-		}
-
-		return isLemmaDoubleCheck;
-	});
-
-	return Promise.all(
-		wordStrings.map((word) => addWord(word, { isCognate: cognates.includes(word), language }))
+	return filterUndefineds(
+		await Promise.all(
+			lemmaTypes.map(({ lemma, type }) => {
+				if (type == 'inflection' || type == 'wrong') {
+					console.warn(`Invalid lemma: ${lemma} (${type}).`);
+					return undefined;
+				} else {
+					return addWord(lemma, {
+						type: type as DB.WordType | null,
+						language
+					}).catch((e) => {
+						console.error(`Failed to add word ${lemma} to the database: ${e}`);
+						return undefined;
+					});
+				}
+			})
+		)
 	);
 }
 

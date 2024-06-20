@@ -1,6 +1,6 @@
 import { addWordToLemma, getLemmaIdsOfWord } from '../db/lemmas';
 import { getSentence } from '../db/sentences';
-import { addWord } from '../db/words';
+import { addWord, getWordByLemma } from '../db/words';
 import { lemmatizeSentences } from '../logic/lemmatize';
 import { toWords } from './toWords';
 import { Language, SentenceWord } from './types';
@@ -49,12 +49,7 @@ export async function getWordInSentence(
 
 		const lemma = lemmas[index];
 
-		// does nothing if the lemma already exists
-		const word = await addWord(lemma, { language });
-
-		await addWordToLemma(wordString, word, language);
-
-		return word;
+		return await getWordByLemma(lemma, language);
 	}
 
 	const word = sentenceWords.find((w) => lemmaIds.has(w.id) || w.word === wordString);

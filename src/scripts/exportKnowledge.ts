@@ -19,7 +19,15 @@ async function exportKnowledge() {
 	const rows = await db
 		.selectFrom('knowledge')
 		.innerJoin('words', 'knowledge.word_id', 'words.id')
-		.selectAll()
+		.select([
+			'word_id',
+			'word',
+			'time',
+			'knew',
+			'knowledge.type',
+			'words.type as word_type',
+			'level'
+		])
 		.where('time', '>', new Date('2024-05-02T16:35:00Z'))
 		.orderBy('time', 'asc')
 		.execute();
@@ -87,7 +95,7 @@ async function exportKnowledge() {
 		const firstKnew = timesSeen > 0 ? wordRows[0]?.knew : '';
 		const level = row.level;
 		const word = row.word;
-		const cognate = row.cognate;
+		const cognate = row.word_type == 'cognate';
 		const hasEverNotKnown = wordRows.some((r) => !r.knew);
 
 		output += `${knew},${knewLastTime},${knewSecondToLastTime},${knewThirdToLastTime},${timesSeen},${didKnowFirstTime},${didKnowLastTime},${timeSinceLast},${timeSinceFirst},${timeBetweenFirstAndLast},${didKnowSecondToLastTime},${timeSinceSecondToLast},${timesKnown},${timesNotKnew},${timeSinceLastKnew},${timeSinceLastNotKnew},${firstKnew},${level},${word},${cognate},${hasEverNotKnown},${slidingAverageKnew}\n`;

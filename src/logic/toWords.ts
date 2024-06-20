@@ -36,7 +36,7 @@ export function toWords(sentence: string, language: Language) {
 			.map((word) => word.toLowerCase()); // Convert to lowercase
 	} else if (language.code == 'ko') {
 		return sentence
-			.replace(/[^가-힣]/gu, ' ')
+			.replace(/[^가-힣a-zA-Z]/gu, ' ')
 			.split(' ')
 			.filter((word) => word.length > 0);
 	} else {

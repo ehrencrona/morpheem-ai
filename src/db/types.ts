@@ -11,8 +11,10 @@ export interface Word {
 	word: string;
 	id: number;
 	level: number;
-	cognate: boolean | null;
+	type: WordType | undefined;
 }
+
+export type WordType = 'cognate' | 'name' | 'particle';
 
 export interface Knowledge {
 	alpha: number;

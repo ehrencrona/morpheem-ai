@@ -1,6 +1,8 @@
+import { toWords } from '../logic/toWords';
 import { Language } from '../logic/types';
 import { db } from './client';
 import type * as DB from './types';
+import { toWord } from './words';
 
 export async function addWordToLemma(wordString: string, word: DB.Word, language: Language) {
 	if (
@@ -63,7 +65,7 @@ export async function getInflections(wordId: number, language: Language) {
 	).map((row) => row.word);
 }
 
-export async function getLemmasOfWords(words: string[], language: Language) {
+export async function getLemmasOfWords(words: string[], language: Language): Promise<DB.Word[][]> {
 	if (words.length == 0) {
 		return [];
 	}
@@ -77,10 +79,12 @@ export async function getLemmasOfWords(words: string[], language: Language) {
 			words.map((word) => word.toLowerCase())
 		)
 		.innerJoin('words', 'word_lemma.lemma_id', 'words.id')
-		.select(['words.id', 'words.word', 'cognate', 'level', 'word_lemma.word as inflected'])
+		.select(['words.id', 'words.word', 'type', 'level', 'word_lemma.word as inflected'])
 		.execute();
 
-	return words.map((word) => rows.filter((row) => row.inflected == word.toLowerCase()));
+	return words
+		.map((word) => rows.filter((row) => row.inflected == word.toLowerCase()))
+		.map((ws) => ws.map(toWord));
 }
 
 export function getLemmaIdsOfWord(word: string, language: Language) {

@@ -5,7 +5,6 @@ import { ServerLoad } from '@sveltejs/kit';
 import {
 	getMultipleWordsByIds,
 	getNonCognateWordIds,
-	getWordsOfSentence,
 	getWordsOfSentences
 } from '../../../../db/words';
 import { getAggregateKnowledge } from '../../../../logic/getAggregateKnowledge';

@@ -10,7 +10,7 @@ const formExamples = {
 	ko: `"subject", "topic" or "imperative, polite"`
 };
 
-const transliterationInstructions = {
+const transliterationInstructions: Record<string, string> = {
 	ko: ` Use dashes for syllable boundaries.`
 };
 

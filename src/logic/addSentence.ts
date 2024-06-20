@@ -5,6 +5,8 @@ import { toWords } from './toWords';
 import * as sentences from '../db/sentences';
 import { Language } from './types';
 import { getLevelForCognate } from './isomorphic/getNext';
+import { LemmaType, classifyLemmas } from '../ai/classifyLemmas';
+import { WordType } from '../db/types';
 
 export async function addSentence(
 	sentenceString: string,
@@ -35,10 +37,10 @@ export async function addSentence(
 	});
 }
 
-export function calculateSentenceLevel(words: { level: number; cognate: boolean | null }[]) {
+export function calculateSentenceLevel(words: { level: number; type: WordType | undefined }[]) {
 	return Math.round(
 		words.reduce(
-			(acc, { level, cognate }) => acc * ((cognate ? getLevelForCognate(level) : level) + 1),
+			(acc, { level, type }) => acc * ((type == 'cognate' ? getLevelForCognate(level) : level) + 1),
 			1
 		) **
 			(1 / words.length)
@@ -86,9 +88,21 @@ export async function getSentenceWords(
 
 	missingWords = lemmas.filter((lemma) => !words.some((word) => word.word == lemma));
 
-	words.push(
-		...(await Promise.all(missingWords.map(async (lemma) => (await addWord(lemma, { language }))!)))
-	);
+	if (missingWords.length) {
+		const lemmaTypes = await classifyLemmas(missingWords, { language, throwOnInvalid: true });
+
+		words.push(
+			...(await Promise.all(
+				missingWords.map(
+					async (lemma) =>
+						(await addWord(lemma, {
+							language,
+							type: (lemmaTypes.find(({ lemma: l }) => l === lemma)?.type as WordType) || null
+						}))!
+				)
+			))
+		);
+	}
 
 	await Promise.all(
 		lemmas
