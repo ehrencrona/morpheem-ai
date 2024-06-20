@@ -181,7 +181,7 @@ const isHard = (word: DB.Word, knowledge: DB.AggKnowledgeForUser[], hardLevel: n
 };
 
 export async function toWords(sentences: string[], { language }: { language: Language }) {
-	const lemmas = await lemmatizeSentences(sentences, { language });
+	let lemmas = await lemmatizeSentences(sentences, { language });
 
 	const words = await getMultipleWordsByLemmas(dedup(lemmas.flat()), language);
 
@@ -192,18 +192,35 @@ export async function toWords(sentences: string[], { language }: { language: Lan
 
 		words.push(...wordsAdded);
 
-		sentences = sentences.filter((sentence, i) => {
-			const foundAllLemmas = lemmas[i].every((lemma) => words.some((word) => word.word === lemma));
+		[sentences, lemmas] = unzip(
+			zip(sentences, lemmas).filter(([sentence, lemmas]) => {
+				const foundAllLemmas = lemmas.every((lemma) => words.some((word) => word.word === lemma));
 
-			if (!foundAllLemmas) {
-				console.warn(`Could not find all lemmas for sentence: ${sentence}`);
-			}
+				if (!foundAllLemmas) {
+					console.warn(`Could not find all lemmas for sentence: ${sentence}`);
+				}
 
-			return foundAllLemmas;
-		});
+				return foundAllLemmas;
+			})
+		);
 	}
 
 	return { words, lemmas, sentences };
+}
+
+function zip<A, B>(a: A[], b: B[]): [A, B][] {
+	return a.map((a, i) => [a, b[i]]);
+}
+
+function unzip<A, B>(ab: [A, B][]): [A[], B[]] {
+	return ab.reduce(
+		(acc, [a, b]) => {
+			acc[0].push(a);
+			acc[1].push(b);
+			return acc;
+		},
+		[[], []] as [A[], B[]]
+	);
 }
 
 export async function addWords(wordStrings: string[], language: Language) {

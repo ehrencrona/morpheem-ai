@@ -2,11 +2,11 @@ import { addWordToLemma, getLemmasOfWords } from '../db/lemmas';
 import { addWord, getMultipleWordsByLemmas } from '../db/words';
 import { toWords } from './toWords';
 
+import { classifyLemmas } from '../ai/classifyLemmas';
 import * as sentences from '../db/sentences';
-import { Language } from './types';
-import { getLevelForCognate } from './isomorphic/getNext';
-import { LemmaType, classifyLemmas } from '../ai/classifyLemmas';
 import { WordType } from '../db/types';
+import { getLevelForCognate } from './isomorphic/getNext';
+import { Language } from './types';
 
 export async function addSentence(
 	sentenceString: string,
