@@ -199,7 +199,7 @@
 	<form>
 		{#if !feedback}
 			{#if exercise === 'translate'}
-				<div class="text-sm mb-6" in:slide>
+				<div class="text-sm mb-6">
 					<div class="text-xs font-lato">Translate into {language.name}:</div>
 					<div class="text-xl">
 						{#if translation}
@@ -209,6 +209,13 @@
 						{/if}
 					</div>
 				</div>
+
+				{#if source == 'userExercise'}
+					<div class="text-xs font-lato">
+						You wrote this sentence earlier but got it wrong. See if you can remember the correct
+						version.
+					</div>
+				{/if}
 			{:else}
 				<p class="mb-4 font-lato text-xs">
 					{#if lookedUpWord}
@@ -295,26 +302,16 @@
 		{/if}
 	</form>
 
-	{#if source == 'userExercise'}
-		<Tutorial
-			paragraphs={[
-				`You wrote this sentence earlier but got it wrong.`,
-				`See if you can remember the correct version.`
-			]}
-			id="user-exercise"
-		/>
-	{:else}
-		<Tutorial
-			paragraphs={[
-				`Use "ask me anything" if you need help with vocabulary or grammar.`,
-				`Don't worry about making mistakes; that's how you learn.`,
-				`If you use a word correctly, we'll remember that you know it. Any mistakes will be turned into new exercises for you.`
-			].concat(
-				exercise == 'write' ? `Use "hint word" if you're not sure which the word is meant.` : []
-			)}
-			id="write"
-		/>
-	{/if}
+	<Tutorial
+		paragraphs={[
+			`Use "ask me anything" if you need help with vocabulary or grammar.`,
+			`Don't worry about making mistakes; that's how you learn.`,
+			`If you use a word correctly, we'll remember that you know it. Any mistakes will be turned into new exercises for you.`
+		].concat(
+			exercise == 'write' ? `Use "hint word" if you're not sure which the word is meant.` : []
+		)}
+		id="write"
+	/>
 
 	<AMA
 		suggestions={[`How do you say 'to scratch'?`, `traffic light in ${language.name}?`]}
