@@ -98,7 +98,9 @@ async function lemmatizeBatch(
 언제부터 공부했어요 becomes 언제부터 (언제부터) 공부했어요 (공부하다)
 긴 becomes 긴 (길다)
 가지 마세요 becomes 가지 (가다) 마세요 (마세요)
-물 주세요 becomes 물 (물) 주세요 (주다)`
+물 주세요 becomes 물 (물) 주세요 (주다)
+케이크이다 becomes 케이크이다 (케이크)
+서연이네 becomes 서연이네 (서연)`
 	};
 
 	const response = await ask({

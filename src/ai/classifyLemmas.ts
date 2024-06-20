@@ -158,7 +158,7 @@ export async function classifyLemmas(
 
 		inflected.forEach((inflection, i) => {
 			if (inflection == lemmas[i][0]) {
-				console.warn(`${inflected} classified as inflection, but it is actually a lemma.`);
+				console.warn(`${inflection} classified as inflection, but it is actually a lemma.`);
 
 				result.find(({ lemma }) => lemma == inflection)!.type = undefined;
 			}

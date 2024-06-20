@@ -1,10 +1,15 @@
 export async function parallelize(
 	promises: (() => Promise<any>)[],
-	concurrency: number
+	concurrency: number,
+	printProgress = false
 ): Promise<void> {
 	let at = 0;
 
 	function next(): Promise<void> {
+		if (printProgress && at % 100 === 0 && at > 0) {
+			console.log(`${at}/${promises.length}...`);
+		}
+
 		if (at < promises.length) {
 			const index = at++;
 
