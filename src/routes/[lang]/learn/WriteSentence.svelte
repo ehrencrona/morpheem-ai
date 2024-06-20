@@ -211,9 +211,13 @@
 				</div>
 			{:else}
 				<p class="mb-4 font-lato text-xs">
-					Write a sentence or fragment using the {language.name} word for "<b
-						>{lookedUpWord?.english || '...'}</b
-					>"
+					{#if lookedUpWord}
+						Write a sentence or fragment using the {language.name} word for "<b
+							>{lookedUpWord.english}</b
+						>"
+					{:else}
+						<Spinner />
+					{/if}
 				</p>
 			{/if}
 
@@ -305,7 +309,9 @@
 				`Use "ask me anything" if you need help with vocabulary or grammar.`,
 				`Don't worry about making mistakes; that's how you learn.`,
 				`If you use a word correctly, we'll remember that you know it. Any mistakes will be turned into new exercises for you.`
-			].concat(exercise == 'write' ? `Use "hint word" if you're not sure which the word is meant.` : [])}
+			].concat(
+				exercise == 'write' ? `Use "hint word" if you're not sure which the word is meant.` : []
+			)}
 			id="write"
 		/>
 	{/if}
