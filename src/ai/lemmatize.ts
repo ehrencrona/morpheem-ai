@@ -108,7 +108,7 @@ async function lemmatizeBatch(
 				{
 					role: 'system',
 					content: `For every ${language.name} word entered, print it followed by the dictionary form. For any words that are not ${language.name}${
-						language.code == 'ko' ? ' or that are not standalone words' : ''
+						language.code == 'ko' ? ' or that are particles' : ''
 					}, use the word itself as the dictionary form. Print nothing else.
 					Example:
 
