@@ -5,8 +5,6 @@
 	const onClear = () => {
 		errorStore.set(null);
 	};
-
-	$: console.log('errorStore', $errorStore)
 </script>
 
 {#if $errorStore}
