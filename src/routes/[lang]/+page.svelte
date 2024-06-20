@@ -407,6 +407,7 @@
 				language={getLanguageOnClient()}
 				{sendKnowledge}
 				exercise={current.exercise}
+				source={current.source}
 				sentenceId={current.sentence.id}
 				translation={{
 					english: current.sentence.english || '',

@@ -19,6 +19,7 @@
 	import type { Translation } from '../api/sentences/[sentence]/english/client';
 	import Tutorial from '../../../components/Tutorial.svelte';
 	import { logError } from '$lib/logError';
+	import { ExerciseSource } from '../../../db/types';
 
 	export let word: { id: number; word: string; level: number } | undefined;
 	export let onNext: () => Promise<any>;
@@ -28,6 +29,7 @@
 	export let language: Language;
 
 	export let exercise: 'write' | 'translate' = 'write';
+	export let source: ExerciseSource;
 
 	/** The sentence to translate if translate, otherwise the writing idea. */
 	export let translation: Translation | undefined;
@@ -299,14 +301,24 @@
 		{/if}
 	</form>
 
-	<Tutorial
-		paragraphs={[
-			`Use "ask me anything" if you need help with vocabulary or grammar.`,
-			`Don't worry about making mistakes; that's how you learn.`,
-			`If you use a word correctly, we'll remember that you know it. Any mistakes will be turned into new exercises for you.`
-		]}
-		id="write"
-	/>
+	{#if source == 'userExercise'}
+		<Tutorial
+			paragraphs={[
+				`You wrote this sentence earlier but got it wrong.`,
+				`See if you can remember the correct version.`
+			]}
+			id="user-exercise"
+		/>
+	{:else}
+		<Tutorial
+			paragraphs={[
+				`Use "ask me anything" if you need help with vocabulary or grammar.`,
+				`Don't worry about making mistakes; that's how you learn.`,
+				`If you use a word correctly, we'll remember that you know it. Any mistakes will be turned into new exercises for you.`
+			]}
+			id="write"
+		/>
+	{/if}
 
 	<AMA
 		suggestions={[`How do you say 'to scratch'?`, `traffic light in ${language.name}?`]}
