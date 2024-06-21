@@ -1,5 +1,4 @@
 import { evaluateCloze as evaluateClozeAi } from '../ai/evaluateCloze';
-import { getLemmaIdsOfWord } from '../db/lemmas';
 import * as DB from '../db/types';
 import { getWordByLemma } from '../db/words';
 import { standardize } from './isomorphic/standardize';
@@ -12,8 +11,8 @@ export async function evaluateCloze(
 		cloze: string;
 		clue: string;
 		userAnswer: string;
-		correctAnswer: { conjugated: string; id: number };
-		isWrongInflection: boolean;
+		correctAnswer: { conjugated: string; word: string; id: number };
+		isRightLemma: boolean;
 	},
 	{
 		language
@@ -21,29 +20,25 @@ export async function evaluateCloze(
 		language: Language;
 	}
 ) {
-	let { corrected, isPossibleWord, isCorrectInflection, evaluation } = await evaluateClozeAi(opts, {
+	let {
+		case: outcome,
+		evaluation,
+		corrected
+	} = await evaluateClozeAi(opts, {
 		language
 	});
 
-	const { correctAnswer, cloze } = opts;
+	const { cloze } = opts;
 
-	let differentWord: (DB.Word & { conjugated: string }) | undefined;
+	let alternateWord: (DB.Word & { conjugated: string }) | undefined;
 
-	if (corrected && corrected !== opts.userAnswer) {
-		console.log(
-			`Cloze "${cloze}" evaluated "${opts.userAnswer}" as typo, fixed to "${corrected}".`
-		);
-	}
+	console.log(
+		`Cloze "${cloze}" evaluated "${opts.userAnswer}" as ${outcome}${corrected ? `, fixed to "${corrected}".` : ''}`
+	);
 
 	let userAnswer = standardize(corrected || opts.userAnswer);
-	let isCorrectLemma = false;
-	let isTypo = userAnswer != standardize(opts.userAnswer) && !!isCorrectInflection;
 
-	if (isPossibleWord && standardize(correctAnswer.conjugated) != userAnswer) {
-		console.log(
-			`Cloze "${cloze}" evaluated "${userAnswer}" as possible, standardized to "${userAnswer}".`
-		);
-
+	if (outcome == 'alternate' || outcome == 'alternateWrongForm') {
 		const sentence = cloze.replace(/_+/, userAnswer);
 
 		const words = toWords(sentence, language);
@@ -51,22 +46,21 @@ export async function evaluateCloze(
 
 		const wordIndex = words.findIndex((word) => word === userAnswer);
 
-		isCorrectLemma = true;
-		isCorrectInflection = !opts.isWrongInflection;
-
 		if (wordIndex >= 0) {
 			const differentWordString = lemmatized[0][wordIndex];
 
 			try {
-				differentWord = {
+				alternateWord = {
 					...(await getWordByLemma(differentWordString, language)),
 					conjugated: userAnswer
 				};
 
 				console.log(
-					`User answer "${userAnswer}" is lemma "${differentWord.word}" (${differentWord.id}).`
+					`User answer "${userAnswer}" is lemma "${alternateWord.word}" (${alternateWord.id}).`
 				);
 			} catch (e) {
+				// add the word?
+
 				console.error(
 					`Error getting different "${differentWordString}" word by lemma "${lemmatized[0][wordIndex]}":`,
 					e
@@ -75,12 +69,7 @@ export async function evaluateCloze(
 		} else {
 			console.error(`Word "${userAnswer}" not found in sentence "${sentence}".`);
 		}
-	} else {
-		const lemmaIds = await getLemmaIdsOfWord(userAnswer, language);
-
-		isCorrectLemma = lemmaIds.some((l) => l.lemma_id == correctAnswer.id);
-		isCorrectInflection = standardize(correctAnswer.conjugated) == userAnswer;
 	}
 
-	return { evaluation, isCorrectInflection, isCorrectLemma, isTypo, differentWord };
+	return { outcome, evaluation, alternateWord };
 }

@@ -8,13 +8,13 @@ export async function evaluateCloze(
 		clue,
 		userAnswer,
 		correctAnswer,
-		isWrongInflection
+		isRightLemma
 	}: {
 		cloze: string;
 		clue: string;
 		userAnswer: string;
-		correctAnswer: { conjugated: string };
-		isWrongInflection: boolean;
+		correctAnswer: { word: string; conjugated: string };
+		isRightLemma: boolean;
 	},
 	{
 		language
@@ -22,10 +22,6 @@ export async function evaluateCloze(
 		language: Language;
 	}
 ) {
-	const examples: Record<string, string> = {
-		pl: ' (e.g. perfective/imperfective, case)'
-	};
-
 	return await askForJson({
 		messages: [
 			{
@@ -33,19 +29,20 @@ export async function evaluateCloze(
 				content:
 					`I am a ${language.name} learner trying to solve a cloze exercise; you are a helpful teacher giving me feedback.\n\n` +
 					`The expected answer is "${correctAnswer.conjugated}".\n` +
-					(isWrongInflection
-						? `If incorrect, very briefly explain which grammatical form/inflection is required and why. Also explain what form I picked. Return JSON in the form \`{ evaluation: string, isCorrectInflection: boolean }\``
-						: `Evaluate whether whether my answer correctly spelled, logically possible, what the expected grammatical form is and what grammatical form my answer is in${examples[language.code] || ''}.
+					(isRightLemma
+						? `Very briefly explain how the required grammatical form/inflection relates to the one I picked and why it is right or wrong. Return the case "correct" or "wrongForm". Return JSON in the form \`{ evaluation: string, case: string }\``
+						: `If my answer is incorrect, tell me if the problem is grammatical agreement, spelling or wrong meaning. If it is grammatical agreement, explain the forms involved and why the correct one is correct. If it is wrong meaning, explaing the meaning of the word I chose. Return the explanation in "evaluation".
 
-						The following cases exist: 
-						 - My answer is correct but a typo. If so, briefly explain the typo and return the corrected word in \`corrected\`.
-						 - My answer is possible: the word I chose works logically in the sentence. 
-						   If I choose a possible word (\`isPossibleWord\`) but the wrong form of it (\`!isCorrectInflection\`), return the right form in \`corrected\`.
-						 - My answer is not possible. Explain what the word I chose means and when it is used.
+						The determine the first of these cases that applies: 
+						 - "wrongForm": My answer is a different grammatical form of "${correctAnswer.word}".
+						 - "alternate": My answer works logically and the sentence is grammatically correct. 
+						 - "alternateWrongForm": My answer would work if it were not in the wrong form. Return the correct form in the "corrected" field.
+						 - "typo": My answer is the correct answer but has a misspelling.
+						 - "wrong": My answer is not possible.
 						
 						I will be shown the right answer so no need to repeat it. Also no need to repeat my answer. 
 						
-						Return JSON in the form \`{ evaluation: string, isPossibleWord: boolean, isCorrectInflection: boolean, corrected?: string }\``)
+						Return JSON in the form \`{ evaluation: string, case: string, corrected?: string }\``)
 			},
 			{
 				role: 'assistant',
@@ -58,8 +55,7 @@ export async function evaluateCloze(
 		logResponse: true,
 		schema: z.object({
 			evaluation: z.string(),
-			isPossibleWord: z.boolean().optional(),
-			isCorrectInflection: z.boolean().optional(),
+			case: z.enum(['correct', 'wrongForm', 'typo', 'alternate', 'alternateWrongForm', 'wrong']),
 			corrected: z.string().optional()
 		})
 	});

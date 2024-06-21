@@ -155,9 +155,7 @@
 
 		evaluation = {
 			answered: '',
-			isCorrectLemma: exercise == 'cloze-inflection',
-			isCorrectInflection: false,
-			isTypo: false
+			outcome: exercise == 'cloze-inflection' ? 'wrongForm' : 'wrong'
 		};
 	}
 
@@ -256,13 +254,11 @@
 
 		evaluation = {
 			answered,
-			isCorrectLemma,
-			isCorrectInflection,
-			isTypo: false
+			outcome: isCorrectLemma ? (isCorrectInflection ? 'correct' : 'wrongForm') : 'wrong'
 		};
 
 		console.log(
-			`Answered "${answered}". Correct conjugated: "${conjugatedWord}". isCorrectLemma: ${isCorrectLemma}`
+			`Answered "${answered}". Correct conjugated: "${conjugatedWord}". outcome: ${evaluation.outcome}`
 		);
 
 		if (!(isCorrectLemma && isCorrectInflection)) {
@@ -285,11 +281,9 @@
 			}).finally(() => (isFetchingEvaluation = false));
 
 			if (word === wordWas) {
-				if (gotEvaluation.differentWord) {
-					console.log(
-						`${gotEvaluation.differentWord?.word} (${gotEvaluation.differentWord?.id}) was unexpected but possible. Expected ${word.word} (${word.id}).`
-					);
-				}
+				console.log(
+					`Got evaluation for "${answered}": Outcome: ${gotEvaluation.outcome}${gotEvaluation.alternateWord ? `; Alternate: ${gotEvaluation.alternateWord.word}` : ''}`
+				);
 
 				evaluation = {
 					answered,
@@ -304,7 +298,9 @@
 			throw new Error(`Invalid state, evaluation is undefined`);
 		}
 
-		const { isCorrectInflection, isCorrectLemma, differentWord } = evaluation;
+		const { outcome, alternateWord } = evaluation;
+
+		const isCorrect = outcome == 'correct' || outcome == 'alternate';
 
 		sendKnowledge(
 			filterUndefineds(
@@ -315,8 +311,8 @@
 						return undefined;
 					}
 
-					if (isClozeWord && differentWord) {
-						sentenceWord = differentWord;
+					if (isClozeWord && alternateWord) {
+						sentenceWord = alternateWord;
 					}
 
 					return {
@@ -324,7 +320,7 @@
 						wordId: sentenceWord.id,
 						sentenceId: sentence.id,
 						isKnown: isClozeWord
-							? isCorrectLemma && !showChars
+							? (outcome == 'correct' || outcome == 'alternate') && !showChars
 							: !revealed.find(({ id }) => id === sentenceWord.id),
 						studiedWordId: word.id,
 						type: isClozeWord ? KNOWLEDGE_TYPE_CLOZE : KNOWLEDGE_TYPE_READ,
@@ -332,17 +328,17 @@
 					};
 				})
 			),
-			(!isCorrectInflection && isCorrectLemma) || source == 'userExercise'
+			outcome == 'wrongForm' || source == 'userExercise'
 				? [
 						{
 							wordId: word.id,
 							word: word.word,
 							sentenceId: sentence.id,
-							isKnown: !!isCorrectInflection,
+							isKnown: isCorrect,
 							exercise:
-								isCorrectInflection && source == 'userExercise'
+								isCorrect && source == 'userExercise'
 									? exercise
-									: isCorrectLemma
+									: outcome == 'wrongForm'
 										? 'cloze-inflection'
 										: 'cloze',
 							level: word.level

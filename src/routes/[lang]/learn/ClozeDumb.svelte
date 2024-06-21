@@ -6,11 +6,9 @@
 
 	export interface Evaluation {
 		answered: string;
-		isCorrectLemma: boolean;
-		isCorrectInflection: boolean;
-		isTypo: boolean;
+		outcome: 'correct' | 'wrongForm' | 'typo' | 'alternate' | 'alternateWrongForm' | 'wrong';
 		evaluation?: string;
-		differentWord?: DB.Word & { conjugated: string };
+		alternateWord?: DB.Word & { conjugated: string };
 	}
 </script>
 
@@ -129,8 +127,10 @@
 	<div class="text-4xl mb-8 mt-8 font-medium">
 		{#each wordsWithSeparators as wordString, index}{#if !isSeparator(wordString)}{#if standardize(wordString) == standardize(conjugatedWord)}
 					{#if evaluation}
-						<span class={evaluation.isCorrectInflection ? 'text-green' : 'text-red'}
-							>{evaluation.differentWord?.conjugated || wordString}</span
+						<span
+							class={['correct', 'alternate', 'typo'].includes(evaluation.outcome)
+								? 'text-green'
+								: 'text-red'}>{evaluation.alternateWord?.conjugated || wordString}</span
 						>{:else}
 						<div class="inline-flex flex-col">
 							<span class="whitespace-nowrap">
@@ -236,17 +236,16 @@
 			{/if}
 		</div>
 	{:else}
-		{#if evaluation.differentWord}
+		{#if ['alternate', 'alternateWrongForm'].includes(evaluation.outcome)}
 			<div class="mb-4">
 				We were actually looking for the word <b>{conjugatedWord}</b>. {evaluation.evaluation}
 			</div>
-		{:else if evaluation.isCorrectInflection && evaluation.isCorrectLemma}
+		{:else if ['correct', 'typo'].includes(evaluation.outcome)}
 			<div class="mb-4">Correct!</div>
 		{:else if evaluation.answered}
 			<div class="mb-4">
-				You picked <b>{evaluation.answered}</b
-				>{#if evaluation.isCorrectLemma && !evaluation.isCorrectInflection}, which is the wrong form
-					of the right word{/if}.
+				You picked <b>{evaluation.answered}</b>{#if evaluation.outcome == 'wrongForm'}, which is the
+					wrong form of the right word{/if}.
 
 				{#if isFetchingEvaluation}
 					<div class="mt-2"><Spinner /></div>
@@ -256,12 +255,12 @@
 			</div>
 		{/if}
 
-		{#if evaluation.isTypo}
+		{#if evaluation.outcome == 'typo'}
 			<div class="mb-4">However, it is not spelled "{evaluation.answered}".</div>
 		{/if}
 
 		<div class="grid grid-cols-1 md:grid-cols-2 w-full gap-x-4 mt-8">
-			{#if !evaluation.isCorrectLemma || evaluation.differentWord}
+			{#if evaluation.outcome != 'correct' || evaluation.alternateWord}
 				<WordCard
 					word={{ ...word, inflected: conjugatedWord, english: wordTranslation || '', mnemonic }}
 				/>
