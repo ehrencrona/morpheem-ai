@@ -209,6 +209,10 @@ export async function toWords(sentences: string[], { language }: { language: Lan
 }
 
 function zip<A, B>(a: A[], b: B[]): [A, B][] {
+	if (a.length != b.length) {
+		throw new Error('Arrays must be of the same length');
+	}
+
 	return a.map((a, i) => [a, b[i]]);
 }
 

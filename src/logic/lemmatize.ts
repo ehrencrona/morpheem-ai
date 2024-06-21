@@ -43,7 +43,13 @@ export async function lemmatizeSentences(
 
 	const missingLemmas = await lemmatizeSentencesAi(missingSentences, { language, ignoreErrors });
 
+	if (missingLemmas.length != missingSentences.length) {
+		throw new Error(
+			`Unexpected number of lemmas: ${missingLemmas.length} vs ${missingSentences.length}`
+		);
+	}
+
 	let i = 0;
 
-	return lemmas.map((lemma) => lemma ?? missingLemmas[i++]);
+	return lemmas.map((lemma) => (lemma != undefined ? lemma : missingLemmas[i++]));
 }
