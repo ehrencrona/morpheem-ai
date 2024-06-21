@@ -4,11 +4,11 @@ import {
 	getRawKnowledgeJoinedWithWordsForUser,
 	setBetaIfNull
 } from '../db/knowledge';
+import { KNOWLEDGE_TYPE_READ } from '../db/knowledgeTypes';
+import { ExerciseSource } from '../db/types';
 import { getWords } from '../db/words';
 import { calculateWordsKnown } from '../logic/isomorphic/wordsKnown';
 import { Language } from '../logic/types';
-import { KNOWLEDGE_TYPE_READ, KNOWLEDGE_TYPE_WRITE } from '../db/knowledgeTypes';
-import { ExerciseSource } from '../db/types';
 
 export async function calculateTestResult({
 	userId,

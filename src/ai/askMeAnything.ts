@@ -178,5 +178,8 @@ export async function findProvidedWordsInAnswer(
 		logResponse: true
 	});
 
-	return wordString.split(', ').map((word) => word.trim().replace(/"/g, ''));
+	return wordString
+		.split(', ')
+		.map((word) => word.trim().replace(/"/g, ''))
+		.filter(Boolean);
 }

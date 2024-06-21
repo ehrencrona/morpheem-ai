@@ -15,6 +15,10 @@ export async function classifyLemmas(
 		type: LemmaType | undefined;
 	}[]
 > {
+	if (lemmas.length == 0) {
+		return [];
+	}
+
 	const examples = {
 		pl: `maszyna: machine, cognate
 		chopin: Chopin, name
