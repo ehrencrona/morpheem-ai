@@ -19,7 +19,7 @@
 	import type { Translation } from '../api/sentences/[sentence]/english/client';
 	import Tutorial from '../../../components/Tutorial.svelte';
 	import { logError } from '$lib/logError';
-	import { ExerciseSource } from '../../../db/types';
+	import type { ExerciseSource } from '../../../db/types';
 
 	export let word: { id: number; word: string; level: number } | undefined;
 	export let onNext: () => Promise<any>;

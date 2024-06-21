@@ -31,6 +31,7 @@ export type ExerciseSource = 'unstudied' | 'studied' | 'userExercise';
 export interface AggKnowledgeForUser extends Scoreable {
 	wordId: number;
 	word: string;
+	wordType: WordType | undefined;
 	source: ExerciseSource;
 }
 

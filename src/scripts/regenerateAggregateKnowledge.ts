@@ -12,7 +12,7 @@ import {
 } from '../logic/isomorphic/knowledge';
 
 async function regenerateAggregateKnowledge() {
-	const agg = new Map<number, Omit<AggKnowledgeForUser, 'word' | 'level'>>();
+	const agg = new Map<number, Omit<AggKnowledgeForUser, 'word' | 'level' | 'type' | 'wordType'>>();
 
 	const userId = 4711;
 

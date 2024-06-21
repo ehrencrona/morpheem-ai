@@ -55,8 +55,11 @@ export async function classifyLemmas(
 		de: of, particle
 		creer: believe, other
 		lo: the, particle
+		cansado: tired, other
 		trabajo: work, other
+		debido: due, other
 		madrid: Madrid, name
+		irse: to go, inflection
 		con: with, other
 		baile: danza, cognate
 		venta: vendita, cognate

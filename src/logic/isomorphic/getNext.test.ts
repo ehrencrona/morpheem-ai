@@ -10,7 +10,8 @@ const knowledge: AggKnowledgeForUser[] = [
 		lastTime: 167898,
 		level: 1,
 		word: 'a',
-		source: 'studied'
+		source: 'studied',
+		wordType: undefined
 	},
 	{
 		wordId: 661,
@@ -19,7 +20,8 @@ const knowledge: AggKnowledgeForUser[] = [
 		lastTime: 167898,
 		level: 1,
 		word: 'b',
-		source: 'studied'
+		source: 'studied',
+		wordType: undefined
 	}
 ];
 

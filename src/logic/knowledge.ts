@@ -1,7 +1,7 @@
-import type { Language, WordKnowledge } from './types';
 import { AggKnowledgeForUser } from '../db/types';
 import { getWordsBelowLevel } from '../db/words';
 import { now } from './isomorphic/knowledge';
+import type { Language } from './types';
 
 /** TODO */
 export async function getBeginnerKnowledge(language: Language): Promise<AggKnowledgeForUser[]> {
@@ -11,6 +11,7 @@ export async function getBeginnerKnowledge(language: Language): Promise<AggKnowl
 		wordId: word.id,
 		level: word.level,
 		word: word.word,
+		wordType: word.type,
 		lastTime: now(),
 		alpha: 1,
 		beta: 1,

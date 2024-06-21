@@ -1,7 +1,7 @@
 import { dateToTime } from '../logic/isomorphic/knowledge';
 import type { Language } from '../logic/types';
 import { db } from './client';
-import { AggKnowledgeForUser } from './types';
+import { AggKnowledgeForUser, WordType } from './types';
 
 export function addKnowledge(
 	values: {
@@ -168,7 +168,7 @@ export async function getEasiestUnstudiedWords({
 		.withSchema(language.schema)
 		.selectFrom('words')
 		.leftJoin(aggregateKnowledgeForUser.as('ak'), 'words.id', 'ak.word_id')
-		.select(['words.id', 'words.word', 'words.level'])
+		.select(['words.id', 'words.word', 'words.level', 'words.type'])
 		.where('ak.word_id', 'is', null)
 		.orderBy('words.level', 'asc')
 		.limit(limit)
@@ -186,13 +186,14 @@ export async function getAggregateKnowledgeForUser({
 		.withSchema(language.schema)
 		.selectFrom('aggregate_knowledge')
 		.innerJoin('words', 'word_id', 'id')
-		.select(['word_id', 'alpha', 'beta', 'time', 'level', 'word'])
+		.select(['word_id', 'alpha', 'beta', 'time', 'level', 'word', 'type'])
 		.where('user_id', '=', userId)
 		.execute();
 
-	return raw.map(({ word_id: wordId, level, alpha, beta, time, word }) => ({
+	return raw.map(({ word_id: wordId, level, alpha, beta, time, word, type }) => ({
 		wordId,
 		level,
+		wordType: type ? (type as WordType) : undefined,
 		word,
 		alpha,
 		beta,
@@ -212,16 +213,17 @@ export async function getRecentKnowledge({
 		.withSchema(language.schema)
 		.selectFrom('aggregate_knowledge')
 		.innerJoin('words', 'word_id', 'id')
-		.select(['word_id', 'alpha', 'beta', 'time', 'level', 'word'])
+		.select(['word_id', 'alpha', 'beta', 'time', 'level', 'type', 'word'])
 		.where('user_id', '=', userId)
 		.where('alpha', '<', 0.95)
 		.orderBy('time', 'desc')
 		.limit(30)
 		.execute();
 
-	return raw.map(({ word_id: wordId, level, alpha, beta, time, word }) => ({
+	return raw.map(({ word_id: wordId, level, type, alpha, beta, time, word }) => ({
 		wordId,
 		level,
+		wordType: type ? (type as WordType) : undefined,
 		word,
 		alpha,
 		beta,
@@ -247,15 +249,16 @@ export async function getAggregateKnowledgeForUserWords({
 		.withSchema(language.schema)
 		.selectFrom('aggregate_knowledge')
 		.innerJoin('words', 'word_id', 'id')
-		.select(['word_id', 'alpha', 'beta', 'time', 'level', 'word'])
+		.select(['word_id', 'alpha', 'beta', 'time', 'level', 'type', 'word'])
 		.where('user_id', '=', userId)
 		.where('word_id', 'in', wordIds)
 		.execute();
 
-	return raw.map(({ word_id: wordId, level, alpha, beta, time, word }) => ({
+	return raw.map(({ word_id: wordId, level, type, alpha, beta, time, word }) => ({
 		wordId,
 		word,
 		level,
+		wordType: type ? (type as WordType) : undefined,
 		alpha,
 		beta,
 		lastTime: dateToTime(time),

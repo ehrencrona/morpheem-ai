@@ -1,11 +1,11 @@
 import { parallelize } from '$lib/parallelize';
 import { classifyLemmas } from '../ai/classifyLemmas';
-import { KOREAN, POLISH } from '../constants';
+import { KOREAN, SPANISH } from '../constants';
 import { db } from '../db/client';
 import { getWords } from '../db/words';
 import * as DB from '../db/types';
 
-const language = KOREAN;
+const language = SPANISH;
 
 async function updateWordTypes(run: 'dry' | 'real') {
 	const words = await getWords('id asc', language);

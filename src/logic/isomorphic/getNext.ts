@@ -8,20 +8,24 @@ export function getExerciseForKnowledge(knowledge: AggKnowledgeForUser[]) {
 }
 
 export function getExercisesForKnowledge(knowledge: AggKnowledgeForUser[]) {
-	return knowledge.reduce(
-		(acc, k) => [
-			...acc,
-			{
-				...k,
-				exercise: 'read' as ExerciseType
-			},
-			{
-				...k,
-				exercise: (Math.random() > 0.75 ? 'write' : 'cloze') as ExerciseType
-			}
-		],
-		[] as (AggKnowledgeForUser & { exercise: ExerciseType })[]
-	);
+	return knowledge
+		.filter(({ wordType }) => wordType != 'name')
+		.reduce(
+			(acc, k) => [
+				...acc,
+				{
+					...k,
+					exercise: 'read' as ExerciseType
+				},
+				{
+					...k,
+					exercise: (Math.random() > 0.75 && k.wordType != 'particle'
+						? 'write'
+						: 'cloze') as ExerciseType
+				}
+			],
+			[] as (AggKnowledgeForUser & { exercise: ExerciseType })[]
+		);
 }
 
 export function scoreExercises<

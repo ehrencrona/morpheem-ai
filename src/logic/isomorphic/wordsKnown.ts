@@ -1,7 +1,9 @@
 import { AggKnowledgeForUser } from '../../db/types';
 import { expectedKnowledge, now } from './knowledge';
 
-export function calculateWordsKnown(knowledge: Omit<AggKnowledgeForUser, 'word' | 'level'>[]) {
+export function calculateWordsKnown(
+	knowledge: Omit<AggKnowledgeForUser, 'word' | 'level' | 'wordType'>[]
+) {
 	const n = now();
 
 	const read = knowledge.reduce(

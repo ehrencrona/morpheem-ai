@@ -91,6 +91,12 @@ async function lemmatizeBatch(
 		becomes 
 		
 		dáme (dar) un (uno) beso (beso)
+
+		irse al parque
+
+		becomes
+
+		irse (ir) al (a) parque (parque)
 		
 		(treat un/una as "uno", la as "el", al as "a", del as "de", me as "me")`,
 		ko: `우리는 결과를 예상했습니다 becomes 우리는 (우리) 결과를 (결과) 예상했습니다 (예상하다)
@@ -128,23 +134,29 @@ ${examples[language.code]}`
 
 	const lines = (response || '').split('\n');
 
+	const lemmasByLine: { word: string; lemma: string }[][] = [];
+
+	lines.forEach((line, i) => {
+		let matches = line.matchAll(/([^\s]+) \(([^\)]+)\)/g);
+		let lemmas: { word: string; lemma: string }[] = [];
+
+		for (let match of matches) {
+			let [, word, lemma] = match;
+
+			word = standardize(word);
+			lemma = standardize(lemma);
+
+			lemmas.push({ word, lemma });
+		}
+
+		lemmasByLine.push(lemmas);
+	});
+
 	let error: string | undefined = undefined;
 
 	const result = await Promise.all(
 		sentences.map(async (sentence, i) => {
-			let lemmas: { word: string; lemma: string }[] = [];
-
-			const line = lines[i] || '';
-			let matches = line.matchAll(/([^\s]+) \(([^\)]+)\)/g);
-
-			for (let match of matches) {
-				let [, word, lemma] = match;
-
-				word = standardize(word);
-				lemma = standardize(lemma);
-
-				lemmas.push({ word, lemma });
-			}
+			let lemmas = lemmasByLine[i] || [];
 
 			return Promise.all(
 				toWords(sentence, language).map(async (word, i) => {
@@ -158,6 +170,14 @@ ${examples[language.code]}`
 						);
 
 						lemma = lemmas.find((l) => l.word == standardized)!;
+
+						if (!lemma) {
+							lemma = lemmasByLine.flat().find((l) => l.word == standardized);
+
+							if (lemma) {
+								console.warn(`Managed to find the lemma elsewhere.`);
+							}
+						}
 					}
 
 					if (lemma) {

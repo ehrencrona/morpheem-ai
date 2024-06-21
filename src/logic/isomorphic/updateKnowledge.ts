@@ -22,12 +22,13 @@ export function updateKnowledge(
 
 			let aggKnowledge: DB.AggKnowledgeForUser;
 
-			const { wordId, word: wordString, level } = k;
+			const { wordId, word: wordString, level, wordType } = k;
 
 			aggKnowledge = {
 				wordId,
 				word: wordString,
 				level,
+				wordType,
 				lastTime,
 				...(word.isKnown ? knew(k, opts) : didNotKnow(k, opts)),
 				source: 'studied'
@@ -55,8 +56,9 @@ export function updateKnowledge(
 			const aggKnowledge: DB.AggKnowledgeForUser = {
 				wordId: k.wordId,
 				lastTime: now(),
-				level: word.level,
 				word: word.word,
+				level: word.level,
+				wordType: word.type,
 				source: 'studied',
 				...(k.isKnown ? knewFirst(exercise) : didNotKnowFirst(exercise))
 			};
