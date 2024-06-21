@@ -1,6 +1,6 @@
 import { expect, it } from 'vitest';
 import { translateSentences, translateWordInContext } from './translate';
-import { POLISH } from '../constants';
+import { KOREAN, POLISH } from '../constants';
 
 it('translates sentences', async () => {
 	expect(
@@ -38,4 +38,12 @@ it('translates word in context', async () => {
 
 	expect(peace.english).toMatch(/peace/i);
 	expect(world.english).toMatch(/world/i);
+});
+
+it.only('translates Korean', async () => {
+	const sentence = { sentence: '그는 학교에 다녀요.', english: 'He goes to school.' };
+
+	const school = await translateWordInContext('학교', sentence, KOREAN);
+
+	expect(school).toEqual({ english: 'school', form: 'location', transliteration: 'hak-gyo' });
 });

@@ -20,7 +20,8 @@
 <div class="bg-light-gray rounded-md w-full border border-gray md:max-w-[500px] mb-4">
 	<div class="font-medium mb-1 flex bg-blue-3 text-[#fff] px-3 py-2 rounded-t-md items-baseline">
 		<a
-			href="/{getLanguageOnClient().code}/words/{word.id}"
+			href="https://en.wiktionary.org/wiki/{word.word}#{getLanguageOnClient().name}"
+			target="_blank"
 			class={`text-base ${showLemma ? '' : 'flex-1'}`}
 			>{inflected || word.word}
 		</a>
