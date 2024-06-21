@@ -19,6 +19,7 @@
 			<input
 				name="username"
 				id="username"
+				autocomplete="username"
 				class="bg-blue-1 rounded-sm block w-80 p-2 text-lg mb-2"
 				value={form?.username ?? ''}
 			/>
@@ -29,6 +30,7 @@
 				type="password"
 				name="password"
 				id="password"
+				autocomplete="current-password"
 				class="bg-blue-1 rounded-sm block p-2 text-lg mb-2 w-80"
 			/>
 

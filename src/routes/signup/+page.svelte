@@ -20,6 +20,7 @@
 			<input
 				name="username"
 				id="username"
+				autocomplete="username"
 				class="bg-blue-1 rounded-sm block w-80 p-2 text-lg mb-2"
 			/>
 
@@ -29,6 +30,7 @@
 				type="password"
 				name="password"
 				id="password"
+				autocomplete="new-password"
 				class="bg-blue-1 rounded-sm block p-2 text-lg mb-2 w-80"
 			/>
 
