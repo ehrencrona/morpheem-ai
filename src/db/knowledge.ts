@@ -303,7 +303,7 @@ export async function getRawKnowledgeJoinedWithWordsForUser({
 		.withSchema(language.schema)
 		.selectFrom('knowledge')
 		.innerJoin('words', 'word_id', 'id')
-		.select(['word_id', 'sentence_id', 'knew', 'time', 'knowledge.type', 'level', 'word', 'type'])
+		.select(['word_id', 'sentence_id', 'knew', 'time', 'knowledge.type', 'level', 'word'])
 		.where('knowledge.type', '=', type)
 		.where('user_id', '=', userId);
 
