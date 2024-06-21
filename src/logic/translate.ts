@@ -46,7 +46,7 @@ export async function translateWordInContext(
 
 	if (!translation) {
 		translation = await translateWordInContextAi(
-			wordString ? standardize(wordString) : lemma.word,
+			wordString ? wordString : lemma.word,
 			sentence,
 			language
 		);

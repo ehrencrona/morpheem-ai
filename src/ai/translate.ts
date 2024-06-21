@@ -36,7 +36,7 @@ export async function translateWordInContext(
 				role: 'user',
 				content:
 					(sentence
-						? `What is the English translation of the word "${lemma}" in the sentence?`
+						? `What is the English translation of the word "${lemma}" in this sentence?`
 						: `What is the English translation of the ${language.name} word "${lemma}"?`) +
 					` Only answer with the definition (as a fragment; no final full stop).` +
 					(isFormWanted
