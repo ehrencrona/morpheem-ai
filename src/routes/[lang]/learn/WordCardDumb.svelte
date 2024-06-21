@@ -67,7 +67,10 @@
 
 	<div class="px-3 pb-4">
 		{#if english}
-			<div class="text-balance font-lato mt-2">{english}</div>
+			<div class="text-balance font-lato mt-2">
+				{english}{#if word.type == 'name'}
+					(name){/if}
+			</div>
 		{/if}
 
 		{#if transliteration}
