@@ -139,12 +139,13 @@ export async function getWordCount(language: Language) {
 	return res[0].count as number;
 }
 
-export async function getNonCognateWordIds(language: Language, maxLevel: number) {
+export async function getWordIdsForCloze(language: Language, maxLevel: number) {
 	return db
 		.withSchema(language.schema)
 		.selectFrom('words')
 		.select(['id', 'word'])
 		.where('type', '!=', 'cognate')
+		.where('type', '!=', 'name')
 		.where('level', '<=', maxLevel)
 		.execute();
 }

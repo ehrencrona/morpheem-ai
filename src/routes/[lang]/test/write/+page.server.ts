@@ -4,7 +4,7 @@ import { redirectToLogin } from '$lib/redirectToLogin';
 import { ServerLoad } from '@sveltejs/kit';
 import {
 	getMultipleWordsByIds,
-	getNonCognateWordIds,
+	getWordIdsForCloze,
 	getWordsOfSentences
 } from '../../../../db/words';
 import { getAggregateKnowledge } from '../../../../logic/getAggregateKnowledge';
@@ -18,7 +18,7 @@ export const load: ServerLoad = async ({ url, locals: { language, userId } }) =>
 
 	const level = parseInt(url.searchParams.get('level') || '99') || 99;
 
-	const ids = await getNonCognateWordIds(language, Math.max(level, 10));
+	const ids = await getWordIdsForCloze(language, Math.max(level, 10));
 
 	const words = await getMultipleWordsByIds(
 		pick(
