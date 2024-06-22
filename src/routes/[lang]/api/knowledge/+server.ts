@@ -26,7 +26,7 @@ export const POST: ServerLoad = async ({ url, request, locals: { userId, languag
 			userExercises?.map(
 				(k) => `word ${k.wordId} sentence ${k.sentenceId} ${k.isKnown ? 'knew' : 'did not know'}`
 			) || []
-		).join(', ')} for user ${userId} in language ${language}`
+		).join(', ')} for user ${userId} in language ${language.code}`
 	);
 
 	await Promise.all([
