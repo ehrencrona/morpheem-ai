@@ -275,9 +275,10 @@
 				userAnswer: answered,
 				correctAnswer: {
 					id: word.id,
-					conjugated: conjugatedWord
+					conjugated: conjugatedWord,
+					word: word.word
 				},
-				isWrongInflection: !isCorrectInflection && isCorrectLemma
+				isRightLemma: isCorrectLemma
 			}).finally(() => (isFetchingEvaluation = false));
 
 			if (word === wordWas) {
