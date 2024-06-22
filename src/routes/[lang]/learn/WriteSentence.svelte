@@ -211,7 +211,7 @@
 				</div>
 
 				{#if source == 'userExercise'}
-					<div class="text-xs font-lato">
+					<div class="text-xs font-lato mb-4">
 						You wrote this sentence earlier but got it wrong. See if you can remember the correct
 						version.
 					</div>
