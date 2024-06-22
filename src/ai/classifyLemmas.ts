@@ -8,7 +8,11 @@ export type LemmaType = WordType | 'inflection' | 'wrong';
 
 export async function classifyLemmas(
 	lemmas: string[],
-	{ throwOnInvalid, language }: { throwOnInvalid: boolean; language: Language }
+	{
+		throwOnInvalid,
+		language,
+		retriesLeft = 1
+	}: { throwOnInvalid: boolean; language: Language; retriesLeft?: number }
 ): Promise<
 	{
 		lemma: string;
@@ -150,14 +154,6 @@ export async function classifyLemmas(
 		}
 	}
 
-	if (result.length < lemmas.length) {
-		throw new Error(
-			`Not enough words returned (${result.length} vs ${lemmas.length}). Got ${response}. Missing words: ${lemmas
-				.filter((lemma) => !result.some((r) => r.lemma == lemma))
-				.join(', ')}`
-		);
-	}
-
 	const inflected = result.filter(({ type }) => type == 'inflection').map(({ lemma }) => lemma);
 
 	if (inflected) {
@@ -179,6 +175,22 @@ export async function classifyLemmas(
 			`Invalid lemmas: ${invalid.map(({ lemma, type }) => `${lemma} (${type})`).join(', ')}`,
 			'notALemma'
 		);
+	}
+
+	if (result.length < lemmas.length) {
+		const missing = lemmas.filter((lemma) => !result.some((r) => r.lemma == lemma));
+
+		if (retriesLeft > 0) {
+			result = result.concat(
+				await classifyLemmas(missing, { throwOnInvalid, language, retriesLeft: retriesLeft - 1 })
+			);
+		} else {
+			throw new Error(
+				`Not enough words returned (${result.length} vs ${lemmas.length}). Got ${response}. Missing words: ${missing.join(
+					', '
+				)}`
+			);
+		}
 	}
 
 	return result;
