@@ -3,7 +3,6 @@ import { Message, Model, ask } from './ask';
 import { zodParse } from './zodParse';
 
 export async function askForJson<T>({
-	instruction,
 	messages,
 	temperature,
 	max_tokens,
@@ -12,7 +11,6 @@ export async function askForJson<T>({
 	retriesLeft = 1,
 	logResponse = false
 }: {
-	instruction?: string;
 	messages: Message[];
 	temperature: number;
 	max_tokens?: number;
@@ -33,13 +31,12 @@ export async function askForJson<T>({
 	try {
 		return zodParse(response!, schema);
 	} catch (error) {
-		const message = `Failed to parse response: ${error}\nResponse: ${response}\nPrompt: ${messages.map(({ content }) => content).join(', ')}\nInstruction: ${instruction}`;
+		const message = `Failed to parse response: ${error}\nResponse: ${response}\nPrompt: ${messages.map(({ content }) => content).join(', ')}`;
 
 		if (retriesLeft > 0) {
 			console.error(`${message}. Retrying...`);
 
 			return askForJson({
-				instruction,
 				messages,
 				temperature: temperature + (1 - temperature) / 2,
 				max_tokens,
