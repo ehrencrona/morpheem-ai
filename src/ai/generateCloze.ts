@@ -14,7 +14,7 @@ export function generateCloze(
       In the cloze string, indicate the blank by three underscores followed by the correct answer in parenthesis i.e. ___ (answer here)`,
 			prompt: `
       I find it difficult to ${skill} in ${language.name}. 
-			Give me ${numberOfExercises} fill-in-the-blanks exercises in the form of Polish sentences with a single word missing to test it. 
+			Give me ${numberOfExercises} fill-in-the-blanks exercises in the form of ${language.name} sentences with a single word missing to test it. 
 			Reason about what how the exercises should be structured and useful words or phrases (in "structure"), then return the exercises.
 			There may only be a single word in the blank. Prefer simple words.
       Then double-check each exercise to check that the sentence is grammatically correct and sensible and tests the right skill. 

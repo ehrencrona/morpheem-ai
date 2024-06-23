@@ -65,7 +65,7 @@ width={800}
 			<div class="flex flex-wrap mt-4">
 				<SpinnerButton onClick={onStore}>Save</SpinnerButton>
 
-				<SpinnerButton onClick={() => onMore(skill)} type="secondary">Add exercises</SpinnerButton>
+				<SpinnerButton onClick={() => onMore(skill)} type="secondary">Generate more</SpinnerButton>
 
 				<SpinnerButton onClick={onCancel} type="secondary">Cancel</SpinnerButton>
 			</div>
