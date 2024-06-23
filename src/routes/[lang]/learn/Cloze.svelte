@@ -124,8 +124,8 @@
 		if (wordIndex >= 0 && sentenceWords.length == wordStrings.length) {
 			wordString = wordStrings[wordIndex];
 		} else {
-			console.warn(
-				`Word ${word.word} not found in sentence "${sentence.sentence}" (${sentence.id})`
+			logError(
+				`Word ${word.word} (${word.id}) not found in sentence "${sentence.sentence}" (${sentence.id})`
 			);
 		}
 

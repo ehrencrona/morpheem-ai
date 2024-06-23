@@ -10,6 +10,8 @@ import {
 import { getAggregateKnowledge } from '../../../../logic/getAggregateKnowledge';
 import { getSentencesWithWord } from '../../../../logic/getSentencesWithWord';
 import { getNextSentence } from '../../../../logic/isomorphic/getNext';
+import { Language } from '../../../../logic/types';
+import { logError } from '$lib/logError';
 
 export const load: ServerLoad = async ({ url, locals: { language, userId } }) => {
 	if (!userId) {
@@ -18,45 +20,58 @@ export const load: ServerLoad = async ({ url, locals: { language, userId } }) =>
 
 	const level = parseInt(url.searchParams.get('level') || '99') || 99;
 
+	const knowledge = await getAggregateKnowledge(userId, language);
+
+	const sentences = filterUndefineds(
+		await Promise.all(
+			(await getWordsForTest(level, language)).map(async (word) => {
+				const sentence = getNextSentence(
+					await getSentencesWithWord(word, language),
+					knowledge,
+					word.id,
+					'read'
+				)?.sentence;
+
+				if (sentence) {
+					return { sentence, word };
+				} else {
+					console.warn(`Got no sentence for word ${word.id}`);
+				}
+			})
+		)
+	);
+
+	const sentenceWords = await getWordsOfSentences(
+		sentences.map(({ sentence }) => sentence.id),
+		language
+	);
+
+	return {
+		words: filterUndefineds(
+			sentences.map(({ sentence, word }, i) => {
+				if (sentenceWords[i]?.length) {
+					return {
+						sentence,
+						word,
+						sentenceWords: sentenceWords[i]!
+					};
+				} else {
+					logError(`Got no sentence words for sentence ${sentence.id}`);
+				}
+			})
+		),
+		languageCode: language.code
+	};
+};
+
+async function getWordsForTest(level: number, language: Language) {
 	const ids = await getWordIdsForCloze(language, Math.max(level, 10));
 
-	const words = await getMultipleWordsByIds(
+	return getMultipleWordsByIds(
 		pick(
 			ids.map(({ id }) => id),
 			20
 		),
 		language
 	);
-
-	const knowledge = await getAggregateKnowledge(userId, language);
-
-	const sentences = filterUndefineds(
-		await Promise.all(
-			words.map(
-				async (word) =>
-					getNextSentence(await getSentencesWithWord(word, language), knowledge, word.id, 'read')
-						?.sentence
-			)
-		)
-	);
-
-	const sentenceWords = await getWordsOfSentences(
-		sentences.map(({ id }) => id),
-		language
-	);
-
-	return {
-		words: filterUndefineds(
-			sentences.map((sentence, i) =>
-				sentence && words[i] && sentenceWords[i]
-					? {
-							sentence: sentence,
-							word: words[i],
-							sentenceWords: sentenceWords[i]!
-						}
-					: undefined
-			)
-		),
-		languageCode: language.code
-	};
-};
+}
