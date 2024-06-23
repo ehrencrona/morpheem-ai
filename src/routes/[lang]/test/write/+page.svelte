@@ -1,8 +1,10 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import SpinnerButton from '../../../../components/SpinnerButton.svelte';
+	import { knowledgeTypeToExercise } from '../../../../db/knowledgeTypes';
+	import type { ExerciseKnowledge, WordKnowledge } from '../../../../logic/types';
 	import { getLanguageOnClient } from '../../api/api-call';
-	import { sendKnowledge } from '../../api/knowledge/client';
+	import { sendKnowledge as sendKnowledgeClient } from '../../api/knowledge/client';
 	import Cloze from '../../learn/Cloze.svelte';
 	import type { PageData } from './$types';
 
@@ -19,6 +21,14 @@
 			wordIndex++;
 		}
 	};
+
+	async function sendKnowledge(words: WordKnowledge[], userExercises?: ExerciseKnowledge[]) {
+		console.log(
+			`Knowledge: ${words.map(({ wordId, type, isKnown }) => `${wordId}, ${knowledgeTypeToExercise(type)}: ${isKnown}`).join(', ')}`
+		);
+
+		await sendKnowledgeClient(words, userExercises);
+	}
 </script>
 
 {#if wordIndex == -1}

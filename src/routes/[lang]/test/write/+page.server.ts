@@ -41,6 +41,10 @@ export const load: ServerLoad = async ({ url, locals: { language, userId } }) =>
 		)
 	);
 
+	if (!sentences.length) {
+		throw new Error('No sentences found for write test');
+	}
+
 	const sentenceWords = await getWordsOfSentences(
 		sentences.map(({ sentence }) => sentence.id),
 		language
@@ -67,11 +71,15 @@ export const load: ServerLoad = async ({ url, locals: { language, userId } }) =>
 async function getWordsForTest(level: number, language: Language) {
 	const ids = await getWordIdsForCloze(language, Math.max(level, 10));
 
-	return getMultipleWordsByIds(
+	const words = await getMultipleWordsByIds(
 		pick(
 			ids.map(({ id }) => id),
 			20
 		),
 		language
 	);
+
+	console.log(`Words for write test: ${words.map(({ word, id }) => `${word} (${id})`).join(', ')}`);
+
+	return words;
 }

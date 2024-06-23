@@ -27,9 +27,8 @@
 	import { logError } from '$lib/logError';
 
 	export let sentence: DB.Sentence;
-	export let sentenceWords: SentenceWord[];
 
-	export let word: DB.Word;
+	export let word: SentenceWord & { conjugatedWord: string };
 	export let wordTranslation: string | undefined;
 	export let sentenceTranslation: Translation | undefined;
 	export let mnemonic: string | undefined;
@@ -62,7 +61,7 @@
 	export let onAnswer: (wordString: string) => Promise<void>;
 	export let onPickedWord: (wordString: string) => Promise<void>;
 
-	$: answer = conjugatedWord.slice(0, showChars) + (prefix?.trim() || '');
+	$: answer = word.conjugatedWord.slice(0, showChars) + (prefix?.trim() || '');
 
 	let prefix: string | null;
 
@@ -83,9 +82,6 @@
 		onType(answer);
 	}
 
-	$: wordStrings = toWords(sentence.sentence, language);
-
-	$: conjugatedWord = wordStrings[sentenceWords.findIndex((w) => w.id === word.id)];
 	$: wordsWithSeparators = toWordsWithSeparators(sentence.sentence, language);
 
 	let isLoadingUnknown = false;
@@ -125,7 +121,7 @@
 
 <form on:submit={onSubmit}>
 	<div class="text-4xl mb-8 mt-8 font-medium">
-		{#each wordsWithSeparators as wordString, index}{#if !isSeparator(wordString)}{#if standardize(wordString) == standardize(conjugatedWord)}
+		{#each wordsWithSeparators as wordString, index}{#if !isSeparator(wordString)}{#if standardize(wordString) == standardize(word.conjugatedWord)}
 					{#if evaluation}
 						<span
 							class={['correct', 'alternate', 'typo'].includes(evaluation.outcome)
@@ -189,7 +185,7 @@
 		<div class="mt-8">
 			<div class="text-xs font-lato mb-4">
 				{#if !prefix}
-					Find the missing word.
+					Find the missing word. Click any words you don't know.
 				{:else if prefix && suggestedWords.words.length == 0 && !isLoadingSuggestions}
 					Press Submit to check your answer.
 				{:else if isPickingInflection}
@@ -238,7 +234,7 @@
 	{:else}
 		{#if ['alternate', 'alternateWrongForm'].includes(evaluation.outcome)}
 			<div class="mb-4">
-				We were actually looking for the word <b>{conjugatedWord}</b>. {evaluation.evaluation}
+				We were actually looking for the word <b>{word.conjugatedWord}</b>. {evaluation.evaluation}
 			</div>
 		{:else if ['correct', 'typo'].includes(evaluation.outcome)}
 			<div class="mb-4">Correct!</div>
@@ -262,7 +258,7 @@
 		<div class="grid grid-cols-1 md:grid-cols-2 w-full gap-x-4 mt-8">
 			{#if evaluation.outcome != 'correct' || evaluation.alternateWord}
 				<WordCard
-					word={{ ...word, inflected: conjugatedWord, english: wordTranslation || '', mnemonic }}
+					word={{ ...word, inflected: word.conjugatedWord, english: wordTranslation || '', mnemonic }}
 				/>
 			{/if}
 

@@ -5,6 +5,7 @@
 	import { logError } from '$lib/logError';
 	import { toPercent } from '$lib/toPercent';
 	import Speak from '../../../components/Speak.svelte';
+	import SpinnerButton from '../../../components/SpinnerButton.svelte';
 	import Tutorial from '../../../components/Tutorial.svelte';
 	import { KNOWLEDGE_TYPE_CLOZE, KNOWLEDGE_TYPE_READ } from '../../../db/knowledgeTypes';
 	import * as DB from '../../../db/types';
@@ -69,6 +70,24 @@
 
 	let inflections: string[] = [];
 
+	$: sentenceWord = findSentenceWord(sentenceWords, word);
+
+	$: if (sentenceWord) {
+		let wordWas = word;
+
+		lookupUnknownWord(sentenceWord.conjugatedWord, sentence.id)
+			.then((translated) => {
+				if (word.word == translated.word && word.id == wordWas.id) {
+					wordTranslation = translated.english;
+				}
+			})
+			.catch(logError);
+	}
+
+	$: if (sentence.id) {
+		clear();
+	}
+
 	async function clear() {
 		showChars = 0;
 		suggestedWords = {
@@ -112,34 +131,29 @@
 		}
 	}
 
-	$: if (word.id || sentence.id) {
-		let wordWas = word;
-
+	function findSentenceWord(sentenceWords: SentenceWord[], word: DB.Word) {
 		const wordStrings = toWords(sentence.sentence, language);
-
-		let wordString = word.word; // fallback
-
 		const wordIndex = sentenceWords.findIndex(({ id }) => id === word.id);
 
 		if (wordIndex >= 0 && sentenceWords.length == wordStrings.length) {
-			wordString = wordStrings[wordIndex];
+			const sentenceWord = sentenceWords[wordIndex];
+			const conjugatedWord = wordStrings[wordIndex];
+
+			console.log(
+				`Word ${sentenceWord.word} (${sentenceWord.id}) found in sentence "${sentence.sentence}" (${sentence.id}).`
+			);
+
+			return {
+				...sentenceWord,
+				conjugatedWord
+			};
 		} else {
 			logError(
-				`Word ${word.word} (${word.id}) not found in sentence "${sentence.sentence}" (${sentence.id})`
+				`Word ${word.word} (${word.id}) not found in sentence "${sentence.sentence}" (${sentence.id}). SentenceWords: ${sentenceWords
+					.map(({ word, id }) => `${word} (${id})`)
+					.join(', ')}; wordStrings: ${wordStrings.join(', ')}`
 			);
 		}
-
-		lookupUnknownWord(wordString, sentence.id)
-			.then((translated) => {
-				if (word.word == translated.word && word.id == wordWas.id) {
-					wordTranslation = translated.english;
-				}
-			})
-			.catch(logError);
-	}
-
-	$: if (sentence.id) {
-		clear();
 	}
 
 	async function onHint() {
@@ -241,11 +255,13 @@
 	}
 
 	async function onAnswer(answered: string) {
+		if (!sentenceWord) {
+			throw new Error(`Invalid state, sentenceWord is undefined`);
+		}
+
 		answered = standardize(answered);
 
-		const conjugatedWord = toWords(sentence.sentence, language)[
-			sentenceWords.findIndex((w) => w.id === word.id)
-		];
+		const { conjugatedWord } = sentenceWord;
 
 		let isCorrectInflection = answered == conjugatedWord;
 		let isAnyInflection = inflections.includes(answered);
@@ -352,32 +368,35 @@
 	}
 </script>
 
-<ClozeDumb
-	{sentence}
-	{word}
-	{sentenceWords}
-	{evaluation}
-	{exercise}
-	{onHint}
-	onNext={storeAndContinue}
-	{onUnknown}
-	{onRemoveUnknown}
-	{onReveal}
-	{onType}
-	{onAnswer}
-	{onPickedWord}
-	{onTranslate}
-	{isPickingInflection}
-	{isFetchingEvaluation}
-	{wordTranslation}
-	{sentenceTranslation}
-	{mnemonic}
-	{showChars}
-	{suggestedWords}
-	{revealed}
-	{language}
-	{isLoadingSuggestions}
-/>
+{#if sentenceWord}
+	<ClozeDumb
+		{sentence}
+		word={sentenceWord}
+		{evaluation}
+		{exercise}
+		{onHint}
+		onNext={storeAndContinue}
+		{onUnknown}
+		{onRemoveUnknown}
+		{onReveal}
+		{onType}
+		{onAnswer}
+		{onPickedWord}
+		{onTranslate}
+		{isPickingInflection}
+		{isFetchingEvaluation}
+		{wordTranslation}
+		{sentenceTranslation}
+		{mnemonic}
+		{showChars}
+		{suggestedWords}
+		{revealed}
+		{language}
+		{isLoadingSuggestions}
+	/>
+{:else}
+	<SpinnerButton onClick={storeAndContinue}>Continue</SpinnerButton>
+{/if}
 
 {#if !offerSuggestions}
 	<Tutorial

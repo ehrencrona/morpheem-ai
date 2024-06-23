@@ -3,7 +3,7 @@ export function pick<T>(array: T[], count: number): T[] {
 	const length = array.length;
 	const indices = new Set<number>();
 
-	while (result.length < count) {
+	while (result.length < count && result.length < array.length) {
 		const index = Math.floor(Math.random() * length);
 
 		if (indices.has(index)) {

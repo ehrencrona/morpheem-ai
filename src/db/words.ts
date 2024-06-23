@@ -144,8 +144,7 @@ export async function getWordIdsForCloze(language: Language, maxLevel: number) {
 		.withSchema(language.schema)
 		.selectFrom('words')
 		.select(['id', 'word'])
-		.where('type', '!=', 'cognate')
-		.where('type', '!=', 'name')
+		.where((eb) => eb('type', 'is', null).or('type', 'not in', ['cognate', 'name']))
 		.where('level', '<=', maxLevel)
 		.execute();
 }
