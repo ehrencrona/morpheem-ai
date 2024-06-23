@@ -1,6 +1,6 @@
 import { parallelize } from '$lib/parallelize';
 import { CodedError } from '../CodedError';
-import { FRENCH } from '../constants';
+import { FRENCH, KOREAN } from '../constants';
 import { db } from '../db/client';
 import { getLemmasOfWords } from '../db/lemmas';
 import { deleteSentence, getSentences } from '../db/sentences';
@@ -9,7 +9,7 @@ import { getSentenceWords } from '../logic/addSentence';
 import { lemmatizeSentences } from '../logic/lemmatize';
 import { toWords } from '../logic/toWords';
 
-const language = FRENCH;
+const language = KOREAN;
 
 async function fixSentenceWords() {
 	const sentences = await getSentences(language);
@@ -84,6 +84,8 @@ async function fixSentenceWords() {
 						console.error(e);
 
 						deleteSentence(sentence.id, language);
+					} else if ((e as CodedError).code == 'notALemma') {
+						console.error(`In sentence ${sentence.id}: ${(e as CodedError).message}`);
 					} else {
 						throw e;
 					}
