@@ -14,6 +14,10 @@ export function addKnowledge(
 	}[],
 	language: Language
 ) {
+	if (values.length === 0) {
+		return;
+	}
+
 	return db
 		.withSchema(language.schema)
 		.insertInto('knowledge')
