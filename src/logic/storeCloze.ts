@@ -3,6 +3,7 @@ import { upsertUserExercise } from '../db/userExercises';
 import { addSentence } from './addSentence';
 import type { Cloze } from './generateCloze';
 import { getWordInSentence } from './getWordInSentence';
+import { didNotKnowFirst } from './isomorphic/knowledge';
 import { lemmatizeSentences } from './lemmatize';
 import { ExerciseType, Language } from './types';
 
@@ -32,8 +33,7 @@ export async function storeCloze(
 				// maybe sometimes cloze-inflection?
 				exercise: 'cloze' as ExerciseType,
 				level: word.level,
-				alpha: 0,
-				beta: null
+				...didNotKnowFirst('cloze')
 			};
 
 			await upsertUserExercise(userExercise, userId, language);

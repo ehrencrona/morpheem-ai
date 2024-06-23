@@ -4,7 +4,7 @@ import { askForJson } from './askForJson';
 import { Language } from '../logic/types';
 
 const formExamples = {
-	pl: `"genitive plural, feminine", "past, perfective", or "past participle"`,
+	pl: `"genitive plural, feminine", "past, perfective", "2nd person plural" or "past participle"`,
 	fr: `"feminine", "plural", or "past participle"`,
 	es: `"feminine", "plural", or "past participle"`,
 	ko: `"subject", "topic" or "imperative, polite"`
