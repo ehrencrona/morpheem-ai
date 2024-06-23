@@ -67,7 +67,9 @@ export async function evaluateCloze(
 				);
 			}
 		} else {
-			console.error(`Word "${userAnswer}" not found in sentence "${sentence}".`);
+			console.error(
+				`Word "${userAnswer}" not found in sentence "${sentence}" generated from cloze ${cloze}.`
+			);
 		}
 	}
 

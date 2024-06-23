@@ -6,7 +6,6 @@ import {
 import { storeEnglish } from '../db/sentences';
 import * as DB from '../db/types';
 import { addWordTranslations, getWordTranslation } from '../db/wordTranslations';
-import { standardize } from './isomorphic/standardize';
 import { Language } from './types';
 
 export async function addEnglishToSentence(

@@ -40,6 +40,7 @@
 	import SpinnerButton from '../../components/SpinnerButton.svelte';
 	import { page } from '$app/stores';
 	import { logError } from '$lib/logError';
+	import AddExercises from './learn/AddExercises.svelte';
 
 	export let data: PageData;
 
@@ -339,6 +340,12 @@
 
 		await showNextSentence();
 	}
+
+	let isAddExercisesOpen = false;
+
+	function openAddExercises() {
+		isAddExercisesOpen = true;
+	}
 </script>
 
 <main class="font-sans bold w-full" use:trackActivity>
@@ -379,6 +386,10 @@
 				>
 					Sentence is wrong
 				</a>
+
+				<button type="button" on:click={openAddExercises} class="underline text-red">
+					Add exercises
+				</button>
 			</div>
 		</div>
 
@@ -456,6 +467,10 @@
 				</path>
 			</svg>
 		</div>
+	{/if}
+
+	{#if isAddExercisesOpen}
+		<AddExercises onCancel={async () => (isAddExercisesOpen = false)} />
 	{/if}
 
 	<ErrorMessage />

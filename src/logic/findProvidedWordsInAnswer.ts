@@ -63,6 +63,10 @@ export async function wordStringsToWords(
 						);
 
 						word = (await addWords([wordString], language))[0];
+
+						if (!word) {
+							return;
+						}
 					}
 				}
 

@@ -181,5 +181,6 @@ export async function findProvidedWordsInAnswer(
 	return wordString
 		.split(', ')
 		.map((word) => word.trim().replace(/"/g, ''))
-		.filter(Boolean);
+		.filter(Boolean)
+		.filter((word) => !word.includes(' '));
 }

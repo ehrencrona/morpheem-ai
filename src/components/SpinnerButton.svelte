@@ -9,7 +9,7 @@
 	export let grabFocus = false;
 	export let type: 'primary' | 'secondary' = 'primary';
 	export let className =
-		'text-blue-1 rounded-md py-2 px-8 md:px-6 md:py-1 m-2 ml-0 text-lg md:text-base whitespace-nowrap ' +
+		'text-blue-1 rounded-md py-2 px-8 md:px-6 md:py-1 m-2 ml-0 text-base whitespace-nowrap ' +
 		(type == 'primary' ? 'bg-blue-4' : 'bg-blue-3');
 
 	let isLoading = false;

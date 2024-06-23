@@ -1,5 +1,5 @@
 import { error } from '@sveltejs/kit';
-import { Language } from '../logic/types';
+import { Language, SentenceWord } from '../logic/types';
 import { db } from './client';
 import type { Sentence } from './types';
 
@@ -13,12 +13,12 @@ export async function addSentence(
 		level
 	}: {
 		english: string | undefined;
-		words: { id: number; word: string | null }[];
+		words: SentenceWord[];
 		language: Language;
 		userId?: number;
 		level: number;
 	}
-): Promise<Sentence> {
+): Promise<Sentence & { words: SentenceWord[] }> {
 	const sentence = await db.transaction().execute(async (trx) => {
 		const sentence = await trx
 			.withSchema(language.schema)
@@ -56,7 +56,7 @@ export async function addSentence(
 		return sentence;
 	});
 
-	return sentence;
+	return { ...sentence, words };
 }
 
 export function getSentences(language: Language) {

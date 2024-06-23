@@ -1,6 +1,6 @@
-import { addWordToLemma, getLemmaIdsOfWord } from '../db/lemmas';
+import { getLemmaIdsOfWord } from '../db/lemmas';
 import { getSentence } from '../db/sentences';
-import { addWord, getWordByLemma } from '../db/words';
+import { getWordByLemma } from '../db/words';
 import { lemmatizeSentences } from '../logic/lemmatize';
 import { toWords } from './toWords';
 import { Language, SentenceWord } from './types';
