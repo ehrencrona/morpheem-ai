@@ -13,7 +13,7 @@
 	};
 
 	const onMore = async (skill: string) => {
-		clozes = clozes.concat(await sendGenerateCloze({ skill, noOfExercises }));
+		clozes = await sendGenerateCloze({ skill, noOfExercises: clozes.length + noOfExercises });
 	};
 
 	const onStore = async () => {

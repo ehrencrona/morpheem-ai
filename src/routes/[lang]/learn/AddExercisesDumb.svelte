@@ -39,7 +39,7 @@ width={800}
 			/>
 
 			<SpinnerButton isSubmit={true} type="primary" onClick={() => onGenerate(skill)}
-				>Preview</SpinnerButton
+				>Generate</SpinnerButton
 			>
 		</div>
 

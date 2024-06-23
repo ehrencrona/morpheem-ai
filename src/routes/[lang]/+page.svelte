@@ -373,7 +373,7 @@
 				<a href={`/${languageCode}/home`} class="underline text-red"> History </a>
 
 				{#if data.user == 'ehrencrona' && current.wordId}
-					<a href={`/${languageCode}/words/${current.wordId}"`} class="underline text-red">
+					<a href={`/${languageCode}/words/${current.wordId}`} class="underline text-red">
 						Word
 					</a>
 				{/if}
