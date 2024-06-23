@@ -57,7 +57,7 @@
 
 	export let onNext: () => Promise<any>;
 
-	let wordTranslation: string | undefined = undefined;
+	let unknownWord: UnknownWordResponse | undefined = undefined;
 	let sentenceTranslation: Translation | undefined = undefined;
 	let mnemonic: string | undefined = undefined;
 	let showChars = 0;
@@ -76,9 +76,9 @@
 		let wordWas = word;
 
 		lookupUnknownWord(sentenceWord.conjugatedWord, sentence.id)
-			.then((translated) => {
-				if (word.word == translated.word && word.id == wordWas.id) {
-					wordTranslation = translated.english;
+			.then((got) => {
+				if (word.word == got.word && word.id == wordWas.id) {
+					unknownWord = got;
 				}
 			})
 			.catch(logError);
@@ -95,7 +95,7 @@
 			type: 'lemma'
 		};
 		isPickingInflection = false;
-		wordTranslation = undefined;
+		unknownWord = undefined;
 		sentenceTranslation = undefined;
 		evaluation = undefined;
 		mnemonic = undefined;
@@ -287,7 +287,7 @@
 						cloze + (standardize(word) == standardize(conjugatedWord) ? '______' : word),
 					''
 				),
-				clue: wordTranslation || '',
+				clue: unknownWord?.english || '',
 				userAnswer: answered,
 				correctAnswer: {
 					id: word.id,
@@ -385,7 +385,7 @@
 		{onTranslate}
 		{isPickingInflection}
 		{isFetchingEvaluation}
-		{wordTranslation}
+		{unknownWord}
 		{sentenceTranslation}
 		{mnemonic}
 		{showChars}

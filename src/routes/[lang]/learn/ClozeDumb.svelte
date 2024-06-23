@@ -29,7 +29,7 @@
 	export let sentence: DB.Sentence;
 
 	export let word: SentenceWord & { conjugatedWord: string };
-	export let wordTranslation: string | undefined;
+	export let unknownWord: UnknownWordResponse | undefined;
 	export let sentenceTranslation: Translation | undefined;
 	export let mnemonic: string | undefined;
 	export let exercise: 'cloze' | 'cloze-inflection' = 'cloze';
@@ -140,8 +140,8 @@
 								/>
 							</span>
 							<span class="text-xs font-lato text-right">
-								{#if wordTranslation}
-									<span class="-mt-1">"{wordTranslation}"</span>
+								{#if unknownWord}
+									<span class="-mt-1">"{unknownWord.english}"</span>
 								{:else}
 									<div class="w-full flex items-center justify-center my-[3px]">
 										<Spinner />
@@ -256,10 +256,8 @@
 		{/if}
 
 		<div class="grid grid-cols-1 md:grid-cols-2 w-full gap-x-4 mt-8">
-			{#if evaluation.outcome != 'correct' || evaluation.alternateWord}
-				<WordCard
-					word={{ ...word, inflected: word.conjugatedWord, english: wordTranslation || '', mnemonic }}
-				/>
+			{#if (evaluation.outcome != 'correct' || evaluation.alternateWord) && unknownWord}
+				<WordCard word={{ ...unknownWord, inflected: word.conjugatedWord }} />
 			{/if}
 
 			{#each revealed as word (word.id)}
