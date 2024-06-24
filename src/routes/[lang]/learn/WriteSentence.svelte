@@ -299,7 +299,7 @@
 						<SpinnerButton onClick={onHint} type="secondary">Hint word</SpinnerButton>
 					{/if}
 
-					{#if translation}
+					{#if translation && !showIdea}
 						<SpinnerButton onClick={onIdea} type="secondary">Writing idea</SpinnerButton>
 					{/if}
 				{/if}
