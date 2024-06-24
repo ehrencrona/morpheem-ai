@@ -5,6 +5,8 @@
 
 	export let clozes: Cloze[];
 
+	export let suggestions: string[];
+
 	let skill: string;
 
 	export let onGenerate: (skill: string) => Promise<any>;
@@ -14,7 +16,8 @@
 </script>
 
 <Dialog
-width={800}
+	{onCancel}
+	width={800}
 	on:keydown={(event) => {
 		if (event.key === 'Escape') {
 			onCancel;
@@ -22,25 +25,44 @@ width={800}
 	}}
 >
 	<form>
-		<div class="text-xs font-lato mb-6">
-			Describe the grammatical issue you want to practice. We will generate fill-in-the-blanks
-			exercises using AI based on your description. You will get a preview of the exercises before
-			saving them, so you can refine your description.
+		<div class="text-xs font-lato">
+			Describe a grammatical issue you want to practice. We will generate fill-in-the-blanks
+			exercises using AI. You will get a preview of the exercises before saving them, so you can
+			refine your description.
 		</div>
 
-		<div class="mb-2">I find it difficult to</div>
+		<div class="text-xs font-lato mt-2 text-blue-3 hidden md:block">
+			{#each suggestions as suggestion}
+				<div>
+					"<button
+						class="underline"
+						on:click={() => {
+							skill = suggestion;
+							onGenerate(suggestion);
+						}}>{suggestion}</button
+					>"
+				</div>
+			{/each}
+		</div>
 
-		<div class="flex items-center gap-4 flex-wrap md:flex-nowrap">
-			<input
-				bind:value={skill}
-				type="text"
-				placeholder="know when to use the form xyz"
-				class="bg-blue-1 rounded-sm block p-2 text-lg flex-1"
-			/>
+		<div class="mt-6 mb-4">
+			<div class="mb-2">I find it difficult to</div>
 
-			<SpinnerButton isSubmit={true} type="primary" onClick={() => onGenerate(skill)}
-				>Generate</SpinnerButton
-			>
+			<div class="flex md:items-center items-end gap-4 flex-col md:flex-row">
+				<input
+					bind:value={skill}
+					type="text"
+					placeholder="know when to use the form xyz"
+					class="bg-blue-1 rounded-sm block p-2 text-lg flex-1 w-full md:w-auto"
+				/>
+
+				<SpinnerButton
+					isSubmit={true}
+					type="primary"
+					onClick={() => onGenerate(skill)}
+					className="underline text-blue-3">Generate</SpinnerButton
+				>
+			</div>
 		</div>
 
 		{#if !clozes.length}
@@ -52,20 +74,22 @@ width={800}
 
 	{#if clozes.length}
 		<form>
-			<div class="mb-2 mt-4">Save these exercises?</div>
-
-			<div class="max-h-60 overflow-auto mt-4 mb-4 border p-2">
+			<div
+				class="max-h-60 overflow-auto mt-3 mb-3 font-lato flex flex-col gap-1 py-4 border-b border-t border-light-gray relative md:mt-8 md:border md:p-2"
+			>
 				{#each clozes as cloze}
-					<div class="flex flex-col gap-4">
-						<div class="text-lg">{cloze.exercise.replace('___', `[${cloze.answer}]`)}</div>
-					</div>
+					<div>{cloze.exercise.replace('___', `[${cloze.answer}]`)}</div>
 				{/each}
 			</div>
 
-			<div class="flex flex-wrap mt-4">
-				<SpinnerButton onClick={onStore}>Save</SpinnerButton>
+			<div class="text-right">
+				<SpinnerButton onClick={() => onMore(skill)} className="underline text-blue-3 bottom-0">
+					Generate more
+				</SpinnerButton>
+			</div>
 
-				<SpinnerButton onClick={() => onMore(skill)} type="secondary">Generate more</SpinnerButton>
+			<div class="flex flex-wrap mt-2">
+				<SpinnerButton onClick={onStore}>Save</SpinnerButton>
 
 				<SpinnerButton onClick={onCancel} type="secondary">Cancel</SpinnerButton>
 			</div>

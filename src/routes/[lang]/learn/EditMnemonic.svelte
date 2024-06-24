@@ -12,7 +12,7 @@
 	export let generate: () => Promise<string>;
 </script>
 
-<Dialog>
+<Dialog {onCancel}>
 	<form
 		on:keydown={(event) => {
 			if (event.key === 'Enter' && !event.shiftKey) {

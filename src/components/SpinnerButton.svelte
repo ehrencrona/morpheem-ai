@@ -43,7 +43,7 @@
 </script>
 
 <button
-	class={`${className} ${error ? 'bg-red' : ''} relative`}
+	class={`relative ${className} ${error ? 'bg-red' : ''}`}
 	on:click|preventDefault={didClick}
 	disabled={isLoading}
 	type={isSubmit ? 'submit' : 'button'}

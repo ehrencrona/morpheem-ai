@@ -18,6 +18,8 @@ export async function generateCloze(
 		language: Language;
 	}
 ): Promise<Cloze[]> {
+	console.log(`Generating cloze for skill "${skill}"...`);
+
 	const res = await generateClozeAi(skill, { numberOfExercises: noOfExercises, language });
 
 	const exercises = res.exercises
