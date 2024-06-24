@@ -50,13 +50,16 @@ export async function translateWordInContext(
 			language
 		);
 
-		await addWordTranslations({
+		addWordTranslations({
 			wordId: lemma.id,
 			sentenceId: sentence?.id,
 			english: translation.english,
 			form: translation.form || undefined,
 			transliteration: translation.transliteration,
 			language
+		}).catch((e) => {
+			e.message = `Error adding word translation for ${lemma.word}, sentence ${sentence?.id} in ${language.name}: ${e.message}`;
+			logError(e);
 		});
 	}
 
