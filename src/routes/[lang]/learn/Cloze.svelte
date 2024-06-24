@@ -389,7 +389,6 @@
 		{isFetchingEvaluation}
 		{unknownWord}
 		{sentenceTranslation}
-		{mnemonic}
 		{showChars}
 		{suggestedWords}
 		{revealed}

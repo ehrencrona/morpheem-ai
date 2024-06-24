@@ -13,25 +13,24 @@
 </script>
 
 <script lang="ts">
+	import { logError } from '$lib/logError';
 	import { onMount } from 'svelte';
 	import { slide } from 'svelte/transition';
 	import Spinner from '../../../components/Spinner.svelte';
 	import SpinnerButton from '../../../components/SpinnerButton.svelte';
 	import * as DB from '../../../db/types';
 	import { standardize } from '../../../logic/isomorphic/standardize';
-	import { isSeparator, toWords, toWordsWithSeparators } from '../../../logic/toWords';
+	import { isSeparator, toWordsWithSeparators } from '../../../logic/toWords';
 	import type { Language, SentenceWord } from '../../../logic/types';
+	import type { Translation } from '../api/sentences/[sentence]/english/client';
 	import type { UnknownWordResponse } from '../api/word/unknown/+server';
 	import WordCard from './WordCard.svelte';
-	import type { Translation } from '../api/sentences/[sentence]/english/client';
-	import { logError } from '$lib/logError';
 
 	export let sentence: DB.Sentence;
 
 	export let word: SentenceWord & { conjugatedWord: string };
 	export let unknownWord: UnknownWordResponse | undefined;
 	export let sentenceTranslation: Translation | undefined;
-	export let mnemonic: string | undefined;
 	export let exercise: 'cloze' | 'cloze-inflection' = 'cloze';
 
 	export let language: Language;
@@ -199,8 +198,12 @@
 				{/if}
 			</div>
 
-			<div class="min-h-[52px] md:min-h-[150px]">
-				<div class="flex overflow-x-auto md:flex-wrap gap-4 pt-1 pb-4 mb-4">
+			<div
+				class="pt-1 mb-4 md:mb-8 min-h-[52px] md:h-[180px] {suggestedWords.type == 'lemma'
+					? 'md:overflow-y-hidden'
+					: 'md:overflow-y-auto'}"
+			>
+				<div class="flex overflow-x-auto md:flex-wrap gap-4 pb-3 md:pb-0">
 					{#if isLoadingSuggestions}
 						<Spinner />
 					{/if}
