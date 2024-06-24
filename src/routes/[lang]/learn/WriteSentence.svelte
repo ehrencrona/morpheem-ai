@@ -21,6 +21,7 @@
 	import { logError } from '$lib/logError';
 	import type { ExerciseSource } from '../../../db/types';
 	import { CodedError } from '../../../CodedError';
+	import { KNOWLEDGE_TYPE_READ, KNOWLEDGE_TYPE_WRITE } from '../../../db/knowledgeTypes';
 
 	export let word: { id: number; word: string; level: number } | undefined;
 	export let onNext: () => Promise<any>;
@@ -57,9 +58,9 @@
 
 	function clear() {
 		entered = '';
-		feedback = undefined;
 		unknownWords = [];
 		showChars = 0;
+		feedback = undefined;
 		lookedUpWord = undefined;
 		showIdea = false;
 
@@ -140,9 +141,24 @@
 
 		const knowledge = feedback.knowledge.map((k) => ({
 			...k,
+			isKnown: !unknownWords.some(({ id }) => id == k.wordId) && k.isKnown,
 			studiedWordId,
 			sentenceId: newSentenceId
 		}));
+
+		for (const word of unknownWords) {
+			if (!knowledge.some(({ wordId }) => wordId == word.id)) {
+				knowledge.push({
+					isKnown: false,
+					word: word,
+					wordId: word.id,
+					studiedWordId,
+					sentenceId,
+					type: KNOWLEDGE_TYPE_WRITE,
+					userId: 0
+				});
+			}
+		}
 
 		const userExercises = feedback.userExercises.map((e) => ({
 			...e,
