@@ -5,7 +5,11 @@ import { Language } from './types';
 
 export async function lemmatizeSentences(
 	sentences: string[],
-	{ language, ignoreErrors = false }: { language: Language; ignoreErrors?: boolean }
+	{
+		language,
+		ignoreErrors = false,
+		temperature
+	}: { language: Language; ignoreErrors?: boolean; temperature?: number }
 ) {
 	const lemmas = await Promise.all(
 		sentences.map(async (sentence) => {
@@ -41,7 +45,11 @@ export async function lemmatizeSentences(
 
 	const missingSentences = sentences.filter((_, i) => lemmas[i] === undefined);
 
-	const missingLemmas = await lemmatizeSentencesAi(missingSentences, { language, ignoreErrors });
+	const missingLemmas = await lemmatizeSentencesAi(missingSentences, {
+		language,
+		ignoreErrors,
+		temperature
+	});
 
 	if (missingLemmas.length != missingSentences.length) {
 		throw new Error(

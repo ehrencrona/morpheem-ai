@@ -44,9 +44,7 @@ async function fixSentenceWords() {
 
 			if (!isCorrect) {
 				try {
-					const lemmas = await lemmatizeSentences([sentence.sentence], { language });
-
-					const words = await getSentenceWords(sentence.sentence, lemmas[0], language);
+					const words = await getSentenceWords(sentence.sentence, { language });
 
 					const wordSentences = words.map((word, index) => ({
 						word_id: word.id,

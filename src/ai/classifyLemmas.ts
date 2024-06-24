@@ -76,7 +76,9 @@ export async function classifyLemmas(
 		서연의: Seoyeon's, inflection
 		서연: Seoyeon, name
 		같다: to be the same, other
-		를: object particle, particle
+		를: object, particle
+		마: imperative, particle
+		들: plural, particle
 		민준아: Minjoon, inflection
 		초콜릿: chocolate, cognate
 		보고서: report, other

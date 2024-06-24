@@ -10,8 +10,9 @@ export async function lemmatizeSentences(
 	{
 		language,
 		ignoreErrors,
-		retriesLeft = 1
-	}: { language: Language; retriesLeft?: number; ignoreErrors?: boolean }
+		retriesLeft = 1,
+		temperature = 0
+	}: { language: Language; retriesLeft?: number; ignoreErrors?: boolean; temperature?: number }
 ): Promise<string[][]> {
 	if (sentences.length === 0) {
 		return [];
@@ -39,7 +40,7 @@ export async function lemmatizeSentences(
 	return (
 		await Promise.all(
 			batches.map(async (batch) => {
-				return await lemmatizeBatch(batch, { language, ignoreErrors, retriesLeft });
+				return await lemmatizeBatch(batch, { language, ignoreErrors, retriesLeft, temperature });
 			})
 		)
 	).reduce<string[][]>((acc, val) => acc.concat(val), []);
@@ -50,8 +51,9 @@ async function lemmatizeBatch(
 	{
 		language,
 		ignoreErrors,
-		retriesLeft = 1
-	}: { language: Language; retriesLeft?: number; ignoreErrors?: boolean }
+		retriesLeft = 1,
+		temperature = 0
+	}: { language: Language; retriesLeft?: number; ignoreErrors?: boolean; temperature?: number }
 ): Promise<string[][]> {
 	if (sentences.length === 0) {
 		return [];
@@ -127,7 +129,7 @@ ${examples[language.code]}`
 			role: 'user',
 			content: sentences.map((sentence) => toWords(sentence, language).join(' ')).join('\n')
 		}),
-		temperature: 0,
+		temperature,
 		max_tokens: 1000,
 		logResponse: true
 	});
