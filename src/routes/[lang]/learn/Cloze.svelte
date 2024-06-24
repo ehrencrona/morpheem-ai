@@ -101,9 +101,11 @@
 		mnemonic = undefined;
 		inflections = [];
 
+		isLoadingSuggestions = true;
+
 		[mnemonic, inflections] = await Promise.all([
 			fetchMnemonic(word.id, false),
-			fetchInflections(word.id)
+			fetchInflections(word.id).finally(() => (isLoadingSuggestions = false))
 		]).catch((e) => {
 			logError(e);
 			return [undefined, []];
