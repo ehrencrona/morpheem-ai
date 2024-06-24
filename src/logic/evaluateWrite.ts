@@ -67,7 +67,8 @@ export async function evaluateWrite(
 	// await getSentenceWords(enteredSentence, enteredLemmas, language);
 
 	console.log(
-		`User was provided with the words ${newWords.map(({ word }) => word).join(', ')} in the correction "${feedback.correctedPart}".`
+		`User wrote "${enteredSentence}". Corrected to "${'correctedSentence' in feedback ? feedback.correctedSentence : '-'}".\n` +
+			`User was provided with the words ${newWords.map(({ word }) => word).join(', ')} in the correction "${feedback.correctedPart}".`
 	);
 
 	newWords = await filterClearlyKnownWords(newWords, userId!, language);
