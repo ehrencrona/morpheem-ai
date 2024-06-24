@@ -36,6 +36,7 @@
 				<div>
 					"<button
 						class="underline"
+						type="button"
 						on:click={() => {
 							skill = suggestion;
 							onGenerate(suggestion);
