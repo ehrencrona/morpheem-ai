@@ -4,28 +4,26 @@ import type { Actions } from './$types';
 import { db } from '../../db/client';
 import { lucia } from '../../db/lucia';
 import { LegacyScrypt } from 'lucia';
+import { INVALID_PASSWORD, INVALID_USERNAME, isPasswordValid, isUsernameValid } from './validation';
 
 export const actions: Actions = {
 	default: async (event) => {
 		const formData = await event.request.formData();
-		const username = formData.get('username');
+		let username = formData.get('username');
 		const password = formData.get('password');
 
-		if (
-			typeof username !== 'string' ||
-			username.length < 3 ||
-			username.length > 31 ||
-			!/^[a-z0-9_-]+$/.test(username)
-		) {
+		if (!isUsernameValid(username)) {
 			return fail(400, {
 				username,
-				message: 'Invalid username'
+				message: INVALID_USERNAME
 			});
 		}
-		if (typeof password !== 'string' || password.length < 6 || password.length > 255) {
+
+		username = username!.toString().toLowerCase();
+
+		if (!isPasswordValid(password)) {
 			return fail(400, {
-				username,
-				message: 'Invalid password'
+				message: INVALID_PASSWORD
 			});
 		}
 
