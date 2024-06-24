@@ -7,6 +7,10 @@ export async function fetchAggregateKnowledge(): ReturnType<typeof getAggregateK
 }
 
 export async function sendKnowledge(words: WordKnowledge[], userExercises?: ExerciseKnowledge[]) {
+	if (words.length == 0 && (!userExercises || userExercises.length == 0)) {
+		return;
+	}
+
 	return apiCall('/api/knowledge', {
 		method: 'POST',
 		headers: {

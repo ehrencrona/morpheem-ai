@@ -14,7 +14,7 @@ export function addKnowledge(
 	}[],
 	language: Language
 ) {
-	if (values.length === 0) {
+	if (values.length == 0) {
 		return;
 	}
 
