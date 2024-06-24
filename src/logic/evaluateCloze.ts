@@ -1,4 +1,5 @@
 import { evaluateCloze as evaluateClozeAi } from '../ai/evaluateCloze';
+import { getForms } from '../db/lemmas';
 import * as DB from '../db/types';
 import { getWordByLemma } from '../db/words';
 import { standardize } from './isomorphic/standardize';
@@ -28,7 +29,7 @@ export async function evaluateCloze(
 		language
 	});
 
-	const { cloze } = opts;
+	const { cloze, correctAnswer } = opts;
 
 	let alternateWord: (DB.Word & { conjugated: string }) | undefined;
 
@@ -37,6 +38,16 @@ export async function evaluateCloze(
 	);
 
 	let userAnswer = standardize(corrected || opts.userAnswer);
+
+	// we did ask because the answer was unexpected, so it can't be correct.
+	// therefore, let's say it's alternate.
+	if (outcome == 'correct' && corrected != correctAnswer.conjugated) {
+		console.warn(
+			`Answer "${corrected}" evaluated as correct but it is different from correct answer "${correctAnswer.conjugated}".`
+		);
+
+		outcome = 'alternate';
+	}
 
 	if (outcome == 'alternate' || outcome == 'alternateWrongForm') {
 		const sentence = cloze.replace(/_+/, userAnswer);
