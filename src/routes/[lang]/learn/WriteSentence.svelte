@@ -20,6 +20,7 @@
 	import Tutorial from '../../../components/Tutorial.svelte';
 	import { logError } from '$lib/logError';
 	import type { ExerciseSource } from '../../../db/types';
+	import { CodedError } from '../../../CodedError';
 
 	export let word: { id: number; word: string; level: number } | undefined;
 	export let onNext: () => Promise<any>;
@@ -89,7 +90,7 @@
 		entered = entered.trim();
 
 		if (!entered) {
-			throw new Error('Please enter a sentence');
+			throw new CodedError('Please enter a sentence', 'sentenceMissing');
 		}
 
 		feedback = await fetchWritingFeedback(

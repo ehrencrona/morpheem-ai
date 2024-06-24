@@ -13,6 +13,7 @@ export function logError(error: any) {
 
 	let isWorthLogging =
 		error.message != 'Failed to fetch' &&
+		error.code != 'sentenceMissing' &&
 		typeof document !== 'undefined' &&
 		document.location.hostname !== 'localhost';
 
