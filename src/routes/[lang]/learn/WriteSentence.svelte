@@ -268,7 +268,8 @@
 		{:else}
 			{#if !!feedback.correctedPart}
 				<div class="text-xl font-bold mb-6 text-balance">
-					{enteredParts[0]}<span class="line-through">{enteredParts[1]}</span>{enteredParts[2]}
+					{enteredParts[0]}<span class="line-through text-red">{enteredParts[1]}</span
+					>{enteredParts[2]}
 				</div>
 			{/if}
 
@@ -277,7 +278,7 @@
 			</div>
 
 			<div class="text-xl font-bold mb-6 text-balance">
-				{correctParts[0]}<span class="text-red">{correctParts[1]}</span>{correctParts[2]}
+				{correctParts[0]}<span class="text-green">{correctParts[1]}</span>{correctParts[2]}
 			</div>
 		{/if}
 
@@ -286,7 +287,7 @@
 				{#each unknownWords as word}
 					<WordCard
 						{word}
-						onRemove={() => (unknownWords = unknownWords.filter((word) => word.id != word.id))}
+						onRemove={() => (unknownWords = unknownWords.filter(({ id }) => id != word.id))}
 					/>
 				{/each}
 			</div>
