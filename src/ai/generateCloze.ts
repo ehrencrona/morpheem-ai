@@ -21,7 +21,7 @@ export function generateCloze(
       Return your conclusion in correctness as a string, then as a boolean in isCorrect.`
 		}),
 		model: 'gpt-4o',
-		temperature: 0.5,
+		temperature: 1,
 		schema: z.object({
 			exercises: z.array(
 				z.object({
