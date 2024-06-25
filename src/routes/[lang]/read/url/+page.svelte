@@ -101,13 +101,15 @@
 
 	<div class="text-xs mb-4">Paragraph {atParagraph + 1} / {paragraphs.length}</div>
 
-	<div class="grid grid-flow-row{translation ? ` md:grid-cols-2`:''} items-start gap-4">
+	<div class="grid grid-flow-row{translation ? ` md:grid-cols-2` : ''} items-start gap-4">
 		<div class="text-xl mb-4 mt-2 font-medium">
 			{#each words as word, index}{#if !isSeparator(word)}<span
 						style="cursor: pointer"
 						role="button"
 						tabindex={index}
-						class="hover:underline decoration-yellow"
+						class={revealed.find((r) => r.inflected == word)
+							? 'border-b-2 border-blue-3 border-dotted'
+							: 'hover:underline decoration-yellow'}
 						on:click={() => onClickedWord(word)}>{word}</span
 					>{:else}{word}{/if}{/each}
 		</div>

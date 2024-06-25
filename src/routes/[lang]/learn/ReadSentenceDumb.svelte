@@ -65,7 +65,9 @@
 				style="cursor: pointer"
 				role="button"
 				tabindex={index}
-				class="hover:underline decoration-yellow"
+				class={revealed.find((r) => r.inflected == word)
+					? 'border-b-2 border-blue-3 border-dotted'
+					: 'hover:underline decoration-yellow'}
 				on:click={() => onClickedWord(word)}>{word}</span
 			>{:else}{word}{/if}{/each}
 </div>

@@ -152,7 +152,9 @@
 						style="cursor: pointer"
 						role="button"
 						tabindex={index}
-						class="hover:underline decoration-yellow"
+						class={revealed.find((r) => r.inflected == wordString)
+							? 'border-b-2 border-blue-3 border-dotted'
+							: 'hover:underline decoration-yellow'}
 						on:click={() => onClickedWord(wordString)}>{wordString}</span
 					>{/if}{:else}{wordString}{/if}{/each}
 	</div>
