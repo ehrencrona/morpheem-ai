@@ -13,6 +13,7 @@
 	import { lookupUnknownWord } from '../../api/word/unknown/client';
 	import WordCard from '../../learn/WordCard.svelte';
 	import type { PageData } from './$types';
+	import { trackActivity } from '../../learn/trackActivity';
 
 	export let data: PageData;
 
@@ -95,53 +96,57 @@
 	}
 </script>
 
-<h1 class="text-4xl mb-8 mt-4 leading-tight font-bold">{data.title}</h1>
+<main use:trackActivity>
+	<h1 class="text-4xl mb-8 mt-4 leading-tight font-bold">{data.title}</h1>
 
-<div class="text-xs mb-4">Paragraph {atParagraph + 1} / {paragraphs.length}</div>
+	<div class="text-xs mb-4">Paragraph {atParagraph + 1} / {paragraphs.length}</div>
 
-<div class="text-xl mb-4 mt-2 font-medium">
-	{#each words as word, index}{#if !isSeparator(word)}<span
-				style="cursor: pointer"
-				role="button"
-				tabindex={index}
-				class="hover:underline decoration-yellow"
-				on:click={() => onClickedWord(word)}>{word}</span
-			>{:else}{word}{/if}{/each}
-</div>
+	<div class="grid grid-flow-row{translation ? ` md:grid-cols-2`:''} items-start gap-4">
+		<div class="text-xl mb-4 mt-2 font-medium">
+			{#each words as word, index}{#if !isSeparator(word)}<span
+						style="cursor: pointer"
+						role="button"
+						tabindex={index}
+						class="hover:underline decoration-yellow"
+						on:click={() => onClickedWord(word)}>{word}</span
+					>{:else}{word}{/if}{/each}
+		</div>
 
-{#if translation}
-	<div class="text-sm mb-6 mt-8" in:slide>
-		<div class="text-xs font-lato">The sentence means</div>
-		<div class="text-base">"{translation.translation}"</div>
+		{#if translation}
+			<div class="text-sm mb-6 mt-2" in:slide>
+				<div class="text-xs font-lato block md:hidden mb-1">The sentence means</div>
+				<div class="text-base">"{translation.translation}"</div>
 
-		{#if translation.transliteration}
-			<div class="text-xs font-lato">
-				{translation.transliteration}
+				{#if translation.transliteration}
+					<div class="text-xs font-lato">
+						{translation.transliteration}
+					</div>
+				{/if}
 			</div>
 		{/if}
 	</div>
-{/if}
 
-<div class="grid grid-cols-1 md:grid-cols-2 w-full gap-x-4">
-	{#each revealed as word (word.id)}
-		<WordCard {word} onRemove={() => onRemoveUnknown(word.word)} />
-	{/each}
+	<div class="grid grid-cols-1 md:grid-cols-2 w-full gap-x-4">
+		{#each revealed as word (word.id)}
+			<WordCard {word} onRemove={() => onRemoveUnknown(word.word)} />
+		{/each}
 
-	{#if isLookingUpUnknown}
-		<div class="flex justify-center items-center">
-			<Spinner />
-		</div>
-	{/if}
-</div>
+		{#if isLookingUpUnknown}
+			<div class="flex justify-center items-center">
+				<Spinner />
+			</div>
+		{/if}
+	</div>
 
-<div class="flex flex-wrap gap-4 mt-4">
-	{#if atParagraph < paragraphs.length - 1}
-		<SpinnerButton onClick={nextParagraph}>Next</SpinnerButton>
-	{:else}
-		<SpinnerButton onClick={done}>Done reading</SpinnerButton>
-	{/if}
-	<SpinnerButton onClick={translate} type="secondary">Translate</SpinnerButton>
-	<SpinnerButton onClick={simplify} type="secondary">Simplify</SpinnerButton>
-</div>
+	<div class="flex flex-wrap gap-4 mt-4">
+		{#if atParagraph < paragraphs.length - 1}
+			<SpinnerButton onClick={nextParagraph}>Next</SpinnerButton>
+		{:else}
+			<SpinnerButton onClick={done}>Done reading</SpinnerButton>
+		{/if}
+		<SpinnerButton onClick={translate} type="secondary">Translate</SpinnerButton>
+		<SpinnerButton onClick={simplify} type="secondary">Simplify</SpinnerButton>
+	</div>
 
-<ErrorMessage />
+	<ErrorMessage />
+</main>
