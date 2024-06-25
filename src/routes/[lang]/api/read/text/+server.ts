@@ -5,6 +5,7 @@ import { KNOWLEDGE_TYPE_READ } from '../../../../../db/knowledgeTypes';
 import { getMultipleWordsByLemmas } from '../../../../../db/words';
 import { lemmatizeSentences } from '../../../../../logic/lemmatize';
 import { toSentences } from '../../../../../logic/toSentences';
+import { updateKnowledge } from '../../../../../logic/updateKnowledge';
 
 const postSchema = z.object({
 	text: z.string(),
@@ -42,7 +43,7 @@ export const POST: ServerLoad = async ({ request, locals: { language, userId } }
 				}))
 		);
 
-	await addKnowledge(knowledge, language);
+	await updateKnowledge(knowledge, language);
 
 	console.log(
 		`Added ${knowledge.length} words to knowledge for user ${userId} in ${language.name}: ${words
