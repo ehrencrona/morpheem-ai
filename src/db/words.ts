@@ -4,6 +4,7 @@ import { Language, SentenceWord } from '../logic/types';
 import { db } from './client';
 import type * as DB from './types';
 import { CodedError } from '../CodedError';
+import { filterUndefineds } from '$lib/filterUndefineds';
 
 export async function addWord(
 	lemma: string,
@@ -79,6 +80,7 @@ export async function addWord(
 	return toWord(result!);
 }
 
+/** No guarantee as to all words existing! */
 export async function getMultipleWordsByLemmas(
 	lemmas: string[],
 	language: Language
@@ -87,7 +89,7 @@ export async function getMultipleWordsByLemmas(
 		return [];
 	}
 
-	return (
+	const words = (
 		await db
 			.withSchema(language.schema)
 			.selectFrom('words')
@@ -95,6 +97,14 @@ export async function getMultipleWordsByLemmas(
 			.where('word', 'in', lemmas)
 			.execute()
 	).map(toWord);
+
+	const missingWords = lemmas.filter((lemma) => !words.some((word) => word.word == lemma));
+
+	if (missingWords.length > 0) {
+		console.warn(`Missing words during getMultipleWordsByLemmas: ${missingWords.join(', ')}`);
+	}
+
+	return filterUndefineds(lemmas.map((lemma) => words.find((word) => word.word == lemma)));
 }
 
 export async function getMultipleWordsByIds(
@@ -170,7 +180,7 @@ export async function getWordByLemma(lemma: string, language: Language): Promise
 		.executeTakeFirst();
 
 	if (!word) {
-		throw new Error(`Word with lemma ${lemma} not found`);
+		throw new CodedError(`Word with lemma ${lemma} not found`, 'noSuchWord');
 	}
 
 	return toWord(word);

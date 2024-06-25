@@ -7,6 +7,8 @@ import { getWordByLemma, getWordsOfSentence } from '../../../../../db/words';
 import { getWordInSentence } from '../../../../../logic/getWordInSentence';
 import { addEnglishToSentence, translateWordInContext } from '../../../../../logic/translate';
 import { logError } from '$lib/logError';
+import { CodedError } from '../../../../../CodedError';
+import { addWord } from '../../../../../logic/addWord';
 
 export type PostSchema = z.infer<typeof postSchema>;
 
@@ -48,7 +50,15 @@ export const POST: ServerLoad = async ({ request, locals }) => {
 	}
 
 	if (!word) {
-		word = await getWordByLemma(wordString, language);
+		try {
+			word = await getWordByLemma(wordString, language);
+		} catch (e) {
+			if ((e as CodedError).code == 'noSuchWord') {
+				word = await addWord(wordString, { language });
+			} else {
+				throw e;
+			}
+		}
 	}
 
 	const { english, form, transliteration } = await translateWordInContext(word, {

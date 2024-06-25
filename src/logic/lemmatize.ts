@@ -21,19 +21,17 @@ export async function lemmatizeSentences(
 
 			const allLemmas = await getLemmasOfWords(wordStrings, language);
 
-			const lemmas = await Promise.all(
-				wordStrings.map(async (wordString, i) => {
-					const lemmas = allLemmas[i];
+			const lemmas = wordStrings.map((wordString, i) => {
+				const lemmas = allLemmas[i];
 
-					if (lemmas.length > 1) {
-						console.warn(
-							`Ambiguous lemmas for ${wordString}: ${lemmas.map(({ word }) => word).join(' / ')}`
-						);
-					} else if (lemmas.length == 1) {
-						return lemmas[0].word;
-					}
-				})
-			);
+				if (lemmas.length > 1) {
+					console.warn(
+						`Ambiguous lemmas for ${wordString}: ${lemmas.map(({ word }) => word).join(' / ')}`
+					);
+				} else if (lemmas.length == 1) {
+					return lemmas[0].word;
+				}
+			});
 
 			if (lemmas.includes(undefined)) {
 				return undefined;

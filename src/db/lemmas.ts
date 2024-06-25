@@ -65,6 +65,7 @@ export async function getInflections(wordId: number, language: Language) {
 	).map((row) => row.word);
 }
 
+/** Returns an array with possible lemmas for each word. The array for a word may have length zero */
 export async function getLemmasOfWords(words: string[], language: Language): Promise<DB.Word[][]> {
 	if (words.length == 0) {
 		return [];
@@ -84,7 +85,7 @@ export async function getLemmasOfWords(words: string[], language: Language): Pro
 
 	return words
 		.map((word) => rows.filter((row) => row.inflected == word.toLowerCase()))
-		.map((ws) => ws.map(toWord));
+		.map((rows) => rows.map(toWord));
 }
 
 export function getLemmaIdsOfWord(word: string, language: Language) {

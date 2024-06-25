@@ -11,7 +11,6 @@
 	import { fetchAskMeAnything } from '../api/write/ama/client';
 	import Ama from './AMA.svelte';
 	import WordCard from './WordCard.svelte';
-	import type { Translation } from '../api/sentences/[sentence]/english/client';
 
 	export let sentence: DB.Sentence;
 	export let word: DB.Word | undefined;

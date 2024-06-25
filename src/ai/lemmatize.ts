@@ -60,11 +60,11 @@ async function lemmatizeBatch(
 	}
 
 	const examples = {
-		pl: `"to są przykłady" 
+		pl: `"to są gorsze przykłady" 
 
 		becomes 
 							
-		to (to) są (być) przykłady (przykład)`,
+		to (to) są (być) gorsze (zły) przykłady (przykład)`,
 		fr: `"y a-t-il des chaises?"
 		
 		becomes

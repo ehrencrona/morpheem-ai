@@ -94,8 +94,8 @@ export async function classifyLemmas(
 			{
 				role: 'system',
 				content:
-					`I want to find which ${language.name} words have ${cognateTo} cognates. ` +
-					`For each entered word, print it and the most similar sounding ${cognateTo} translation.` +
+					// `I want to find which  words have ${cognateTo} cognates. ` +
+					`For each entered ${language.name} word, print it and the most similar sounding ${cognateTo} translation.` +
 					`Then, classify the word:\n` +
 					` - if the word is an inflection different from the dictionary form, print "inflection".\n` +
 					` - if the word is a name, print "name".\n` +
