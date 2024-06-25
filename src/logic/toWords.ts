@@ -1,12 +1,21 @@
+import { boolean } from 'zod';
 import { Language } from './types';
 
-export function toWords(sentence: string, language: Language) {
+export function toWords(
+	sentence: string,
+	language: Language,
+	{ doLowerCase = true }: { doLowerCase?: boolean } = {}
+) {
+	function toLowerCase(word: string) {
+		return doLowerCase ? word.toLowerCase() : word;
+	}
+
 	if (language.code == 'pl') {
 		return sentence
 			.replace(/[^a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻ]/g, ' ')
 			.split(' ')
 			.filter((word) => word.length > 0)
-			.map((word) => word.toLowerCase());
+			.map(toLowerCase);
 	} else if (language.code == 'fr') {
 		// Define regex pattern for tokenization including Unicode characters
 		const pattern = /[\p{L}]+(?:-[\p{L}]+)?(?:'[\p{L}]+)?/gu;
@@ -26,14 +35,14 @@ export function toWords(sentence: string, language: Language) {
 			}
 		});
 
-		return splitTokens.map((t) => t.toLowerCase());
+		return splitTokens.map(toLowerCase);
 	} else if (language.code == 'es') {
 		return sentence
 			.replace(/[^a-zA-ZáéíóúüñÁÉÍÓÚÜÑ-]/g, ' ')
 			.split(' ')
 			.filter((word) => word.length > 0)
 			.filter((word) => word != '-')
-			.map((word) => word.toLowerCase()); // Convert to lowercase
+			.map(toLowerCase);
 	} else if (language.code == 'ko') {
 		return sentence
 			.replace(/[^가-힣a-zA-Z]/gu, ' ')

@@ -42,11 +42,7 @@ async function getHardWordsInSentences(
 		(
 			await Promise.all(
 				sentences.map(async (sentence) => {
-					let wordStrings = toWords(sentence, language);
-
-					if (wordStrings.length == 0) {
-						return [];
-					}
+					let wordStrings = toWords(sentence, language, { doLowerCase: false });
 
 					// skip names
 					wordStrings = wordStrings.filter((word) => !isCapitalized(word));
