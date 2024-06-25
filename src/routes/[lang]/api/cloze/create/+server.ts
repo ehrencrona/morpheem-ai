@@ -36,7 +36,5 @@ export const PUT: ServerLoad = async ({ request, locals: { userId, language } })
 
 	const query = storeSchema.parse(await request.json());
 
-	await storeCloze(query, { userId, language });
-
-	return json({});
+	return json(await storeCloze(query, { userId, language }));
 };

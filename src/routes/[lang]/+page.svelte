@@ -373,9 +373,7 @@
 				<a href={`/${languageCode}/home`} class="underline text-red"> History </a>
 
 				{#if data.user == 'ehrencrona' && current.wordId}
-					<a href={`/${languageCode}/words/${current.wordId}`} class="underline text-red">
-						Word
-					</a>
+					<a href={`/${languageCode}/words/${current.wordId}`} class="underline text-red"> Word </a>
 				{/if}
 
 				<a href="mailto:andreas.ehrencrona@velik.it" class="underline text-red"> Contact </a>
@@ -470,7 +468,7 @@
 	{/if}
 
 	{#if isAddExercisesOpen}
-		<AddExercises onCancel={async () => (isAddExercisesOpen = false)} />
+		<AddExercises onCancel={async () => (isAddExercisesOpen = false)} {sendKnowledge} />
 	{/if}
 
 	<ErrorMessage />

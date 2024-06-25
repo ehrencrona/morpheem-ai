@@ -3,15 +3,17 @@
 	import { sendClozes, sendGenerateCloze } from '../api/cloze/create/client';
 	import AddExercisesDumb from './AddExercisesDumb.svelte';
 	import { logError } from '$lib/logError';
+	import type { SendKnowledge } from '$lib/SendKnowledge';
 
 	const noOfExercises = 6;
 
 	export let onCancel: () => Promise<any>;
+	export let sendKnowledge: SendKnowledge;
 
 	let clozes: import('../../../logic/generateCloze').Cloze[] = [];
 
 	const hardcodedSuggestions = [`learn words describing body parts`, `use the future tense`];
-	
+
 	let suggestions = hardcodedSuggestions;
 
 	onMount(() => {
@@ -36,7 +38,7 @@
 
 			history = dedup((history || []).concat(skill));
 
-			suggestions = [...hardcodedSuggestions, ...history]
+			suggestions = [...hardcodedSuggestions, ...history];
 
 			localStorage.setItem('exercisesAdded', JSON.stringify(history.slice(-6)));
 		} catch (e) {
@@ -49,7 +51,9 @@
 	};
 
 	const onStore = async () => {
-		await sendClozes(clozes);
+		const knowledge = await sendClozes(clozes);
+
+		sendKnowledge([], knowledge);
 
 		await onCancel();
 	};

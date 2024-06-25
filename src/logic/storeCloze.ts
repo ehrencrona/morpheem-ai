@@ -5,7 +5,7 @@ import type { Cloze } from './generateCloze';
 import { getWordInSentence } from './getWordInSentence';
 import { didNotKnowFirst } from './isomorphic/knowledge';
 import { lemmatizeSentences } from './lemmatize';
-import { ExerciseType, Language } from './types';
+import { ExerciseKnowledge, ExerciseType, Language } from './types';
 
 export async function storeCloze(
 	clozes: Cloze[],
@@ -14,6 +14,8 @@ export async function storeCloze(
 	const sentenceStrings = clozes.map(({ exercise, answer }) => exercise.replace('___', answer));
 
 	const lemmas = await lemmatizeSentences(sentenceStrings, { language });
+
+	let knowledge: ExerciseKnowledge[] = [];
 
 	await parallelize(
 		clozes.map(({ exercise, answer }, i) => async () => {
@@ -39,7 +41,14 @@ export async function storeCloze(
 			await upsertUserExercise(userExercise, userId, language);
 
 			console.log(`Stored cloze "${exercise}" as sentence ${sentence.id} with word ${word.id}`);
+
+			knowledge.push({
+				...userExercise,
+				isKnown: false
+			});
 		}),
 		3
 	);
+
+	return knowledge;
 }

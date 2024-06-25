@@ -27,8 +27,6 @@ export async function upsertUserExercise(
 			})
 			.execute();
 	} catch (e: any) {
-		console.log('d', e.detail);
-
 		// constraint violation. we can't do oc here because there's a partial index to handle null values
 		// and I can't seem to target that one
 		if (e.detail.includes('already exists')) {
