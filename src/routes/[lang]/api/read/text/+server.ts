@@ -7,7 +7,8 @@ import { lemmatizeSentences } from '../../../../../logic/lemmatize';
 import { toSentences } from '../../../../../logic/toSentences';
 
 const postSchema = z.object({
-	text: z.string()
+	text: z.string(),
+	unknownWordIds: z.array(z.number())
 });
 
 export const POST: ServerLoad = async ({ request, locals: { language, userId } }) => {
@@ -15,7 +16,7 @@ export const POST: ServerLoad = async ({ request, locals: { language, userId } }
 		return error(401, 'Unauthorized');
 	}
 
-	const { text } = postSchema.parse(await request.json());
+	const { text, unknownWordIds } = postSchema.parse(await request.json());
 
 	const sentences = toSentences(text);
 
@@ -24,12 +25,23 @@ export const POST: ServerLoad = async ({ request, locals: { language, userId } }
 	const words = await getMultipleWordsByLemmas(lemmas, language);
 
 	await addKnowledge(
-		words.map((word) => ({
-			wordId: word.id,
-			userId,
-			type: KNOWLEDGE_TYPE_READ,
-			isKnown: true
-		})),
+		words
+			.map((word) => ({
+				wordId: word.id,
+				userId,
+				type: KNOWLEDGE_TYPE_READ,
+				isKnown: !unknownWordIds.includes(word.id)
+			}))
+			.concat(
+				unknownWordIds
+					.filter((id) => !words.some((word) => word.id === id))
+					.map((id) => ({
+						wordId: id,
+						userId,
+						type: KNOWLEDGE_TYPE_READ,
+						isKnown: false
+					}))
+			),
 		language
 	);
 

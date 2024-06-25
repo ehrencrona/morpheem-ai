@@ -35,7 +35,10 @@
 		if (timeSpent > words.length / 2 / wordsPerSecond) {
 			console.warn(`User spent ${timeSpent} seconds reading ${words.length} words.`);
 
-			sendReadText(paragraphs[atParagraph]).catch(logError);
+			sendReadText(
+				paragraphs[atParagraph],
+				revealed.map(({ id }) => id)
+			).catch(logError);
 		} else {
 			console.warn(
 				`User spent only ${timeSpent} seconds reading ${words.length} words. Assuming skipped.`
@@ -94,7 +97,7 @@
 
 <h1 class="text-4xl mb-8 mt-4 leading-tight font-bold">{data.title}</h1>
 
-<div class="text-xs mb-4">Paragraph {atParagraph+1} / {paragraphs.length}</div>
+<div class="text-xs mb-4">Paragraph {atParagraph + 1} / {paragraphs.length}</div>
 
 <div class="text-xl mb-4 mt-2 font-medium">
 	{#each words as word, index}{#if !isSeparator(word)}<span
