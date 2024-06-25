@@ -24,29 +24,30 @@ export const POST: ServerLoad = async ({ request, locals: { language, userId } }
 
 	const words = await getMultipleWordsByLemmas(lemmas, language);
 
-	await addKnowledge(
-		words
-			.map((word) => ({
-				wordId: word.id,
-				userId,
-				type: KNOWLEDGE_TYPE_READ,
-				isKnown: !unknownWordIds.includes(word.id)
-			}))
-			.concat(
-				unknownWordIds
-					.filter((id) => !words.some((word) => word.id === id))
-					.map((id) => ({
-						wordId: id,
-						userId,
-						type: KNOWLEDGE_TYPE_READ,
-						isKnown: false
-					}))
-			),
-		language
-	);
+	const knowledge = words
+		.map((word) => ({
+			wordId: word.id,
+			userId,
+			type: KNOWLEDGE_TYPE_READ,
+			isKnown: !unknownWordIds.includes(word.id)
+		}))
+		.concat(
+			unknownWordIds
+				.filter((id) => !words.some((word) => word.id === id))
+				.map((id) => ({
+					wordId: id,
+					userId,
+					type: KNOWLEDGE_TYPE_READ,
+					isKnown: false
+				}))
+		);
+
+	await addKnowledge(knowledge, language);
 
 	console.log(
-		`Added ${words.length} words to knowledge for user ${userId} in ${language.name}: ${words.map((word) => word.word).join(', ')}`
+		`Added ${knowledge.length} words to knowledge for user ${userId} in ${language.name}: ${words
+			.map((word) => word.word + (unknownWordIds.includes(word.id) ? ' (unknown)' : ''))
+			.join(', ')}`
 	);
 
 	return json({});
