@@ -128,7 +128,9 @@
 	{/each}
 
 	{#if isLookingUpUnknown}
-		<Spinner />
+		<div class="flex justify-center items-center">
+			<Spinner />
+		</div>
 	{/if}
 </div>
 

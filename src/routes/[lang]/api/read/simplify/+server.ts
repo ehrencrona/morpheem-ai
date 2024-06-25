@@ -42,11 +42,14 @@ async function getHardWordsInSentences(
 		(
 			await Promise.all(
 				sentences.map(async (sentence) => {
-					const wordStrings = toWords(sentence, language);
+					let wordStrings = toWords(sentence, language);
 
 					if (wordStrings.length == 0) {
 						return [];
 					}
+
+					// skip names
+					wordStrings = wordStrings.filter((word) => !isCapitalized(word));
 
 					const words = await getLemmasOfWords(wordStrings, language);
 
@@ -74,7 +77,11 @@ async function getHardWordsInSentences(
 		}
 	});
 
-	return hardWords;
+	return dedupStrings(hardWords);
+}
+
+function isCapitalized(word: string) {
+	return word[0] == word[0].toUpperCase();
 }
 
 function dedup(words: DB.Word[]) {
@@ -86,6 +93,20 @@ function dedup(words: DB.Word[]) {
 		}
 
 		wordIds.add(word.id);
+
+		return true;
+	});
+}
+
+function dedupStrings(words: string[]) {
+	const wordIds = new Set<string>();
+
+	return words.filter((word) => {
+		if (wordIds.has(word)) {
+			return false;
+		}
+
+		wordIds.add(word);
 
 		return true;
 	});
