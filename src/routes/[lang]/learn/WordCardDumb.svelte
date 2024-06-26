@@ -77,10 +77,6 @@
 			<div class="text-xs font-lato mt-2">{transliteration}</div>
 		{/if}
 
-		{#if transliteration}
-			<div class="text-xs font-lato mt-2">{transliteration}</div>
-		{/if}
-
 		<div class="text-xs font-lato mt-2">
 			{#if mnemonic}
 				<p class="text-balance leading-4">

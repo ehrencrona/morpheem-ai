@@ -90,7 +90,8 @@ export async function translateSentences(
 			translations: z.array(z.string()),
 			transliterations: z.array(z.string()).optional()
 		}),
-		model: 'gpt-3.5-turbo'
+		model: 'gpt-3.5-turbo',
+		logResponse: true
 	});
 
 	if (transliterations && transliterations.length !== sentences.length) {
