@@ -48,7 +48,11 @@
 			console.warn(`User spent ${timeSpent} seconds reading ${wordCount} words.`);
 
 			sendReadText(
-				pages[atPage].reduce((acc, { text }) => acc + ' ' + text, '').trim(),
+				(
+					(atPage == 0 ? data.title : '') +
+					' ' +
+					pages[atPage].reduce((acc, { text }) => acc + ' ' + text, '')
+				).trim(),
 				revealed.map(({ id }) => id)
 			).catch(logError);
 		} else {
@@ -225,7 +229,9 @@
 				question,
 				sentence: pages[atPage].reduce((acc, { text }) => acc + ' ' + text, '').trim(),
 				revealed,
-				translation: translatedParagraphs?.translation
+				translation: translatedParagraphs
+					?.reduce((acc, { translation }) => acc + ' ' + translation, '')
+					.trim()
 			})}
 		wordId={atPage}
 		suggestions={[
