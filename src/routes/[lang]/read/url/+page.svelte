@@ -99,9 +99,12 @@
 </script>
 
 <main use:trackActivity>
-	<h1 class="text-4xl mb-8 mt-4 leading-tight font-bold">{data.title}</h1>
+	<h1 class="text-4xl mb-4 mt-4 leading-tight font-bold">{data.title}</h1>
 
-	<div class="text-xs mb-4">Paragraph {atParagraph + 1} / {paragraphs.length}</div>
+	<div class="w-full h-[3px] bg-blue-2 mb-8">
+		<div class="h-full bg-blue-4" style={`width: ${
+		Math.round(100*(atParagraph+1) / paragraphs.length) }%`}></div>
+	</div>
 
 	<div class="grid grid-flow-row{translation ? ` md:grid-cols-2` : ''} items-start gap-4">
 		<div class="text-xl mb-4 mt-2 font-medium">
@@ -148,7 +151,9 @@
 		{:else}
 			<SpinnerButton onClick={done}>Done reading</SpinnerButton>
 		{/if}
-		<SpinnerButton onClick={translate} type="secondary">Translate</SpinnerButton>
+		{#if !translation}
+			<SpinnerButton onClick={translate} type="secondary">Translate</SpinnerButton>
+		{/if}
 		<SpinnerButton onClick={simplify} type="secondary">Simplify</SpinnerButton>
 	</div>
 
