@@ -10,6 +10,8 @@ export const load: ServerLoad = async ({ locals: { language }, url }) => {
 		return error(400, 'Bad Request');
 	}
 
+	const atPage = (parseInt(url.searchParams.get('page') || `1`) || 1) - 1;
+
 	const article = await extract(articleUrl);
 
 	if (!article) {
@@ -74,6 +76,7 @@ export const load: ServerLoad = async ({ locals: { language }, url }) => {
 		articleUrl,
 		title: article.title,
 		language,
-		pages
+		pages,
+		atPage
 	};
 };

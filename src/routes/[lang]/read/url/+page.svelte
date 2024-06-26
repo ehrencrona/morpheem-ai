@@ -20,8 +20,6 @@
 
 	export let data: PageData;
 
-	$: console.log(data.pages);
-
 	let isLookingUpUnknown = false;
 	let showedParagraphAt = Date.now();
 
@@ -32,7 +30,7 @@
 	$: pages = data.pages;
 	$: language = data.language;
 
-	let atPage = 0;
+	let atPage = data.atPage;
 
 	$: page = pages[atPage];
 	let revealed: UnknownWordResponse[] = [];
@@ -65,11 +63,16 @@
 		translatedParagraphs = undefined;
 	}
 
-	async function nextParagraph() {
+	async function nextPage() {
 		onParagraphDone();
 
 		atPage = atPage === pages.length - 1 ? 0 : atPage + 1;
 		revealed = [];
+
+		const searchParams = new URLSearchParams(location.search);
+		searchParams.set('page', atPage + 1 + '');
+
+		history.pushState(null, '', `?${searchParams.toString()}`);
 	}
 
 	async function done() {
@@ -210,7 +213,7 @@
 
 	<div class="flex flex-wrap gap-4 mt-4">
 		{#if atPage < pages.length - 1}
-			<SpinnerButton onClick={nextParagraph}>Next</SpinnerButton>
+			<SpinnerButton onClick={nextPage}>Next</SpinnerButton>
 		{:else}
 			<SpinnerButton onClick={done}>Done reading</SpinnerButton>
 		{/if}
