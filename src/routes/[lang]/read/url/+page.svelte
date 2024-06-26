@@ -11,9 +11,11 @@
 	import { fetchTranslation } from '../../api/read/translate/client';
 	import type { UnknownWordResponse } from '../../api/word/unknown/+server';
 	import { lookupUnknownWord } from '../../api/word/unknown/client';
+	import Ama from '../../learn/AMA.svelte';
 	import WordCard from '../../learn/WordCard.svelte';
-	import type { PageData } from './$types';
 	import { trackActivity } from '../../learn/trackActivity';
+	import type { PageData } from './$types';
+	import { fetchAskMeAnything } from '../../api/write/ama/client';
 
 	export let data: PageData;
 
@@ -151,4 +153,23 @@
 	</div>
 
 	<ErrorMessage />
+
+	<Ama
+		ask={(question) =>
+			fetchAskMeAnything({
+				exercise: 'read',
+				question,
+				sentence: paragraphs[atParagraph],
+				revealed,
+				translation: translation?.translation
+			})}
+		wordId={atParagraph}
+		suggestions={[
+			'Summarize the text',
+			'What does the word "..." mean in this context?',
+			...(revealed.length
+				? ['Etymology?', 'Other meanings?', 'Similar-sounding words?', 'Synonyms?', 'Examples?']
+				: [])
+		]}
+	/>
 </main>
