@@ -339,7 +339,7 @@
 						wordId: sentenceWord.id,
 						sentenceId: sentence.id,
 						isKnown: isClozeWord
-							? (outcome == 'correct' || outcome == 'alternate') && !showChars
+							? (outcome == 'correct' || outcome == 'alternate' || outcome == 'typo') && !showChars
 							: !revealed.find(({ id }) => id === sentenceWord.id),
 						studiedWordId: word.id,
 						type: isClozeWord ? KNOWLEDGE_TYPE_CLOZE : KNOWLEDGE_TYPE_READ,
