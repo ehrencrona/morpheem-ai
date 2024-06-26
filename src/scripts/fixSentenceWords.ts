@@ -1,12 +1,11 @@
 import { parallelize } from '$lib/parallelize';
 import { CodedError } from '../CodedError';
-import { FRENCH, KOREAN } from '../constants';
+import { KOREAN } from '../constants';
 import { db } from '../db/client';
 import { getLemmasOfWords } from '../db/lemmas';
 import { deleteSentence, getSentences } from '../db/sentences';
 import { getWordsOfSentences } from '../db/words';
 import { getSentenceWords } from '../logic/addSentence';
-import { lemmatizeSentences } from '../logic/lemmatize';
 import { toWords } from '../logic/toWords';
 
 const language = KOREAN;

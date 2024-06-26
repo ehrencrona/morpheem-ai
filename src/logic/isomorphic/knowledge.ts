@@ -151,6 +151,10 @@ export function dateToTime(date: Date) {
 	return Math.round((date.getTime() - startOfTime) / timeScaling);
 }
 
+export function timeToDate(time: number) {
+	return new Date(time * timeScaling + startOfTime);
+}
+
 export function now() {
 	return dateToTime(new Date());
 }

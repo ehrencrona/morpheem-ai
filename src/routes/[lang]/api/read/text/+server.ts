@@ -1,6 +1,5 @@
 import { ServerLoad, error, json } from '@sveltejs/kit';
 import { z } from 'zod';
-import { addKnowledge } from '../../../../../db/knowledge';
 import { KNOWLEDGE_TYPE_READ } from '../../../../../db/knowledgeTypes';
 import { getMultipleWordsByLemmas } from '../../../../../db/words';
 import { lemmatizeSentences } from '../../../../../logic/lemmatize';
