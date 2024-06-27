@@ -362,34 +362,30 @@
 	{/if}
 
 	{#if current}
-		<div class="flex mb-6">
+		<div
+			class="flex mb-6 pb-3 -mx-4 pr-4 bg-[#f9f9f9] lg:bg-white -mt-4 pt-4"
+		>
 			<div class="flex-1 font-lato text-xs flex items-center">
 				{#if current.source == 'unstudied'}
 					<div class="bg-red text-[#fff] px-1 font-sans text-xxs">NEW WORD</div>
 				{/if}
 			</div>
 
-			<div class="font-lato text-xs flex gap-2 justify-end">
-				<a href={`/${languageCode}/home`} class="underline text-red"> History </a>
-
+			<div class="font-lato text-xs flex gap-3 justify-end">
 				{#if data.user == 'ehrencrona' && current.wordId}
-					<a href={`/${languageCode}/words/${current.wordId}`} class="underline text-red"> Word </a>
+					<a href={`/${languageCode}/words/${current.wordId}`} class=" text-gray-1"> Word </a>
 				{/if}
-
-				<a href="/{languageCode}/read" class="underline text-red"> Reader </a>
 
 				<a
 					href={`/${languageCode}/sentences/${current?.sentence.id}/delete`}
-					class="underline text-red"
+					class=" text-gray-1"
 				>
 					Delete sentence
 				</a>
 
-				<button type="button" on:click={openAddExercises} class="underline text-red">
+				<button type="button" on:click={openAddExercises} class=" text-gray-1">
 					Add exercises
 				</button>
-
-				<a href="mailto:andreas.ehrencrona@velik.it" class="underline text-red"> Contact </a>
 			</div>
 		</div>
 

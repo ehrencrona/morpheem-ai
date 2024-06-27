@@ -41,3 +41,5 @@ export const RUSSIAN: Language = {
 	schema: 'ru',
 	isLatin: false
 };
+
+export const languages = [POLISH, FRENCH, SPANISH, KOREAN, DUTCH, RUSSIAN];

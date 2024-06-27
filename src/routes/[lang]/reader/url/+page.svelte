@@ -14,7 +14,7 @@
 	import Ama from '../../learn/AMA.svelte';
 	import WordCard from '../../learn/WordCard.svelte';
 	import { trackActivity } from '../../learn/trackActivity';
-	import type { PageData } from './$types';
+	import type { PageData } from '../../read/url/$types';
 	import ParagraphComponent from './Paragraph.svelte';
 	import { toWords } from '../../../../logic/toWords';
 
