@@ -376,18 +376,20 @@
 					<a href={`/${languageCode}/words/${current.wordId}`} class="underline text-red"> Word </a>
 				{/if}
 
-				<a href="mailto:andreas.ehrencrona@velik.it" class="underline text-red"> Contact </a>
+				<a href="/{languageCode}/read"> Reader </a>
 
 				<a
 					href={`/${languageCode}/sentences/${current?.sentence.id}/delete`}
 					class="underline text-red"
 				>
-					Sentence is wrong
+					Delete sentence
 				</a>
 
 				<button type="button" on:click={openAddExercises} class="underline text-red">
 					Add exercises
 				</button>
+
+				<a href="mailto:andreas.ehrencrona@velik.it" class="underline text-red"> Contact </a>
 			</div>
 		</div>
 
