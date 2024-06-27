@@ -1,6 +1,6 @@
 import { describe, expect } from 'vitest';
 import { toWords, toWordsWithSeparators } from './toWords';
-import { FRENCH, KOREAN, POLISH } from '../constants';
+import { DUTCH, FRENCH, KOREAN, POLISH, RUSSIAN } from '../constants';
 
 describe('toWords', (it) => {
 	it('should split a sentence into words', () => {
@@ -9,6 +9,35 @@ describe('toWords', (it) => {
 
 	it('should split a sentence into words with separators', () => {
 		expect(toWordsWithSeparators('Hello, world!', POLISH)).toEqual(['Hello', ', ', 'world', '!']);
+	});
+
+	it('handles dashed compound words', () => {
+		expect(toWords(`On eks-prezydentem`, POLISH)).toEqual(['on', 'eks-prezydentem']);
+	});
+
+	it(`handles Dutch`, () => {
+		expect(toWords(`How gaat 't?`, DUTCH)).toEqual(['how', 'gaat', `'t`]);
+
+		expect(toWords(`Zo'n gekke vent!`, DUTCH)).toEqual([`zo'n`, 'gekke', 'vent']);
+
+		expect(toWords(`Dit is Anna's huis.`, DUTCH)).toEqual(['dit', 'is', `anna's`, 'huis']);
+	});
+
+	it.only(`handles Russian`, () => {
+		expect(toWords(`убийстве 18-летней девушки`, RUSSIAN)).toEqual([
+			'убийстве',
+			'летней',
+			'девушки'
+		]);
+
+		expect(toWords(`Об этом сообщает «Татар-информ» и «Коммерсант».`, RUSSIAN)).toEqual([
+			'об',
+			'этом',
+			'сообщает',
+			'татар-информ',
+			'и',
+			'коммерсант'
+		]);
 	});
 
 	it('should split a French sentence into words', () => {

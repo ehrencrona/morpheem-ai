@@ -1,13 +1,15 @@
 import { z } from 'zod';
+import { Language } from '../logic/types';
 import { toMessages } from './ask';
 import { askForJson } from './askForJson';
-import { Language } from '../logic/types';
 
 const names = {
 	pl: `Marek, Ewa, Jakub, Agnieszka`,
 	fr: `Jacques, Charlotte, Pierre, Jeanne`,
 	es: `Juan, María, Pedro, Ana`,
-	ko: `민준, 서연, 서준, 지우`
+	ko: `민준, 서연, 서준, 지우`,
+	nl: `Jan, Emma, Willem, Sophie`,
+	ru: `Дима, Катя, Ваня, Лена (or their formal versions)`
 };
 
 export async function generateExampleSentences(

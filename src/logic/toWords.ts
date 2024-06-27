@@ -1,4 +1,3 @@
-import { boolean } from 'zod';
 import { Language } from './types';
 
 export function toWords(
@@ -10,13 +9,7 @@ export function toWords(
 		return doLowerCase ? word.toLowerCase() : word;
 	}
 
-	if (language.code == 'pl') {
-		return sentence
-			.replace(/[^a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻ]/g, ' ')
-			.split(' ')
-			.filter((word) => word.length > 0)
-			.map(toLowerCase);
-	} else if (language.code == 'fr') {
+	if (language.code == 'fr') {
 		// Define regex pattern for tokenization including Unicode characters
 		const pattern = /[\p{L}]+(?:-[\p{L}]+)?(?:'[\p{L}]+)?/gu;
 
@@ -36,20 +29,24 @@ export function toWords(
 		});
 
 		return splitTokens.map(toLowerCase);
-	} else if (language.code == 'es') {
+	} else if (language.code == 'nl') {
 		return sentence
-			.replace(/[^a-zA-ZáéíóúüñÁÉÍÓÚÜÑ-]/g, ' ')
+			.replace(/[^\p{L}'-]/gu, ' ')
 			.split(' ')
+			.map((word) => word.replace(/^-/, ''))
+			.filter((word) => word != `'`)
 			.filter((word) => word.length > 0)
-			.filter((word) => word != '-')
 			.map(toLowerCase);
-	} else if (language.code == 'ko') {
-		return sentence
-			.replace(/[^가-힣a-zA-Z]/gu, ' ')
-			.split(' ')
-			.filter((word) => word.length > 0);
 	} else {
-		throw new Error('Unsupported language');
+		return (
+			sentence
+				.replace(/[^\p{L}-]/gu, ' ')
+				.split(' ')
+				// deals with e.g. 18-year-old
+				.map((word) => word.replace(/^-/, ''))
+				.filter((word) => word.length > 0)
+				.map(toLowerCase)
+		);
 	}
 }
 

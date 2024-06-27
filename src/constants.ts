@@ -27,3 +27,17 @@ export const KOREAN: Language = {
 	schema: 'ko',
 	isLatin: false
 };
+
+export const DUTCH: Language = {
+	code: 'nl',
+	name: 'Dutch',
+	schema: 'nl',
+	isLatin: true
+};
+
+export const RUSSIAN: Language = {
+	code: 'ru',
+	name: 'Russian',
+	schema: 'ru',
+	isLatin: false
+};

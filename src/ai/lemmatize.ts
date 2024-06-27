@@ -65,13 +65,13 @@ async function lemmatizeBatch(
 		becomes 
 							
 		to (to) są (być) gorsze (zły) przykłady (przykład)`,
-		fr: `"y a-t-il des chaises?"
+		fr: `"y a-t-il des chaises"
 		
 		becomes
 
 		y (y) a-t-il (avoir) des (de) chaises (chaise)
 		
-		qu' est-ce que c' est?
+		qu' est-ce que c' est
 		
 		becomes
 		
@@ -108,7 +108,18 @@ async function lemmatizeBatch(
 가지 마세요 becomes 가지 (가다) 마세요 (마세요)
 물 주세요 becomes 물 (물) 주세요 (주다)
 케이크이다 becomes 케이크이다 (케이크)
-서연이네 becomes 서연이네 (서연)`
+서연이네 becomes 서연이네 (서연)`,
+		nl: `ben je anna's man
+
+becomes
+
+bin (zijn) je (jij) anna's (anna) man (man)
+		`,
+		ru: `как дела?
+
+becomes
+
+как (как) дела (дело)`
 	};
 
 	const response = await ask({

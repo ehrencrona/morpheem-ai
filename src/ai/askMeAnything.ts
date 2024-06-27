@@ -156,7 +156,13 @@ export async function findProvidedWordsInAnswer(
 			'Q: "How is hablar conjugated with ellos?" A: "hablan" -> "" (because hablar was in the question)\n',
 		ko:
 			'Q: "How do you say white cats?" A: "하얀 고양이" -> "하얗다, 고양이"\n' +
-			'Q: "How is 말하다 conjugated with 그들?" A: "말한다" -> "" (because 말하다 was in the question)\n'
+			'Q: "How is 말하다 conjugated with 그들?" A: "말한다" -> "" (because 말하다 was in the question)\n',
+		nl:
+			'Q: "How do you say white cats?" A: "witte katten" -> "wit, kat"\n' +
+			'Q: "How is spreken conjugated with zij?" A: "spreken" -> "" (because spreken was in the question)\n',
+		ru:
+			'Q: "How do you say white cats?" A: "белые кошки" -> "белый, кошка"\n' +
+			'Q: "How is говорить conjugated with они?" A: "говорят" -> "" (because говорить was in the question)\n'
 	};
 
 	const wordString = await ask({

@@ -1,6 +1,6 @@
 import { HandleServerError, json, type Handle } from '@sveltejs/kit';
 import { lucia } from './db/lucia';
-import { FRENCH, KOREAN, POLISH, SPANISH } from './constants';
+import { DUTCH, FRENCH, KOREAN, POLISH, RUSSIAN, SPANISH } from './constants';
 import { init, captureException } from '@sentry/browser';
 
 const isLoggingEnabled = import.meta.env.RENDER;
@@ -59,7 +59,9 @@ export const handle: Handle = async ({ event, resolve }) => {
 
 	const languageCode = event.url.pathname.split('/')[1];
 
-	const language = { pl: POLISH, fr: FRENCH, es: SPANISH, ko: KOREAN }[languageCode];
+	const language = { pl: POLISH, fr: FRENCH, es: SPANISH, ko: KOREAN, nl: DUTCH, ru: RUSSIAN }[
+		languageCode
+	];
 
 	event.locals.language = language; // || POLISH;
 

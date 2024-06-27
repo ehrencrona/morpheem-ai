@@ -7,7 +7,9 @@ const formExamples = {
 	pl: `"genitive plural, feminine", "2nd person plural, past, imperfective" or "past participle"`,
 	fr: `"feminine", "plural", or "past participle"`,
 	es: `"feminine", "plural", or "past participle"`,
-	ko: `"subject", "topic" or "imperative, polite"`
+	ko: `"subject", "topic" or "imperative, polite"`,
+	ru: `"genitive plural, feminine", "2nd person plural, past, imperfective" or "past participle"`,
+	nl: `"plural, het", "past participle" or "de"`
 };
 
 const transliterationInstructions: Record<string, string> = {

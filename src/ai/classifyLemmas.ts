@@ -84,6 +84,19 @@ export async function classifyLemmas(
 		보고서: report, other
 		한다: does, particle
 		버스: bus, cognate
+		`,
+		nl: `machine: machine, cognate
+		piet: piet, name
+		boek: book, other
+		rome: Rome, name
+		't: it, particle
+		de: the, particle
+		armee: army, cognate
+		`,
+		ru: `машина: machine, cognate
+		книга: book, other
+		саша: Sasha, name
+		в: in, particle
 		`
 	};
 
@@ -199,8 +212,8 @@ export async function classifyLemmas(
 }
 
 function isPlausibleCognate(word: string, translation: string, language: Language) {
-	if (language.code == 'ko') {
-		// no idea how to check for Korean cognates
+	if (!language.isLatin) {
+		// no idea how to check for non-Latin cognates
 		return true;
 	}
 

@@ -28,9 +28,9 @@ export async function generateExampleSentences(
 		language
 	);
 
-	const { lemmas } = await toWords(sentences, { language });
+	const words = await toWords(sentences, { language });
 
-	return sentences.map((sentence, i) => ({ sentence, lemmas: lemmas[i] }));
+	return words.sentences.map((sentence, i) => ({ sentence, lemmas: words.lemmas[i] }));
 }
 
 export async function generatePersonalizedExampleSentences(
@@ -197,7 +197,13 @@ export async function toWords(sentences: string[], { language }: { language: Lan
 				const foundAllLemmas = lemmas.every((lemma) => words.some((word) => word.word === lemma));
 
 				if (!foundAllLemmas) {
-					console.warn(`Could not find all lemmas for sentence: ${sentence}`);
+					console.warn(
+						`Could not find all lemmas for sentence: ${sentence}. Got ${lemmas
+							.filter((lemma) => words.some((word) => word.word === lemma))
+							.join(
+								', '
+							)}. Missing: ${lemmas.filter((lemma) => !words.some((word) => word.word === lemma)).join(', ')}`
+					);
 				}
 
 				return foundAllLemmas;

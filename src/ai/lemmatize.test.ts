@@ -1,5 +1,5 @@
 import { expect, it } from 'vitest';
-import { FRENCH, KOREAN, POLISH, SPANISH } from '../constants';
+import { DUTCH, FRENCH, KOREAN, POLISH, RUSSIAN, SPANISH } from '../constants';
 import { lemmatizeSentences } from './lemmatize';
 
 it('handles ambiguous words in Spanish', async () => {
@@ -21,6 +21,96 @@ it('handles ambiguous words', async () => {
 
 	expect(lemmas[0][5]).toEqual('été');
 	expect(lemmas[1][4]).toEqual('être');
+});
+
+it('handles Russian', async () => {
+	const lemmas = await lemmatizeSentences(
+		[
+			`Мы собираемся пойти в кино.`,
+			`Он любит читать книги.`,
+			`Она хочет пойти в магазин.`,
+			`Они приехали на поезде.`,
+			`За медицинской помощью обратились 46 пострадавших в результате аварии поезда в Коми`
+		],
+		{
+			language: RUSSIAN
+		}
+	);
+
+	expect(lemmas).toEqual([
+		['мы', 'собираться', 'пойти', 'в', 'кино'],
+		['он', 'любить', 'читать', 'книга'],
+		['она', 'хотеть', 'пойти', 'в', 'магазин'],
+		['они', 'приехать', 'на', 'поезд'],
+		[
+			'за',
+			'медицинский',
+			'помощь',
+			'обратиться',
+			'пострадавший',
+			'в',
+			'результат',
+			'авария',
+			'поезд',
+			'в',
+			'коми'
+		]
+	]);
+});
+
+it('handles Dutch', async () => {
+	const lemmas = await lemmatizeSentences(
+		[
+			`Hoe gaat 't met je?`,
+			`Dit is Anna's huis.`,
+			`Ik ben een student aan de universiteit.`,
+			`Hij heeft een mooie auto.`,
+			`Zij heeft een hond en een kat.`,
+			`Deze donderdag komen Europese regeringsleiders naar Brussel om de belangrijkste posities te verdelen.`,
+			`Het lijstje namen voor topfuncties dat gepresenteerd wordt, is precies zoals eerder voorspeld.`
+		],
+		{
+			language: DUTCH
+		}
+	);
+
+	expect(lemmas).toEqual([
+		['hoe', 'gaan', 'het', 'met', 'jij'],
+		['dit', 'zijn', 'anna', 'huis'],
+		['ik', 'zijn', 'een', 'student', 'aan', 'de', 'universiteit'],
+		['hij', 'hebben', 'een', 'mooi', 'auto'],
+		['zij', 'hebben', 'een', 'hond', 'en', 'een', 'kat'],
+		[
+			'deze',
+			'donderdag',
+			'komen',
+			'europees',
+			'regeringsleider',
+			'naar',
+			'brussel',
+			'om',
+			'de',
+			'belangrijk',
+			'positie',
+			'te',
+			'verdelen'
+		],
+		[
+			'het',
+			'lijstje',
+			'naam',
+			'voor',
+			'topfunctie',
+			'dat',
+			'presenteren',
+			'worden',
+			'zijn',
+			'precies',
+			'zoals',
+			'vroeg',
+			'voorspellen'
+		]
+	]);
 });
 
 it('should return lemmas for Polish sentences', async () => {
@@ -112,7 +202,7 @@ it('lemmatizes single words', async () => {
 	expect(await lemmatizeSentences(['fletnię'], { language: POLISH })).toEqual([['fletnia']]);
 });
 
-it.only('lemmatizes Korean', async () => {
+it('lemmatizes Korean', async () => {
 	expect(
 		await lemmatizeSentences(['집 앞에 있는 정원이 정말 아름다워요.'], { language: KOREAN })
 	).toEqual([['집', '앞', '있다', '정원', '정말', '아름답다']]);

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { FRENCH, KOREAN, POLISH, SPANISH } from '../constants';
+	import { DUTCH, FRENCH, KOREAN, POLISH, RUSSIAN, SPANISH } from '../constants';
 </script>
 
 <img src="/morpheem-logo-square.png" class="w-16 mx-auto mt-8" />
@@ -7,7 +7,7 @@
 <p class="text-center text-sm mt-8 font-lato">Pick a language:</p>
 
 <div class="w-full my-4 grid grid-cols-2 gap-12 max-w-[400px] mx-auto">
-	{#each [FRENCH, KOREAN, POLISH, SPANISH] as language}
+	{#each [DUTCH, FRENCH, KOREAN, POLISH, RUSSIAN, SPANISH] as language}
 		<a
 			href={`/${language.code}/`}
 			class="bg-blue-1 py-4 px-8 text-center rounded"
