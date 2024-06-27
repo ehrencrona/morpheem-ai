@@ -84,13 +84,15 @@ export function toWordsWithSeparators(sentence: string, language: Language) {
 	} else if (language.code == 'ru') {
 		return sentence.split(/([^а-яА-Я-]+)/).filter((word) => word.length > 0);
 	} else {
-		throw new Error('Unsupported language');
+		throw new Error(`Unsupported language ${language.code}`);
 	}
 }
 
 export function isSeparator(word: string) {
 	return (
-		word.match(/[^a-zA-Z가-힣ąćęłńóśźżĄĆĘŁŃÓŚŹŻàâçéèêëîïôûùüÿÀÂÇÉÈÊËÎÏÔÛÙÜŸáéíóúüñÁÉÍÓÚÜÑ'-]+/) ||
+		word.match(
+			/[^a-zA-Z가-힣а-яА-ЯąćęłńóśźżĄĆĘŁŃÓŚŹŻàâçéèêëîïôûùüÿÀÂÇÉÈÊËÎÏÔÛÙÜŸáéíóúüñÁÉÍÓÚÜÑ'-]+/
+		) ||
 		/* apostrophe is part of words in french */
 		word == "'"
 	);
