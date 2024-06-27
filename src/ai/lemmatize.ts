@@ -114,6 +114,12 @@ async function lemmatizeBatch(
 becomes
 
 bin (zijn) je (jij) anna's (anna) man (man)
+
+het is de ergste dag
+
+becomes
+
+het (het) is (zijn) de (de) ergste (erg) dag (dag)
 		`,
 		ru: `как дела?
 

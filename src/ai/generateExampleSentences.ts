@@ -44,7 +44,9 @@ export async function generateExampleSentences(
 	}
 
 	const isEnglish = (sentence: string) =>
-		sentence.match(/\bthe\b/) || sentence.match(/\bof\b/) || sentence.match(/\band\b/);
+		sentence.match(/\bthe\b/) ||
+		(language.code != 'nl' && sentence.match(/\bof\b/)) ||
+		sentence.match(/\band\b/);
 
 	if (examples.some(isEnglish)) {
 		console.error(`Got English examples: ${examples.filter(isEnglish).join('\n')}`);
