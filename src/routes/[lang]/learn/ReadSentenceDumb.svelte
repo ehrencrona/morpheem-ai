@@ -134,6 +134,7 @@
 	suggestions={[
 		'Can I express this differently?',
 		'Why is it "this" and not "that"?',
+		'Break down this sentence',
 		'How do you conjugate "to do"?',
 		`How do you say "ice cream" in ${language.name}?`,
 		...(revealed.length
