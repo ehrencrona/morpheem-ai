@@ -376,7 +376,7 @@
 					<a href={`/${languageCode}/words/${current.wordId}`} class="underline text-red"> Word </a>
 				{/if}
 
-				<a href="/{languageCode}/read"> Reader </a>
+				<a href="/{languageCode}/read" class="underline text-red"> Reader </a>
 
 				<a
 					href={`/${languageCode}/sentences/${current?.sentence.id}/delete`}
