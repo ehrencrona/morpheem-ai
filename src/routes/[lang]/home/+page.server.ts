@@ -1,6 +1,6 @@
 import { redirectToLogin } from '$lib/redirectToLogin';
 import { type ServerLoad } from '@sveltejs/kit';
-import { getRecentKnowledge } from '../../../db/knowledge';
+import { getRecentKnowledge, getRecentReadSentences } from '../../../db/knowledge';
 import { getActivity } from '../../../db/wordsKnown';
 import { getRecentWrittenSentences } from '../../../db/writtenSentences';
 
@@ -19,6 +19,7 @@ export const load = (async ({ locals, url }) => {
 			language
 		}),
 		writtenSentences: await getRecentWrittenSentences({ userId, language }),
+		readSentences: await getRecentReadSentences({ userId, language }),
 		activity: await getActivity(userId, language)
 	};
 }) satisfies ServerLoad;

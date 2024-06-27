@@ -1,6 +1,11 @@
 import { dateToTime } from '../logic/isomorphic/knowledge';
 import type { Language } from '../logic/types';
 import { db } from './client';
+import {
+	KNOWLEDGE_TYPE_CLOZE,
+	KNOWLEDGE_TYPE_CLOZE_INFLECTION,
+	KNOWLEDGE_TYPE_READ
+} from './knowledgeTypes';
 import { AggKnowledgeForUser, WordType } from './types';
 
 export function addKnowledge(
@@ -316,4 +321,33 @@ export async function getRawKnowledgeJoinedWithWordsForUser({
 	}
 
 	return select.orderBy('time', 'asc').execute();
+}
+
+export async function getRecentReadSentences({
+	userId,
+	language
+}: {
+	userId: number;
+	language: Language;
+}) {
+	const rows = await db
+		.withSchema(language.schema)
+		.selectFrom('sentences as s')
+		.innerJoin('knowledge as k', 'k.sentence_id', 's.id')
+		.select(['s.id', 's.sentence', 'k.word_id'])
+		.distinctOn(['k.time'])
+		.where('k.user_id', '=', userId)
+		.where('k.type', 'in', [
+			KNOWLEDGE_TYPE_READ,
+			KNOWLEDGE_TYPE_CLOZE,
+			KNOWLEDGE_TYPE_CLOZE_INFLECTION
+		])
+		.orderBy('k.time', 'desc')
+		.limit(20)
+		.execute();
+
+	return rows.filter(
+		// eliminate duplicate sentence ids
+		(row, i, arr) => arr.findIndex((r) => r.id === row.id) === i
+	);
 }

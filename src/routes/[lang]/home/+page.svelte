@@ -188,6 +188,10 @@
 	{/each}
 </div>
 
+<h3 class="text-lg mb-4 mt-8">Sentences read</h3>
+
+<RecentSentences sentences={data.readSentences} />
+
 <h3 class="text-lg mb-4 mt-8">Sentences written</h3>
 
 <RecentSentences sentences={data.writtenSentences} />
