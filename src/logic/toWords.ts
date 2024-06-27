@@ -85,7 +85,22 @@ export function toWordsWithSeparators(sentence: string, language: Language) {
 
 		return splitTokens;
 	} else if (language.code == 'nl') {
-		return sentence.split(/([^a-zA-Z'-]+)/).filter((word) => word.length > 0);
+		return sentence
+			.split(/([^a-zA-Z'-]+)/)
+			.map((word) =>
+				/* split words with trailing apostrophe into word plus apostrophe array */
+				word[word.length - 1] == `'` ? [word.slice(0, -1), word.slice(-1)] : [word]
+			)
+			.flat()
+			.map((word) =>
+				/* for words with leading apostrophe if the word (or just first part of word with dash, see 's-hertogenbosch) is longer than three letters
+					 or starts with a capital letter, split into apostrophe plus word array, e.g. 't, 'ie */
+				word[0] == `'` && (word.length > 3 || word.match(/^'[A-Z]/))
+					? [word[0], word.slice(1)]
+					: [word]
+			)
+			.flat()
+			.filter((word) => word.length > 0);
 	} else {
 		return sentence.split(/([^\p{L}-]+)/u).filter((word) => word.length > 0);
 	}

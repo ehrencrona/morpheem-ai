@@ -16,11 +16,7 @@ describe('toWords', (it) => {
 	});
 
 	it(`handles Dutch`, () => {
-		expect(toWords(`Ik zei: 'hoe is 't?'`, DUTCH)).toEqual(['ik', 'zei', `hoe`, 'is', `'t`]);
-
 		expect(toWords(`Zo'n gekke vent!`, DUTCH)).toEqual([`zo'n`, 'gekke', 'vent']);
-
-		expect(toWords(`'s-Hertogenbosch`, DUTCH)).toEqual([`'s-hertogenbosch`]);
 
 		expect(toWords(`Men zegt: 'Zomaar?'`, DUTCH)).toEqual(['men', 'zegt', `zomaar`]);
 
@@ -29,6 +25,26 @@ describe('toWords', (it) => {
 		expect(toWords(`Zo'n gekke vent!`, DUTCH)).toEqual([`zo'n`, 'gekke', 'vent']);
 
 		expect(toWords(`Dit is Anna's huis.`, DUTCH)).toEqual(['dit', 'is', `anna's`, 'huis']);
+	});
+
+	it(`handles Dutch apostrophes`, () => {
+		{
+			const sentence = `Ik zei: 'hoe is 't?'`;
+			expect(toWords(sentence, DUTCH)).toEqual(['ik', 'zei', `hoe`, 'is', `'t`]);
+			expect(toWordsWithSeparators(sentence, DUTCH).join('')).toEqual(sentence);
+			expect(toWords(sentence, DUTCH)).toContain(`'t`);
+		}
+
+		{
+			const sentence = `'s-Hertogenbosch is m'n stad. Ze wordt genoemd de 'moerasdraak'.`;
+
+			expect(toWords(sentence, DUTCH)).toContain(`'s-hertogenbosch`);
+			expect(toWords(sentence, DUTCH)).toContain(`m'n`);
+			expect(toWords(sentence, DUTCH)).toContain(`de`);
+			expect(toWords(sentence, DUTCH)).toContain(`moerasdraak`);
+
+			expect(toWordsWithSeparators(sentence, DUTCH).join('')).toEqual(sentence);
+		}
 	});
 
 	it(`handles Russian`, () => {
