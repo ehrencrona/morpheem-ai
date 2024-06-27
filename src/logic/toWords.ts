@@ -30,13 +30,24 @@ export function toWords(
 
 		return splitTokens.map(toLowerCase);
 	} else if (language.code == 'nl') {
-		return sentence
-			.replace(/[^\p{L}'-]/gu, ' ')
-			.split(' ')
-			.map((word) => word.replace(/^-/, ''))
-			.filter((word) => word != `'`)
-			.filter((word) => word.length > 0)
-			.map(toLowerCase);
+		return (
+			sentence
+				.replace(/[^\p{L}'-]/gu, ' ')
+				.split(' ')
+				// deals with e.g. 18-year-old
+				.map((word) => word.replace(/^-/, ''))
+				.map((word) => /* removing trailing apostrophe */ word.replace(/'$/, ''))
+				.map(
+					(
+						word /* remove leading apostrophe if the word (or just first part of word with dash, see 's-hertogenbosch) is longer than three letters 
+						 or starts with a capital letter, keep for e.g. 't, 'ie */
+					) =>
+						word.split('-')[0].length > 3 || word.match(/^'[A-Z]/) ? word.replace(/^'/, '') : word
+				)
+				.filter((word) => word != `'`)
+				.filter((word) => word.length > 0)
+				.map(toLowerCase)
+		);
 	} else {
 		return (
 			sentence
@@ -51,9 +62,7 @@ export function toWords(
 }
 
 export function toWordsWithSeparators(sentence: string, language: Language) {
-	if (language.code == 'pl') {
-		return sentence.split(/([^\[a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻ-]+)/).filter((word) => word.length > 0);
-	} else if (language.code == 'fr') {
+	if (language.code == 'fr') {
 		// Define regex pattern for tokenization including Unicode characters, punctuation, and spaces
 		const pattern = /[\p{L}]+(?:-[\p{L}]+)?(?:'[\p{L}]+)?|[\p{L}]+|'|[.,!?;:]+|["“”«»„]| +/gu;
 
@@ -75,24 +84,16 @@ export function toWordsWithSeparators(sentence: string, language: Language) {
 		}
 
 		return splitTokens;
-	} else if (language.code == 'es') {
-		return sentence.split(/([^a-zA-ZáéíóúüñÁÉÍÓÚÜÑ-]+)/).filter((word) => word.length > 0);
-	} else if (language.code == 'ko') {
-		return sentence.split(/([^가-힣]+)/u).filter((word) => word.length > 0);
 	} else if (language.code == 'nl') {
 		return sentence.split(/([^a-zA-Z'-]+)/).filter((word) => word.length > 0);
-	} else if (language.code == 'ru') {
-		return sentence.split(/([^а-яА-Я-]+)/).filter((word) => word.length > 0);
 	} else {
-		throw new Error(`Unsupported language ${language.code}`);
+		return sentence.split(/([^\p{L}-]+)/u).filter((word) => word.length > 0);
 	}
 }
 
 export function isSeparator(word: string) {
 	return (
-		word.match(
-			/[^a-zA-Z가-힣а-яА-ЯąćęłńóśźżĄĆĘŁŃÓŚŹŻàâçéèêëîïôûùüÿÀÂÇÉÈÊËÎÏÔÛÙÜŸáéíóúüñÁÉÍÓÚÜÑ'-]+/
-		) ||
+		word.match(/[^\p{L}'-]+/u) ||
 		/* apostrophe is part of words in french */
 		word == "'"
 	);

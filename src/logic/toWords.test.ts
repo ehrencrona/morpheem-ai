@@ -16,6 +16,14 @@ describe('toWords', (it) => {
 	});
 
 	it(`handles Dutch`, () => {
+		expect(toWords(`Ik zei: 'hoe is 't?'`, DUTCH)).toEqual(['ik', 'zei', `hoe`, 'is', `'t`]);
+
+		expect(toWords(`Zo'n gekke vent!`, DUTCH)).toEqual([`zo'n`, 'gekke', 'vent']);
+
+		expect(toWords(`'s-Hertogenbosch`, DUTCH)).toEqual([`'s-hertogenbosch`]);
+
+		expect(toWords(`Men zegt: 'Zomaar?'`, DUTCH)).toEqual(['men', 'zegt', `zomaar`]);
+
 		expect(toWords(`How gaat 't?`, DUTCH)).toEqual(['how', 'gaat', `'t`]);
 
 		expect(toWords(`Zo'n gekke vent!`, DUTCH)).toEqual([`zo'n`, 'gekke', 'vent']);
@@ -23,7 +31,10 @@ describe('toWords', (it) => {
 		expect(toWords(`Dit is Anna's huis.`, DUTCH)).toEqual(['dit', 'is', `anna's`, 'huis']);
 	});
 
-	it.only(`handles Russian`, () => {
+	it(`handles Russian`, () => {
+		expect(toWords('вперёд!', RUSSIAN)).toEqual(['вперёд']);
+		expect(toWordsWithSeparators('вперёд!', RUSSIAN)).toEqual(['вперёд', '!']);
+
 		expect(toWords(`убийстве 18-летней девушки`, RUSSIAN)).toEqual([
 			'убийстве',
 			'летней',

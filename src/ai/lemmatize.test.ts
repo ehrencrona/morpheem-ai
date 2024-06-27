@@ -58,11 +58,12 @@ it('handles Russian', async () => {
 	]);
 });
 
-it('handles Dutch', async () => {
+it.only('handles Dutch', async () => {
 	const lemmas = await lemmatizeSentences(
 		[
+			`Men zegt: 'Zomaar?'`,
 			`Hoe gaat 't met je?`,
-			`Onze buren hebben een hond.`,
+			`Onze buren hebben m'n hond.`,
 			`Dit is Anna's huis.`,
 			`Ga je mee naar de stad?`,
 			`Ik ben een student aan de universiteit.`,
@@ -77,8 +78,9 @@ it('handles Dutch', async () => {
 	);
 
 	expect(lemmas).toEqual([
+		['men', 'zeggen', 'zomaar'],
 		['hoe', 'gaan', 'het', 'met', 'jij'],
-		['ons', 'buur', 'hebben', 'een', 'hond'],
+		['ons', 'buur', 'hebben', 'mijn', 'hond'],
 		['dit', 'zijn', 'anna', 'huis'],
 		['gaan', 'jij', 'met', 'naar', 'de', 'stad'],
 		['ik', 'zijn', 'een', 'student', 'aan', 'de', 'universiteit'],

@@ -109,23 +109,23 @@ async function lemmatizeBatch(
 물 주세요 becomes 물 (물) 주세요 (주다)
 케이크이다 becomes 케이크이다 (케이크)
 서연이네 becomes 서연이네 (서연)`,
-		nl: `ben je anna's man
+		nl: `komt anna's man mee
 
 becomes
 
-bin (zijn) je (jij) anna's (anna) man (man)
+komt (komen) anna's (anna) man (man) mee (met)
 
-het is de ergste dag
-
-becomes
-
-het (het) is (zijn) de (de) ergste (erg) dag (dag)
-
-dit zijn onze boekjes
+je bent de ergste
 
 becomes
 
-dit (dit) zijn (zijn) onze (ons) boekjes (boek)
+je (jij) bent (zijn) de (de) ergste (erg)
+
+het zijn onze boekjes
+
+becomes
+
+het (het) zijn (zijn) onze (ons) boekjes (boek)
 		`,
 		ru: `как дела?
 
