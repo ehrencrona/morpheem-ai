@@ -89,7 +89,7 @@ export async function classifyLemmas(
 		piet: piet, name
 		boek: book, other
 		rome: Rome, name
-		't: it, particle
+		't: the, particle
 		de: the, particle
 		armee: army, cognate
 		`,
