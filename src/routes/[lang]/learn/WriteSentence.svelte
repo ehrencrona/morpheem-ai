@@ -130,7 +130,7 @@
 
 		const sentence = await sendWrittenSentence({
 			wordId: studiedWordId,
-			sentence: feedback.correctedSentence || correctSentence!,
+			sentence: feedback.correctedSentence || entered,
 			entered,
 			createNewSentence: exercise == 'write'
 		});
