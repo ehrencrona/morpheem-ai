@@ -52,7 +52,7 @@ export function toWords(
 
 export function toWordsWithSeparators(sentence: string, language: Language) {
 	if (language.code == 'pl') {
-		return sentence.split(/([^a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻ-]+)/).filter((word) => word.length > 0);
+		return sentence.split(/([^\[a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻ-]+)/).filter((word) => word.length > 0);
 	} else if (language.code == 'fr') {
 		// Define regex pattern for tokenization including Unicode characters, punctuation, and spaces
 		const pattern = /[\p{L}]+(?:-[\p{L}]+)?(?:'[\p{L}]+)?|[\p{L}]+|'|[.,!?;:]+|["“”«»„]| +/gu;
@@ -79,6 +79,10 @@ export function toWordsWithSeparators(sentence: string, language: Language) {
 		return sentence.split(/([^a-zA-ZáéíóúüñÁÉÍÓÚÜÑ-]+)/).filter((word) => word.length > 0);
 	} else if (language.code == 'ko') {
 		return sentence.split(/([^가-힣]+)/u).filter((word) => word.length > 0);
+	} else if (language.code == 'nl') {
+		return sentence.split(/([^a-zA-Z'-]+)/).filter((word) => word.length > 0);
+	} else if (language.code == 'ru') {
+		return sentence.split(/([^а-яА-Я-]+)/).filter((word) => word.length > 0);
 	} else {
 		throw new Error('Unsupported language');
 	}

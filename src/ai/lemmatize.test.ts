@@ -62,7 +62,9 @@ it('handles Dutch', async () => {
 	const lemmas = await lemmatizeSentences(
 		[
 			`Hoe gaat 't met je?`,
+			`Onze buren hebben een hond.`,
 			`Dit is Anna's huis.`,
+			`Ga je mee naar de stad?`,
 			`Ik ben een student aan de universiteit.`,
 			`Hij heeft een mooie auto.`,
 			`Zij heeft een hond en een kat.`,
@@ -76,7 +78,9 @@ it('handles Dutch', async () => {
 
 	expect(lemmas).toEqual([
 		['hoe', 'gaan', 'het', 'met', 'jij'],
+		['ons', 'buur', 'hebben', 'een', 'hond'],
 		['dit', 'zijn', 'anna', 'huis'],
+		['gaan', 'jij', 'met', 'naar', 'de', 'stad'],
 		['ik', 'zijn', 'een', 'student', 'aan', 'de', 'universiteit'],
 		['hij', 'hebben', 'een', 'mooi', 'auto'],
 		['zij', 'hebben', 'een', 'hond', 'en', 'een', 'kat'],
@@ -97,7 +101,7 @@ it('handles Dutch', async () => {
 		],
 		[
 			'het',
-			'lijstje',
+			'lijst',
 			'naam',
 			'voor',
 			'topfunctie',

@@ -19,6 +19,10 @@ export async function addWordToLemma(wordString: string, word: DB.Word, language
 		throw new Error(`${word.word} is not the dictionary form of ${wordString}`);
 	}
 
+	if (language.code == 'nl' && ['mee->met'].includes(`${wordString}->${word.word}`)) {
+		throw new Error(`${word.word} is not the dictionary form of ${wordString}`);
+	}
+
 	// insert into word_lemma unless it already exists
 	const result = await db
 		.withSchema(language.schema)

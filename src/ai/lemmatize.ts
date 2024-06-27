@@ -120,6 +120,12 @@ het is de ergste dag
 becomes
 
 het (het) is (zijn) de (de) ergste (erg) dag (dag)
+
+dit zijn onze boekjes
+
+becomes
+
+dit (dit) zijn (zijn) onze (ons) boekjes (boek)
 		`,
 		ru: `как дела?
 

@@ -54,6 +54,10 @@ export async function addWord(
 		throw new CodedError(`"${lemma}" is not the dictionary form`, 'notALemma');
 	}
 
+	if (language.code == 'nl' && ['je', 'onze'].includes(lemma)) {
+		throw new CodedError(`"${lemma}" is not the dictionary form`, 'notALemma');
+	}
+
 	let result = await db
 		.withSchema(language.schema)
 		.insertInto('words')
