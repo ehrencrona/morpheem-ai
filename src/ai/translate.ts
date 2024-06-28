@@ -69,8 +69,15 @@ export async function translateSentences(
 	{
 		temperature = 0.5,
 		instruction,
-		language
-	}: { temperature?: number; instruction?: string; variableName?: string; language: Language }
+		language,
+		retriesLeft = 1
+	}: {
+		temperature?: number;
+		instruction?: string;
+		variableName?: string;
+		retriesLeft?: number;
+		language: Language;
+	}
 ): Promise<{ translations: string[]; transliterations?: string[] }> {
 	if (sentences.length === 0) {
 		return { translations: [] };
@@ -105,9 +112,21 @@ export async function translateSentences(
 	}
 
 	if (translations.length !== sentences.length) {
-		throw new Error(
-			`Number of sentences does not match number of translations: ${sentences.length} vs ${translations.length}`
-		);
+		let message = `Number of sentences does not match number of translations: ${sentences.length} vs ${translations.length}`;
+
+		if (retriesLeft > 0) {
+			console.error(message);
+			console.error('Retrying with higher temperature...');
+
+			return translateSentences(sentences, {
+				temperature: temperature + (2 - temperature) / 2,
+				instruction,
+				language,
+				retriesLeft: retriesLeft - 1
+			});
+		} else {
+			throw new Error(message);
+		}
 	}
 
 	for (const index of Object.keys(translations)) {
