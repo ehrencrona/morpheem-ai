@@ -7,10 +7,12 @@ import { KNOWLEDGE_TYPE_WRITE } from '../db/knowledgeTypes';
 import * as DB from '../db/types';
 import { getMultipleWordsByLemmas, getWordByLemma } from '../db/words';
 import { UnknownWordResponse } from '../routes/[lang]/api/word/unknown/+server';
-import { filterClearlyKnownWords, wordsToUnknownWords } from './findProvidedWordsInAnswer';
+import { wordsToUnknownWords } from './findProvidedWordsInAnswer';
 import { lemmatizeSentences } from './lemmatize';
 import { toWords } from './toWords';
 import { ExerciseKnowledge, Language, WordKnowledge } from './types';
+import { getAggregateKnowledgeForUserWords } from '../db/knowledge';
+import { expectedKnowledge } from './isomorphic/knowledge';
 
 export type WritingFeedbackOpts = z.infer<typeof writingFeedbackOptsSchema>;
 
@@ -156,4 +158,27 @@ export async function evaluateWrite(
 		})),
 		userExercises
 	};
+}
+
+export async function filterClearlyKnownWords<W extends DB.Word>(
+	unknownWords: W[],
+	userId: number,
+	language: Language
+): Promise<W[]> {
+	const knowledge = await getAggregateKnowledgeForUserWords({
+		userId,
+		wordIds: unknownWords.map(({ id }) => id),
+		language
+	});
+
+	return unknownWords.filter((word) => {
+		const k = knowledge.find(({ wordId }) => wordId === word.id);
+		const knew = k && expectedKnowledge(k, { now: now(), exercise: 'write' }) > 0.9;
+
+		if (knew) {
+			console.log(`User already knew the word ${word.word}.`);
+		}
+
+		return !knew;
+	});
 }

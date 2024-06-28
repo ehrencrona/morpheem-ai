@@ -34,7 +34,6 @@ export const POST: ServerLoad = async ({ request, locals }) => {
 		return json(
 			await askMeAnythingWrite({
 				...params,
-				languagesSpoken: locals.user!.languages,
 				language: locals.language
 			})
 		);
@@ -42,7 +41,6 @@ export const POST: ServerLoad = async ({ request, locals }) => {
 		return json(
 			await askMeAnythingRead({
 				...params,
-				languagesSpoken: locals.user!.languages,
 				language: locals.language
 			})
 		);

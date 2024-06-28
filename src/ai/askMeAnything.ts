@@ -9,7 +9,6 @@ export async function askMeAnythingWrite({
 	correctTranslation,
 	word,
 	question,
-	languagesSpoken,
 	language
 }: {
 	exercise: 'write' | 'translate';
@@ -19,7 +18,6 @@ export async function askMeAnythingWrite({
 	correctTranslation?: string;
 	word?: string;
 	question: string;
-	languagesSpoken: string;
 	language: Language;
 }) {
 	return ask({
@@ -32,10 +30,6 @@ export async function askMeAnythingWrite({
 						? `The user is doing a translation exercise in ${language.name}. The expected translation is "${correctTranslation}"`
 						: `The user is practicing writing in ${language.name}`
 				}. Briefly but helpfully and friendly answer the question in English. If the user wrote an English word or phrase, provide the ${language.name} translation. Do not provide the whole sentence for the user (unless explicitly asked for).`
-			},
-			{
-				role: 'system',
-				content: `The user speaks the following languages: ${languagesSpoken}`
 			},
 			{
 				role: 'assistant',
@@ -74,7 +68,6 @@ export async function askMeAnythingRead({
 	word,
 	confusedWord,
 	revealed,
-	languagesSpoken,
 	language
 }: {
 	question: string;
@@ -83,7 +76,6 @@ export async function askMeAnythingRead({
 	word?: string;
 	confusedWord?: string;
 	revealed: { english: string; word: string }[];
-	languagesSpoken: string;
 	language: Language;
 }) {
 	return ask({
@@ -95,10 +87,6 @@ export async function askMeAnythingRead({
 					`The user is studying ${language.name} and encountered the sentence "${sentence}"${word ? ` while studying the word "${word}"` : ''}${confusedWord ? ` which they confused with "${confusedWord}"` : ''}. ` +
 					`The user now has a question (about ${language.name}, the sentence or the word${confusedWord ? 's' : ''}). ` +
 					`Briefly but helpfully and friendly answer the question (in English). The English translation of the sentence has been shown; no need to repeat it.`
-			},
-			{
-				role: 'system',
-				content: `The user speaks the following languages: ${languagesSpoken}`
 			},
 			...(translation
 				? ([
@@ -142,42 +130,23 @@ export async function findProvidedWordsInAnswer(
 	answer: string,
 	language: Language
 ) {
-	const examples = {
-		pl:
-			'Q: "How do you say white cats?" A: "białe koty" -> "biały, kot"\n' +
-			'Q: "How is mowic conjugated with oni?" A: "mówią" -> "" (because mówic was in the question)\n' +
-			'Q: "Give it to me?" A: "daj mi to" -> "daċ, mi, to"\n',
-		fr:
-			'Q: "How do you say white cats?" A: "chats blancs" -> "chat, blanc"\n' +
-			'Q: "How is parler conjugated with ils?" A: "parlent" -> "" (because parler was in the question)\n' +
-			'Q: "Give it to me?" A: "donne le moi" -> "donner, le, moi"\n',
-		es:
-			'Q: "How do you say white cats?" A: "gatos blancos" -> "gato, blanco"\n' +
-			'Q: "How is hablar conjugated with ellos?" A: "hablan" -> "" (because hablar was in the question)\n',
-		ko:
-			'Q: "How do you say white cats?" A: "하얀 고양이" -> "하얗다, 고양이"\n' +
-			'Q: "How is 말하다 conjugated with 그들?" A: "말한다" -> "" (because 말하다 was in the question)\n',
-		nl:
-			'Q: "How do you say white cats?" A: "witte katten" -> "wit, kat"\n' +
-			'Q: "How is spreken conjugated with zij?" A: "spreken" -> "" (because spreken was in the question)\n',
-		ru:
-			'Q: "How do you say white cats?" A: "белые кошки" -> "белый, кошка"\n' +
-			'Q: "How is говорить conjugated with они?" A: "говорят" -> "" (because говорить was in the question)\n'
-	};
-
 	const wordString = await ask({
 		model: 'gpt-4o',
 		messages: [
 			{
 				role: 'system',
 				content:
-					`In the following question/answer pair, I want to find which ${language.name} words the user were told about that they did not already know. List all ${language.name} words in the answer that are not present in the question. Use the dictionary form (lemma). Ignore English words. Only list the words, separated by commas.\n` +
-					'For example:\n' +
-					examples[language.code]
+					`The user is studying ${language.name} and asked a question. We want to track which words the user didn't know, so list any ${language.name} words that the user asked for and was provided with. ` +
+					`The user can enter an English phrase to get it translated; this counts as asking. ` +
+					`If the user did not ask for any words (e.g. they asked a grammar question), just answer with an empty string. Use the dictionary form (lemma). Only list the words, separated by commas.`
 			},
 			{
 				role: 'user',
-				content: `Q: "${question}" A: "${answer}"`
+				content: question
+			},
+			{
+				role: 'assistant',
+				content: answer
 			}
 		],
 		temperature: 0,

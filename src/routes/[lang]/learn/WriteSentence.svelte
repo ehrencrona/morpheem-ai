@@ -1,10 +1,19 @@
 <script lang="ts">
 	import type { SendKnowledge } from '$lib/SendKnowledge';
+	import { logError } from '$lib/logError';
+	import { splitIntoDiff } from '$lib/splitIntoDiff';
 	import { onMount } from 'svelte';
 	import { slide } from 'svelte/transition';
+	import { CodedError } from '../../../CodedError';
+	import Speak from '../../../components/Speak.svelte';
+	import Spinner from '../../../components/Spinner.svelte';
 	import SpinnerButton from '../../../components/SpinnerButton.svelte';
+	import Tutorial from '../../../components/Tutorial.svelte';
+	import { KNOWLEDGE_TYPE_WRITE } from '../../../db/knowledgeTypes';
+	import type { ExerciseSource } from '../../../db/types';
 	import type { WritingFeedbackResponse } from '../../../logic/evaluateWrite';
 	import type { Language } from '../../../logic/types';
+	import type { Translation } from '../api/sentences/[sentence]/english/client';
 	import type { UnknownWordResponse } from '../api/word/unknown/+server';
 	import { lookupUnknownWord } from '../api/word/unknown/client';
 	import { fetchAskMeAnything } from '../api/write/ama/client';
@@ -13,15 +22,6 @@
 	import { fetchWritingFeedback } from '../api/write/feedback/client';
 	import AMA from './AMA.svelte';
 	import WordCard from './WordCard.svelte';
-	import Speak from '../../../components/Speak.svelte';
-	import Spinner from '../../../components/Spinner.svelte';
-	import { splitIntoDiff } from '$lib/splitIntoDiff';
-	import type { Translation } from '../api/sentences/[sentence]/english/client';
-	import Tutorial from '../../../components/Tutorial.svelte';
-	import { logError } from '$lib/logError';
-	import type { ExerciseSource } from '../../../db/types';
-	import { CodedError } from '../../../CodedError';
-	import { KNOWLEDGE_TYPE_READ, KNOWLEDGE_TYPE_WRITE } from '../../../db/knowledgeTypes';
 
 	export let word: { id: number; word: string; level: number } | undefined;
 	export let onNext: () => Promise<any>;

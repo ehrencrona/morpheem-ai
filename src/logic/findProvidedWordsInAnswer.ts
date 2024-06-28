@@ -1,13 +1,11 @@
 import { filterUndefineds } from '$lib/filterUndefineds';
 import { findProvidedWordsInAnswer as findProvidedWordsInAnswerAi } from '../ai/askMeAnything';
-import { getAggregateKnowledgeForUserWords } from '../db/knowledge';
 import { getLemmaIdsOfWord } from '../db/lemmas';
 import { getMnemonic } from '../db/mnemonics';
 import * as DB from '../db/types';
 import { getWordById, getWordByLemma } from '../db/words';
 import { UnknownWordResponse } from '../routes/[lang]/api/word/unknown/+server';
 import { addWords } from './generateExampleSentences';
-import { expectedKnowledge, now } from './isomorphic/knowledge';
 import { translateWordInContext } from './translate';
 import { Language } from './types';
 
@@ -27,10 +25,8 @@ export async function findProvidedWordsInAnswer({
 	let unknownWords = await wordStringsToWords(provided, answer, language);
 
 	console.log(
-		`User was provided with the words ${unknownWords.map(({ word }) => word).join(', ')} in the answer "${answer}".`
+		`User was provided with ${unknownWords.length ? `the words ${unknownWords.map(({ word }) => word).join(', ')}` : 'no words'} in the answer "${answer}".`
 	);
-
-	unknownWords = await filterClearlyKnownWords(unknownWords, userId, language);
 
 	return wordsToUnknownWords(unknownWords, userId, language);
 }
@@ -74,29 +70,6 @@ export async function wordStringsToWords(
 			})
 		)
 	);
-}
-
-export async function filterClearlyKnownWords<W extends DB.Word>(
-	unknownWords: W[],
-	userId: number,
-	language: Language
-): Promise<W[]> {
-	const knowledge = await getAggregateKnowledgeForUserWords({
-		userId,
-		wordIds: unknownWords.map(({ id }) => id),
-		language
-	});
-
-	return unknownWords.filter((word) => {
-		const k = knowledge.find(({ wordId }) => wordId === word.id);
-		const knew = k && expectedKnowledge(k, { now: now(), exercise: 'write' }) > 0.9;
-
-		if (knew) {
-			console.log(`User already knew the word ${word.word}.`);
-		}
-
-		return !knew;
-	});
 }
 
 export function wordsToUnknownWords(
