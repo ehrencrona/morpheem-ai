@@ -60,11 +60,11 @@ async function lemmatizeBatch(
 	}
 
 	const examples = {
-		pl: `"to są gorsze przykłady" 
+		pl: `“Byłoby dobrze, gdybyś był gorszym przykładem.”
 
 		becomes 
-							
-		to (to) są (być) gorsze (zły) przykłady (przykład)`,
+		
+		byłoby (być) dobrze (dobrze), gdybyś (gdyby) był (być) gorszym (zły) przykładem (przykład)`,
 		fr: `"y a-t-il des chaises"
 		
 		becomes

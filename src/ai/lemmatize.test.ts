@@ -58,7 +58,7 @@ it('handles Russian', async () => {
 	]);
 });
 
-it.only('handles Dutch', async () => {
+it('handles Dutch', async () => {
 	const lemmas = await lemmatizeSentences(
 		[
 			`Men zegt: 'Zomaar?'`,
@@ -126,7 +126,8 @@ it('should return lemmas for Polish sentences', async () => {
 				'Kąpiele w bałtyckiej wodzie są odświeżające i zdrowe dla skóry.',
 				'Nie mogę znaleźć kluczy z samochodu.',
 				'Zrobiłem zakupy w sklepie spożywczym.',
-				'Zadzwoniłem do szefa z ważną informacją.'
+				'Zadzwoniłem do szefa z ważną informacją.',
+				`Byłoby dobrze, gdybyś to zrobił.`
 			],
 			{ language: POLISH }
 		)
@@ -134,7 +135,8 @@ it('should return lemmas for Polish sentences', async () => {
 		['kąpiel', 'w', 'bałtycki', 'woda', 'być', 'odświeżający', 'i', 'zdrowy', 'dla', 'skóra'],
 		['nie', 'móc', 'znaleźć', 'klucz', 'z', 'samochód'],
 		['zrobić', 'zakup', 'w', 'sklep', 'spożywczy'],
-		['zadzwonić', 'do', 'szef', 'z', 'ważny', 'informacja']
+		['zadzwonić', 'do', 'szef', 'z', 'ważny', 'informacja'],
+		['być', 'dobrze', 'gdyby', 'to', 'zrobić']
 	]);
 });
 
