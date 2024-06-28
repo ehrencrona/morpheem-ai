@@ -278,7 +278,11 @@
 			</div>
 
 			<div class="text-xl font-bold mb-6 text-balance">
-				{correctParts[0]}<span class="text-green">{correctParts[1]}</span>{correctParts[2]}
+				{#if feedback.correctedPart}
+					{correctParts[0]}<span class="text-green">{correctParts[1]}</span>{correctParts[2]}
+				{:else}
+					<span class="text-green">{entered}</span>
+				{/if}
 			</div>
 		{/if}
 
