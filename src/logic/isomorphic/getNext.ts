@@ -19,7 +19,9 @@ export function getExercisesForKnowledge(knowledge: AggKnowledgeForUser[]) {
 				},
 				{
 					...k,
-					exercise: (Math.random() > 0.75 && k.wordType != 'particle'
+					exercise: (Math.random() > 0.75 &&
+					k.wordType != 'particle' &&
+					expectedKnowledge(k, { now: now(), exercise: 'write' }) > 0.8
 						? 'write'
 						: 'cloze') as ExerciseType
 				}
@@ -52,23 +54,29 @@ export function scoreExercises<
 	return scores.sort((a, b) => b.score - a.score);
 }
 
-export function canWriteAllWords(
+export function canWriteSentence(
 	sentence: CandidateSentenceWithWords,
 	knowledge: AggKnowledgeForUser[]
 ) {
 	const n = now();
 
-	return sentence.words.every((word) => {
-		const wordKnowledge = knowledge.find((k) => k.wordId === word.id);
+	return (
+		sentence.words.reduce((acc, word) => {
+			const wordKnowledge = knowledge.find((k) => k.wordId === word.id);
 
-		return (
-			wordKnowledge &&
-			expectedKnowledge(wordKnowledge, {
-				now: n,
-				exercise: 'write'
-			}) > 0.8
-		);
-	});
+			return (
+				acc *
+				(wordKnowledge
+					? expectedKnowledge(wordKnowledge, {
+							now: n,
+							exercise: 'write'
+						})
+					: 0.2)
+			);
+		}, 1) **
+			(1 / sentence.words.length) >
+		0.7
+	);
 }
 
 /** If a word is cognate, we discount the level. */
@@ -100,8 +108,8 @@ export function getNextSentence(
 			if (!wordKnowledge) {
 				const scoreForLevel = (level: number) => (100 - level) / 100 / 1.5;
 
-				if (word.type == 'cognate') {
-					message += ` (cognate, ${word.level}% level)`;
+				if (word.type == 'cognate' || word.type == 'name') {
+					message += ` (${word.type}, ${word.level}% level)`;
 
 					return scoreForLevel(getLevelForCognate(word.level));
 				} else {

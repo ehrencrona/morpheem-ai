@@ -61,7 +61,7 @@ export async function generatePersonalizedExampleSentences(
 	const simple = graded.filter(({ hard }) => !hard.length);
 
 	if (!simple.length) {
-		const almostSimple = graded.filter(({ hard }) => hard.length == 1);
+		const almostSimple = graded.filter(({ hard }) => hard.length < 3);
 
 		if (retriesLeft > 0 && !almostSimple.length) {
 			console.log(`No simple sentences found. Retrying ${lemma} with level ${level / 2}`);
@@ -169,7 +169,7 @@ async function gradeSentences(
 const isHard = (word: DB.Word, knowledge: DB.AggKnowledgeForUser[], hardLevel: number): boolean => {
 	const wordKnowledge = knowledge.find((k) => k.wordId === word.id);
 
-	if (word.type == 'cognate') {
+	if (word.type == 'cognate' || word.type == 'name') {
 		return false;
 	}
 

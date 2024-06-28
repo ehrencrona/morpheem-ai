@@ -4,7 +4,7 @@
 	import ErrorMessage from '../../components/ErrorMessage.svelte';
 	import type * as DB from '../../db/types';
 	import {
-		canWriteAllWords,
+		canWriteSentence,
 		getExercisesForKnowledge,
 		getNextSentence,
 		scoreExercises
@@ -244,7 +244,7 @@
 
 			const { sentence } = nextSentence;
 
-			if (canWriteAllWords(sentence, knowledge) && exercise == 'write') {
+			if (canWriteSentence(sentence, knowledge) && exercise == 'write') {
 				console.log(`Turning write exercise into translate for ${sentence.id}.`);
 
 				exercise = 'translate';

@@ -39,7 +39,8 @@ export async function addSentence(
 export function calculateSentenceLevel(words: { level: number; type: WordType | undefined }[]) {
 	return Math.round(
 		words.reduce(
-			(acc, { level, type }) => acc * ((type == 'cognate' ? getLevelForCognate(level) : level) + 1),
+			(acc, { level, type }) =>
+				acc * ((type == 'cognate' || type == 'name' ? getLevelForCognate(level) : level) + 1),
 			1
 		) **
 			(1 / words.length)
