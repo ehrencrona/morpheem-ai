@@ -6,7 +6,7 @@
 	let url = '';
 
 	function go() {
-		return goto(`./read/url?url=${encodeURIComponent(url)}`);
+		return goto(`./reader/url?url=${encodeURIComponent(url)}`);
 	}
 </script>
 
