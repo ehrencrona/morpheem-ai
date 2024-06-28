@@ -119,7 +119,7 @@
 </script>
 
 <form on:submit={onSubmit}>
-	<div class="text-4xl mb-8 mt-8 font-medium">
+	<div class="text-3xl lg:text-4xl leading-snug mb-8 mt-8 font-medium">
 		{#each wordsWithSeparators as wordString, index}{#if !isSeparator(wordString)}{#if standardize(wordString) == standardize(word.conjugatedWord)}
 					{#if evaluation}
 						<span
@@ -127,7 +127,7 @@
 								? 'text-green'
 								: 'text-red'}>{evaluation.alternateWord?.conjugated || wordString}</span
 						>{:else}
-						<div class="inline-flex flex-col">
+						<div class="inline-flex flex-col -mb-1">
 							<span class="whitespace-nowrap">
 								{wordString.slice(0, showChars)}<input
 									type="text"

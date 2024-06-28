@@ -145,7 +145,7 @@
 	</h3>
 
 	<div class="grid grid-flow-row{translatedTitle ? ` md:grid-cols-2` : ''} items-start gap-8">
-		<h1 class="text-4xl mb-4 leading-tight font-bold">
+		<h1 class="text-3xl lg:text-4xl mb-4 leading-tight font-bold">
 			<ParagraphComponent text={data.title || ''} {language} {revealed} {onClickedWord} />
 
 			{#if translatedTitle?.transliteration}
