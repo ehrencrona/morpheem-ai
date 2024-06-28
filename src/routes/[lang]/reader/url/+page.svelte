@@ -17,6 +17,7 @@
 	import type { PageData } from '../../read/url/$types';
 	import ParagraphComponent from './Paragraph.svelte';
 	import { toWords } from '../../../../logic/toWords';
+	import Tutorial from '../../../../components/Tutorial.svelte';
 
 	export let data: PageData;
 
@@ -223,7 +224,13 @@
 		<SpinnerButton onClick={simplify} type="secondary">Simplify</SpinnerButton>
 	</div>
 
-	<ErrorMessage />
+	<Tutorial
+		id="reader"
+		paragraphs={[
+			"Click on words you don't know to reveal their meaning.",
+			'Pressing next will mark that you know all other words in the paragraph.',
+		]}
+	/>
 
 	<Ama
 		ask={(question) =>
