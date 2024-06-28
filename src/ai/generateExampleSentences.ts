@@ -91,7 +91,7 @@ export async function simplifySentences(
 				content: `The following words are too difficult: ${dedup(
 					sentences.flatMap(({ hard }) => hard)
 				).join(', ')}.
-				Can you rewrite the ${language.name} sentences using simpler words? Keep the word "${lemma}" and only use ${language.name}.`
+				Change the sentences to not use these words or use simpler words. The sentences' meaning can change, but they still should illustrate the use of "${lemma}", be grammatically correct and make logical sense. Only write in ${language.name}.`
 			}
 		],
 
