@@ -103,6 +103,8 @@
 
 		isLoadingSuggestions = true;
 
+		let wordWas = word;
+
 		[mnemonic, inflections] = await Promise.all([
 			fetchMnemonic(word.id, false),
 			fetchInflections(word.id).finally(() => (isLoadingSuggestions = false))
@@ -110,6 +112,10 @@
 			logError(e);
 			return [undefined, []];
 		});
+
+		if (word != wordWas) {
+			return;
+		}
 
 		if (exercise == 'cloze-inflection' && inflections.length > 1) {
 			suggestedWords = { type: 'inflection', words: inflections };
@@ -194,6 +200,7 @@
 
 		try {
 			let oldTypeCount = typeCount;
+			let oldWord = word;
 
 			const sw = isPickingInflection
 				? inflections.filter((w) => w.startsWith(prefix))
@@ -201,7 +208,7 @@
 					? await fetchWordsByPrefix(prefix)
 					: [];
 
-			if (oldTypeCount == typeCount) {
+			if (oldTypeCount == typeCount && word == oldWord) {
 				suggestedWords = { type: isPickingInflection ? 'inflection' : 'lemma', words: sw };
 			}
 		} catch (e) {
