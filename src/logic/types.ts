@@ -1,8 +1,10 @@
 import { z } from 'zod';
 import * as DB from '../db/types';
 
+export type LanguageCode = 'pl' | 'fr' | 'es' | 'ko' | 'nl' | 'ru';
+
 export interface Language {
-	code: 'pl' | 'fr' | 'es' | 'ko' | 'nl' | 'ru';
+	code: LanguageCode;
 	name: string;
 	schema: string;
 	isLatin: boolean;

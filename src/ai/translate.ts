@@ -1,9 +1,9 @@
 import { z } from 'zod';
 import { Message, ask, toMessages } from './ask';
 import { askForJson } from './askForJson';
-import { Language } from '../logic/types';
+import type { Language, LanguageCode } from '../logic/types';
 
-const formExamples = {
+const formExamples: Record<LanguageCode, string> = {
 	pl: `"genitive plural, feminine", "2nd person plural, past, imperfective" or "past participle"`,
 	fr: `"feminine", "plural", or "past participle"`,
 	es: `"feminine", "plural", or "past participle"`,

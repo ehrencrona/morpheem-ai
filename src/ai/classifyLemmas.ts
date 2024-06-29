@@ -1,6 +1,6 @@
 import { CodedError } from '../CodedError';
 import { WordType } from '../db/types';
-import { Language } from '../logic/types';
+import type { Language, LanguageCode } from '../logic/types';
 import { ask } from './ask';
 import { lemmatizeSentences } from './lemmatize';
 
@@ -23,7 +23,7 @@ export async function classifyLemmas(
 		return [];
 	}
 
-	const examples = {
+	const examples: Record<LanguageCode, string> = {
 		pl: `maszyna: machine, cognate
 		chopin: Chopin, name
 		wierzyć: believe, other

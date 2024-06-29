@@ -2,7 +2,7 @@ import { CodedError } from '../CodedError';
 import { getLemmasOfWord } from '../db/lemmas';
 import { standardize } from '../logic/isomorphic/standardize';
 import { toWords } from '../logic/toWords';
-import { Language } from '../logic/types';
+import type { Language, LanguageCode } from '../logic/types';
 import { Message, ask } from './ask';
 
 export async function lemmatizeSentences(
@@ -59,7 +59,7 @@ async function lemmatizeBatch(
 		return [];
 	}
 
-	const examples = {
+	const examples: Record<LanguageCode, string> = {
 		pl: `“Byłoby dobrze, gdybyś był gorszym przykładem.”
 
 		becomes 

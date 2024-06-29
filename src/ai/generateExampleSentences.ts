@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { Language, LanguageCode } from '../logic/types';
+import type { Language, LanguageCode } from '../logic/types';
 import { toMessages } from './ask';
 import { askForJson } from './askForJson';
 
