@@ -1,5 +1,6 @@
 import { filterUndefineds } from '$lib/filterUndefineds';
 import { classifyLemmas } from '../ai/classifyLemmas';
+import { findIncorrectSentences } from '../ai/findIncorrectSentences';
 import {
 	generateExampleSentences as generateExampleSentencesAi,
 	simplifySentences
@@ -80,13 +81,30 @@ export async function generatePersonalizedExampleSentences(
 				`${almostSimple.length} sentences for ${lemma} were almost simple. Simplifying...`
 			);
 
-			graded = almostSimple.concat(
-				await gradeSentences(
-					(await simplifySentences(almostSimple, lemma, language)).filter(
-						(s) => !sentences.some((sentence) => sentence.toLowerCase() === s.toLowerCase())
-					),
-					{ exceptLemma: lemma, hardLevel, userId, language }
+			let simplified = (await simplifySentences(almostSimple, lemma, language)).filter(
+				(s) => !sentences.some((sentence) => sentence.toLowerCase() === s.toLowerCase())
+			);
+
+			// not entirely sure this is needed. check if the warning below appears, if not remove it.
+			const incorrectIndices = (
+				await findIncorrectSentences(
+					simplified.map((sentence, i) => ({ sentence, id: i + 1 })),
+					language
 				)
+			).map((i) => i - 1);
+
+			if (incorrectIndices.length) {
+				console.warn(
+					`Simplify produced incorrect sentences: \n${incorrectIndices
+						.map((i) => simplified[i])
+						.join('\n')}`
+				);
+
+				simplified = simplified.filter((_, i) => !incorrectIndices.includes(i));
+			}
+
+			graded = almostSimple.concat(
+				await gradeSentences(simplified, { exceptLemma: lemma, hardLevel, userId, language })
 			);
 		} else {
 			const sorted = graded.sort((a, b) => a.hard.length - b.hard.length);

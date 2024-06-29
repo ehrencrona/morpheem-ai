@@ -9,7 +9,8 @@ export async function askForJson<T>({
 	schema,
 	model,
 	retriesLeft = 1,
-	logResponse = false
+	logResponse,
+	logRequest
 }: {
 	messages: Message[];
 	temperature: number;
@@ -18,6 +19,7 @@ export async function askForJson<T>({
 	model?: Model;
 	retriesLeft?: number;
 	logResponse?: boolean;
+	logRequest?: boolean;
 }) {
 	const response = await ask({
 		messages,
@@ -25,6 +27,7 @@ export async function askForJson<T>({
 		format: 'json_object',
 		temperature,
 		max_tokens,
+		logRequest,
 		logResponse
 	});
 
@@ -43,6 +46,7 @@ export async function askForJson<T>({
 				schema,
 				model,
 				retriesLeft: retriesLeft - 1,
+				logRequest,
 				logResponse
 			});
 		} else {

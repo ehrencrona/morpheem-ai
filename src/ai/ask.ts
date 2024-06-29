@@ -24,6 +24,7 @@ export async function ask<T>({
 	model = defaultModel,
 	retriesLeft = 2,
 	format = 'text',
+	logRequest = true,
 	logResponse = false
 }: {
 	messages: Message[];
@@ -32,20 +33,23 @@ export async function ask<T>({
 	retriesLeft?: number;
 	model?: Model;
 	format?: 'json_object' | 'text';
+	logRequest?: boolean;
 	logResponse?: boolean;
 }) {
 	let completion;
 
 	const requestId = requestCount++;
 
-	console.debug(
-		messages
-			.map(
-				(message) =>
-					`${requestId}. [${message.role}] ${message.content.replaceAll(/[\n\t ]+/g, ' ')}`
-			)
-			.join('\n')
-	);
+	if (logRequest) {
+		console.debug(
+			messages
+				.map(
+					(message) =>
+						`${requestId}. [${message.role}] ${message.content.replaceAll(/[\n\t ]+/g, ' ')}`
+				)
+				.join('\n')
+		);
+	}
 
 	const params = {
 		messages,
