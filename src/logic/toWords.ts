@@ -1,4 +1,4 @@
-import { Language } from './types';
+import { Language, LanguageCode } from './types';
 
 export function toWords(
 	sentence: string,
@@ -61,7 +61,7 @@ export function toWords(
 	}
 }
 
-export function toWordsWithSeparators(sentence: string, language: Language) {
+export function toWordsWithSeparators(sentence: string, language: { code: LanguageCode | 'en' }) {
 	if (language.code == 'fr') {
 		// Define regex pattern for tokenization including Unicode characters, punctuation, and spaces
 		const pattern = /[\p{L}]+(?:-[\p{L}]+)?(?:'[\p{L}]+)?|[\p{L}]+|'|[.,!?;:]+|["“”«»„]| +/gu;
