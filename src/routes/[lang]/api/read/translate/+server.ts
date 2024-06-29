@@ -1,7 +1,6 @@
 import { ServerLoad, error, json } from '@sveltejs/kit';
 import { z } from 'zod';
 import { translateSentences } from '../../../../../ai/translate';
-import { toSentences } from '../../../../../logic/toSentences';
 
 const postSchema = z.object({
 	text: z.string()
@@ -14,7 +13,7 @@ export const POST: ServerLoad = async ({ request, locals: { language, userId } }
 
 	const { text } = postSchema.parse(await request.json());
 
-	const translation = await translateSentences(toSentences(text), {
+	const translation = await translateSentences([text], {
 		language
 	});
 
