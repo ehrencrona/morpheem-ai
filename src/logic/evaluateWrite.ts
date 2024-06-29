@@ -12,7 +12,7 @@ import { lemmatizeSentences } from './lemmatize';
 import { toWords } from './toWords';
 import { ExerciseKnowledge, Language, WordKnowledge } from './types';
 import { getAggregateKnowledgeForUserWords } from '../db/knowledge';
-import { expectedKnowledge } from './isomorphic/knowledge';
+import { expectedKnowledge, now } from './isomorphic/knowledge';
 
 export type WritingFeedbackOpts = z.infer<typeof writingFeedbackOptsSchema>;
 
