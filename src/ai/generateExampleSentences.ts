@@ -1,11 +1,11 @@
 import { z } from 'zod';
-import { Language } from '../logic/types';
+import { Language, LanguageCode } from '../logic/types';
 import { toMessages } from './ask';
 import { askForJson } from './askForJson';
 
-const names = {
+const names: Record<LanguageCode, string> = {
 	pl: `Marek, Ewa, Jakub, Agnieszka`,
-	fr: `Jacques, Charlotte, Pierre, Jeanne`,
+	fr: `Jacques, Charlotte, François, Jeanne`,
 	es: `Juan, María, Pedro, Ana`,
 	ko: `민준, 서연, 서준, 지우`,
 	nl: `Jan, Emma, Willem, Sophie`,
