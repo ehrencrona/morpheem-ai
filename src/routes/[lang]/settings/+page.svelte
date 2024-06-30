@@ -1,9 +1,18 @@
 <script lang="ts">
-	import { getPastDue, getRepetitionTime, setPastDue, setRepetitionTime } from "$lib/settings";
-	import { onMount } from "svelte";
+	import {
+		getPastDue,
+		getRepetitionTime,
+		setClozePreference,
+		setPastDue,
+		setReadPreference,
+		setRepetitionTime
+	} from '$lib/settings';
+	import { onMount } from 'svelte';
 
 	let repetitionTime = 0;
 	let pastDue = 0;
+	let clozePreference = 0;
+	let readPreference = 0;
 
 	onMount(() => {
 		repetitionTime = getRepetitionTime();
@@ -61,4 +70,52 @@
 		{/each}
 	</ul>
 	<div class="text-right">Rehearse late</div>
+
+	<div>More writing / fill-in-blanks</div>
+	<ul class="flex flex-1 justify-center pt-1">
+		{#each [-2, -1, 0, 1, 2] as i}
+			<li>
+				{#if readPreference == i}
+					<div class="inline-block w-4 h-4 rounded-full bg-blue-4 border border-blue-4 mr-2"></div>
+				{:else}
+					<button
+						type="button"
+						on:click={() => {
+							setReadPreference(i);
+							readPreference = i;
+						}}
+					>
+						<div
+							class="inline-block w-4 h-4 rounded-full bg-blue-1 border border-blue-4 mr-2"
+						></div>
+					</button>
+				{/if}
+			</li>
+		{/each}
+	</ul>
+	<div class="text-right">More reading</div>
+
+	<div>More writing</div>
+	<ul class="flex flex-1 justify-center pt-1">
+		{#each [-2, -1, 0, 1, 2] as i}
+			<li>
+				{#if clozePreference == i}
+					<div class="inline-block w-4 h-4 rounded-full bg-blue-4 border border-blue-4 mr-2"></div>
+				{:else}
+					<button
+						type="button"
+						on:click={() => {
+							setClozePreference(i);
+							clozePreference = i;
+						}}
+					>
+						<div
+							class="inline-block w-4 h-4 rounded-full bg-blue-1 border border-blue-4 mr-2"
+						></div>
+					</button>
+				{/if}
+			</li>
+		{/each}
+	</ul>
+	<div class="text-right">More fill-the-blanks</div>
 </div>

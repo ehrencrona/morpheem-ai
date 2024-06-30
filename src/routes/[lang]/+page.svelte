@@ -1,10 +1,14 @@
 <script lang="ts">
+	import { page } from '$app/stores';
+	import { logError } from '$lib/logError';
+	import { getClozePreference } from '$lib/settings';
 	import { onMount } from 'svelte';
 	import { CodedError } from '../../CodedError';
 	import ErrorMessage from '../../components/ErrorMessage.svelte';
+	import SpinnerButton from '../../components/SpinnerButton.svelte';
 	import type * as DB from '../../db/types';
 	import {
-		canWriteSentence,
+		calculateSentenceWriteKnowledge,
 		getExercisesForKnowledge,
 		getNextSentence,
 		scoreExercises
@@ -33,14 +37,12 @@
 		addSentencesForWord,
 		fetchSentencesWithWord
 	} from './api/sentences/withword/[word]/client';
+	import AddExercises from './learn/AddExercises.svelte';
 	import Cloze from './learn/Cloze.svelte';
 	import ReadSentence from './learn/ReadSentence.svelte';
 	import WriteSentence from './learn/WriteSentence.svelte';
 	import { trackActivity } from './learn/trackActivity';
-	import SpinnerButton from '../../components/SpinnerButton.svelte';
-	import { page } from '$app/stores';
-	import { logError } from '$lib/logError';
-	import AddExercises from './learn/AddExercises.svelte';
+	import { toPercent } from '$lib/toPercent';
 
 	export let data: PageData;
 
@@ -117,7 +119,7 @@
 		excludeWordId,
 		excludeSentenceId
 	}: {
-		exercises?: (ScoreableExercise & { score: number })[];
+		exercises?: (ScoreableExercise & { score: number; wordType: DB.WordType | undefined })[];
 		excludeWordId?: number;
 		excludeSentenceId?: number;
 	}): Promise<{
@@ -135,11 +137,12 @@
 		exercises = exercises.filter(filter);
 
 		if (!exercises.length) {
-			const unscored = ([] as ScoreableExercise[])
+			const unscored = ([] as (ScoreableExercise & { wordType: DB.WordType | undefined })[])
 				.concat(getExercisesForKnowledge(knowledge))
 				.concat(
 					userExercises.map((e) => ({
 						...e,
+						wordType: undefined,
 						source: 'userExercise' as DB.ExerciseSource
 					}))
 				);
@@ -186,7 +189,7 @@
 			}
 		}
 
-		let { wordId, exercise, source, sentenceId } = exercises[0];
+		let { wordId, wordType, exercise, source, sentenceId } = exercises[0];
 
 		if (sentenceId != undefined) {
 			try {
@@ -244,10 +247,38 @@
 
 			const { sentence } = nextSentence;
 
-			if (canWriteSentence(sentence, knowledge) && exercise == 'write') {
-				console.log(`Turning write exercise into translate for ${sentence.id}.`);
+			if (exercise == 'write') {
+				const wordKnowledge = expectedKnowledge(exercises[0], { now: now(), exercise: 'write' });
+				const sentenceWriteKnowledge = calculateSentenceWriteKnowledge(sentence, knowledge);
 
-				exercise = 'translate';
+				if (wordKnowledge < 0.7) {
+					console.log(
+						`Knowledge of ${wordId} is only ${toPercent(wordKnowledge)}, turning write into cloze.`
+					);
+
+					exercise = 'cloze';
+				} else if (sentenceWriteKnowledge > 0.7) {
+					console.log(
+						`Turning write exercise into translate for ${sentence.id} (sentence write knowledge ${toPercent(sentenceWriteKnowledge)}).`
+					);
+
+					exercise = 'translate';
+				} else if (wordType == 'particle') {
+					console.log(`Turning write exercise into cloze for particle ${wordId}.`);
+
+					exercise = 'cloze';
+				}
+
+				// -2 -> .5, 2 -> .1
+				const clozeThreshold = 0.3 - getClozePreference() / 10;
+
+				if ((exercise == 'write' || exercise == 'translate') && Math.random() > clozeThreshold) {
+					console.log(
+						`Cloze threshold of ${toPercent(clozeThreshold)} exceeded, turning into cloze.`
+					);
+
+					exercise = 'cloze';
+				}
 			}
 
 			return {
@@ -362,9 +393,7 @@
 	{/if}
 
 	{#if current}
-		<div
-			class="flex mb-6 pb-3 -mx-4 pr-4 bg-[#f9f9f9] lg:bg-white -mt-4 pt-4"
-		>
+		<div class="flex mb-6 pb-3 -mx-4 pr-4 bg-[#f9f9f9] lg:bg-white -mt-4 pt-4">
 			<div class="flex-1 font-lato text-xs flex items-center">
 				{#if current.source == 'unstudied'}
 					<div class="bg-red text-[#fff] px-1 font-sans text-xxs">NEW WORD</div>
@@ -376,10 +405,7 @@
 					<a href={`/${languageCode}/words/${current.wordId}`} class=" text-gray-1"> Word </a>
 				{/if}
 
-				<a
-					href={`/${languageCode}/sentences/${current?.sentence.id}/delete`}
-					class=" text-gray-1"
-				>
+				<a href={`/${languageCode}/sentences/${current?.sentence.id}/delete`} class=" text-gray-1">
 					Delete sentence
 				</a>
 

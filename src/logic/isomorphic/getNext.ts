@@ -1,4 +1,4 @@
-import { getPastDue, getRepetitionTime } from '$lib/settings';
+import { getPastDue, getReadPreference, getRepetitionTime } from '$lib/settings';
 import { AggKnowledgeForUser, ExerciseSource, Scoreable } from '../../db/types';
 import type { CandidateSentenceWithWords, ExerciseType } from '../types';
 import { expectedKnowledge, calculateRepetitionValue, now } from './knowledge';
@@ -19,11 +19,7 @@ export function getExercisesForKnowledge(knowledge: AggKnowledgeForUser[]) {
 				},
 				{
 					...k,
-					exercise: (Math.random() > 0.75 &&
-					k.wordType != 'particle' &&
-					expectedKnowledge(k, { now: now(), exercise: 'write' }) > 0.8
-						? 'write'
-						: 'cloze') as ExerciseType
+					exercise: 'write' as ExerciseType
 				}
 			],
 			[] as (AggKnowledgeForUser & { exercise: ExerciseType })[]
@@ -37,6 +33,7 @@ export function scoreExercises<
 
 	const repetitionTime = getRepetitionTime();
 	const pastDue = getPastDue();
+	const readPreference = getReadPreference();
 
 	const scores = exercises.map((e) => ({
 		...e,
@@ -47,6 +44,7 @@ export function scoreExercises<
 				repetitionTime,
 				pastDue
 			}) *
+				(e.exercise == 'read' ? 1 + readPreference / 4 : 1) *
 				(2 - Math.sqrt(e.level / 100))) /
 			2
 	}));
@@ -54,7 +52,7 @@ export function scoreExercises<
 	return scores.sort((a, b) => b.score - a.score);
 }
 
-export function canWriteSentence(
+export function calculateSentenceWriteKnowledge(
 	sentence: CandidateSentenceWithWords,
 	knowledge: AggKnowledgeForUser[]
 ) {
@@ -74,8 +72,7 @@ export function canWriteSentence(
 					: 0.2)
 			);
 		}, 1) **
-			(1 / sentence.words.length) >
-		0.7
+		(1 / sentence.words.length)
 	);
 }
 

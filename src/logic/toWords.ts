@@ -36,6 +36,8 @@ export function toWords(
 				.split(' ')
 				// deals with e.g. 18-year-old
 				.map((word) => word.replace(/^-/, ''))
+				// "covid-19"
+				.map((word) => word.replace(/-$/, ''))
 				.map((word) => /* removing trailing apostrophe */ word.replace(/'$/, ''))
 				.map(
 					(
@@ -55,6 +57,8 @@ export function toWords(
 				.split(' ')
 				// deals with e.g. 18-year-old
 				.map((word) => word.replace(/^-/, ''))
+				// "covid-19"
+				.map((word) => word.replace(/-$/, ''))
 				.filter((word) => word.length > 0)
 				.map(toLowerCase)
 		);
