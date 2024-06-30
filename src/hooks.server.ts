@@ -80,9 +80,7 @@ let lastThrottleTime = 0;
 let logCount = 0;
 
 export const handleError: HandleServerError = async ({ error, event, status, message }) => {
-	console.error(error);
-
-	const errorId = crypto.randomUUID();
+	const errorId = /* random string */ Math.random().toString(36).substring(7);
 
 	if (isLoggingEnabled && (logCount < 4 || Date.now() - lastThrottleTime > 60000)) {
 		lastThrottleTime = Date.now();
@@ -91,7 +89,11 @@ export const handleError: HandleServerError = async ({ error, event, status, mes
 		captureException(error, {
 			extra: { event, errorId, status }
 		});
+
+		(error as Error).message = `${message} (error ID: ${errorId})`;
 	}
+
+	console.error(error);
 
 	return {
 		message,
