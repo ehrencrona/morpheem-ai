@@ -1,9 +1,8 @@
 import { parallelize } from '$lib/parallelize';
 import { classifyLemmas } from '../ai/classifyLemmas';
-import { KOREAN, SPANISH } from '../constants';
+import { SPANISH } from '../constants';
 import { db } from '../db/client';
 import { getWords } from '../db/words';
-import * as DB from '../db/types';
 
 const language = SPANISH;
 
