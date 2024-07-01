@@ -424,7 +424,8 @@
 	<Tutorial
 		paragraphs={[
 			`Fill-in-the blanks exercises test your ability to produce words in context.`,
-			`They test words you already have a good passive knowledge of.`
+			`They test words you already have a good passive knowledge of.`,
+			`There can be multiple correct answers.`
 		]}
 		id="cloze"
 	/>
