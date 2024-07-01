@@ -5,6 +5,7 @@
 	import { onMount } from 'svelte';
 	import { slide } from 'svelte/transition';
 	import { CodedError } from '../../../CodedError';
+	import type { Clause } from '../../../ai/splitIntoClauses';
 	import Speak from '../../../components/Speak.svelte';
 	import Spinner from '../../../components/Spinner.svelte';
 	import SpinnerButton from '../../../components/SpinnerButton.svelte';
@@ -12,7 +13,10 @@
 	import { KNOWLEDGE_TYPE_WRITE } from '../../../db/knowledgeTypes';
 	import type { ExerciseSource } from '../../../db/types';
 	import type { WritingFeedbackResponse } from '../../../logic/evaluateWrite';
+	import type { Fragment } from '../../../logic/isomorphic/translationToFragments';
+	import { translationToFragments } from '../../../logic/isomorphic/translationToFragments';
 	import type { Language } from '../../../logic/types';
+	import { fetchClauses } from '../api/sentences/[sentence]/clauses/client';
 	import type { Translation } from '../api/sentences/[sentence]/english/client';
 	import type { UnknownWordResponse } from '../api/word/unknown/+server';
 	import { lookupUnknownWord } from '../api/word/unknown/client';
@@ -35,6 +39,10 @@
 
 	/** The sentence to translate if translate, otherwise the writing idea. */
 	export let translation: Translation | undefined;
+
+	let fragments: Fragment[] | undefined;
+	let revealedClauses: Clause[] = [];
+
 	/** The target language sentence if translate. */
 	export let correctSentence: string | undefined;
 
@@ -63,15 +71,24 @@
 		feedback = undefined;
 		lookedUpWord = undefined;
 		showIdea = false;
+		fragments = undefined;
+		revealedClauses = [];
 
 		if (exercise == 'write') {
 			lookupUnknownWord(word!.word, undefined)
 				.then((word) => (lookedUpWord = word))
 				.catch(logError);
-		}
 
-		if (!translation) {
-			getTranslation().catch(logError);
+			if (!translation) {
+				getTranslation().catch(logError);
+			}
+		} else {
+			fetchClauses(sentenceId)
+				.then((gotClauses) => {
+					translation = gotClauses;
+					fragments = translationToFragments(translation.english, gotClauses.clauses);
+				})
+				.catch(logError);
 		}
 	}
 
@@ -219,7 +236,23 @@
 				<div class="text-sm mb-6">
 					<div class="text-xs font-lato">Translate into {language.name}:</div>
 					<div class="text-xl">
-						{#if translation}
+						{#if fragments}
+							{#each fragments as fragment}
+								{#if fragment.clauses.length}
+									<span
+										on:click={() => {
+											revealedClauses = [...revealedClauses, ...fragment.clauses];
+										}}
+										class={fragment.clauses.every((c) => revealedClauses.includes(c))
+											? 'border-b-2 border-blue-3 border-dotted'
+											: 'hover:underline decoration-yellow'}
+										>{fragment.fragment}
+									</span>
+								{:else}
+									{fragment.fragment}
+								{/if}
+							{/each}
+						{:else if translation}
 							"{translation.english}"
 						{:else}
 							<Spinner />
@@ -283,6 +316,26 @@
 				{:else}
 					<span class="text-green">{entered}</span>
 				{/if}
+			</div>
+		{/if}
+
+		{#if revealedClauses.length > 0}
+			<div class="grid grid-cols-1 md:grid-cols-2 w-full gap-x-4 mt-8" transition:slide>
+				{#each revealedClauses as clause}
+					<div class="bg-light-gray rounded-md w-full border border-gray md:max-w-[500px] mb-4">
+						<div
+							class="font-medium mb-1 flex bg-blue-3 text-[#fff] px-3 py-2 rounded-t-md items-baseline"
+						>
+							{clause.sentence}
+						</div>
+
+						<div class="px-3 pb-4">
+							<div class="text-balance font-lato mt-2">
+								{clause.english}
+							</div>
+						</div>
+					</div>
+				{/each}
 			</div>
 		{/if}
 
