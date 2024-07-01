@@ -25,6 +25,7 @@
 	import type { Translation } from '../api/sentences/[sentence]/english/client';
 	import type { UnknownWordResponse } from '../api/word/unknown/+server';
 	import WordCard from './WordCard.svelte';
+	import { getShowTransliteration } from '$lib/settings';
 
 	export let sentence: DB.Sentence;
 
@@ -59,6 +60,8 @@
 	export let onType: (prefix: string) => void;
 	export let onAnswer: (wordString: string) => Promise<void>;
 	export let onPickedWord: (wordString: string) => Promise<void>;
+
+	let showTransliteration = getShowTransliteration();
 
 	$: answer = word.conjugatedWord.slice(0, showChars) + (prefix?.trim() || '');
 
@@ -163,7 +166,7 @@
 		<div class="text-sm mb-6" in:slide>
 			<div class="text-xs font-lato">The sentence means</div>
 			<div class="text-xl">"{sentenceTranslation.english}"</div>
-			{#if sentenceTranslation.transliteration}
+			{#if sentenceTranslation.transliteration && showTransliteration}
 				<div class="text-xs font-lato">{sentenceTranslation.transliteration}</div>
 			{/if}
 		</div>

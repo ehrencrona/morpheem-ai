@@ -2,6 +2,7 @@
 	import type * as DB from '../../../db/types';
 	import SpinnerButton from '../../../components/SpinnerButton.svelte';
 	import { getLanguageOnClient } from '../api/api-call';
+	import { getShowTransliteration } from '$lib/settings';
 
 	export let word: DB.Word;
 	export let form: string | undefined = undefined;
@@ -73,7 +74,7 @@
 			</div>
 		{/if}
 
-		{#if transliteration}
+		{#if transliteration && getShowTransliteration()}
 			<div class="text-xs font-lato mt-2">{transliteration}</div>
 		{/if}
 

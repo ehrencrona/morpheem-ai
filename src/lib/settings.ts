@@ -53,3 +53,21 @@ export function getClozePreference(): number {
 export function setClozePreference(value: number): void {
 	localStorage.setItem('clozePreference', value.toString());
 }
+
+export function setShowTransliteration(value: boolean): void {
+	if (typeof localStorage === 'undefined') {
+		return;
+	}
+
+	localStorage.setItem('showTransliteration', value ? '1' : '0');
+}
+
+export function getShowTransliteration(): boolean {
+	if (typeof localStorage === 'undefined') {
+		return true;
+	}
+
+	const str = localStorage.getItem('showTransliteration');
+
+	return str == null ? true : str === '1';
+}

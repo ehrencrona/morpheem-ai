@@ -2,10 +2,12 @@
 	import {
 		getPastDue,
 		getRepetitionTime,
+		getShowTransliteration,
 		setClozePreference,
 		setPastDue,
 		setReadPreference,
-		setRepetitionTime
+		setRepetitionTime,
+		setShowTransliteration
 	} from '$lib/settings';
 	import { onMount } from 'svelte';
 
@@ -18,9 +20,19 @@
 		repetitionTime = getRepetitionTime();
 		pastDue = getPastDue();
 	});
+
+	let doTransliterate = getShowTransliteration();
+
+	$: setShowTransliteration(doTransliterate);
 </script>
 
 <h1 class="text-2xl mb-8 mt-8">Settings</h1>
+
+<label class="block mt-4 mb-4">
+	<input type="checkbox" bind:checked={doTransliterate} class="mr-1" />
+
+	Transliterate Korean and Russian
+</label>
 
 <div class="grid grid-cols-3 gap-2 items-center">
 	<div>More repetition</div>

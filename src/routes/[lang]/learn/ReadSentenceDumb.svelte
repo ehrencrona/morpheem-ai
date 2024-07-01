@@ -11,6 +11,7 @@
 	import { fetchAskMeAnything } from '../api/write/ama/client';
 	import Ama from './AMA.svelte';
 	import WordCard from './WordCard.svelte';
+	import { getShowTransliteration } from '$lib/settings';
 
 	export let sentence: DB.Sentence;
 	export let word: DB.Word | undefined;
@@ -54,6 +55,8 @@
 			isLoadingUnknown = false;
 		}
 	}
+
+	let showTransliteration = getShowTransliteration();
 </script>
 
 <div class="text-xs font-lato">
@@ -82,7 +85,7 @@
 			{/if}
 		</div>
 		<div class="text-xl">"{translation?.english || hint}"</div>
-		{#if translation?.transliteration}
+		{#if translation?.transliteration && showTransliteration}
 			<div class="text-xs font-lato">
 				{translation.transliteration}
 			</div>

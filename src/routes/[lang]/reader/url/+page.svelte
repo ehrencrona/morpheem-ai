@@ -2,9 +2,10 @@
 	import { dedupUnknown } from '$lib/dedupUnknown';
 	import { logError } from '$lib/logError';
 	import { slide } from 'svelte/transition';
-	import ErrorMessage from '../../../../components/ErrorMessage.svelte';
 	import Spinner from '../../../../components/Spinner.svelte';
 	import SpinnerButton from '../../../../components/SpinnerButton.svelte';
+	import Tutorial from '../../../../components/Tutorial.svelte';
+	import { toWords } from '../../../../logic/toWords';
 	import { fetchSimplified } from '../../api/read/simplify/client';
 	import { sendReadText } from '../../api/read/text/client';
 	import { fetchTranslation } from '../../api/read/translate/client';
@@ -14,10 +15,9 @@
 	import Ama from '../../learn/AMA.svelte';
 	import WordCard from '../../learn/WordCard.svelte';
 	import { trackActivity } from '../../learn/trackActivity';
-	import type { PageData } from '../../read/url/$types';
 	import ParagraphComponent from './Paragraph.svelte';
-	import { toWords } from '../../../../logic/toWords';
-	import Tutorial from '../../../../components/Tutorial.svelte';
+	import { PageData } from './$types';
+	import { getShowTransliteration } from '$lib/settings';
 
 	export let data: PageData;
 
@@ -35,6 +35,8 @@
 
 	$: page = pages[atPage];
 	let revealed: UnknownWordResponse[] = [];
+
+	let showTransliteration = getShowTransliteration();
 
 	async function onParagraphDone() {
 		let timeSpent = Math.round((Date.now() - showedParagraphAt) / 1000);
@@ -149,7 +151,7 @@
 		<h1 class="text-3xl lg:text-4xl mb-4 leading-tight font-bold">
 			<ParagraphComponent text={data.title || ''} {language} {revealed} {onClickedWord} />
 
-			{#if translatedTitle?.transliteration}
+			{#if translatedTitle?.transliteration && showTransliteration}
 				<div class="text-xs font-lato mt-2">{translatedTitle.transliteration}</div>
 			{/if}
 		</h1>
@@ -178,7 +180,7 @@
 				<div class={paragraph.style == 'h' ? 'font-bold' : ''}>
 					<ParagraphComponent text={paragraph.text} {language} {revealed} {onClickedWord} />
 
-					{#if translatedParagraphs?.[index].transliteration}
+					{#if translatedParagraphs?.[index].transliteration && showTransliteration}
 						<div class="text-xs font-lato mt-2">
 							{translatedParagraphs[index].transliteration}
 						</div>
@@ -228,7 +230,7 @@
 		id="reader"
 		paragraphs={[
 			"Click on words you don't know to reveal their meaning.",
-			'Pressing next will mark that you know all other words in the paragraph.',
+			'Pressing next will mark that you know all other words in the paragraph.'
 		]}
 	/>
 
