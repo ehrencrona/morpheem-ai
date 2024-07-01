@@ -35,11 +35,13 @@ export async function classifyLemmas(
 		mariusz: marius, name
 		nie: no, other
 		wstawać: get up, other
+		zapamiętywanie: memorizing, other
 		się: oneself, particle
 		chwila: moment, other
 		to: this, particle
 		z: with, other
 		można: can, inflection
+		weekendowy: weekend, cognate
 		tortu: cake, inflection
 		armia: army, cognate
 		mój: my, cognate
@@ -113,7 +115,7 @@ export async function classifyLemmas(
 					` - if the word is an inflection different from the dictionary form, print "inflection".\n` +
 					` - if the word is a name, print "name".\n` +
 					` - if the word cannot be translated to English because it is a purely grammatical feature, print "particle".\n` +
-					` - if it is not a correct word, print "wrong".\n` +
+					` - if it is not a correct word or a typo, print "wrong".\n` +
 					` - otherwise, if the ${language.name} word would look instantly familiar to an ${cognateTo} speaker, print "cognate". ` +
 					`Otherwise, print "other". Do not print anything more. E.g. \n${examples[language.code]}`
 			},

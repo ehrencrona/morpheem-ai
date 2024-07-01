@@ -1,18 +1,18 @@
 import { parallelize } from '$lib/parallelize';
 import { classifyLemmas } from '../ai/classifyLemmas';
-import { SPANISH } from '../constants';
+import { POLISH } from '../constants';
 import { db } from '../db/client';
 import { getWords } from '../db/words';
 
-const language = SPANISH;
+const language = POLISH;
 
 async function updateWordTypes(run: 'dry' | 'real') {
-	const words = await getWords('id asc', language);
+	let words = await getWords('id asc', language);
 
 	const slices: string[][] = [];
 
-	for (let i = 0; i < words.length; i += 25) {
-		slices.push(words.slice(i, i + 25).map(({ word }) => word));
+	for (let i = 0; i < words.length; i += 35) {
+		slices.push(words.slice(i, i + 35).map(({ word }) => word));
 	}
 
 	await parallelize(
