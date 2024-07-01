@@ -49,7 +49,7 @@
 	export let isLoadingSuggestions = false;
 	export let isFetchingEvaluation = false;
 
-	export let revealed: UnknownWordResponse[];
+	export let unknown: UnknownWordResponse[];
 
 	export let onHint: () => Promise<any>;
 	export let onNext: () => Promise<any>;
@@ -60,6 +60,9 @@
 	export let onType: (prefix: string) => void;
 	export let onAnswer: (wordString: string) => Promise<void>;
 	export let onPickedWord: (wordString: string) => Promise<void>;
+
+	let isLoadingUnknown = false;
+	let input: HTMLInputElement;
 
 	let showTransliteration = getShowTransliteration();
 
@@ -85,9 +88,6 @@
 	}
 
 	$: wordsWithSeparators = toWordsWithSeparators(sentence.sentence, language);
-
-	let isLoadingUnknown = false;
-	let input: HTMLInputElement;
 
 	function onSubmit() {
 		onAnswer(answer);
@@ -155,7 +155,7 @@
 						style="cursor: pointer"
 						role="button"
 						tabindex={index}
-						class={revealed.find((r) => (r.inflected || r.word) == wordString)
+						class={unknown.find((r) => (r.inflected || r.word) == wordString)
 							? 'border-b-2 border-blue-3 border-dotted'
 							: 'hover:underline decoration-yellow'}
 						on:click={() => onClickedWord(wordString)}>{wordString}</span
@@ -173,9 +173,9 @@
 	{/if}
 
 	{#if !evaluation}
-		{#if revealed.length > 0}
+		{#if unknown.length > 0}
 			<div class="grid grid-cols-1 md:grid-cols-2 w-full gap-x-4 mt-8">
-				{#each revealed as word (word.id)}
+				{#each unknown as word (word.id)}
 					<WordCard {word} onRemove={() => onRemoveUnknown(word.word)} />
 				{/each}
 				{#if isLoadingUnknown}
@@ -268,7 +268,7 @@
 				<WordCard word={{ ...unknownWord, inflected: word.conjugatedWord }} />
 			{/if}
 
-			{#each revealed as word (word.id)}
+			{#each unknown as word (word.id)}
 				<WordCard {word} onRemove={() => onRemoveUnknown(word.word)} />
 			{/each}
 		</div>

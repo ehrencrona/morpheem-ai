@@ -1,5 +1,5 @@
 import { ServerLoad, json } from '@sveltejs/kit';
-import { z } from 'zod';
+import { unknown, z } from 'zod';
 import { askMeAnythingRead, askMeAnythingWrite } from '../../../../../ai/askMeAnything';
 
 export type PostSchema = z.infer<typeof postSchema>;
@@ -22,7 +22,7 @@ const postSchema = z
 			translation: z.string().optional(),
 			word: z.string().optional(),
 			confusedWord: z.string().optional(),
-			revealed: z.array(z.object({ english: z.string(), word: z.string() }))
+			unknown: z.array(z.object({ english: z.string(), word: z.string() }))
 		})
 	);
 

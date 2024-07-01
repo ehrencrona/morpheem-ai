@@ -5,7 +5,7 @@
 
 	export let ask: (question: string) => Promise<string>;
 	export let explanation: string | undefined = undefined;
-	export let wordId: number|undefined;
+	export let wordId: number | undefined;
 
 	export let suggestions: string[] = [];
 
@@ -40,11 +40,9 @@
 			bind:value={question}
 			on:focus={() => window.innerWidth < 768 && isTouchDevice() && (isFullScreen = true)}
 			on:blur={() => (isFullScreen = false)}
-			placeholder={
-				suggestions.length
-					? `e.g. "${suggestions[Math.floor(Math.random() * suggestions.length)]}"`
-					: ''
-			}
+			placeholder={suggestions.length
+				? `e.g. "${suggestions[Math.floor(Math.random() * suggestions.length)]}"`
+				: ''}
 		/>
 		{#if explanation}
 			<div class="text-xs font-lato text-gray-1">{explanation}</div>

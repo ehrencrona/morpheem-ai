@@ -5,7 +5,7 @@
 
 	export let text: string;
 	export let language: Language;
-	export let revealed: UnknownWordResponse[];
+	export let unknown: UnknownWordResponse[];
 	export let onClickedWord: (word: string) => void;
 
 	$: words = toWordsWithSeparators(text, language);
@@ -15,7 +15,7 @@
 			style="cursor: pointer"
 			role="button"
 			tabindex={index}
-			class={revealed.find((r) => (r.inflected || r.word) == word)
+			class={unknown.find((r) => (r.inflected || r.word) == word)
 				? 'border-b-2 border-blue-3 border-dotted'
 				: 'hover:underline decoration-yellow'}
 			on:click={() => onClickedWord(word)}>{word}</span

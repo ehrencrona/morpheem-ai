@@ -13,7 +13,7 @@ describe('evaluateCloze', async () => {
 		const evaluation = await evaluateCloze(
 			{
 				...cloze,
-				userAnswer: 'relacje',
+				answered: 'relacje',
 				isRightLemma: true
 			},
 			{ language: POLISH }
@@ -30,7 +30,7 @@ describe('evaluateCloze', async () => {
 		const evaluation = await evaluateCloze(
 			{
 				...cloze,
-				userAnswer: 'relato',
+				answered: 'relato',
 				isRightLemma: false
 			},
 			{ language: POLISH }
@@ -43,7 +43,7 @@ describe('evaluateCloze', async () => {
 		const evaluation = await evaluateCloze(
 			{
 				...cloze,
-				userAnswer: 'relazji',
+				answered: 'relazji',
 				isRightLemma: false
 			},
 			{ language: POLISH }
@@ -56,7 +56,7 @@ describe('evaluateCloze', async () => {
 		const evaluation = await evaluateCloze(
 			{
 				...cloze,
-				userAnswer: 'związku',
+				answered: 'związku',
 				isRightLemma: false
 			},
 			{ language: POLISH }
@@ -71,7 +71,7 @@ describe('evaluateCloze', async () => {
 		const evaluation = await evaluateCloze(
 			{
 				...cloze,
-				userAnswer: 'związek',
+				answered: 'związek',
 				isRightLemma: false
 			},
 			{ language: POLISH }
@@ -95,7 +95,7 @@ describe('evaluateCloze', async () => {
 				clue: 'learned',
 				correctAnswer: { conjugated: 'nauczył', word: `nauczyć`, id: 1234 },
 				isRightLemma: false,
-				userAnswer: 'uczył'
+				answered: 'uczył'
 			},
 			{ language: POLISH }
 		);

@@ -17,7 +17,7 @@
 	export let word: DB.Word | undefined;
 	export let language: Language;
 
-	export let revealed: UnknownWordResponse[];
+	export let unknown: UnknownWordResponse[];
 
 	export let onUnknown: (word: string) => Promise<any>;
 	export let onRemoveUnknown: (word: string) => Promise<any>;
@@ -68,7 +68,7 @@
 				style="cursor: pointer"
 				role="button"
 				tabindex={index}
-				class={revealed.find((r) => (r.inflected || r.word) == word)
+				class={unknown.find((r) => (r.inflected || r.word) == word)
 					? 'border-b-2 border-blue-3 border-dotted'
 					: 'hover:underline decoration-yellow'}
 				on:click={() => onClickedWord(word)}>{word}</span
@@ -94,7 +94,7 @@
 {/if}
 
 <div class="grid grid-cols-1 md:grid-cols-2 w-full gap-x-4">
-	{#each revealed as word (word.id)}
+	{#each unknown as word (word.id)}
 		<WordCard {word} onRemove={() => onRemoveUnknown(word.word)} />
 	{/each}
 	{#if isLoadingUnknown}
@@ -130,7 +130,7 @@
 			question,
 			word: word?.word,
 			sentence: sentence.sentence,
-			revealed,
+			unknown,
 			translation: translation?.english
 		})}
 	wordId={sentence.id}
@@ -140,7 +140,7 @@
 		'Break down this sentence',
 		'How do you conjugate "to do"?',
 		`How do you say "ice cream" in ${language.name}?`,
-		...(revealed.length
+		...(unknown.length
 			? ['Etymology?', 'Other meanings?', 'Similar-sounding words?', 'Synonyms?', 'Examples?']
 			: [])
 	]}

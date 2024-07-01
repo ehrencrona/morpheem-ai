@@ -67,7 +67,7 @@ export async function askMeAnythingRead({
 	translation,
 	word,
 	confusedWord,
-	revealed,
+	unknown,
 	language
 }: {
 	question: string;
@@ -75,7 +75,7 @@ export async function askMeAnythingRead({
 	translation?: string;
 	word?: string;
 	confusedWord?: string;
-	revealed: { english: string; word: string }[];
+	unknown: { english: string; word: string }[];
 	language: Language;
 }) {
 	return ask({
@@ -100,7 +100,7 @@ export async function askMeAnythingRead({
 						}
 					] as Message[])
 				: []),
-			...revealed
+			...unknown
 				.map(
 					({ word, english }) =>
 						[

@@ -9,20 +9,20 @@
 
 	export let knowledge: AggKnowledgeForUser[];
 
-	let revealed: UnknownWordResponse[] = [];
+	let unknown: UnknownWordResponse[] = [];
 	let showAll = false;
 
 	async function onUnknown(word: AggKnowledgeForUser) {
 		const unknownWord = await lookupUnknownWord(word.word, undefined);
 
-		revealed = dedupUnknown([...revealed, unknownWord]);
+		unknown = dedupUnknown([...unknown, unknownWord]);
 	}
 
 	$: words = knowledge.map((wordKnowledge) => {
-		const revealedWord = revealed.find((r) => r.id === wordKnowledge.wordId);
+		const word = unknown.find((r) => r.id === wordKnowledge.wordId);
 
 		return {
-			word: revealedWord,
+			word,
 			knowledge: wordKnowledge
 		};
 	});

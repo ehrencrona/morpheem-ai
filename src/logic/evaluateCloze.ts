@@ -1,5 +1,4 @@
 import { evaluateCloze as evaluateClozeAi } from '../ai/evaluateCloze';
-import { getForms } from '../db/lemmas';
 import * as DB from '../db/types';
 import { getWordByLemma } from '../db/words';
 import { standardize } from './isomorphic/standardize';
@@ -7,11 +6,18 @@ import { lemmatizeSentences } from './lemmatize';
 import { toWords } from './toWords';
 import { Language } from './types';
 
+export interface Evaluation {
+	answered: string;
+	outcome: 'correct' | 'wrongForm' | 'typo' | 'alternate' | 'alternateWrongForm' | 'wrong';
+	evaluation?: string;
+	alternateWord?: DB.Word & { conjugated: string };
+}
+
 export async function evaluateCloze(
 	opts: {
 		cloze: string;
 		clue: string;
-		userAnswer: string;
+		answered: string;
 		correctAnswer: { conjugated: string; word: string; id: number };
 		isRightLemma: boolean;
 	},
@@ -20,7 +26,7 @@ export async function evaluateCloze(
 	}: {
 		language: Language;
 	}
-) {
+): Promise<Evaluation> {
 	let {
 		case: outcome,
 		evaluation,
@@ -34,10 +40,10 @@ export async function evaluateCloze(
 	let alternateWord: (DB.Word & { conjugated: string }) | undefined;
 
 	console.log(
-		`Cloze "${cloze}" evaluated "${opts.userAnswer}" as ${outcome}${corrected ? `, fixed to "${corrected}".` : ''}`
+		`Cloze "${cloze}" evaluated "${opts.answered}" as ${outcome}${corrected ? `, fixed to "${corrected}".` : ''}`
 	);
 
-	let userAnswer = standardize(corrected || opts.userAnswer);
+	let answered = standardize(corrected || opts.answered);
 
 	// we did ask because the answer was unexpected, so it can't be correct.
 	// therefore, let's say it's alternate.
@@ -50,12 +56,12 @@ export async function evaluateCloze(
 	}
 
 	if (outcome == 'alternate' || outcome == 'alternateWrongForm') {
-		const sentence = cloze.replace(/_+/, userAnswer);
+		const sentence = cloze.replace(/_+/, answered);
 
 		const words = toWords(sentence, language);
 		const lemmatized = await lemmatizeSentences([sentence], { language, ignoreErrors: true });
 
-		const wordIndex = words.findIndex((word) => word === userAnswer);
+		const wordIndex = words.findIndex((word) => word === answered);
 
 		if (wordIndex >= 0) {
 			const differentWordString = lemmatized[0][wordIndex];
@@ -63,11 +69,11 @@ export async function evaluateCloze(
 			try {
 				alternateWord = {
 					...(await getWordByLemma(differentWordString, language)),
-					conjugated: userAnswer
+					conjugated: answered
 				};
 
 				console.log(
-					`User answer "${userAnswer}" is lemma "${alternateWord.word}" (${alternateWord.id}).`
+					`User answer "${answered}" is lemma "${alternateWord.word}" (${alternateWord.id}).`
 				);
 			} catch (e) {
 				// add the word?
@@ -79,10 +85,10 @@ export async function evaluateCloze(
 			}
 		} else {
 			console.error(
-				`Word "${userAnswer}" not found in sentence "${sentence}" generated from cloze ${cloze}.`
+				`Word "${answered}" not found in sentence "${sentence}" generated from cloze ${cloze}.`
 			);
 		}
 	}
 
-	return { outcome, evaluation, alternateWord };
+	return { outcome, evaluation, alternateWord, answered };
 }

@@ -25,14 +25,14 @@ export const actions: Actions = {
 
 		username = username!.toString().toLowerCase();
 
-		if (!isPasswordValid(password)) {
+		if (!isPasswordValid(password) || !password) {
 			return fail(400, {
 				message: INVALID_PASSWORD
 			});
 		}
 
 		const userId = generateIdFromEntropySize(10); // 16 characters long
-		const passwordHash = await new LegacyScrypt().hash(password);
+		const passwordHash = await new LegacyScrypt().hash(password as string);
 
 		if (
 			await db

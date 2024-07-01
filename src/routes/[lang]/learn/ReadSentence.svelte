@@ -21,10 +21,10 @@
 
 	export let onNext: () => Promise<any>;
 
-	let revealed: UnknownWordResponse[] = [];
+	let unknown: UnknownWordResponse[] = [];
 
 	$: if (sentence.id) {
-		revealed = [];
+		unknown = [];
 	}
 
 	const getHint = () => fetchHint(sentence.id);
@@ -33,11 +33,11 @@
 	async function onUnknown(word: string) {
 		const unknownWord = await lookupUnknownWord(word, sentence.id);
 
-		revealed = dedupUnknown([...revealed, unknownWord]);
+		unknown = dedupUnknown([...unknown, unknownWord]);
 	}
 
 	async function onRemoveUnknown(word: string) {
-		revealed = revealed.filter((r) => r.word !== word);
+		unknown = unknown.filter((r) => r.word !== word);
 	}
 
 	async function storeAndContinue() {
@@ -49,7 +49,7 @@
 				word,
 				wordId: word.id,
 				sentenceId: sentenceId,
-				isKnown: !revealed.find(({ id }) => id === word.id),
+				isKnown: !unknown.find(({ id }) => id === word.id),
 				studiedWordId,
 				type: KNOWLEDGE_TYPE_READ,
 				userId: -1
@@ -63,7 +63,7 @@
 <ReadSentenceDumb
 	{word}
 	{sentence}
-	{revealed}
+	unknown={unknown}
 	{getHint}
 	{onUnknown}
 	{onRemoveUnknown}
@@ -72,7 +72,7 @@
 	onNext={storeAndContinue}
 />
 
-{#if revealed.length}
+{#if unknown.length}
 	<Tutorial
 		paragraphs={[
 			`Take your time to memorize the word. You will get it again in future exercises.`,

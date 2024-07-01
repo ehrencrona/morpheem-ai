@@ -9,13 +9,14 @@
 	import Tutorial from '../../../components/Tutorial.svelte';
 	import { KNOWLEDGE_TYPE_CLOZE, KNOWLEDGE_TYPE_READ } from '../../../db/knowledgeTypes';
 	import * as DB from '../../../db/types';
+	import type { Evaluation } from '../../../logic/evaluateCloze';
 	import { expectedKnowledge, now } from '../../../logic/isomorphic/knowledge';
 	import { standardize } from '../../../logic/isomorphic/standardize';
 	import { toWords, toWordsWithSeparators } from '../../../logic/toWords';
 	import type { Language, SentenceWord } from '../../../logic/types';
 	import { fetchClozeEvaluation } from '../api/cloze/client';
-	import { fetchTranslation } from '../api/sentences/[sentence]/english/client';
 	import type { Translation } from '../api/sentences/[sentence]/english/client';
+	import { fetchTranslation } from '../api/sentences/[sentence]/english/client';
 	import { fetchInflections } from '../api/word/[id]/inflections/client';
 	import { fetchMnemonic } from '../api/word/[id]/mnemonic/client';
 	import { fetchWordsByPrefix } from '../api/word/prefix/[prefix]/client';
@@ -23,8 +24,8 @@
 	import { lookupUnknownWord } from '../api/word/unknown/client';
 	import { fetchAskMeAnything } from '../api/write/ama/client';
 	import Ama from './AMA.svelte';
+	import type { SuggestedWords } from './ClozeDumb.svelte';
 	import ClozeDumb from './ClozeDumb.svelte';
-	import type { Evaluation, SuggestedWords } from './ClozeDumb.svelte';
 
 	export let sentence: DB.Sentence;
 	export let word: DB.Word;
@@ -38,21 +39,21 @@
 
 	let isLoadingSuggestions = false;
 	let isFetchingEvaluation = false;
-	let revealed: UnknownWordResponse[] = [];
+	let unknown: UnknownWordResponse[] = [];
 	let offerSuggestions = true;
 
 	$: if (sentence.id) {
-		revealed = [];
+		unknown = [];
 	}
 
 	async function onUnknown(word: string) {
 		const unknownWord = await lookupUnknownWord(word, sentence.id);
 
-		revealed = dedupUnknown([...revealed, unknownWord]);
+		unknown = dedupUnknown([...unknown, unknownWord]);
 	}
 
 	async function onRemoveUnknown(word: string) {
-		revealed = revealed.filter((r) => r.word !== word);
+		unknown = unknown.filter((r) => r.word !== word);
 	}
 
 	export let onNext: () => Promise<any>;
@@ -297,7 +298,7 @@
 					''
 				),
 				clue: unknownWord?.english || '',
-				userAnswer: answered,
+				answered,
 				correctAnswer: {
 					id: word.id,
 					conjugated: conjugatedWord,
@@ -311,10 +312,7 @@
 					`Got evaluation for "${answered}": Outcome: ${gotEvaluation.outcome}${gotEvaluation.alternateWord ? `; Alternate: ${gotEvaluation.alternateWord.word}` : ''}`
 				);
 
-				evaluation = {
-					answered,
-					...gotEvaluation
-				};
+				evaluation = gotEvaluation;
 			}
 		}
 	}
@@ -347,7 +345,7 @@
 						sentenceId: sentence.id,
 						isKnown: isClozeWord
 							? (outcome == 'correct' || outcome == 'alternate' || outcome == 'typo') && !showChars
-							: !revealed.find(({ id }) => id === sentenceWord.id),
+							: !unknown.find(({ id }) => id === sentenceWord.id),
 						studiedWordId: word.id,
 						type: isClozeWord ? KNOWLEDGE_TYPE_CLOZE : KNOWLEDGE_TYPE_READ,
 						userId: -1
@@ -398,7 +396,7 @@
 		{sentenceTranslation}
 		{showChars}
 		{suggestedWords}
-		{revealed}
+		{unknown}
 		{language}
 		{isLoadingSuggestions}
 	/>
@@ -443,13 +441,13 @@
 			word: word.word,
 			confusedWord: evaluation?.answered,
 			sentence: sentence.sentence,
-			revealed
+			unknown
 		})}
 	wordId={word.id}
 	suggestions={[
 		'Can I express this differently?',
 		`How do you say 'banana' in ${language.name}?`,
-		...(revealed.length
+		...(unknown.length
 			? ['Etymology?', 'Other meanings?', 'Similar-sounding words?', 'Synonyms?', 'Examples?']
 			: [])
 	]}

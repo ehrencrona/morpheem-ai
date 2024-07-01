@@ -6,13 +6,13 @@ export async function evaluateCloze(
 	{
 		cloze,
 		clue,
-		userAnswer,
+		answered,
 		correctAnswer,
 		isRightLemma
 	}: {
 		cloze: string;
 		clue: string;
-		userAnswer: string;
+		answered: string;
 		correctAnswer: { word: string; conjugated: string };
 		isRightLemma: boolean;
 	},
@@ -31,7 +31,7 @@ export async function evaluateCloze(
 					`The expected answer is "${correctAnswer.conjugated}".\n` +
 					(isRightLemma
 						? `Very briefly explain how the required grammatical form/inflection relates to the one I picked and why it is right or wrong in the field "evaluation". In "case", return "correct" or "wrongForm". Return JSON in the form \`{ evaluation: string, case: string }\``
-						: `If my answer is incorrect, tell me if the problem is grammatical agreement, spelling or wrong meaning. If it is grammatical agreement, explain the forms involved and why the correct one is correct. If it is wrong meaning, explaing the meaning of the word I chose. Return the explanation in "evaluation".
+						: `If my answer is incorrect, tell me if the problem is grammatical agreement, spelling or wrong meaning. If it is grammatical agreement, explain the forms involved and why the correct one is correct. If it is wrong meaning, explain the meaning of the word I chose. Return the explanation in "evaluation".
 
 						Then determine the first of these cases that applies: 
 						 - "wrongForm": My answer is a different grammatical form of "${correctAnswer.word}".
@@ -48,7 +48,7 @@ export async function evaluateCloze(
 				role: 'assistant',
 				content: `Find the missing word:\n\n${cloze.replace(/_+/, `_______ ("${clue}")`)}\n\n`
 			},
-			{ role: 'user', content: cloze.replace(/_+/, `***` + userAnswer + `***`) }
+			{ role: 'user', content: cloze.replace(/_+/, `***` + answered + `***`) }
 		],
 		model: 'gpt-4o',
 		temperature: 0.5,

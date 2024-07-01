@@ -34,7 +34,7 @@
 	let atPage = data.atPage;
 
 	$: page = pages[atPage];
-	let revealed: UnknownWordResponse[] = [];
+	let unknown: UnknownWordResponse[] = [];
 
 	let showTransliteration = getShowTransliteration();
 
@@ -54,7 +54,7 @@
 					' ' +
 					pages[atPage].reduce((acc, { text }) => acc + ' ' + text, '')
 				).trim(),
-				revealed.map(({ id }) => id)
+				unknown.map(({ id }) => id)
 			).catch(logError);
 		} else {
 			console.warn(
@@ -70,7 +70,7 @@
 		onParagraphDone();
 
 		atPage = atPage === pages.length - 1 ? 0 : atPage + 1;
-		revealed = [];
+		unknown = [];
 
 		const searchParams = new URLSearchParams(location.search);
 		searchParams.set('page', atPage + 1 + '');
@@ -88,7 +88,7 @@
 
 			const unknownWord = await lookupUnknownWord(word, undefined);
 
-			revealed = dedupUnknown([...revealed, unknownWord]);
+			unknown = dedupUnknown([...unknown, unknownWord]);
 		} catch (e) {
 			logError(e);
 		} finally {
@@ -97,7 +97,7 @@
 	}
 
 	async function onRemoveUnknown(word: string) {
-		revealed = revealed.filter((r) => r.word !== word);
+		unknown = unknown.filter((r) => r.word !== word);
 	}
 
 	async function simplify() {
@@ -149,7 +149,7 @@
 
 	<div class="grid grid-flow-row{translatedTitle ? ` md:grid-cols-2` : ''} items-start gap-8">
 		<h1 class="text-3xl lg:text-4xl mb-4 leading-tight font-bold">
-			<ParagraphComponent text={data.title || ''} {language} {revealed} {onClickedWord} />
+			<ParagraphComponent text={data.title || ''} {language} {unknown} {onClickedWord} />
 
 			{#if translatedTitle?.transliteration && showTransliteration}
 				<div class="text-xs font-lato mt-2">{translatedTitle.transliteration}</div>
@@ -178,7 +178,7 @@
 		<div class="text-xl mb-4 mt-2 font-medium flex flex-col gap-4">
 			{#each page as paragraph, index}
 				<div class={paragraph.style == 'h' ? 'font-bold' : ''}>
-					<ParagraphComponent text={paragraph.text} {language} {revealed} {onClickedWord} />
+					<ParagraphComponent text={paragraph.text} {language} {unknown} {onClickedWord} />
 
 					{#if translatedParagraphs?.[index].transliteration && showTransliteration}
 						<div class="text-xs font-lato mt-2">
@@ -203,7 +203,7 @@
 	</div>
 
 	<div class="grid grid-cols-1 md:grid-cols-2 w-full gap-x-4">
-		{#each revealed as word (word.id)}
+		{#each unknown as word (word.id)}
 			<WordCard {word} onRemove={() => onRemoveUnknown(word.word)} />
 		{/each}
 
@@ -240,7 +240,7 @@
 				exercise: 'read',
 				question,
 				sentence: pages[atPage].reduce((acc, { text }) => acc + ' ' + text, '').trim(),
-				revealed,
+				unknown,
 				translation: translatedParagraphs
 					?.reduce((acc, { translation }) => acc + ' ' + translation, '')
 					.trim()
@@ -249,7 +249,7 @@
 		suggestions={[
 			'Summarize the text',
 			'What does the word "..." mean in this context?',
-			...(revealed.length
+			...(unknown.length
 				? ['Etymology?', 'Other meanings?', 'Similar-sounding words?', 'Synonyms?', 'Examples?']
 				: [])
 		]}
