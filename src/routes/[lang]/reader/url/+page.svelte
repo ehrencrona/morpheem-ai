@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { dedupUnknown } from '$lib/dedupUnknown';
 	import { logError } from '$lib/logError';
+	import { getShowTransliteration } from '$lib/settings';
 	import { slide } from 'svelte/transition';
 	import Spinner from '../../../../components/Spinner.svelte';
 	import SpinnerButton from '../../../../components/SpinnerButton.svelte';
@@ -15,9 +16,8 @@
 	import Ama from '../../learn/AMA.svelte';
 	import WordCard from '../../learn/WordCard.svelte';
 	import { trackActivity } from '../../learn/trackActivity';
+	import type { PageData } from './$types';
 	import ParagraphComponent from './Paragraph.svelte';
-	import { PageData } from './$types';
-	import { getShowTransliteration } from '$lib/settings';
 
 	export let data: PageData;
 
