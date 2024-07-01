@@ -30,10 +30,10 @@ export async function evaluateCloze(
 					`I am a ${language.name} learner trying to solve a cloze exercise; you are a helpful teacher giving me feedback.\n\n` +
 					`The expected answer is "${correctAnswer.conjugated}".\n` +
 					(isRightLemma
-						? `Very briefly explain how the required grammatical form/inflection relates to the one I picked and why it is right or wrong. Return the case "correct" or "wrongForm". Return JSON in the form \`{ evaluation: string, case: string }\``
+						? `Very briefly explain how the required grammatical form/inflection relates to the one I picked and why it is right or wrong in the field "evaluation". In "case", return "correct" or "wrongForm". Return JSON in the form \`{ evaluation: string, case: string }\``
 						: `If my answer is incorrect, tell me if the problem is grammatical agreement, spelling or wrong meaning. If it is grammatical agreement, explain the forms involved and why the correct one is correct. If it is wrong meaning, explaing the meaning of the word I chose. Return the explanation in "evaluation".
 
-						The determine the first of these cases that applies: 
+						Then determine the first of these cases that applies: 
 						 - "wrongForm": My answer is a different grammatical form of "${correctAnswer.word}".
 						 - "alternate": My answer works logically and the sentence is grammatically correct. 
 						 - "alternateWrongForm": My answer would work if it were not in the wrong form. Return the correct form in the "corrected" field.
