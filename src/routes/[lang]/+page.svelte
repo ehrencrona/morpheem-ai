@@ -37,7 +37,6 @@
 		addSentencesForWord,
 		fetchSentencesWithWord
 	} from './api/sentences/withword/[word]/client';
-	import AddExercises from './learn/AddExercises.svelte';
 	import Cloze from './learn/Cloze.svelte';
 	import ReadSentence from './learn/ReadSentence.svelte';
 	import WriteSentence from './learn/WriteSentence.svelte';
@@ -371,12 +370,6 @@
 
 		await showNextSentence();
 	}
-
-	let isAddExercisesOpen = false;
-
-	function openAddExercises() {
-		isAddExercisesOpen = true;
-	}
 </script>
 
 <main class="font-sans bold w-full" use:trackActivity>
@@ -408,10 +401,6 @@
 				<a href={`/${languageCode}/sentences/${current?.sentence.id}/delete`} class=" text-gray-1">
 					Delete sentence
 				</a>
-
-				<button type="button" on:click={openAddExercises} class=" text-gray-1">
-					Add exercises
-				</button>
 			</div>
 		</div>
 
@@ -489,10 +478,6 @@
 				</path>
 			</svg>
 		</div>
-	{/if}
-
-	{#if isAddExercisesOpen}
-		<AddExercises onCancel={async () => (isAddExercisesOpen = false)} {sendKnowledge} />
 	{/if}
 
 	<ErrorMessage />

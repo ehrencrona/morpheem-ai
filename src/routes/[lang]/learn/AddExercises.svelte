@@ -6,8 +6,8 @@
 	import type { SendKnowledge } from '$lib/SendKnowledge';
 
 	const noOfExercises = 6;
+	let wasStored = false;
 
-	export let onCancel: () => Promise<any>;
 	export let sendKnowledge: SendKnowledge;
 
 	let clozes: import('../../../logic/generateCloze').Cloze[] = [];
@@ -32,6 +32,7 @@
 
 	const onGenerate = async (skill: string) => {
 		clozes = await sendGenerateCloze({ skill, noOfExercises });
+		wasStored = false;
 
 		try {
 			let history = JSON.parse(localStorage.getItem('exercisesAdded') || '[]') as string[];
@@ -47,6 +48,7 @@
 	};
 
 	const onMore = async (skill: string) => {
+		wasStored = false;
 		clozes = await sendGenerateCloze({ skill, noOfExercises: clozes.length + noOfExercises });
 	};
 
@@ -55,15 +57,17 @@
 
 		sendKnowledge([], knowledge);
 
-		await onCancel();
+		wasStored = true;
 	};
 </script>
+
+<h1 class="text-2xl mb-4 mt-12">Add Exercises</h1>
 
 <AddExercisesDumb
 	{clozes}
 	{onGenerate}
 	{onStore}
-	{onCancel}
 	{onMore}
+	{wasStored}
 	suggestions={suggestions.slice(-6)}
 />

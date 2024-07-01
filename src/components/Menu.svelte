@@ -26,6 +26,10 @@
 			href: '/history'
 		},
 		{
+			name: 'Add exercises',
+			href: '/add-exercises'
+		},
+		{
 			name: 'Settings',
 			href: '/settings'
 		}
