@@ -4,7 +4,7 @@ import { evaluatePhraseCloze } from '../../../../ai/evaluatePhraseCloze';
 
 const postSchema = z.object({
 	cloze: z.string(),
-	clue: z.string(),
+	hint: z.string(),
 	answered: z.string(),
 	correctAnswer: z.string()
 });

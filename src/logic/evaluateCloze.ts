@@ -16,7 +16,7 @@ export interface Evaluation {
 export async function evaluateCloze(
 	opts: {
 		cloze: string;
-		clue: string;
+		hint: string;
 		answered: string;
 		correctAnswer: { conjugated: string; word: string; id: number };
 		isRightLemma: boolean;

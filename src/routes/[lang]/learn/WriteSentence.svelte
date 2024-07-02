@@ -15,7 +15,7 @@
 	import type { WritingFeedbackResponse } from '../../../logic/evaluateWrite';
 	import type { Fragment } from '../../../logic/isomorphic/translationToFragments';
 	import { translationToFragments } from '../../../logic/isomorphic/translationToFragments';
-	import type { Language } from '../../../logic/types';
+	import type { ExerciseKnowledge, Language } from '../../../logic/types';
 	import { fetchClauses } from '../api/sentences/[sentence]/clauses/client';
 	import type { Translation } from '../api/sentences/[sentence]/english/client';
 	import type { UnknownWordResponse } from '../api/word/unknown/+server';
@@ -26,15 +26,17 @@
 	import { fetchWritingFeedback } from '../api/write/feedback/client';
 	import AMA from './AMA.svelte';
 	import WordCard from './WordCard.svelte';
+	import type * as DB from '../../../db/types';
 
 	export let word: { id: number; word: string; level: number } | undefined;
 	export let onNext: () => Promise<any>;
 	export let fetchTranslation: () => Promise<Translation>;
 	export let sendKnowledge: SendKnowledge;
-	export let sentenceId: number;
+	export let sentence: DB.Sentence;
 	export let language: Language;
 
 	export let exercise: 'write' | 'translate' = 'write';
+	export let exerciseId: number | null;
 	export let source: ExerciseSource;
 
 	/** The sentence to translate if translate, otherwise the writing idea. */
@@ -58,6 +60,7 @@
 
 	let input: HTMLInputElement;
 
+	$: sentenceId = sentence?.id;
 	$: isRevealed = word && (showChars > 2 || showChars > word.word.length - 1);
 
 	$: correct = exercise == 'write' ? feedback?.correctedSentence || entered : correctSentence;
@@ -115,14 +118,18 @@
 			exercise == 'write'
 				? {
 						exercise,
+						exerciseId,
 						entered,
 						word: word!.word
 					}
 				: {
 						exercise,
+						exerciseId,
 						entered,
+						sentenceId,
 						english: translation?.english || '',
-						correct: correctSentence!
+						correct: correctSentence!,
+						revealedClauses
 					}
 		);
 
@@ -130,7 +137,7 @@
 			`Feedback on "${entered}":\nCorrected sentence: ${feedback.correctedSentence}\n` +
 				`Corrected part: ${feedback.correctedPart}\n` +
 				`Unknown words: ${feedback.unknownWords.map((u) => u.word).join(', ')}\n` +
-				`User exercises: ${feedback.userExercises.map((e) => `${e.isKnown ? 'knew' : 'did not know'} ${e.exercise} (word ${e.word || '-'})`).join(', ')}`
+				`User exercises: ${feedback.userExercises.map((e) => `${e.isKnown ? 'knew' : 'did not know'} ${e.exercise}${'phrase' in e ? ` phrase "${e.phrase}" ` : ''}${'word' in e ? ` (word ${e.word})` : ''})`).join(', ')}`
 		);
 
 		unknownWords = dedup([...unknownWords, ...feedback!.unknownWords]);
@@ -145,15 +152,15 @@
 
 		let newSentenceId = sentenceId;
 
-		const sentence = await sendWrittenSentence({
+		const newSentence = await sendWrittenSentence({
 			wordId: studiedWordId,
 			sentence: feedback.correctedSentence || entered,
 			entered,
 			createNewSentence: exercise == 'write'
 		});
 
-		if (sentence?.id) {
-			newSentenceId = sentence.id;
+		if (newSentence?.id) {
+			newSentenceId = newSentence.id;
 		}
 
 		const knowledge = feedback.knowledge.map((k) => ({
@@ -177,10 +184,13 @@
 			}
 		}
 
-		const userExercises = feedback.userExercises.map((e) => ({
-			...e,
-			sentenceId: newSentenceId
-		}));
+		let userExercises = feedback.userExercises.map(
+			(e) =>
+				({
+					...e,
+					sentenceId: e.sentenceId == -1 ? newSentenceId : e.sentenceId
+				}) as ExerciseKnowledge
+		);
 
 		sendKnowledge(knowledge, userExercises);
 
@@ -239,15 +249,20 @@
 						{#if fragments}
 							{#each fragments as fragment}
 								{#if fragment.clauses.length}
-									<span
-										on:click={() => {
-											revealedClauses = [...revealedClauses, ...fragment.clauses];
-										}}
-										class={fragment.clauses.every((c) => revealedClauses.includes(c))
-											? 'border-b-2 border-blue-3 border-dotted'
-											: 'hover:underline decoration-yellow'}
-										>{fragment.fragment}
-									</span>
+									{#if !fragment.clauses.some((c) => revealedClauses.includes(c))}
+										<button
+											type="button"
+											on:click={() => {
+												revealedClauses = [...revealedClauses, ...fragment.clauses];
+											}}
+											class="inline hover:underline decoration-yellow"
+											>{fragment.fragment}
+										</button>
+									{:else}
+										<span class="inline border-b-2 border-blue-3 border-dotted"
+											>{fragment.fragment}
+										</span>
+									{/if}
 								{:else}
 									{fragment.fragment}
 								{/if}

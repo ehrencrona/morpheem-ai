@@ -54,13 +54,18 @@
 	</button>
 
 	{#if isMobileOpen}
+		<!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
 		<div
 			class="fixed inset-0 z-40"
 			style="background-color: rgba(0,0,0,0.2)"
 			on:click={() => (isMobileOpen = false)}
 			transition:fade={{ duration: 200 }}
+			on:keydown={(e) => e.key == 'Escape' && (isMobileOpen = false)}
+			role="dialog"
 		>
 			<div class="h-full w-[200px] bg-white flex flex-col flex-wrap">
+				<!-- svelte-ignore a11y-click-events-have-key-events -->
+				<!-- svelte-ignore a11y-no-static-element-interactions -->
 				<div class="flex-1 pt-8" on:click|stopPropagation={() => {}}>
 					<ul>
 						{#each links as link}
@@ -75,7 +80,7 @@
 					</ul>
 				</div>
 				<div class="p-4">
-					<a href="mailto:andreas.ehrencrona@velik.it" class="block mb-4 text-sm underline text-xs">
+					<a href="mailto:andreas.ehrencrona@velik.it" class="block mb-4 underline text-xs">
 						Contact
 					</a>
 

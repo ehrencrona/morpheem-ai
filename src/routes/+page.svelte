@@ -2,7 +2,7 @@
 	import { DUTCH, FRENCH, KOREAN, POLISH, RUSSIAN, SPANISH } from '../constants';
 </script>
 
-<img src="/morpheem-logo-square.png" class="w-16 mx-auto mt-8" />
+<img src="/morpheem-logo-square.png" class="w-16 mx-auto mt-8" alt="Morpheem" />
 
 <p class="text-center text-sm mt-8 font-lato">Pick a language:</p>
 

@@ -24,7 +24,8 @@ export const POST: ServerLoad = async ({ url, request, locals: { userId, languag
 			.map((k) => `word ${k.wordId} ${k.isKnown ? 'knew' : 'did not know'}`)
 			.join(', ')}, user exercises ${(
 			userExercises?.map(
-				(k) => `word ${k.wordId} sentence ${k.sentenceId} ${k.isKnown ? 'knew' : 'did not know'}`
+				(k) =>
+					`${k.id}, ${k.exercise} ${'wordId' in k ? `word ${k.wordId}` : ''} sentence ${k.sentenceId} ${k.isKnown ? 'knew' : 'did not know'}`
 			) || []
 		).join(', ')} for user ${userId} in language ${language.code}`
 	);

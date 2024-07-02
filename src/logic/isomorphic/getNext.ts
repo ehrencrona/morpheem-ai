@@ -2,12 +2,15 @@ import { getPastDue, getReadPreference, getRepetitionTime } from '$lib/settings'
 import { AggKnowledgeForUser, ExerciseSource, Scoreable } from '../../db/types';
 import type { CandidateSentenceWithWords, ExerciseType } from '../types';
 import { expectedKnowledge, calculateRepetitionValue, now } from './knowledge';
+import * as DB from '../../db/types';
 
 export function getExerciseForKnowledge(knowledge: AggKnowledgeForUser[]) {
 	return getExercisesForKnowledge(knowledge)[0];
 }
 
-export function getExercisesForKnowledge(knowledge: AggKnowledgeForUser[]) {
+export function getExercisesForKnowledge(
+	knowledge: AggKnowledgeForUser[]
+): (DB.ScoreableExercise & { wordType: DB.WordType | undefined })[] {
 	return knowledge
 		.filter(({ wordType }) => wordType != 'name')
 		.reduce(
@@ -15,14 +18,16 @@ export function getExercisesForKnowledge(knowledge: AggKnowledgeForUser[]) {
 				...acc,
 				{
 					...k,
-					exercise: 'read' as ExerciseType
-				},
+					exercise: 'read',
+					sentenceId: -1
+				} satisfies DB.Exercise,
 				{
 					...k,
-					exercise: 'write' as ExerciseType
-				}
+					exercise: 'write',
+					sentenceId: -1
+				} satisfies DB.Exercise
 			],
-			[] as (AggKnowledgeForUser & { exercise: ExerciseType })[]
+			[] as (DB.ScoreableExercise & { wordType: DB.WordType | undefined })[]
 		);
 }
 

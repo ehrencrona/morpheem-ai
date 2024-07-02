@@ -7,19 +7,28 @@ export function updateUserExercises(
 	userId: number,
 	language: Language
 ) {
-	for (const { exercise, wordId } of exercises) {
-		const shouldHaveWord = exercise != 'translate';
+	for (const exercise of exercises) {
+		const shouldHaveWord = exercise.exercise != 'translate' && exercise.exercise != 'phrase-cloze';
 
-		if (shouldHaveWord && !wordId) {
+		if (shouldHaveWord && exercise.wordId == undefined) {
 			throw new Error(`Word ID was missing for user exercise ${JSON.stringify(exercise)}`);
-		} else if (!shouldHaveWord && !!wordId) {
-			console.warn(`Word ID should not be set for user exercise ${JSON.stringify(exercise)}`);
+		}
+
+		if (
+			exercise.exercise == 'phrase-cloze' &&
+			(exercise.hint == undefined || exercise.phrase == undefined)
+		) {
+			throw new Error(
+				`hint or phrase was missing for phrase-cloze exercise ${JSON.stringify(exercise)}`
+			);
 		}
 	}
 
 	return Promise.all(
 		exercises.map(async (exercise) => {
-			const existing = await getUserExercise({ ...exercise, userId }, language);
+			const existing = exercise.id
+				? await getUserExercise(exercise.id, userId, language)
+				: undefined;
 
 			let knowledge: {
 				alpha: number;
@@ -41,7 +50,9 @@ export function updateUserExercises(
 				{
 					...(existing || exercise),
 					...knowledge,
-					exercise: exercise.exercise
+					id: exercise.id!,
+					exercise: exercise.exercise as any,
+					lastTime: now()
 				},
 				userId,
 				language

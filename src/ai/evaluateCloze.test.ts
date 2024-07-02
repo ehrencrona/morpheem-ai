@@ -5,7 +5,7 @@ import { POLISH } from '../constants';
 describe('evaluateCloze', async () => {
 	const cloze = {
 		cloze: `Znalezienie _____ jest bardzo trudne.`,
-		clue: 'Relation/relationship',
+		hint: 'Relation/relationship',
 		correctAnswer: { conjugated: 'relacji', word: 'relacja', id: 123 }
 	};
 
@@ -92,7 +92,7 @@ describe('evaluateCloze', async () => {
 		const evaluation = await evaluateCloze(
 			{
 				cloze: `Marek ____ się nowej umiejętności programowania w Pythonie.`,
-				clue: 'learned',
+				hint: 'learned',
 				correctAnswer: { conjugated: 'nauczył', word: `nauczyć`, id: 1234 },
 				isRightLemma: false,
 				answered: 'uczył'

@@ -21,7 +21,7 @@ export const actions: Actions = {
 
 		username = username!.toString().toLowerCase();
 
-		if (!isPasswordValid(password)) {
+		if (!isPasswordValid(password) || !password) {
 			return fail(400, {
 				message: INVALID_PASSWORD
 			});
@@ -49,7 +49,10 @@ export const actions: Actions = {
 			});
 		}
 
-		const validPassword = await new LegacyScrypt().verify(existingUser.password_hash, password);
+		const validPassword = await new LegacyScrypt().verify(
+			existingUser.password_hash,
+			password as string
+		);
 
 		if (!validPassword) {
 			console.warn(`User ${username} failed to log in.`);

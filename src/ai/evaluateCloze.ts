@@ -5,13 +5,13 @@ import { askForJson } from './askForJson';
 export async function evaluateCloze(
 	{
 		cloze,
-		clue,
+		hint,
 		answered,
 		correctAnswer,
 		isRightLemma
 	}: {
 		cloze: string;
-		clue: string;
+		hint: string;
 		answered: string;
 		correctAnswer: { word: string; conjugated: string };
 		isRightLemma: boolean;
@@ -46,7 +46,7 @@ export async function evaluateCloze(
 			},
 			{
 				role: 'assistant',
-				content: `Find the missing word:\n\n${cloze.replace(/_+/, `_______ ("${clue}")`)}\n\n`
+				content: `Find the missing word:\n\n${cloze.replace(/_+/, `_______ ("${hint}")`)}\n\n`
 			},
 			{ role: 'user', content: cloze.replace(/_+/, `***` + answered + `***`) }
 		],

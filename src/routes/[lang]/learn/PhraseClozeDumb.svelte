@@ -6,7 +6,7 @@
 	import Spinner from '../../../components/Spinner.svelte';
 	import SpinnerButton from '../../../components/SpinnerButton.svelte';
 	import * as DB from '../../../db/types';
-	import { PhraseEvaluation } from '../../../ai/evaluatePhraseCloze';
+	import type { PhraseEvaluation } from '../../../ai/evaluatePhraseCloze';
 	import { isSeparator, toWordsWithSeparators } from '../../../logic/toWords';
 	import type { Language } from '../../../logic/types';
 	import type { Translation } from '../api/sentences/[sentence]/english/client';
@@ -88,7 +88,7 @@
 						<span
 							class={['correct', 'alternate', 'typo'].includes(evaluation.outcome)
 								? 'text-green'
-								: 'text-red'}>{evaluation.correctedAlternate || wordString}</span
+								: 'text-red'}>{evaluation.correctedAlternate || phrase}</span
 						>
 					{:else}
 						<div class="inline-flex flex-col -mb-1">
@@ -103,7 +103,7 @@
 								/>
 							</span>
 							<span class="text-xs font-lato text-right">
-								<span class="-mt-1">"{hint}"</span>
+								<span class="-mt-1">{hint}</span>
 							</span>
 						</div>
 					{/if}
@@ -162,7 +162,9 @@
 			<div class="mb-4">Correct!</div>
 		{:else}
 			<div class="mb-4">
-				You answered <b>{evaluation.answered}</b>.
+				{#if evaluation.answered}
+					You answered <b>{evaluation.answered}</b>.
+				{/if}
 
 				{#if isFetchingEvaluation}
 					<div class="mt-2"><Spinner /></div>

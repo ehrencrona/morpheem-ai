@@ -85,7 +85,8 @@ export const load: ServerLoad = async ({ params, locals: { language, userId } })
 
 			return { ...acc, knew: k, time: lastTime, date, knowledge, exercise };
 		}, null)
-		.slice(-10);
+		.slice(-10)
+		.reverse();
 
 	const k = knowledge[0];
 

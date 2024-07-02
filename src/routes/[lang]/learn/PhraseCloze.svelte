@@ -2,20 +2,20 @@
 	import type { SendKnowledge } from '$lib/SendKnowledge';
 	import { dedupUnknown } from '$lib/dedupUnknown';
 	import { filterUndefineds } from '$lib/filterUndefineds';
+	import type { PhraseEvaluation } from '../../../ai/evaluatePhraseCloze';
 	import Speak from '../../../components/Speak.svelte';
 	import Tutorial from '../../../components/Tutorial.svelte';
-	import { KNOWLEDGE_TYPE_CLOZE } from '../../../db/knowledgeTypes';
+	import { KNOWLEDGE_TYPE_PHRASE_CLOZE } from '../../../db/knowledgeTypes';
 	import * as DB from '../../../db/types';
-	import { PhraseEvaluation } from '../../../ai/evaluatePhraseCloze';
 	import { standardize } from '../../../logic/isomorphic/standardize';
 	import { toWordsWithSeparators } from '../../../logic/toWords';
 	import type { Language, SentenceWord } from '../../../logic/types';
+	import { fetchPhraseClozeEvaluation } from '../../../routes/[lang]/api/phrase-cloze/client';
 	import type { Translation } from '../api/sentences/[sentence]/english/client';
 	import { fetchTranslation } from '../api/sentences/[sentence]/english/client';
 	import type { UnknownWordResponse } from '../api/word/unknown/+server';
 	import { lookupUnknownWord } from '../api/word/unknown/client';
 	import { fetchAskMeAnything } from '../api/write/ama/client';
-	import { fetchPhraseClozeEvaluation } from '../../../routes/[lang]/api/phrase-cloze/client';
 	import Ama from './AMA.svelte';
 	import PhraseClozeDumb from './PhraseClozeDumb.svelte';
 
@@ -25,6 +25,8 @@
 	export let hint: string;
 	export let language: Language;
 	export let sendKnowledge: SendKnowledge;
+
+	export let exercise: DB.UserExercise;
 
 	export let onBrokenExercise: () => void;
 
@@ -134,12 +136,12 @@
 				),
 				answered,
 				correctAnswer: phrase,
-				clue: hint
+				hint: hint
 			}).finally(() => (isFetchingEvaluation = false));
 
 			if (phrase === phraseWas) {
 				console.log(
-					`Got evaluation for "${answered}": Outcome: ${gotEvaluation.outcome}${gotEvaluation.correctedAlternate ? `; Alternate: ${gotEvaluation.correctedAlternate.word}` : ''}`
+					`Got evaluation for "${answered}": Outcome: ${gotEvaluation.outcome}${gotEvaluation.correctedAlternate ? `; Alternate: ${gotEvaluation.correctedAlternate}` : ''}`
 				);
 
 				evaluation = gotEvaluation;
@@ -169,12 +171,17 @@
 						wordId: sentenceWord.id,
 						sentenceId: sentence.id,
 						isKnown: !unknown.find(({ id }) => id === sentenceWord.id),
-						type: KNOWLEDGE_TYPE_CLOZE,
+						type: KNOWLEDGE_TYPE_PHRASE_CLOZE,
 						userId: -1
 					};
 				})
 			),
-			TODO
+			[
+				{
+					...exercise,
+					isKnown: isCorrect
+				}
+			]
 		);
 
 		await onNext();

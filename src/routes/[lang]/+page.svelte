@@ -2,6 +2,7 @@
 	import { page } from '$app/stores';
 	import { logError } from '$lib/logError';
 	import { getClozePreference } from '$lib/settings';
+	import { toPercent } from '$lib/toPercent';
 	import { onMount } from 'svelte';
 	import { CodedError } from '../../CodedError';
 	import ErrorMessage from '../../components/ErrorMessage.svelte';
@@ -20,7 +21,6 @@
 	import type {
 		CandidateSentenceWithWords,
 		ExerciseKnowledge,
-		ExerciseType,
 		SentenceWord,
 		WordKnowledge
 	} from '../../logic/types';
@@ -41,7 +41,7 @@
 	import ReadSentence from './learn/ReadSentence.svelte';
 	import WriteSentence from './learn/WriteSentence.svelte';
 	import { trackActivity } from './learn/trackActivity';
-	import { toPercent } from '$lib/toPercent';
+	import PhraseCloze from './learn/PhraseCloze.svelte';
 
 	export let data: PageData;
 
@@ -55,21 +55,32 @@
 
 	let current:
 		| ({
-				word: DB.Word | undefined;
 				sentence: DB.Sentence;
 				words: SentenceWord[];
 				source: DB.ExerciseSource;
-		  } & (
-				| {
-						wordId: number;
-						words: SentenceWord[];
-						exercise: 'read' | 'cloze' | 'cloze-inflection';
-				  }
-				| {
-						wordId: number | null;
-						exercise: 'write' | 'translate';
-				  }
-		  ))
+				id: number | null;
+		  } & DB.ScoreableExercise &
+				(
+					| {
+							// TODO: rename
+							wordObject: DB.Word | undefined;
+							wordId: number;
+							exercise: 'read' | 'cloze' | 'cloze-inflection';
+					  }
+					| {
+							// TODO: rename
+							wordObject: DB.Word | undefined;
+							wordId: number | null;
+							exercise: 'write';
+					  }
+					| {
+							exercise: 'translate';
+					  }
+					| {
+							exercise: 'phrase-cloze';
+							hint: string;
+					  }
+				))
 		| undefined;
 
 	async function init() {
@@ -87,6 +98,15 @@
 	) {
 		const knowledgeToSend = words.map(({ word, ...rest }) => rest);
 
+		knowledge = updateKnowledge(words, knowledge);
+
+		if (addUserExercises) {
+			({ exercises: userExercises, addUserExercises } = updateUserExercises(
+				addUserExercises,
+				userExercises
+			));
+		}
+
 		sendKnowledgeClient(knowledgeToSend, addUserExercises).catch((e) => {
 			logError(e);
 
@@ -95,48 +115,33 @@
 				5000
 			);
 		});
-
-		knowledge = updateKnowledge(words, knowledge);
-
-		if (addUserExercises) {
-			userExercises = updateUserExercises(addUserExercises, userExercises);
-		}
 	}
 
 	let nextPromise: ReturnType<typeof getNextExercise>;
-
-	interface ScoreableExercise extends DB.Scoreable {
-		word: string | null;
-		wordId: number | null;
-		sentenceId?: number;
-		exercise: ExerciseType;
-		source: DB.ExerciseSource;
-	}
 
 	async function getNextExercise({
 		exercises = [],
 		excludeWordId,
 		excludeSentenceId
 	}: {
-		exercises?: (ScoreableExercise & { score: number; wordType: DB.WordType | undefined })[];
+		exercises?: (DB.ScoreableExercise & { score: number; wordType: DB.WordType | undefined })[];
 		excludeWordId?: number;
 		excludeSentenceId?: number;
-	}): Promise<{
-		sentence: CandidateSentenceWithWords & { english?: string | null };
-		wordId: number | null;
-		exercise: ExerciseType;
-		source: DB.ExerciseSource;
-		getNextPromise: () => Promise<any>;
-	}> {
-		const filter = ({ wordId, sentenceId, exercise }: ScoreableExercise) =>
-			!(excludeWordId && wordId == excludeWordId) &&
-			!(excludeSentenceId && sentenceId == excludeSentenceId) &&
-			(!exerciseFilter || exercise == exerciseFilter);
+	}): Promise<
+		DB.ScoreableExercise & {
+			sentence: CandidateSentenceWithWords & { english?: string | null };
+			getNextPromise: () => Promise<any>;
+		}
+	> {
+		const filter = (e: DB.ScoreableExercise) =>
+			!(excludeWordId && 'wordId' in e && e.wordId == excludeWordId) &&
+			!(excludeSentenceId && e.sentenceId == excludeSentenceId) &&
+			(!exerciseFilter || e.exercise == exerciseFilter);
 
 		exercises = exercises.filter(filter);
 
 		if (!exercises.length) {
-			const unscored = ([] as (ScoreableExercise & { wordType: DB.WordType | undefined })[])
+			const unscored = ([] as (DB.ScoreableExercise & { wordType: DB.WordType | undefined })[])
 				.concat(getExercisesForKnowledge(knowledge))
 				.concat(
 					userExercises.map((e) => ({
@@ -160,7 +165,7 @@
 			const toPercent = (n: number | null) => (n != null ? Math.round(n * 100) + '%' : '-');
 
 			console.log(
-				`Choosing ${exercise.source} ${exercise.exercise} ${exercise.word ? `${exercise.word} (${exercise.wordId}), ` : ''}sentence ${exercise.sentenceId}: ${toPercent(exercise.alpha)}/${toPercent(exercise.beta)}, age ${n - exercise.lastTime} = ${toPercent(exercise.score)}`
+				`Choosing ${exercise.source} ${exercise.exercise} ${'word' in exercise ? `${exercise.word} (${exercise.wordId}), ` : ''}sentence ${exercise.sentenceId}: ${toPercent(exercise.alpha)}/${toPercent(exercise.beta)}, age ${n - exercise.lastTime} = ${toPercent(exercise.score)}`
 			);
 
 			for (const source of ['studied', 'userExercise', 'unstudied'] as const) {
@@ -171,7 +176,7 @@
 							.slice(0, 10)
 							.map(
 								(e, j) =>
-									`${j + 1}.${e.word ? ' ' + e.word : ''} ${e.exercise}${e.sentenceId != null ? `, sentence ${e.sentenceId}` : ''} (${e.wordId}, score ${Math.round(e.score * 100)}%, age ${n - e.lastTime}, knowledge ${Math.round(
+									`${j + 1}.${'word' in e ? ' ' + `${e.word} (${e.wordId})` : ''} ${e.exercise}${e.sentenceId != null ? `, sentence ${e.sentenceId}` : ''}, score ${Math.round(e.score * 100)}%, age ${n - e.lastTime}, knowledge ${Math.round(
 										100 * expectedKnowledge(e, { now: n, exercise: e.exercise })
 									)}% level ${e.level})`
 							)
@@ -188,17 +193,19 @@
 			}
 		}
 
-		let { wordId, wordType, exercise, source, sentenceId } = exercises[0];
+		const firstExercise = exercises[0];
+		let { wordType, exercise, sentenceId } = exercises[0];
 
-		if (sentenceId != undefined) {
+		const wordId = 'wordId' in firstExercise ? firstExercise.wordId : null;
+
+		if (sentenceId != -1) {
 			try {
 				let sentence = await fetchCandidateSentence(sentenceId);
 
 				return {
+					...firstExercise,
+					sentenceId: sentence.id,
 					sentence,
-					wordId,
-					exercise,
-					source,
 					getNextPromise: () =>
 						getNextExercise({
 							exercises: exercises.slice(1),
@@ -250,7 +257,7 @@
 				const wordKnowledge = expectedKnowledge(exercises[0], { now: now(), exercise: 'write' });
 				const sentenceWriteKnowledge = calculateSentenceWriteKnowledge(sentence, knowledge);
 
-				if (wordKnowledge < 0.7) {
+				if (wordKnowledge < 0.5) {
 					console.log(
 						`Knowledge of ${wordId} is only ${toPercent(wordKnowledge)}, turning write into cloze.`
 					);
@@ -281,10 +288,9 @@
 			}
 
 			return {
+				...firstExercise,
 				sentence,
-				wordId,
-				source,
-				exercise,
+				exercise: exercise as any,
 				getNextPromise: () =>
 					getNextExercise({
 						exercises: exercises.slice(1),
@@ -306,17 +312,13 @@
 	}
 
 	async function showNextSentence() {
-		const {
-			sentence,
-			wordId,
-			getNextPromise: getNext,
-			exercise,
-			source
-		} = await (nextPromise ||
+		const next = await (nextPromise ||
 			getNextExercise({
 				excludeSentenceId: current?.sentence.id || undefined,
-				excludeWordId: current?.wordId || undefined
+				excludeWordId: current && 'wordId' in current ? current.wordId || undefined : undefined
 			}));
+
+		const { sentence, getNextPromise: getNext, exercise, source } = next;
 
 		nextPromise = getNext();
 
@@ -324,24 +326,45 @@
 			markSentenceSeen(sentence.id).catch(logError);
 		}
 
-		const word = sentence.words.find(({ id }) => id == wordId);
+		const wordId = 'wordId' in next ? next.wordId : null;
+		let word: SentenceWord | undefined;
 
-		if (!word && wordId) {
-			console.warn(
-				`Sentence ${sentence.id} ("${sentence.sentence}") has no word ${word} (${wordId}), only ${sentence.words.map(({ id }) => id).join(', ')}`
-			);
+		if (wordId) {
+			word = sentence.words.find(({ id }) => id == wordId);
 
-			return showNextSentence();
+			if (!word) {
+				console.warn(
+					`Sentence ${sentence.id} ("${sentence.sentence}") has no word ${word} (${wordId}), only ${sentence.words.map(({ id }) => id).join(', ')}`
+				);
+
+				return showNextSentence();
+			}
 		}
 
-		if (exercise == 'write' || exercise == 'translate') {
+		console.log(
+			`Current exercise: ${next.exercise} ${next.id? `ID ${next.id} `:''}(${next.source}), sentence ${next.sentenceId}${
+				exercise != 'translate' && exercise != 'phrase-cloze' ? `, word ${word?.word} (${wordId})` : ''
+			}`
+		);
+
+		if (next.exercise == 'write') {
 			current = {
-				word,
-				wordId: wordId,
+				...next,
+				wordObject: word!,
 				words: sentence.words,
+				sentence
+			};
+		} else if (next.exercise == 'translate') {
+			current = {
+				...next,
+				words: sentence.words,
+				sentence
+			};
+		} else if (exercise == 'phrase-cloze') {
+			current = {
+				...next,
 				sentence,
-				source,
-				exercise
+				words: sentence.words
 			};
 		} else {
 			if (!wordId) {
@@ -349,12 +372,10 @@
 			}
 
 			current = {
-				word,
-				wordId,
+				...next,
+				wordObject: word!,
 				words: sentence.words,
-				sentence,
-				source,
-				exercise
+				sentence
 			};
 		}
 	}
@@ -394,10 +415,6 @@
 			</div>
 
 			<div class="font-lato text-xs flex gap-3 justify-end">
-				{#if data.user == 'ehrencrona' && current.wordId}
-					<a href={`/${languageCode}/words/${current.wordId}`} class=" text-gray-1"> Word </a>
-				{/if}
-
 				<a href={`/${languageCode}/sentences/${current?.sentence.id}/delete`} class=" text-gray-1">
 					Delete sentence
 				</a>
@@ -415,22 +432,23 @@
 
 		{#if current.exercise == 'read'}
 			<ReadSentence
-				word={current.word}
+				word={current.wordObject}
 				sentence={current.sentence}
 				words={current.words}
 				language={getLanguageOnClient()}
 				{onNext}
 				{sendKnowledge}
 			/>
-		{:else if current.exercise == 'write' || current.exercise == 'translate'}
+		{:else if current.exercise == 'write'}
 			<WriteSentence
-				word={current.word}
+				word={current.wordObject}
 				{onNext}
 				language={getLanguageOnClient()}
 				{sendKnowledge}
 				exercise={current.exercise}
+				exerciseId={current.id}
 				source={current.source}
-				sentenceId={current.sentence.id}
+				sentence={current.sentence}
 				translation={{
 					english: current.sentence.english || '',
 					transliteration: current.sentence.transliteration || ''
@@ -438,17 +456,49 @@
 				correctSentence={current.sentence.sentence}
 				fetchTranslation={getTranslation}
 			/>
-		{:else if ['cloze', 'cloze-inflection'].includes(current.exercise) && current.word}
-			<Cloze
-				word={current.word}
+		{:else if current.exercise == 'translate'}
+			<WriteSentence
+				word={undefined}
 				{onNext}
+				language={getLanguageOnClient()}
+				{sendKnowledge}
+				exercise={current.exercise}
+				exerciseId={current.id}
 				source={current.source}
+				sentence={current.sentence}
+				translation={{
+					english: current.sentence.english || '',
+					transliteration: current.sentence.transliteration || ''
+				}}
+				correctSentence={current.sentence.sentence}
+				fetchTranslation={getTranslation}
+			/>
+		{:else if (current.exercise == 'cloze' || current.exercise == 'cloze-inflection') && current.wordObject}
+			<Cloze
+				word={current.wordObject}
+				{onNext}
+				exerciseId={current.id}
 				sentence={current.sentence}
 				sentenceWords={current.words}
 				language={getLanguageOnClient()}
 				{sendKnowledge}
 				exercise={current.exercise}
 				{knowledge}
+			/>
+		{:else if current.exercise == 'phrase-cloze'}
+			<PhraseCloze
+				{onNext}
+				sentence={current.sentence}
+				sentenceWords={current.words}
+				language={getLanguageOnClient()}
+				{sendKnowledge}
+				hint={current.hint}
+				phrase={current.phrase}
+				exercise={current}
+				onBrokenExercise={() => {
+					logError(`Broken phrase cloze exercise ${JSON.stringify(current)}`);
+					showNextSentence();
+				}}
 			/>
 		{:else}
 			<p class="text-red">Unknown exercise type ${current.exercise}</p>
@@ -457,13 +507,7 @@
 		{/if}
 	{:else}
 		<div class="text-center mt-12">
-			<svg
-				xmlns="http://www.w3.org/2000/svg"
-				width="1em"
-				height="1em"
-				viewBox="0 0 24 24"
-				class="inline-block"
-			>
+			<svg width="1em" height="1em" viewBox="0 0 24 24" class="inline-block">
 				<path
 					fill="currentColor"
 					d="M12,4a8,8,0,0,1,7.89,6.7A1.53,1.53,0,0,0,21.38,12h0a1.5,1.5,0,0,0,1.48-1.75,11,11,0,0,0-21.72,0A1.5,1.5,0,0,0,2.62,12h0a1.53,1.53,0,0,0,1.49-1.3A8,8,0,0,1,12,4Z"

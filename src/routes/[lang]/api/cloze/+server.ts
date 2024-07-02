@@ -4,7 +4,7 @@ import { evaluateCloze } from '../../../../logic/evaluateCloze';
 
 const postSchema = z.object({
 	cloze: z.string(),
-	clue: z.string(),
+	hint: z.string(),
 	answered: z.string(),
 	correctAnswer: z.object({ conjugated: z.string(), id: z.number(), word: z.string() }),
 	isRightLemma: z.boolean()

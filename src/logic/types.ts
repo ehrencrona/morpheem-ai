@@ -15,7 +15,13 @@ export interface AlphaBeta {
 	readonly beta: number | null;
 }
 
-export type ExerciseType = 'read' | 'write' | 'cloze' | 'translate' | 'cloze-inflection';
+export type ExerciseType =
+	| 'read'
+	| 'write'
+	| 'cloze'
+	| 'phrase-cloze'
+	| 'translate'
+	| 'cloze-inflection';
 
 export const wordKnowledgeSchema = z.object({
 	wordId: z.number(),
@@ -28,16 +34,17 @@ export const wordKnowledgeSchema = z.object({
 
 export type WordKnowledge = z.infer<typeof wordKnowledgeSchema>;
 
-export const exerciseKnowledgeSchema = z.object({
-	sentenceId: z.number(),
-	wordId: z.number().nullable(),
-	word: z.string().nullable(),
-	exercise: z.enum(['read', 'write', 'cloze', 'translate', 'cloze-inflection']),
-	isKnown: z.boolean(),
-	level: z.number()
-});
+export const exerciseKnowledgeSchema = DB.exerciseSchema.and(
+	z.object({
+		isKnown: z.boolean(),
+		level: z.number()
+	})
+);
 
-export type ExerciseKnowledge = z.infer<typeof exerciseKnowledgeSchema>;
+export type ExerciseKnowledge = DB.Exercise & {
+	isKnown: boolean;
+	level: number;
+};
 
 export interface SentenceWord extends DB.Word {
 	word_index: number;

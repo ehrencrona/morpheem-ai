@@ -13,6 +13,7 @@
 </script>
 
 <Dialog {onCancel}>
+	<!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
 	<form
 		on:keydown={(event) => {
 			if (event.key === 'Enter' && !event.shiftKey) {

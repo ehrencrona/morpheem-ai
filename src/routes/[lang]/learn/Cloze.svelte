@@ -32,7 +32,7 @@
 	export let sentenceWords: SentenceWord[];
 	export let language: Language;
 	export let sendKnowledge: SendKnowledge;
-	export let source: DB.ExerciseSource;
+	export let exerciseId: number | null;
 	export let exercise: 'cloze' | 'cloze-inflection' = 'cloze';
 
 	export let knowledge: DB.AggKnowledgeForUser[] | undefined = undefined;
@@ -297,7 +297,7 @@
 						cloze + (standardize(word) == standardize(conjugatedWord) ? '______' : word),
 					''
 				),
-				clue: unknownWord?.english || '',
+				hint: unknownWord?.english || '',
 				answered,
 				correctAnswer: {
 					id: word.id,
@@ -352,15 +352,16 @@
 					};
 				})
 			),
-			outcome == 'wrongForm' || source == 'userExercise'
+			outcome == 'wrongForm' || exerciseId != null
 				? [
 						{
+							id: exerciseId,
 							wordId: word.id,
 							word: word.word,
 							sentenceId: sentence.id,
 							isKnown: isCorrect,
 							exercise:
-								isCorrect && source == 'userExercise'
+								isCorrect && exerciseId != null
 									? exercise
 									: outcome == 'wrongForm'
 										? 'cloze-inflection'

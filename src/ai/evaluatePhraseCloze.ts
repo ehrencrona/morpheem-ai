@@ -12,12 +12,12 @@ export interface PhraseEvaluation {
 export async function evaluatePhraseCloze(
 	{
 		cloze,
-		clue,
+		hint,
 		answered,
 		correctAnswer
 	}: {
 		cloze: string;
-		clue: string;
+		hint: string;
 		answered: string;
 		correctAnswer: string;
 	},
@@ -48,7 +48,7 @@ export async function evaluatePhraseCloze(
 			},
 			{
 				role: 'assistant',
-				content: `Find the missing words:\n\n${cloze.replace(/_+/, `_______ ("${clue}")`)}\n\n`
+				content: `Find the missing words:\n\n${cloze.replace(/_+/, `_______ ("${hint}")`)}\n\n`
 			},
 			{ role: 'user', content: cloze.replace(/_+/, `***` + answered + `***`) }
 		],

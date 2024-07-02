@@ -5,11 +5,13 @@ export const KNOWLEDGE_TYPE_WRITE = 1;
 export const KNOWLEDGE_TYPE_CLOZE = 2;
 export const KNOWLEDGE_TYPE_TRANSLATE = 3;
 export const KNOWLEDGE_TYPE_CLOZE_INFLECTION = 4;
+export const KNOWLEDGE_TYPE_PHRASE_CLOZE = 5;
 
 const exByType: Record<number, ExerciseType> = {
 	[KNOWLEDGE_TYPE_READ]: 'read',
 	[KNOWLEDGE_TYPE_WRITE]: 'write',
 	[KNOWLEDGE_TYPE_CLOZE]: 'cloze',
+	[KNOWLEDGE_TYPE_PHRASE_CLOZE]: 'phrase-cloze',
 	[KNOWLEDGE_TYPE_TRANSLATE]: 'translate',
 	[KNOWLEDGE_TYPE_CLOZE_INFLECTION]: 'cloze-inflection'
 };

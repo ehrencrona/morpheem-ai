@@ -16,7 +16,9 @@ export function translationToFragments(englishSentence: string, clauses: Clause[
 	while (atWord < words.length) {
 		const wordString = words[atWord];
 
-		const fragmentClauses = clauses.filter((clause) => clause.english.includes(wordString));
+		const fragmentClauses = clauses.filter((clause) =>
+			clause.english.toLowerCase().includes(wordString.toLowerCase())
+		);
 
 		if (!isSeparator(wordString) && fragmentClauses.length) {
 			let fragment: Fragment = {
@@ -28,7 +30,9 @@ export function translationToFragments(englishSentence: string, clauses: Clause[
 			for (let fragmentLength = 1; fragmentLength < words.length - atWord; fragmentLength++) {
 				let fragmentString = fragment.fragment + words[atWord + fragmentLength];
 
-				const fragmentClauses = clauses.filter((clause) => clause.english.includes(fragmentString));
+				const fragmentClauses = clauses.filter((clause) =>
+					clause.english.toLowerCase().includes(fragmentString.toLowerCase())
+				);
 
 				if (fragmentClauses.length == 0) {
 					fragments.push(fragment);
