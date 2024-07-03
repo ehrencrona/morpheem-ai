@@ -15,6 +15,7 @@ import { expectedKnowledge, now } from './isomorphic/knowledge';
 import { lemmatizeSentences } from './lemmatize';
 import { toWords } from './toWords';
 import { ExerciseKnowledge, Language, WordKnowledge } from './types';
+import { standardize } from './isomorphic/standardize';
 
 export type WriteEvaluationOpts = z.infer<typeof writeEvaluationOptsSchema>;
 
@@ -62,7 +63,9 @@ export async function evaluateWrite(
 			? await generateTranslationFeedbackAi(opts, language)
 			: await evaluateWriteAi(opts, language);
 
-	const correctedWordStrings = toWords(feedback.correctedPart || '', language);
+	const correctedWordStrings = toWords(feedback.correctedPart || '', language, {
+		doLowerCase: true
+	});
 
 	const [enteredLemmas, correctedLemmas] = await lemmatizeSentences(
 		[enteredSentence, feedback.correctedPart || ''],
@@ -97,7 +100,7 @@ export async function evaluateWrite(
 	let userExercises: ExerciseKnowledge[] = [];
 
 	function getCorrectedWord(error: { shouldBe: string }) {
-		const i = correctedWordStrings.indexOf(error.shouldBe);
+		const i = correctedWordStrings.indexOf(standardize(error.shouldBe));
 
 		if (i == -1) {
 			console.warn(
