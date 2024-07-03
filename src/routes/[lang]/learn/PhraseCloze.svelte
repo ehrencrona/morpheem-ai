@@ -113,7 +113,7 @@
 	}
 
 	async function onAnswer(answered: string) {
-		answered = standardize(answered);
+		answered = standardize(answered.trim());
 
 		evaluation = {
 			answered,
