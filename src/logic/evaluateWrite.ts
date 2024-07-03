@@ -99,12 +99,27 @@ export async function evaluateWrite(
 
 	let userExercises: ExerciseKnowledge[] = [];
 
-	function getCorrectedWord(error: { shouldBe: string }) {
-		const i = correctedWordStrings.indexOf(standardize(error.shouldBe));
+	function getCorrectedWord({ shouldBe }: { shouldBe: string }) {
+		const words = toWords(standardize(shouldBe), language, { doLowerCase: true });
+
+		if (words.length == 1) {
+			shouldBe = words[0];
+		} else if (words.length > 1) {
+			console.warn(`Should be "${shouldBe}" seems to be multiple words`);
+
+			//shouldBe = longest word
+			shouldBe = words.reduce((acc, word) => (word.length > acc.length ? word : acc));
+		} else {
+			console.warn(`Should be "${shouldBe}" seems to not be a word`);
+
+			return undefined;
+		}
+
+		const i = correctedWordStrings.indexOf(shouldBe);
 
 		if (i == -1) {
 			console.warn(
-				`Could not find the word "${error.shouldBe}" in the corrected sentence part "${feedback.correctedPart}".`
+				`Could not find the word "${shouldBe}" in the corrected sentence part "${feedback.correctedPart}".`
 			);
 
 			return undefined;
