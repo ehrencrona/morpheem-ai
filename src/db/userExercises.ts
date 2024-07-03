@@ -202,6 +202,40 @@ export async function getUserExercises(
 	);
 }
 
-export async function deleteUserExercise(id: number, language: Language) {
-	await db.withSchema(language.code).deleteFrom('user_exercises').where('id', '=', id).execute();
+export async function getUserExercisesForSentence(
+	sentenceId: number,
+	userId: number,
+	language: Language
+): Promise<UserExercise[]> {
+	return (
+		await db
+			.withSchema(language.code)
+			.selectFrom('user_exercises')
+			.leftJoin('words', 'user_exercises.word_id', 'words.id')
+			.select([
+				'user_exercises.id',
+				'sentence_id',
+				'word_id',
+				'exercise_type',
+				'alpha',
+				'beta',
+				'last_time',
+				'user_exercises.level',
+				'word',
+				'hint',
+				'phrase'
+			])
+			.where('user_id', '=', userId)
+			.where('sentence_id', '=', sentenceId)
+			.execute()
+	).map(rowToExercise);
+}
+
+export async function deleteUserExercise(id: number, userId: number, language: Language) {
+	await db
+		.withSchema(language.code)
+		.deleteFrom('user_exercises')
+		.where('id', '=', id)
+		.where('user_id', '=', userId)
+		.execute();
 }

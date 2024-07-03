@@ -64,7 +64,13 @@ async function lemmatizeBatch(
 
 		becomes 
 		
-		byłoby (być) dobrze (dobrze), gdybyś (gdyby) był (być) gorszym (zły) przykładem (przykład)`,
+		byłoby (być) dobrze (dobrze), gdybyś (gdyby) był (być) gorszym (zły) przykładem (przykład)
+		
+		Kocham cię
+		
+		becomes
+		
+		Kocham (kochać) cię (ty)`,
 		fr: `"y a-t-il des chaises"
 		
 		becomes

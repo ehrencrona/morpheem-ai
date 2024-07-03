@@ -1,5 +1,13 @@
-import { getUserExercise, upsertUserExercise } from '../db/userExercises';
+import { getSentence } from '../db/sentences';
+import * as DB from '../db/types';
+import {
+	deleteUserExercise,
+	getUserExercisesForSentence,
+	upsertUserExercise
+} from '../db/userExercises';
+import { getWordsOfSentence } from '../db/words';
 import { didNotKnow, didNotKnowFirst, knew, knewFirst, now } from './isomorphic/knowledge';
+import { toWords } from './toWords';
 import type { ExerciseKnowledge, Language } from './types';
 
 export function updateUserExercises(
@@ -7,6 +15,177 @@ export function updateUserExercises(
 	userId: number,
 	language: Language
 ) {
+	if (!exercises.length) {
+		return;
+	}
+
+	validate(exercises);
+
+	const bySentence = exercises.reduce((acc, exercise) => {
+		const sentenceId = exercise.sentenceId!;
+
+		if (!acc.has(sentenceId)) {
+			acc.set(sentenceId, []);
+		}
+
+		acc.get(sentenceId)!.push(exercise);
+
+		return acc;
+	}, new Map<number, ExerciseKnowledge[]>());
+
+	return Promise.all(
+		new Array(...bySentence.entries()).map(([sentenceId, exercises]) =>
+			handleSentenceExercises(exercises, { userId, sentenceId, language })
+		)
+	);
+}
+
+async function handleSentenceExercises(
+	addExercises: ExerciseKnowledge[],
+	{ userId, language, sentenceId }: { userId: number; language: Language; sentenceId: number }
+) {
+	let [existingExercises, sentence, sentenceWords] = await Promise.all([
+		getUserExercisesForSentence(sentenceId, userId, language),
+		getSentence(sentenceId, language),
+		getWordsOfSentence(sentenceId, language)
+	]);
+
+	let originallyExistingExercises = existingExercises;
+
+	const wordStrings = toWords(sentence.sentence, language, { doLowerCase: true });
+	const toDelete = new Set<number>();
+
+	function getPhrase(e: DB.Exercise) {
+		if (e.exercise == 'phrase-cloze') {
+			return e.phrase.toLowerCase();
+		} else if (e.exercise != 'translate') {
+			const wordIndex = sentenceWords.findIndex((w) => w.id == e.wordId);
+
+			return wordStrings[wordIndex] || '-';
+		} else if (e.exercise == 'translate') {
+			return sentence.sentence.toLowerCase();
+		} else {
+			return '-';
+		}
+	}
+
+	function toString(e: DB.Exercise) {
+		return `${getPhrase(e)} (${e.id})`;
+	}
+
+	console.log(
+		`Request to update user exercises for sentence ${sentence.id}: add ${addExercises.map(toString).join(', ')} to existing ${existingExercises
+			.map(toString)
+			.join(', ')}`
+	);
+
+	function isEqual(a: DB.Exercise, b: DB.Exercise) {
+		return getPhrase(a) == getPhrase(b);
+	}
+
+	function isDominatedBy(a: DB.Exercise, b: DB.Exercise) {
+		return getPhrase(b).includes(getPhrase(a));
+	}
+
+	function deleteExercise(exercise: DB.Exercise) {
+		const other = existingExercises.find((other) => isEqual(other, exercise));
+
+		if (other) {
+			toDelete.add(exercise.id!);
+			existingExercises = existingExercises.filter((e) => e != other);
+		}
+
+		addExercises = addExercises.filter((e) => e != exercise);
+	}
+
+	// if an exercise to add already exists, update its ID
+	addExercises.forEach((exercise) => {
+		const existing = existingExercises.find((e) => isEqual(e, exercise));
+
+		if (existing && exercise.id == null) {
+			exercise.id = existing.id;
+		}
+	});
+
+	// if we are updating a translate exercise but also add other exercises, drop the translate
+	// (but not too many other exercises, in that case it's better to just have translate)
+	const translateExercise = addExercises.find((e) => e.exercise == 'translate');
+
+	if (translateExercise?.id != null && addExercises.length > 1 && addExercises.length < 4) {
+		deleteExercise(translateExercise);
+	}
+
+	const allExercises = (existingExercises as DB.Exercise[]).concat(addExercises);
+
+	// go through existing and new and if an exercise is dominated by another, drop it
+	allExercises.forEach((exercise) => {
+		if (
+			allExercises.some(
+				(other) =>
+					other != exercise &&
+					other.id != exercise.id &&
+					!toDelete.has(other.id || -1) &&
+					isDominatedBy(exercise, other)
+			)
+		) {
+			deleteExercise(exercise);
+		}
+	});
+
+	console.log(
+		`After merging exercises: upserting ${addExercises.length ? addExercises.map(toString).join(', ') : 'none'}.` +
+			(toDelete.size
+				? ` deleting ${originallyExistingExercises
+						.filter((e) => toDelete.has(e.id!))
+						.map(toString)
+						.join(', ')}`
+				: '')
+	);
+
+	for (const id of toDelete) {
+		await deleteUserExercise(id, userId, language);
+	}
+
+	for (const exercise of addExercises) {
+		const existing = existingExercises.find((e) => e.id == exercise.id);
+
+		let knowledge: {
+			alpha: number;
+			beta: number | null;
+		};
+
+		if (existing) {
+			knowledge = (exercise.isKnown ? knew : didNotKnow)(existing, {
+				now: now(),
+				exercise: exercise.exercise
+			});
+		} else {
+			knowledge = exercise.isKnown
+				? knewFirst(exercise.exercise)
+				: didNotKnowFirst(exercise.exercise);
+		}
+
+		if (knowledge.beta == 1) {
+			console.log(`Done studying user exercise ${exercise.id} (${toString(exercise)}).`);
+
+			await deleteUserExercise(exercise.id!, userId, language);
+		} else {
+			await upsertUserExercise(
+				{
+					...exercise,
+					...knowledge,
+					id: exercise.id!,
+					exercise: exercise.exercise as any,
+					lastTime: now()
+				},
+				userId,
+				language
+			);
+		}
+	}
+}
+
+function validate(exercises: ExerciseKnowledge[]) {
 	for (const exercise of exercises) {
 		const shouldHaveWord = exercise.exercise != 'translate' && exercise.exercise != 'phrase-cloze';
 
@@ -23,40 +202,4 @@ export function updateUserExercises(
 			);
 		}
 	}
-
-	return Promise.all(
-		exercises.map(async (exercise) => {
-			const existing = exercise.id
-				? await getUserExercise(exercise.id, userId, language)
-				: undefined;
-
-			let knowledge: {
-				alpha: number;
-				beta: number | null;
-			};
-
-			if (existing) {
-				knowledge = (exercise.isKnown ? knew : didNotKnow)(existing, {
-					now: now(),
-					exercise: exercise.exercise
-				});
-			} else {
-				knowledge = exercise.isKnown
-					? knewFirst(exercise.exercise)
-					: didNotKnowFirst(exercise.exercise);
-			}
-
-			await upsertUserExercise(
-				{
-					...(existing || exercise),
-					...knowledge,
-					id: exercise.id!,
-					exercise: exercise.exercise as any,
-					lastTime: now()
-				},
-				userId,
-				language
-			);
-		})
-	);
 }

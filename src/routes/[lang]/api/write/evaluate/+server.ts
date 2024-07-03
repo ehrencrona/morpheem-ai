@@ -1,13 +1,13 @@
 import { redirectToLogin } from '$lib/redirectToLogin';
 import { ServerLoad, json } from '@sveltejs/kit';
 import {
-	WritingFeedbackOpts,
+	WriteEvaluationOpts,
 	evaluateWrite,
-	writingFeedbackOptsSchema
+	writeEvaluationOptsSchema
 } from '../../../../../logic/evaluateWrite';
 
-export type PostSchema = WritingFeedbackOpts;
-const postSchema = writingFeedbackOptsSchema;
+export type PostSchema = WriteEvaluationOpts;
+const postSchema = writeEvaluationOptsSchema;
 
 export const POST: ServerLoad = async ({ url, request, locals: { language, userId } }) => {
 	const post = postSchema.parse(await request.json());

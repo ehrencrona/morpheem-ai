@@ -1,6 +1,6 @@
 import { parallelize } from '$lib/parallelize';
 import { CodedError } from '../CodedError';
-import { KOREAN } from '../constants';
+import { KOREAN, POLISH } from '../constants';
 import { db } from '../db/client';
 import { getLemmasOfWords } from '../db/lemmas';
 import { deleteSentence, getSentences } from '../db/sentences';
@@ -8,7 +8,7 @@ import { getWordsOfSentences } from '../db/words';
 import { getSentenceWords } from '../logic/addSentence';
 import { toWords } from '../logic/toWords';
 
-const language = KOREAN;
+const language = POLISH;
 
 async function fixSentenceWords() {
 	const sentences = await getSentences(language);

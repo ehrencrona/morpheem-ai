@@ -22,12 +22,16 @@ export const POST: ServerLoad = async ({ url, request, locals: { userId, languag
 	console.log(
 		`Updating knowledge ${words
 			.map((k) => `word ${k.wordId} ${k.isKnown ? 'knew' : 'did not know'}`)
-			.join(', ')}, user exercises ${(
-			userExercises?.map(
-				(k) =>
-					`${k.id}, ${k.exercise} ${'wordId' in k ? `word ${k.wordId}` : ''} sentence ${k.sentenceId} ${k.isKnown ? 'knew' : 'did not know'}`
-			) || []
-		).join(', ')} for user ${userId} in language ${language.code}`
+			.join(', ')}` +
+			(userExercises?.length
+				? `, user exercises ${(
+						userExercises?.map(
+							(k) =>
+								`${k.id}, ${k.exercise} ${'wordId' in k ? `word ${k.wordId}` : ''} sentence ${k.sentenceId} ${k.isKnown ? 'knew' : 'did not know'}`
+						) || []
+					).join(', ')}`
+				: '') +
+			` for user ${userId} in language ${language.code}`
 	);
 
 	await Promise.all([

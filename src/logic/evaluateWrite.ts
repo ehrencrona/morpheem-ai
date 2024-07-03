@@ -1,25 +1,24 @@
+import { logError } from '$lib/logError';
 import { z } from 'zod';
 import {
-	generateTranslationFeedback as generateTranslationFeedbackAi,
-	evaluateWrite as evaluateWriteAi
+	evaluateWrite as evaluateWriteAi,
+	generateTranslationFeedback as generateTranslationFeedbackAi
 } from '../ai/evaluateWrite';
+import { getAggregateKnowledgeForUserWords } from '../db/knowledge';
 import { KNOWLEDGE_TYPE_WRITE } from '../db/knowledgeTypes';
+import { getSentence } from '../db/sentences';
 import * as DB from '../db/types';
 import { getMultipleWordsByLemmas, getWordByLemma, getWordsOfSentence } from '../db/words';
 import { UnknownWordResponse } from '../routes/[lang]/api/word/unknown/+server';
 import { wordsToUnknownWords } from './findProvidedWordsInAnswer';
+import { expectedKnowledge, now } from './isomorphic/knowledge';
 import { lemmatizeSentences } from './lemmatize';
 import { toWords } from './toWords';
 import { ExerciseKnowledge, Language, WordKnowledge } from './types';
-import { getAggregateKnowledgeForUserWords } from '../db/knowledge';
-import { expectedKnowledge, now } from './isomorphic/knowledge';
-import { getSentence } from '../db/sentences';
-import { logError } from '$lib/logError';
-import { getSentenceWords } from './addSentence';
 
-export type WritingFeedbackOpts = z.infer<typeof writingFeedbackOptsSchema>;
+export type WriteEvaluationOpts = z.infer<typeof writeEvaluationOptsSchema>;
 
-export interface WritingFeedbackResponse {
+export interface WriteEvaluation {
 	feedback: string;
 	correctedSentence?: string | undefined;
 	correctedPart?: string | undefined;
@@ -28,17 +27,17 @@ export interface WritingFeedbackResponse {
 	userExercises: ExerciseKnowledge[];
 }
 
-export const writingFeedbackOptsSchema = z
+export const writeEvaluationOptsSchema = z
 	.object({
 		exercise: z.literal('write'),
-		exerciseId: z.number().nullable(),
+		exerciseId: z.number().nullish(),
 		entered: z.string(),
 		word: z.string()
 	})
 	.or(
 		z.object({
 			exercise: z.literal('translate'),
-			exerciseId: z.number().nullable(),
+			exerciseId: z.number().nullish(),
 			entered: z.string(),
 			correct: z.string(),
 			english: z.string(),
@@ -53,9 +52,9 @@ export const writingFeedbackOptsSchema = z
 	);
 
 export async function evaluateWrite(
-	opts: z.infer<typeof writingFeedbackOptsSchema>,
+	opts: z.infer<typeof writeEvaluationOptsSchema>,
 	{ language, userId }: { language: Language; userId: number }
-): Promise<WritingFeedbackResponse> {
+): Promise<WriteEvaluation> {
 	const { entered: enteredSentence } = opts;
 
 	const feedback =
@@ -173,7 +172,7 @@ export async function evaluateWrite(
 	}
 
 	userExercises.push({
-		id: opts.exerciseId,
+		id: opts.exerciseId || null,
 		sentenceId: -1,
 		// ?
 		level: enteredWords.concat(newWords).reduce((acc, word) => Math.max(acc, word.level), 0),

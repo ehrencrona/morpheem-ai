@@ -38,10 +38,10 @@
 		fetchSentencesWithWord
 	} from './api/sentences/withword/[word]/client';
 	import Cloze from './learn/Cloze.svelte';
+	import PhraseCloze from './learn/PhraseCloze.svelte';
 	import ReadSentence from './learn/ReadSentence.svelte';
 	import WriteSentence from './learn/WriteSentence.svelte';
 	import { trackActivity } from './learn/trackActivity';
-	import PhraseCloze from './learn/PhraseCloze.svelte';
 
 	export let data: PageData;
 
@@ -219,7 +219,10 @@
 		}
 
 		if (!wordId) {
-			throw new Error('No wordId or sentenceId');
+			return getNextExercise({
+				exercises: exercises.slice(1),
+				excludeWordId: wordId || undefined
+			});
 		}
 
 		try {
@@ -228,7 +231,7 @@
 			);
 			let nextSentence = getNextSentence(sentences, knowledge, wordId, exercise);
 
-			if (!nextSentence || (nextSentence.score < 0.93 && exercise != 'write')) {
+			if (!nextSentence || nextSentence.score < 0.93) {
 				try {
 					sentences = sentences.concat(await addSentencesForWord(wordId));
 				} catch (e) {
@@ -263,7 +266,7 @@
 					);
 
 					exercise = 'cloze';
-				} else if (sentenceWriteKnowledge > 0.7) {
+				} else if (sentenceWriteKnowledge > 0.8) {
 					console.log(
 						`Turning write exercise into translate for ${sentence.id} (sentence write knowledge ${toPercent(sentenceWriteKnowledge)}).`
 					);
@@ -342,8 +345,10 @@
 		}
 
 		console.log(
-			`Current exercise: ${next.exercise} ${next.id? `ID ${next.id} `:''}(${next.source}), sentence ${next.sentenceId}${
-				exercise != 'translate' && exercise != 'phrase-cloze' ? `, word ${word?.word} (${wordId})` : ''
+			`Current exercise: ${next.exercise} ${next.id ? `ID ${next.id} ` : ''}(${next.source}), sentence ${next.sentenceId}${
+				exercise != 'translate' && exercise != 'phrase-cloze'
+					? `, word ${word?.word} (${wordId})`
+					: ''
 			}`
 		);
 
@@ -415,6 +420,16 @@
 			</div>
 
 			<div class="font-lato text-xs flex gap-3 justify-end">
+				{#if current.id != null}
+					<div>
+						Exercise #{current.id}
+					</div>
+				{/if}
+
+				<div>
+					Sentence #{current.sentence.id}
+				</div>
+
 				<a href={`/${languageCode}/sentences/${current?.sentence.id}/delete`} class=" text-gray-1">
 					Delete sentence
 				</a>

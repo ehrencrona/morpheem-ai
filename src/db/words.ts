@@ -45,7 +45,9 @@ export async function addWord(
 
 	if (
 		language.code == 'pl' &&
-		['ta', 'wielu', 'można', 'wszystki', 'wszystkie', 'zajęcia', 'gdybyć'].includes(lemma)
+		['ta', 'wielu', 'można', 'wszystki', 'wszystkie', 'zajęcia', 'gdybyć', 'cię', 'ci'].includes(
+			lemma
+		)
 	) {
 		throw new CodedError(`"${lemma}" is not the dictionary form`, 'notALemma');
 	}

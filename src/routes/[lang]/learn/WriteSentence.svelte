@@ -12,7 +12,7 @@
 	import Tutorial from '../../../components/Tutorial.svelte';
 	import { KNOWLEDGE_TYPE_WRITE } from '../../../db/knowledgeTypes';
 	import type { ExerciseSource } from '../../../db/types';
-	import type { WritingFeedbackResponse } from '../../../logic/evaluateWrite';
+	import type { WriteEvaluation } from '../../../logic/evaluateWrite';
 	import type { Fragment } from '../../../logic/isomorphic/translationToFragments';
 	import { translationToFragments } from '../../../logic/isomorphic/translationToFragments';
 	import type { ExerciseKnowledge, Language } from '../../../logic/types';
@@ -23,7 +23,7 @@
 	import { fetchAskMeAnything } from '../api/write/ama/client';
 	import { fetchProvidedWordsInAnswer } from '../api/write/ama/provided/client';
 	import { sendWrittenSentence } from '../api/write/client';
-	import { fetchWritingFeedback } from '../api/write/feedback/client';
+	import { fetchWriteEvaluation as fetchWriteEvaluation } from '../api/write/evaluate/client';
 	import AMA from './AMA.svelte';
 	import WordCard from './WordCard.svelte';
 	import type * as DB from '../../../db/types';
@@ -50,7 +50,7 @@
 
 	let showIdea = false;
 
-	let feedback: WritingFeedbackResponse | undefined;
+	let feedback: WriteEvaluation | undefined;
 	let entered: string;
 
 	let showChars: number = 0;
@@ -114,7 +114,7 @@
 			throw new CodedError('Please enter a sentence', 'sentenceMissing');
 		}
 
-		feedback = await fetchWritingFeedback(
+		feedback = await fetchWriteEvaluation(
 			exercise == 'write'
 				? {
 						exercise,
