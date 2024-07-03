@@ -12,6 +12,7 @@
 	import type { Translation } from '../api/sentences/[sentence]/english/client';
 	import type { UnknownWordResponse } from '../api/word/unknown/+server';
 	import WordCard from './WordCard.svelte';
+	import { getLanguageOnClient } from '../api/api-call';
 
 	export let sentence: DB.Sentence;
 	export let phrase: string;
@@ -100,6 +101,7 @@
 									bind:value={answered}
 									autocapitalize="off"
 									bind:this={input}
+									lang={getLanguageOnClient().code}
 								/>
 							</span>
 							<span class="text-xs font-lato text-right">

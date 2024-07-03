@@ -27,6 +27,7 @@
 	import AMA from './AMA.svelte';
 	import WordCard from './WordCard.svelte';
 	import type * as DB from '../../../db/types';
+	import { getLanguageOnClient } from '../api/api-call';
 
 	export let word: { id: number; word: string; level: number } | undefined;
 	export let onNext: () => Promise<any>;
@@ -298,7 +299,7 @@
 				bind:value={entered}
 				bind:this={input}
 				class="bg-blue-1 rounded-sm block w-full p-2 text-lg mb-6"
-				lang="pl"
+				lang={getLanguageOnClient().code}
 			/>
 
 			{#if showChars > 0 && !isRevealed}

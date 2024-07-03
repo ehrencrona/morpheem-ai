@@ -26,6 +26,7 @@
 	import type { UnknownWordResponse } from '../api/word/unknown/+server';
 	import WordCard from './WordCard.svelte';
 	import { getShowTransliteration } from '$lib/settings';
+	import { getLanguageOnClient } from '../api/api-call';
 
 	export let sentence: DB.Sentence;
 
@@ -139,6 +140,7 @@
 									bind:value={prefix}
 									autocapitalize="off"
 									bind:this={input}
+									lang={getLanguageOnClient().code}
 								/>
 							</span>
 							<span class="text-xs font-lato text-right">
