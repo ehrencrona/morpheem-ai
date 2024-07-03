@@ -16,6 +16,7 @@ import { lemmatizeSentences } from './lemmatize';
 import { toWords } from './toWords';
 import { ExerciseKnowledge, Language, WordKnowledge } from './types';
 import { standardize } from './isomorphic/standardize';
+import { error } from '@sveltejs/kit';
 
 export type WriteEvaluationOpts = z.infer<typeof writeEvaluationOptsSchema>;
 
@@ -144,8 +145,11 @@ export async function evaluateWrite(
 		return getWordByLemma(lemma, language);
 	}
 
-	const errors = feedback.errors || [];
+	let errors = feedback.errors || [];
 	let knewOverallSentence = true;
+
+	// this typically indicates there was an extraneous word in the translation
+	errors = errors.filter((error) => error.shouldBe != '');
 
 	if (errors.length == 0) {
 		// no exercise.
