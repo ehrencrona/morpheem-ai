@@ -9,11 +9,11 @@ export function updateUserExercises(
 
 	exercises = exercises.map((e) => {
 		if (upsertedById.has(e.id)) {
-			const add = upsertedById.get(e.id)!;
+			e = upsertedById.get(e.id)!;
 			upsertedById.delete(e.id);
 
 			console.log(
-				`Updated user exercise ${e.id} for ${'word' in add ? `word ${add.word} (${add.wordId})` : ''} and sentence ${add.sentenceId}. exercise: ${add.exercise}, alpha: ${toPercent(e.alpha)} beta: ${toPercent(e.beta)}`
+				`Updated user exercise ${e.id} for ${'word' in e ? `word ${e.word} (${e.wordId})` : ''} and sentence ${e.sentenceId}. exercise: ${e.exercise}, alpha: ${toPercent(e.alpha)} beta: ${toPercent(e.beta)}`
 			);
 
 			return e;
