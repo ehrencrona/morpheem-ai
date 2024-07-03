@@ -1,4 +1,4 @@
-import { toPercent } from '$lib/toPercent';
+import { exerciseToString } from '$lib/exerciseToString';
 import * as DB from '../../db/types';
 
 export function updateUserExercises(
@@ -12,9 +12,7 @@ export function updateUserExercises(
 			e = upsertedById.get(e.id)!;
 			upsertedById.delete(e.id);
 
-			console.log(
-				`Updated user exercise ${e.id} for ${'word' in e ? `word ${e.word} (${e.wordId})` : ''} and sentence ${e.sentenceId}. exercise: ${e.exercise}, alpha: ${toPercent(e.alpha)} beta: ${toPercent(e.beta)}`
-			);
+			console.log(`Updated user exercise ${exerciseToString(e)}`);
 
 			return e;
 		} else {
@@ -28,9 +26,7 @@ export function updateUserExercises(
 		exercises = [...exercises, ...newExercises];
 
 		for (const e of newExercises) {
-			console.log(
-				`New user exercise ${e.id} of type ${e.exercise}${'word' in e ? ` for word ${e.word} (${e.wordId})` : ''} and sentence ${e.sentenceId}. exercise: ${e.exercise}, alpha: ${toPercent(e.alpha)} beta: ${toPercent(e.beta)}`
-			);
+			console.log(`New user exercise ${exerciseToString(e)}`);
 		}
 	}
 

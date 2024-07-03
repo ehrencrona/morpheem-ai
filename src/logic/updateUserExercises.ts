@@ -81,7 +81,7 @@ async function handleSentenceExercises(
 	}
 
 	function toString(e: DB.Exercise) {
-		return `${getPhrase(e)} (${e.id})`;
+		return getPhrase(e) + (e.id ? ` (${e.id})` : '');
 	}
 
 	console.log(
@@ -134,7 +134,7 @@ async function handleSentenceExercises(
 			allExercises.some(
 				(other) =>
 					other != exercise &&
-					other.id != exercise.id &&
+					(other.id ? other.id != exercise.id : other != exercise) &&
 					!toDelete.has(other.id || -1) &&
 					isDominatedBy(exercise, other)
 			)
@@ -202,7 +202,7 @@ async function handleSentenceExercises(
 	);
 
 	return {
-		deleted: new Array(...toDelete),
+		deleted: new Array<number>(...toDelete),
 		upserted: upsert
 	};
 }

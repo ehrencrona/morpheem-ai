@@ -41,8 +41,8 @@
 	import PhraseCloze from './learn/PhraseCloze.svelte';
 	import ReadSentence from './learn/ReadSentence.svelte';
 	import WriteSentence from './learn/WriteSentence.svelte';
+	import { exerciseToString } from '$lib/exerciseToString';
 	import { trackActivity } from './learn/trackActivity';
-	import { set } from 'zod';
 
 	export let data: PageData;
 
@@ -160,9 +160,7 @@
 			const n = now();
 			const toPercent = (n: number | null) => (n != null ? Math.round(n * 100) + '%' : '-');
 
-			console.log(
-				`Choosing ${exercise.source} ${exercise.exercise} ${'word' in exercise ? `${exercise.word} (${exercise.wordId}), ` : ''}sentence ${exercise.sentenceId}: ${toPercent(exercise.alpha)}/${toPercent(exercise.beta)}, age ${n - exercise.lastTime} = ${toPercent(exercise.score)}`
-			);
+			console.log(`Choosing ${exerciseToString(exercise)}`);
 
 			for (const source of ['studied', 'userExercise', 'unstudied'] as const) {
 				console.log(
@@ -170,12 +168,7 @@
 						exercises
 							.filter((s) => s.source == source)
 							.slice(0, 10)
-							.map(
-								(e, j) =>
-									`${j + 1}.${'word' in e ? ' ' + `${e.word} (${e.wordId})` : ''} ${e.exercise}${e.sentenceId != null ? `, sentence ${e.sentenceId}` : ''}, score ${Math.round(e.score * 100)}%, age ${n - e.lastTime}, knowledge ${Math.round(
-										100 * expectedKnowledge(e, { now: n, exercise: e.exercise })
-									)}% level ${e.level})`
-							)
+							.map((e, j) => `${j + 1}. ${exerciseToString(e)})`)
 							.join(`\n`)
 				);
 			}
@@ -460,10 +453,12 @@
 				exerciseId={current.id}
 				source={current.source}
 				sentence={current.sentence}
-				translation={{
-					english: current.sentence.english || '',
-					transliteration: current.sentence.transliteration || ''
-				}}
+				translation={current.sentence.english
+					? {
+							english: current.sentence.english,
+							transliteration: current.sentence.transliteration || ''
+						}
+					: undefined}
 				correctSentence={current.sentence.sentence}
 				fetchTranslation={getTranslation}
 			/>
@@ -477,10 +472,12 @@
 				exerciseId={current.id}
 				source={current.source}
 				sentence={current.sentence}
-				translation={{
-					english: current.sentence.english || '',
-					transliteration: current.sentence.transliteration || ''
-				}}
+				translation={current.sentence.english
+					? {
+							english: current.sentence.english,
+							transliteration: current.sentence.transliteration || ''
+						}
+					: undefined}
 				correctSentence={current.sentence.sentence}
 				fetchTranslation={getTranslation}
 			/>
