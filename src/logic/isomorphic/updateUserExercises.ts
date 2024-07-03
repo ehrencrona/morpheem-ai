@@ -7,16 +7,17 @@ export function updateUserExercises(
 ) {
 	const upsertedById = new Map(upserted.map((e) => [e.id, e]));
 
-	exercises = exercises.map((e) => {
-		if (upsertedById.has(e.id)) {
-			e = upsertedById.get(e.id)!;
-			upsertedById.delete(e.id);
+	exercises = exercises.map((existing) => {
+		const replaceWith = upsertedById.get(existing.id)!;
 
-			console.log(`Updated user exercise ${exerciseToString(e)}`);
+		if (replaceWith) {
+			upsertedById.delete(existing.id);
 
-			return e;
+			console.log(`Updated user exercise ${exerciseToString(replaceWith)}`);
+
+			return replaceWith;
 		} else {
-			return e;
+			return existing;
 		}
 	});
 
@@ -30,7 +31,7 @@ export function updateUserExercises(
 		}
 	}
 
-	exercises = exercises.filter((e) => !deleted.includes(e.id || -1));
+	exercises = exercises.filter((e) => e.id == null || !deleted.includes(e.id));
 
 	return exercises;
 }

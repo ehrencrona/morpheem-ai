@@ -116,6 +116,10 @@ async function handleSentenceExercises(
 		if (existing && exercise.id == null) {
 			exercise.id = existing.id;
 		}
+
+		if (!existing && exercise.isKnown) {
+			deleteExercise(exercise);
+		}
 	});
 
 	// if we are updating a translate exercise but also add other exercises, drop the translate

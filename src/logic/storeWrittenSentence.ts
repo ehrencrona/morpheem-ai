@@ -1,7 +1,8 @@
+import { Sentence } from '../db/types';
 import { addWrittenSentence } from '../db/writtenSentences';
 import { addSentence } from './addSentence';
 import { lemmatizeSentences } from './lemmatize';
-import { Language } from './types';
+import { Language, SentenceWord } from './types';
 
 export async function storeWrittenSentence({
 	sentence: sentenceString,
@@ -18,16 +19,18 @@ export async function storeWrittenSentence({
 	language: Language;
 	createNewSentence: boolean;
 }) {
-	const [lemmatized] = await lemmatizeSentences([sentenceString], { language });
+	let sentence: (Sentence & { words: SentenceWord[] }) | undefined;
 
-	const sentence = createNewSentence
-		? await addSentence(sentenceString, {
-				english: undefined,
-				lemmas: lemmatized,
-				language,
-				userId
-			})
-		: undefined;
+	if (createNewSentence) {
+		const [lemmatized] = await lemmatizeSentences([sentenceString], { language });
+
+		sentence = await addSentence(sentenceString, {
+			english: undefined,
+			lemmas: lemmatized,
+			language,
+			userId
+		});
+	}
 
 	await addWrittenSentence({
 		sentence: sentenceString,

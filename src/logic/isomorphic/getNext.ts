@@ -69,6 +69,14 @@ export function calculateSentenceWriteKnowledge(
 		sentence.words.reduce((acc, word) => {
 			const wordKnowledge = knowledge.find((k) => k.wordId === word.id);
 
+			if (!wordKnowledge && word.type == 'cognate') {
+				return 0.5;
+			}
+
+			if (!wordKnowledge && word.type == 'name') {
+				return 0.8;
+			}
+
 			return (
 				acc *
 				(wordKnowledge

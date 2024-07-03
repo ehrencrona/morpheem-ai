@@ -43,6 +43,7 @@
 	import WriteSentence from './learn/WriteSentence.svelte';
 	import { exerciseToString } from '$lib/exerciseToString';
 	import { trackActivity } from './learn/trackActivity';
+	import { filterUndefineds } from '$lib/filterUndefineds';
 
 	export let data: PageData;
 
@@ -93,6 +94,8 @@
 		await showNextSentence();
 	}
 
+	let userExercisesBeingUpdated: number[] = [];
+
 	function sendKnowledge(
 		words: (WordKnowledge & { word: DB.Word })[],
 		addUserExercises?: ExerciseKnowledge[]
@@ -100,6 +103,10 @@
 		const knowledgeToSend = words.map(({ word, ...rest }) => rest);
 
 		knowledge = updateKnowledge(words, knowledge);
+
+		userExercisesBeingUpdated = filterUndefineds(
+			(addUserExercises || []).map((e) => e.id || undefined)
+		);
 
 		sendKnowledgeClient(knowledgeToSend, addUserExercises)
 			.catch(async (e) => {
@@ -109,7 +116,10 @@
 
 				return sendKnowledgeClient(knowledgeToSend, addUserExercises);
 			})
-			.then((res) => (userExercises = updateUserExercises(res, userExercises)))
+			.then((res) => {
+				userExercises = updateUserExercises(res, userExercises);
+				userExercisesBeingUpdated = [];
+			})
 			.catch(logError);
 	}
 
@@ -132,6 +142,7 @@
 		const filter = (e: DB.ScoreableExercise) =>
 			!(excludeWordId && 'wordId' in e && e.wordId == excludeWordId) &&
 			!(excludeSentenceId && e.sentenceId == excludeSentenceId) &&
+			(e.id == null || !userExercisesBeingUpdated.includes(e.id)) &&
 			(!exerciseFilter || e.exercise == exerciseFilter);
 
 		exercises = exercises.filter(filter);
@@ -154,36 +165,29 @@
 			throw new Error('No exercises found');
 		}
 
-		{
-			const exercise = exercises[0];
+		for (const source of ['studied', 'userExercise', 'unstudied'] as const) {
+			console.log(
+				`Next ${source}:\n` +
+					exercises
+						.filter((s) => s.source == source)
+						.slice(0, 6)
+						.map((e, j) => `${j + 1}. ${exerciseToString(e)})`)
+						.join(`\n`)
+			);
+		}
 
-			const n = now();
-			const toPercent = (n: number | null) => (n != null ? Math.round(n * 100) + '%' : '-');
+		const isRelevant = (e: { score: number }) => e.score > 0.02;
 
-			console.log(`Choosing ${exerciseToString(exercise)}`);
-
-			for (const source of ['studied', 'userExercise', 'unstudied'] as const) {
-				console.log(
-					`Next ${source}:\n` +
-						exercises
-							.filter((s) => s.source == source)
-							.slice(0, 10)
-							.map((e, j) => `${j + 1}. ${exerciseToString(e)})`)
-							.join(`\n`)
-				);
-			}
-
-			const isRelevant = (e: { score: number }) => e.score > 0.02;
-
-			if (exercises.some(isRelevant)) {
-				exercises = exercises.filter(isRelevant).slice(0, 6);
-			} else {
-				console.warn(`All exercises had very low score.`);
-			}
+		if (exercises.some(isRelevant)) {
+			exercises = exercises.filter(isRelevant).slice(0, 6);
+		} else {
+			console.warn(`All exercises had very low score.`);
 		}
 
 		const firstExercise = exercises[0];
-		let { wordType, exercise, sentenceId } = exercises[0];
+		let { wordType, exercise, sentenceId } = firstExercise;
+
+		console.log(`Choosing ${exerciseToString(firstExercise)}`);
 
 		const wordId = 'wordId' in firstExercise ? firstExercise.wordId : null;
 
@@ -193,7 +197,7 @@
 
 				return {
 					...firstExercise,
-					sentenceId: sentence.id,
+					sentenceId,
 					sentence,
 					getNextPromise: () =>
 						getNextExercise({
@@ -208,9 +212,11 @@
 		}
 
 		if (!wordId) {
+			logError(`No sentence or wordId for exercise ${exerciseToString(firstExercise)}`);
+
 			return getNextExercise({
 				exercises: exercises.slice(1),
-				excludeWordId: wordId || undefined
+				excludeSentenceId: sentenceId != -1 ? sentenceId : undefined
 			});
 		}
 
@@ -234,7 +240,7 @@
 				nextSentence = getNextSentence(sentences, knowledge, wordId, exercise);
 
 				if (!nextSentence) {
-					console.error(`No sentences found for word ${wordId}`);
+					logError(`No sentences found for word ${wordId}`);
 
 					return getNextExercise({
 						exercises: exercises.slice(1),
@@ -268,15 +274,15 @@
 				}
 
 				// -2 -> .5, 2 -> .1
-				const clozeThreshold = 0.3 - getClozePreference() / 10;
+				// const clozeThreshold = 0.3 - getClozePreference() / 10;
 
-				if ((exercise == 'write' || exercise == 'translate') && Math.random() > clozeThreshold) {
-					console.log(
-						`Cloze threshold of ${toPercent(clozeThreshold)} exceeded, turning into cloze.`
-					);
+				// if ((exercise == 'write' || exercise == 'translate') && Math.random() > clozeThreshold) {
+				// 	console.log(
+				// 		`Cloze threshold of ${toPercent(clozeThreshold)} exceeded, turning into cloze.`
+				// 	);
 
-					exercise = 'cloze';
-				}
+				// 	exercise = 'cloze';
+				// }
 			}
 
 			return {
@@ -286,7 +292,8 @@
 				getNextPromise: () =>
 					getNextExercise({
 						exercises: exercises.slice(1),
-						excludeWordId: wordId
+						excludeWordId: wordId,
+						excludeSentenceId: sentence.id != -1 ? sentence.id : undefined
 					})
 			};
 		} catch (e: any) {
@@ -333,13 +340,7 @@
 			}
 		}
 
-		console.log(
-			`Current exercise: ${next.exercise} ${next.id ? `ID ${next.id} ` : ''}(${next.source}), sentence ${next.sentenceId}${
-				exercise != 'translate' && exercise != 'phrase-cloze'
-					? `, word ${word?.word} (${wordId})`
-					: ''
-			}`
-		);
+		console.log(`Current exercise: ${exerciseToString(next)}`);
 
 		if (next.exercise == 'write') {
 			current = {
@@ -362,7 +363,7 @@
 			};
 		} else {
 			if (!wordId) {
-				throw new Error(`No wordId for ${exercise} exercise from ${source}`);
+				throw new Error(`No wordId for exercise ${exerciseToString(next)} from ${source}`);
 			}
 
 			current = {
