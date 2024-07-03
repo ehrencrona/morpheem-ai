@@ -57,7 +57,7 @@ export const exerciseSchema = z
 
 export type Exercise = z.infer<typeof exerciseSchema>;
 
-export type UserExercise = Exercise & Scoreable & { id: number };
+export type UserExercise = Exercise & Scoreable;
 
 export type ExerciseSource = 'unstudied' | 'studied' | 'userExercise';
 

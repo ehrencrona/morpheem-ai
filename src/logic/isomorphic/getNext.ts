@@ -8,26 +8,28 @@ export function getExerciseForKnowledge(knowledge: AggKnowledgeForUser[]) {
 	return getExercisesForKnowledge(knowledge)[0];
 }
 
-export function getExercisesForKnowledge(
-	knowledge: AggKnowledgeForUser[]
-): (DB.ScoreableExercise & { wordType: DB.WordType | undefined })[] {
+type ExerciseForKnowledge = DB.ScoreableExercise & { wordType: DB.WordType | undefined };
+
+export function getExercisesForKnowledge(knowledge: AggKnowledgeForUser[]): ExerciseForKnowledge[] {
 	return knowledge
 		.filter(({ wordType }) => wordType != 'name')
 		.reduce(
 			(acc, k) => [
 				...acc,
 				{
+					id: null,
 					...k,
 					exercise: 'read',
 					sentenceId: -1
-				} satisfies DB.Exercise,
+				} satisfies ExerciseForKnowledge,
 				{
+					id: null,
 					...k,
 					exercise: 'write',
 					sentenceId: -1
-				} satisfies DB.Exercise
+				} satisfies ExerciseForKnowledge
 			],
-			[] as (DB.ScoreableExercise & { wordType: DB.WordType | undefined })[]
+			[] as ExerciseForKnowledge[]
 		);
 }
 

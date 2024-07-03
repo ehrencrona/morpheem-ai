@@ -10,13 +10,16 @@ import { didNotKnow, didNotKnowFirst, knew, knewFirst, now } from './isomorphic/
 import { toWords } from './toWords';
 import type { ExerciseKnowledge, Language } from './types';
 
-export function updateUserExercises(
+export async function updateUserExercises(
 	exercises: ExerciseKnowledge[],
 	userId: number,
 	language: Language
 ) {
 	if (!exercises.length) {
-		return;
+		return {
+			deleted: [] as number[],
+			upserted: []
+		};
 	}
 
 	validate(exercises);
@@ -33,10 +36,18 @@ export function updateUserExercises(
 		return acc;
 	}, new Map<number, ExerciseKnowledge[]>());
 
-	return Promise.all(
+	const resultBySentence = await Promise.all(
 		new Array(...bySentence.entries()).map(([sentenceId, exercises]) =>
 			handleSentenceExercises(exercises, { userId, sentenceId, language })
 		)
+	);
+
+	return resultBySentence.reduce(
+		(acc, { deleted, upserted }) => ({
+			deleted: acc.deleted.concat(deleted),
+			upserted: acc.upserted.concat(upserted)
+		}),
+		{ deleted: [] as number[], upserted: [] as DB.UserExercise[] }
 	);
 }
 
@@ -146,6 +157,8 @@ async function handleSentenceExercises(
 		await deleteUserExercise(id, userId, language);
 	}
 
+	let upsert: DB.UserExercise[] = [];
+
 	for (const exercise of addExercises) {
 		const existing = existingExercises.find((e) => e.id == exercise.id);
 
@@ -168,21 +181,30 @@ async function handleSentenceExercises(
 		if (knowledge.beta == 1) {
 			console.log(`Done studying user exercise ${exercise.id} (${toString(exercise)}).`);
 
-			await deleteUserExercise(exercise.id!, userId, language);
+			if (exercise.id) {
+				toDelete.add(exercise.id!);
+			}
 		} else {
-			await upsertUserExercise(
-				{
-					...exercise,
-					...knowledge,
-					id: exercise.id!,
-					exercise: exercise.exercise as any,
-					lastTime: now()
-				},
-				userId,
-				language
-			);
+			upsert.push({
+				...exercise,
+				...knowledge,
+				id: exercise.id!,
+				exercise: exercise.exercise as any,
+				lastTime: now()
+			});
 		}
 	}
+
+	await Promise.all(
+		new Array(...toDelete)
+			.map((id) => deleteUserExercise(id, userId, language))
+			.concat(upsert.map((e) => upsertUserExercise(e, userId, language)))
+	);
+
+	return {
+		deleted: new Array(...toDelete),
+		upserted: upsert
+	};
 }
 
 function validate(exercises: ExerciseKnowledge[]) {

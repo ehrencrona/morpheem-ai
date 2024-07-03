@@ -27,7 +27,7 @@ export async function upsertUserExercise(
 		.withSchema(language.code)
 		.insertInto('user_exercises')
 		.values({
-			id: exercise.id,
+			id: exercise.id != null ? exercise.id : undefined,
 			user_id: userId,
 			sentence_id: sentenceId,
 			word_id: wordId,

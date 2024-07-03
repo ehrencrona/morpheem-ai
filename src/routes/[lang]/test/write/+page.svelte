@@ -59,6 +59,6 @@
 		sentenceWords={word.sentenceWords}
 		language={getLanguageOnClient()}
 		{onNext}
-		source="unstudied"
+		exerciseId={null}
 	/>
 {/if}

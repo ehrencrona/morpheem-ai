@@ -42,6 +42,7 @@
 	import ReadSentence from './learn/ReadSentence.svelte';
 	import WriteSentence from './learn/WriteSentence.svelte';
 	import { trackActivity } from './learn/trackActivity';
+	import { set } from 'zod';
 
 	export let data: PageData;
 
@@ -100,21 +101,16 @@
 
 		knowledge = updateKnowledge(words, knowledge);
 
-		if (addUserExercises) {
-			({ exercises: userExercises, addUserExercises } = updateUserExercises(
-				addUserExercises,
-				userExercises
-			));
-		}
+		sendKnowledgeClient(knowledgeToSend, addUserExercises)
+			.catch(async (e) => {
+				logError(e);
 
-		sendKnowledgeClient(knowledgeToSend, addUserExercises).catch((e) => {
-			logError(e);
+				await new Promise((resolve) => setTimeout(resolve, 5000));
 
-			setTimeout(
-				() => sendKnowledgeClient(knowledgeToSend, addUserExercises).catch(logError),
-				5000
-			);
-		});
+				return sendKnowledgeClient(knowledgeToSend, addUserExercises);
+			})
+			.then((res) => (userExercises = updateUserExercises(res, userExercises)))
+			.catch(logError);
 	}
 
 	let nextPromise: ReturnType<typeof getNextExercise>;

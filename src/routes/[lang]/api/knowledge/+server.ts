@@ -34,8 +34,8 @@ export const POST: ServerLoad = async ({ url, request, locals: { userId, languag
 			` for user ${userId} in language ${language.code}`
 	);
 
-	await Promise.all([
-		userExercises ? updateUserExercises(userExercises, userId, language) : undefined,
+	const [result, a, b] = await Promise.all([
+		updateUserExercises(userExercises || [], userId, language),
 		updateKnowledge(
 			words.map((word) => ({ ...word, userId })),
 			language
@@ -43,7 +43,7 @@ export const POST: ServerLoad = async ({ url, request, locals: { userId, languag
 		storeSentenceDone(userId, language)
 	]);
 
-	return json({});
+	return json(result);
 };
 
 export const GET: ServerLoad = async ({ locals: { userId, language } }) => {
