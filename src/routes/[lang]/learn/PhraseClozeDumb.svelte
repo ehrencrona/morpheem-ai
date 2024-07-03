@@ -137,7 +137,7 @@
 	{/if}
 
 	{#if !evaluation}
-		{#if unknown.length > 0}
+		{#if unknown.length > 0 || isLoadingUnknown}
 			<div class="grid grid-cols-1 md:grid-cols-2 w-full gap-x-4 mt-8">
 				{#each unknown as word (word.id)}
 					<WordCard {word} onRemove={() => onRemoveUnknown(word.word)} />
