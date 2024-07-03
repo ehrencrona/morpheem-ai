@@ -273,16 +273,16 @@
 					exercise = 'cloze';
 				}
 
-				// -2 -> .5, 2 -> .1
-				// const clozeThreshold = 0.3 - getClozePreference() / 10;
+				// -2 -> 1, 2 -> 0.2
+				const clozeThreshold = 0.6 - getClozePreference() * 0.2;
 
-				// if ((exercise == 'write' || exercise == 'translate') && Math.random() > clozeThreshold) {
-				// 	console.log(
-				// 		`Cloze threshold of ${toPercent(clozeThreshold)} exceeded, turning into cloze.`
-				// 	);
+				if ((exercise == 'write' || exercise == 'translate') && Math.random() > clozeThreshold) {
+					console.log(
+						`Cloze threshold of ${toPercent(clozeThreshold)} exceeded, turning into cloze.`
+					);
 
-				// 	exercise = 'cloze';
-				// }
+					exercise = 'cloze';
+				}
 			}
 
 			return {
