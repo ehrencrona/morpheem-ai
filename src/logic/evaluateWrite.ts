@@ -176,16 +176,18 @@ export async function evaluateWrite(
 		const word = await getCorrectedWord(errors[0]);
 
 		if (word) {
-			userExercises.push({
-				id: null,
-				sentenceId: -1,
-				wordId: word.id,
-				word: word.word,
-				// just set a fixed value?
-				level: word.level,
-				exercise: 'cloze',
-				isKnown: false
-			});
+			if (word.type != 'name') {
+				userExercises.push({
+					id: null,
+					sentenceId: -1,
+					wordId: word.id,
+					word: word.word,
+					// just set a fixed value?
+					level: word.level,
+					exercise: 'cloze',
+					isKnown: false
+				});
+			}
 		} else {
 			knewOverallSentence = false;
 		}
