@@ -15,21 +15,27 @@
 <main>
 	<h1 class="text-xl mt-12 mb-4">Exercises</h1>
 
-	<div class="grid gap-3 items-baseline" style="grid-template-columns: auto auto auto 1fr auto">
+	<div class="grid gap-3 items-baseline grid-cols-[auto_1fr_auto_auto] md:grid-cols-[auto_auto_1fr_auto_auto] text-sm md:text-base">
 		{#each data.exercises as exercise}
 			<div class="text-xs font-lato">#{exercise.id}<br />{toPercent(exercise.level / 100)}</div>
 
-			<div><span class="bg-blue-3 text-white p-1 text-xs">{exercise.exercise}</span></div>
+			<div class="hidden md:block">
+				<span class="bg-blue-3 text-white p-1 text-xs">{exercise.exercise}</span>
+			</div>
 
-			{#if exercise.exercise == 'cloze' || exercise.exercise == 'cloze-inflection' || exercise.exercise == 'write'}
-				<a href={`/${data.lang}/words/${exercise.wordId}`} class="text-blue-3 underline">
-					{exercise.word}</a
-				>
-			{:else if exercise.exercise == 'phrase-cloze'}
-				<div>"{exercise.phrase}"</div>
-			{:else}
-				<div></div>
-			{/if}
+			<div>
+				{#if exercise.exercise == 'cloze' || exercise.exercise == 'cloze-inflection' || exercise.exercise == 'write'}
+					<a href={`/${data.lang}/words/${exercise.wordId}`} class="text-blue-3 underline">
+						{exercise.word}</a
+					>
+				{:else if exercise.exercise == 'phrase-cloze'}
+					<div>"{exercise.phrase}"</div>
+				{/if}
+
+				<div class="block md:hidden">
+					<span class="bg-blue-3 text-white p-1 text-xxs">{exercise.exercise}</span>
+				</div>
+			</div>
 
 			<div>
 				{exercise.sentence?.sentence}
