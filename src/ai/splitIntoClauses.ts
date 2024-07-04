@@ -74,7 +74,8 @@ Return a JSON array of clauses, each an array with the ${language.name} clause f
 		],
 		temperature: 0.5,
 		schema: z.object({ clauses: z.array(z.array(z.string()).min(2).max(2)) }),
-		logResponse: true
+		logResponse: true,
+		model: 'gpt-3.5-turbo'
 	});
 
 	return res.clauses.map(([sentence, english]) => ({ sentence, english }));
