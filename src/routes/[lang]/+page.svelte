@@ -276,16 +276,16 @@
 
 					exercise = 'cloze';
 				}
+			}
 
-				const clozeThreshold = [1, 0.7, 0.4, 0.3, 0.2][getClozePreference() + 2];
+			const clozeThreshold = [1, 0.7, 0.4, 0.3, 0.2][getClozePreference() + 2];
 
-				if ((exercise == 'write' || exercise == 'translate') && Math.random() > clozeThreshold) {
-					console.log(
-						`Cloze threshold of ${toPercent(clozeThreshold)} exceeded, turning into cloze.`
-					);
+			if ((exercise == 'write' || exercise == 'translate') && Math.random() > clozeThreshold) {
+				console.log(
+					`Cloze threshold of ${toPercent(clozeThreshold)} exceeded, turning into cloze.`
+				);
 
-					exercise = 'cloze';
-				}
+				exercise = 'cloze';
 			}
 
 			return {
