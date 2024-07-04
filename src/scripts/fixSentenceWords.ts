@@ -1,6 +1,7 @@
+import { logError } from '$lib/logError';
 import { parallelize } from '$lib/parallelize';
 import { CodedError } from '../CodedError';
-import { KOREAN, POLISH } from '../constants';
+import { KOREAN, POLISH, SPANISH } from '../constants';
 import { db } from '../db/client';
 import { getLemmasOfWords } from '../db/lemmas';
 import { deleteSentence, getSentences } from '../db/sentences';
@@ -8,7 +9,7 @@ import { getWordsOfSentences } from '../db/words';
 import { getSentenceWords } from '../logic/addSentence';
 import { toWords } from '../logic/toWords';
 
-const language = POLISH;
+const language = SPANISH;
 
 async function fixSentenceWords() {
 	const sentences = await getSentences(language);
@@ -85,7 +86,7 @@ async function fixSentenceWords() {
 						console.error(`In sentence ${sentence.id}: ${(e as CodedError).message}`);
 					} else {
 						(e as Error).message = `Error in sentence ${sentence.id}: ${(e as Error).message}`;
-						throw e;
+						logError(e);
 					}
 				}
 			}
