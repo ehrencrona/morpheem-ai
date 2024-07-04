@@ -94,7 +94,7 @@ async function handleSentenceExercises(
 		return getPhrase(a) == getPhrase(b);
 	}
 
-	function isDominatedBy(a: DB.Exercise, b: DB.Exercise) {
+	function isSubsetOf(a: DB.Exercise, b: DB.Exercise) {
 		return getPhrase(b).includes(getPhrase(a));
 	}
 
@@ -118,6 +118,10 @@ async function handleSentenceExercises(
 		}
 
 		if (!existing && exercise.isKnown) {
+			console.log(
+				`Dropping exercise ${toString(exercise)} because it is already known and not in the database.`
+			);
+
 			deleteExercise(exercise);
 		}
 	});
@@ -127,6 +131,10 @@ async function handleSentenceExercises(
 	const translateExercise = addExercises.find((e) => e.exercise == 'translate');
 
 	if (translateExercise?.id != null && addExercises.length > 1 && addExercises.length < 4) {
+		console.log(
+			`Dropping exercise ${toString(translateExercise)} because the other, more detaile exercises supercede it.`
+		);
+
 		deleteExercise(translateExercise);
 	}
 
@@ -134,15 +142,19 @@ async function handleSentenceExercises(
 
 	// go through existing and new and if an exercise is dominated by another, drop it
 	allExercises.forEach((exercise) => {
-		if (
-			allExercises.some(
-				(other) =>
-					other != exercise &&
-					(other.id ? other.id != exercise.id : other != exercise) &&
-					!toDelete.has(other.id || -1) &&
-					isDominatedBy(exercise, other)
-			)
-		) {
+		const other = allExercises.find(
+			(other) =>
+				other != exercise &&
+				(other.id ? other.id != exercise.id : other != exercise) &&
+				!toDelete.has(other.id || -1) &&
+				isSubsetOf(exercise, other)
+		);
+
+		if (other) {
+			console.log(
+				`Dropping exercise ${toString(exercise)} because it is a subset of ${toString(other)}.`
+			);
+
 			deleteExercise(exercise);
 		}
 	});
