@@ -66,11 +66,11 @@ async function lemmatizeBatch(
 		
 		byłoby (być) dobrze (dobrze), gdybyś (gdyby) był (być) gorszym (zły) przykładem (przykład)
 		
-		Kocham cię
+		niesamowicie cię kocham
 		
 		becomes
 		
-		Kocham (kochać) cię (ty)`,
+		niesamowicie (niesamowicie) cię (ty) kocham (kochać)`,
 		fr: `"y a-t-il des chaises"
 		
 		becomes
