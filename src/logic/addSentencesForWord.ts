@@ -24,11 +24,13 @@ export async function addSentencesForWord(
 	async function getSentences(retriesLeft = 1) {
 		try {
 			return userId
-				? await generatePersonalizedExampleSentences(word.word, {
-						level: word.level,
-						userId,
-						language
-					})
+				? (
+						await generatePersonalizedExampleSentences(word.word, {
+							level: word.level,
+							userId,
+							language
+						})
+					).map(({ sentence }) => sentence)
 				: await generateExampleSentences(word.word, {
 						language,
 						level: word.level < 99 ? word.level : undefined
@@ -44,24 +46,27 @@ export async function addSentencesForWord(
 		}
 	}
 
+	const sentences = await getSentences();
+	const lemmas = await lemmatizeSentences(sentences, { language });
+
 	const result = filterUndefineds(
-		await Promise.all(
-			(await getSentences())
-				.filter(({ sentence, lemmas }) => {
-					const hasWord = lemmas.some((lemma) => lemma === word.word);
-
-					if (!hasWord) {
-						console.warn(
-							`Word ${word.word} not found in sentence ${sentence}, only ${lemmas.join(', ')}`
-						);
-					}
-
-					return hasWord;
-				})
-				.map(async ({ sentence, lemmas }) =>
-					addSentence(sentence, { english: undefined, lemmas, language })
+		(
+			await Promise.all(
+				sentences.map(async (sentence, i) =>
+					addSentence(sentence, { english: undefined, lemmas: lemmas[i], language })
 				)
-		)
+			)
+		).filter((sentence) => {
+			const hasWord = sentence.words.some((sentenceWord) => sentenceWord.word === word.word);
+
+			if (!hasWord) {
+				console.warn(
+					`Word ${word.word} not found in sentence ${sentence}, only ${sentence.words.map(({ word }) => word).join(', ')}`
+				);
+			}
+
+			return hasWord;
+		})
 	);
 
 	if (result.length == 0) {

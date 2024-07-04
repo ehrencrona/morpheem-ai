@@ -6,10 +6,12 @@ import {
 	simplifySentences
 } from '../ai/generateExampleSentences';
 import { getAggregateKnowledgeForUserWords } from '../db/knowledge';
+import { getLemmasOfWords } from '../db/lemmas';
 import * as DB from '../db/types';
 import { addWord, getMultipleWordsByLemmas } from '../db/words';
 import { lemmatizeSentences } from '../logic/lemmatize';
 import { expectedKnowledge, now } from './isomorphic/knowledge';
+import { toWords } from './toWords';
 import { Language } from './types';
 
 export async function generateExampleSentences(
@@ -22,16 +24,12 @@ export async function generateExampleSentences(
 		level?: number;
 	}
 ) {
-	let sentences = await generateExampleSentencesAi(
+	return generateExampleSentencesAi(
 		lemma,
 		level < 20 ? 'beginner' : level < 40 ? 'easy' : 'normal',
 		8,
 		language
 	);
-
-	const words = await toWords(sentences, { language });
-
-	return words.sentences.map((sentence, i) => ({ sentence, lemmas: words.lemmas[i] }));
 }
 
 export async function generatePersonalizedExampleSentences(
@@ -40,12 +38,14 @@ export async function generatePersonalizedExampleSentences(
 		level = 60,
 		hardLevel = Math.max(Math.round((level * 2) / 3), 10),
 		retriesLeft = 1,
+		count = 8,
 		userId,
 		language
 	}: {
 		level?: number;
 		hardLevel?: number;
 		retriesLeft?: number;
+		count?: number;
 		userId: number;
 		language: Language;
 	}
@@ -53,11 +53,24 @@ export async function generatePersonalizedExampleSentences(
 	let sentences = await generateExampleSentencesAi(
 		lemma,
 		level < 20 ? 'beginner' : level < 40 ? 'easy' : 'normal',
-		8,
+		count,
 		language
 	);
 
 	let graded = await gradeSentences(sentences, { exceptLemma: lemma, hardLevel, userId, language });
+
+	console.log(
+		`Got example sentences for ${lemma}: ${sentences
+			.map(
+				(sentence, i) =>
+					`\n ${i}) ` +
+					sentence.slice(0, 100) +
+					(sentence.length > 100 ? '...' : '') +
+					' Hard: ' +
+					graded[i].hard.join(', ')
+			)
+			.join('')}`
+	);
 
 	const simple = graded.filter(({ hard }) => !hard.length);
 
@@ -122,13 +135,9 @@ export async function generatePersonalizedExampleSentences(
 				)
 			);
 		}
-	} else {
-		console.log(
-			`These sentences for ${lemma} were simple: ${simple.map(({ sentence }, i) => `\n ${i}) ` + sentence.slice(0, 100)).join('')}`
-		);
-
-		graded = simple;
 	}
+
+	graded = graded.sort((a, b) => a.hard.length - b.hard.length).slice(0, count);
 
 	const foundSimple = graded.some(({ hard }) => !hard.length);
 
@@ -155,11 +164,8 @@ async function gradeSentences(
 		language
 	}: { exceptLemma: string; hardLevel: number; userId: number; language: Language }
 ) {
-	const res = await toWords(sentences, { language });
+	const res = await quickAndDirtyToWords(sentences, { language });
 	const { words, lemmas } = res;
-
-	// it might discard invalid sentences.
-	sentences = res.sentences;
 
 	const knowledge = await getAggregateKnowledgeForUserWords({
 		wordIds: words.map(({ id }) => id),
@@ -167,20 +173,15 @@ async function gradeSentences(
 		language
 	});
 
-	const hardWords = words.filter(
-		(word) => word.word != exceptLemma && isHard(word, knowledge, hardLevel)
+	const easyLemmasSet = new Set(
+		words
+			.filter((word) => word.word == exceptLemma || !isHard(word, knowledge, hardLevel))
+			.map(({ word }) => word)
 	);
-
-	const hardLemmas = hardWords
-		.map(({ word }) => word)
-		.concat(lemmas.flat().filter((lemma) => !words.some((word) => word.word === lemma)));
-
-	const hardLemmasSet = new Set(hardLemmas);
 
 	return sentences.map((sentence, i) => ({
 		sentence,
-		lemmas: lemmas[i],
-		hard: lemmas[i].filter((lemma) => hardLemmasSet.has(lemma))
+		hard: lemmas[i].filter((lemma) => !easyLemmasSet.has(lemma))
 	}));
 }
 
@@ -193,12 +194,39 @@ const isHard = (word: DB.Word, knowledge: DB.AggKnowledgeForUser[], hardLevel: n
 
 	if (wordKnowledge) {
 		return expectedKnowledge(wordKnowledge, { now: now(), exercise: 'read' }) < 0.6;
+	} else {
+		return word.level > hardLevel;
 	}
-
-	return word.level > hardLevel;
 };
 
-export async function toWords(sentences: string[], { language }: { language: Language }) {
+export async function quickAndDirtyToWords(
+	sentences: string[],
+	{ language }: { language: Language }
+) {
+	const wordStrings = sentences.map((sentence) =>
+		toWords(sentence, language, { doLowerCase: true })
+	);
+
+	const allWordStrings = dedup(wordStrings.flat());
+	const words = (await getLemmasOfWords(allWordStrings, language)).map(
+		(words) => words.sort((a, b) => a.level - b.level)[0] as DB.Word | undefined
+	);
+
+	const lemmaByWordString = new Map<string, string>(
+		zip(allWordStrings, words)
+			.filter(([wordString, word]) => word)
+			.map(([wordString, word]) => [wordString, word!.word] as [string, string])
+	);
+
+	return {
+		words: filterUndefineds(words),
+		lemmas: wordStrings.map((wordStrings) =>
+			wordStrings.map((wordString) => lemmaByWordString.get(wordString) || wordString)
+		)
+	};
+}
+
+export async function toDbWords(sentences: string[], { language }: { language: Language }) {
 	let lemmas = await lemmatizeSentences(sentences, { language });
 
 	const words = await getMultipleWordsByLemmas(dedup(lemmas.flat()), language);

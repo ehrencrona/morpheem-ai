@@ -54,15 +54,11 @@ export async function generateExampleSentences(
 		examples = examples.filter((sentence) => !isEnglish(sentence));
 	}
 
-	console.log(
-		`Got example sentences for ${lemma}: ${examples.map((sentence, i) => `\n ${i}) ` + sentence.slice(0, 100)).join('')}`
-	);
-
 	return examples;
 }
 
 export async function simplifySentences(
-	sentences: { sentence: string; hard: string[]; lemmas: string[] }[],
+	sentences: { sentence: string; hard: string[] }[],
 	lemma: string,
 	language: Language
 ) {
