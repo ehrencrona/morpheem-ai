@@ -25,7 +25,7 @@ export async function lemmatizeSentences(
 	let currentBatchLength = 0;
 
 	for (const sentence of sentences) {
-		if (currentBatchLength + sentence.length > 150 && currentBatch.length > 0) {
+		if (currentBatchLength + sentence.length > 300 && currentBatch.length > 0) {
 			batches.push(currentBatch);
 			currentBatch = [];
 			currentBatchLength = 0;
