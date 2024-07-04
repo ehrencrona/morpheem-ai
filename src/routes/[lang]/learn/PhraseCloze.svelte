@@ -37,13 +37,13 @@
 		let phraseAtIndex = '';
 
 		for (let i = index; i < index + phrase.length; i++) {
-			phraseAtIndex += wordsWithSeparators[i];
+			phraseAtIndex += wordsWithSeparators[i].toLowerCase();
 
 			if (phrase == phraseAtIndex) {
 				return { from: index, to: i };
 			}
 
-			if (!phrase.startsWith(phraseAtIndex)) {
+			if (!phrase.toLowerCase().startsWith(phraseAtIndex.toLowerCase())) {
 				break;
 			}
 		}
@@ -60,7 +60,7 @@
 			}
 		}
 
-		console.error(`Phrase not found: ${phrase} in ${wordsWithSeparators.join(' ')}`);
+		console.error(`Phrase not found: "${phrase}" in "${wordsWithSeparators.join('')}"`);
 
 		onBrokenExercise();
 
