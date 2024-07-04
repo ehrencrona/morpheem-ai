@@ -35,15 +35,16 @@
 
 	function isPhraseAtIndex(index: number) {
 		let phraseAtIndex = '';
+		const lowerCasePhrase = phrase.toLowerCase();
 
-		for (let i = index; i < index + phrase.length; i++) {
+		for (let i = index; i < index + lowerCasePhrase.length; i++) {
 			phraseAtIndex += wordsWithSeparators[i].toLowerCase();
 
-			if (phrase == phraseAtIndex) {
+			if (lowerCasePhrase == phraseAtIndex) {
 				return { from: index, to: i };
 			}
 
-			if (!phrase.toLowerCase().startsWith(phraseAtIndex.toLowerCase())) {
+			if (!lowerCasePhrase.startsWith(phraseAtIndex.toLowerCase())) {
 				break;
 			}
 		}
