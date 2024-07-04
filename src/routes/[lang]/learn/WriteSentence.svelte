@@ -138,7 +138,7 @@
 			`Feedback on "${entered}":\nCorrected sentence: ${feedback.correctedSentence}\n` +
 				`Corrected part: ${feedback.correctedPart}\n` +
 				`Unknown words: ${feedback.unknownWords.map((u) => u.word).join(', ')}\n` +
-				`User exercises: ${feedback.userExercises.map((e) => `${e.isKnown ? 'knew' : 'did not know'} ${e.exercise}${'phrase' in e ? ` phrase "${e.phrase}" ` : ''}${'word' in e ? ` (word ${e.word})` : ''})`).join(', ')}`
+				`User exercises: ${feedback.userExercises.map((e) => `${e.isKnown ? 'knew' : 'did not know'} ${e.exercise}${'phrase' in e ? ` phrase "${e.phrase}" ` : ''}${'word' in e ? ` (word ${e.word})` : ''}`).join(', ')}`
 		);
 
 		unknownWords = dedup([...unknownWords, ...feedback!.unknownWords]);
