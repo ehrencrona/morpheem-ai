@@ -277,8 +277,7 @@
 					exercise = 'cloze';
 				}
 
-				// -2 -> 1, 2 -> 0.2
-				const clozeThreshold = 0.6 - getClozePreference() * 0.2;
+				const clozeThreshold = [1, 0.7, 0.4, 0.3, 0.2][getClozePreference() + 2];
 
 				if ((exercise == 'write' || exercise == 'translate') && Math.random() > clozeThreshold) {
 					console.log(
@@ -395,7 +394,7 @@
 <main class="font-sans bold w-full" use:trackActivity>
 	{#if wordsKnown}
 		<a
-			href="{languageCode}/home"
+			href="{languageCode}/progress"
 			class="bg-blue-3 text-center text-blue-1 p-2 rounded-md top-2 right-2 absolute hidden lg:block"
 		>
 			<b class="font-sans text-3xl font-bold">{wordsKnown.read}</b>
