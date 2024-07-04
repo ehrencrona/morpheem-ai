@@ -35,10 +35,10 @@ export const POST: ServerLoad = async ({ params, locals: { userId, language } })
 	console.log(`Add sentences with word: ${word.word} (${wordId})`);
 
 	const sentences: CandidateSentenceWithWords[] = await addSentencesForWord(word, {
-		userId: userId!,
+		userId: userId || undefined,
 		language
 	}).then((res) => {
-		console.log(`Done adding sentences with word: ${word.word} (${wordId})`);
+		console.log(`Done adding ${res.length} sentences with word: ${word.word} (${wordId})`);
 
 		return res;
 	});

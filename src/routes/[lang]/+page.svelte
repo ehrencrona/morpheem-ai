@@ -227,15 +227,19 @@
 			let nextSentence = getNextSentence(sentences, knowledge, wordId, exercise);
 
 			if (!nextSentence || nextSentence.score < 0.93) {
+				let newSentences: CandidateSentenceWithWords[] = [];
+
 				try {
-					sentences = sentences.concat(await addSentencesForWord(wordId));
+					newSentences = await addSentencesForWord(wordId);
 				} catch (e) {
 					logError(`While adding sentences for ${wordId}: ${e}`);
 				}
 
 				console.log(
-					`Added ${sentences.length} sentences for word ${wordId}: ${sentences.map((s) => s.sentence) + '\n'}`
+					`Added ${newSentences.length} sentences for word ${wordId}: ${newSentences.map((s) => s.sentence) + '\n'}`
 				);
+
+				sentences = sentences.concat(newSentences);
 
 				nextSentence = getNextSentence(sentences, knowledge, wordId, exercise);
 

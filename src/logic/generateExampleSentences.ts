@@ -191,8 +191,8 @@ const isHard = (word: DB.Word, knowledge: DB.AggKnowledgeForUser[], hardLevel: n
 		return false;
 	}
 
-	if (wordKnowledge && expectedKnowledge(wordKnowledge, { now: now(), exercise: 'read' }) < 0.6) {
-		return true;
+	if (wordKnowledge) {
+		return expectedKnowledge(wordKnowledge, { now: now(), exercise: 'read' }) < 0.6;
 	}
 
 	return word.level > hardLevel;
