@@ -132,7 +132,14 @@ export async function classifyLemmas(
 
 	for (const line of lines) {
 		if (line.includes(':')) {
-			const [word, rest] = line.split(':');
+			let [word, rest] = line.split(':');
+
+			// when querying a single word it sometimes decides to not repeat the word.
+			if (!rest && !!word && lemmas.length == 1) {
+				rest = word;
+				word = lemmas[0];
+			}
+
 			let [translation, type] = rest.split(', ');
 			translation = translation.replaceAll(' ', '');
 
