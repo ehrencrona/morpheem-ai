@@ -220,6 +220,7 @@
 			exercise,
 			question,
 			word: word?.word,
+			sentence: translation?.english,
 			sentenceEntered: entered,
 			sentenceCorrected: exercise == 'write' ? feedback?.correctedSentence || undefined : undefined,
 			correctTranslation: exercise == 'translate' ? correctSentence : undefined
