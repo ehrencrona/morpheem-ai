@@ -36,7 +36,7 @@ Write in English. If the sentence is correct, praise the user.
 
 If there are errors, return a corrected text, applying all your suggestions. 
 
-Also return just the that part of the sentence that was incorrect (if any) as a fragment, ignoring punctuation and minor typos, as well as what that part was corrected to. 
+Also return just the part of the sentence that was incorrect (if any) as a fragment, ignoring punctuation and minor typos, as well as what that part was corrected to. 
 
 Return a list of individual words with errors and the type of error. Inflection errors are about choosing the wrong inflection form of the right word; typos or wrong word choices are "other". 
 
@@ -71,7 +71,7 @@ export async function generateTranslationFeedback(
 					`The correct translation is "${correct}". The user will be shown it; no need to mention it. ` +
 					`Briefly but friendly point out any grammatical mistakes, spelling mistakes, unidiomatic constructs or divergences in meaning. Write in English. ` +
 					`If the sentence generally captures the intended meaning and is grammatically correct (it does not need to match the provided translation), praise the user. ` +
-					`Also return just the that part of the sentence that was incorrect (if any) as a fragment, ignoring punctuation and minor typos, as well as what that part was corrected to. ` +
+					`Also return just the part of the sentence that was incorrect (if any) as a fragment, ignoring punctuation and minor typos, as well as what that part was corrected to. ` +
 					`Return a list of individual words with errors and the type of error. Inflection errors are about choosing the wrong inflection form of the right word; typos or wrong word choices are "other". ` +
 					`Return JSON in the format {feedback: string, wrongPart?:string, correctedPart?: string, errors: {word: string, shouldBe: string, error: 'inflection'|'other}[]}`
 			},
