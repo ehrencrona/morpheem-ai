@@ -28,6 +28,8 @@
 	import WordCard from './WordCard.svelte';
 	import type * as DB from '../../../db/types';
 	import { getLanguageOnClient } from '../api/api-call';
+	import CloseSvg from '../../../components/CloseSvg.svelte';
+	import ClauseCardDumb from './ClauseCardDumb.svelte';
 
 	export let word: { id: number; word: string; level: number } | undefined;
 	export let onNext: () => Promise<any>;
@@ -249,26 +251,15 @@
 					<div class="text-xs font-lato">Translate into {language.name}:</div>
 					<div class="text-xl">
 						{#if fragments}
-							{#each fragments as fragment}
-								{#if fragment.clauses.length}
-									{#if !fragment.clauses.some((c) => revealedClauses.includes(c))}
-										<button
+							"{#each fragments as fragment}{#if fragment.clauses.length}{#if !fragment.clauses.some( (c) => revealedClauses.includes(c) )}<button
 											type="button"
 											on:click={() => {
 												revealedClauses = [...revealedClauses, ...fragment.clauses];
 											}}
-											class="inline hover:underline decoration-yellow"
-											>{fragment.fragment}
-										</button>
-									{:else}
-										<span class="inline border-b-2 border-blue-3 border-dotted"
-											>{fragment.fragment}
-										</span>
-									{/if}
-								{:else}
-									{fragment.fragment}
-								{/if}
-							{/each}
+											class="inline hover:underline decoration-yellow">{fragment.fragment}</button
+										>{:else}<span class="inline border-b-2 border-blue-3 border-dotted"
+											>{fragment.fragment}</span
+										>{/if}{:else}{fragment.fragment}{/if}{/each}"
 						{:else if translation}
 							"{translation.english}"
 						{:else}
@@ -277,12 +268,14 @@
 					</div>
 				</div>
 
-				{#if source == 'userExercise'}
-					<div class="text-xs font-lato mb-4">
+				<div class="text-xs font-lato mb-4">
+					{#if source == 'userExercise'}
 						You wrote this sentence earlier but got it wrong. See if you can remember the correct
 						version.
-					</div>
-				{/if}
+					{/if}
+
+					Click on a word in the English sentence to get help translating it.
+				</div>
 			{:else}
 				<p class="mb-4 font-lato text-xs">
 					{#if lookedUpWord}
@@ -339,19 +332,10 @@
 		{#if revealedClauses.length > 0}
 			<div class="grid grid-cols-1 md:grid-cols-2 w-full gap-x-4 mt-8" transition:slide>
 				{#each revealedClauses as clause}
-					<div class="bg-light-gray rounded-md w-full border border-gray md:max-w-[500px] mb-4">
-						<div
-							class="font-medium mb-1 flex bg-blue-3 text-[#fff] px-3 py-2 rounded-t-md items-baseline"
-						>
-							{clause.sentence}
-						</div>
-
-						<div class="px-3 pb-4">
-							<div class="text-balance font-lato mt-2">
-								{clause.english}
-							</div>
-						</div>
-					</div>
+					<ClauseCardDumb
+						{clause}
+						onRemove={() => (revealedClauses = revealedClauses.filter((c) => c != clause))}
+					/>
 				{/each}
 			</div>
 		{/if}
