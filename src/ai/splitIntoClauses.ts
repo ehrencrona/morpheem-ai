@@ -14,7 +14,7 @@ const examples: Record<LanguageCode, string> = {
 
 breaks down to 
 
-[["nie mogę skupić się", "I can't focus"], ["gdy", "when"], ["wokół mnie", "around me"], ["jest", "there's"], ["bałagan", "a mess"]]
+[["nie mogę", "I can't"], ["skupić się", "focus"], ["gdy", "when"], ["wokół mnie", "around me"], ["jest", "there's"], ["bałagan", "a mess"]]
 `,
 	fr: `"Il a dit qu'il n'aurait pas le temps de le faire."
 "He said he wouldn't have time to do it."
@@ -60,7 +60,7 @@ export async function splitIntoClauses(
 		messages: [
 			{
 				role: 'system',
-				content: `Break down the following ${language.name} sentence(s) into the shortest clauses and return each clause together with the part of the English translation it corresponds to (written exactly as in the sentence translation). 
+				content: `You will get a ${language.name} sentence and its English translation. We want to determine which part of the translation corresponds to which part of the original sentence. Break down the sentence into the shortest clauses that have a corresponding part of the English translation. Return clauses with their corresponding part of the English sentence written exactly as in the English sentence provided. 
 
 Example
 ${examples[language.code]}
