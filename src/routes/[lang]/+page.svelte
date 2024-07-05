@@ -282,7 +282,7 @@
 
 			if ((exercise == 'write' || exercise == 'translate') && Math.random() > clozeThreshold) {
 				console.log(
-					`Cloze threshold of ${toPercent(clozeThreshold)} exceeded, turning into cloze.`
+					`Cloze threshold of ${toPercent(clozeThreshold)} exceeded for word ${wordId}, turning into cloze.`
 				);
 
 				exercise = 'cloze';

@@ -1,44 +1,52 @@
-import { Sentence } from '../db/types';
+import { KNOWLEDGE_TYPE_WRITE } from '../db/knowledgeTypes';
+import { getMultipleWordsByLemmas } from '../db/words';
 import { addWrittenSentence } from '../db/writtenSentences';
 import { addSentence } from './addSentence';
 import { lemmatizeSentences } from './lemmatize';
-import { Language, SentenceWord } from './types';
+import { Language } from './types';
 
 export async function storeWrittenSentence({
 	sentence: sentenceString,
 	entered,
 	wordId,
 	userId,
-	language,
-	createNewSentence
+	language
 }: {
 	sentence: string;
 	entered: string;
 	wordId?: number;
 	userId: number;
 	language: Language;
-	createNewSentence: boolean;
 }) {
-	let sentence: (Sentence & { words: SentenceWord[] }) | undefined;
+	const [lemmatized] = await lemmatizeSentences([sentenceString], { language });
 
-	if (createNewSentence) {
-		const [lemmatized] = await lemmatizeSentences([sentenceString], { language });
-
-		sentence = await addSentence(sentenceString, {
+	const [sentence, words] = await Promise.all([
+		addSentence(sentenceString, {
 			english: undefined,
 			lemmas: lemmatized,
 			language,
 			userId
-		});
-	}
+		}),
 
-	await addWrittenSentence({
-		sentence: sentenceString,
-		entered,
-		wordId,
-		userId,
-		language
-	});
+		getMultipleWordsByLemmas(lemmatized, language),
 
-	return sentence;
+		addWrittenSentence({
+			sentence: sentenceString,
+			entered,
+			wordId,
+			userId,
+			language
+		})
+	]);
+
+	const knowledge = words.map((word) => ({
+		word,
+		wordId: word.id,
+		isKnown: true,
+		sentenceId: sentence.id,
+		type: KNOWLEDGE_TYPE_WRITE,
+		userId
+	}));
+
+	return { sentence, lemmatized, knowledge };
 }

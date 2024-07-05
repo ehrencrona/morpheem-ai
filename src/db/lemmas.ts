@@ -1,4 +1,4 @@
-import { toWords } from '../logic/toWords';
+import { toWordStrings } from '../logic/toWordStrings';
 import { Language } from '../logic/types';
 import { db } from './client';
 import type * as DB from './types';
@@ -54,17 +54,19 @@ export function getForms(wordId: number, language: Language) {
 		.execute();
 }
 
-export function getLemmasOfWord(word: string, language: Language) {
-	return db
-		.withSchema(language.schema)
-		.selectFrom('word_lemma')
-		.where('word_lemma.word', '=', word.toLowerCase())
-		.innerJoin('words', 'word_lemma.lemma_id', 'words.id')
-		.selectAll()
-		.execute();
+export async function getLemmasOfWord(word: string, language: Language) {
+	return (
+		await db
+			.withSchema(language.schema)
+			.selectFrom('word_lemma')
+			.where('word_lemma.word', '=', word.toLowerCase())
+			.innerJoin('words', 'word_lemma.lemma_id', 'words.id')
+			.selectAll()
+			.execute()
+	).map(toWord);
 }
 
-export async function getInflections(wordId: number, language: Language) {
+export async function getInflections(wordId: number, language: Language): Promise<string[]> {
 	return (
 		await db
 			.withSchema(language.schema)

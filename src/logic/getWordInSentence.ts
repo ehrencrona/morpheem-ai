@@ -2,7 +2,7 @@ import { getLemmaIdsOfWord } from '../db/lemmas';
 import { getSentence } from '../db/sentences';
 import { getWordByLemma } from '../db/words';
 import { lemmatizeSentences } from '../logic/lemmatize';
-import { toWords } from './toWords';
+import { toWordStrings } from './toWordStrings';
 import { Language, SentenceWord } from './types';
 
 /**
@@ -31,7 +31,7 @@ export async function getWordInSentence(
 		console.log(`Word "${wordString}" not found in word forms, adding...`);
 
 		const sentence = await getSentence(sentenceId, language);
-		const wordStrings = toWords(sentence.sentence, language);
+		const wordStrings = toWordStrings(sentence.sentence, language);
 
 		const [lemmas] = await lemmatizeSentences([sentence.sentence], { language });
 

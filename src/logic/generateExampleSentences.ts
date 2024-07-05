@@ -11,7 +11,7 @@ import * as DB from '../db/types';
 import { addWord, getMultipleWordsByLemmas } from '../db/words';
 import { lemmatizeSentences } from '../logic/lemmatize';
 import { expectedKnowledge, now } from './isomorphic/knowledge';
-import { toWords } from './toWords';
+import { toWordStrings } from './toWordStrings';
 import { Language } from './types';
 
 export async function generateExampleSentences(
@@ -204,7 +204,7 @@ export async function quickAndDirtyToWords(
 	{ language }: { language: Language }
 ) {
 	const wordStrings = sentences.map((sentence) =>
-		toWords(sentence, language, { doLowerCase: true })
+		toWordStrings(sentence, language, { doLowerCase: true })
 	);
 
 	const allWordStrings = dedup(wordStrings.flat());

@@ -7,7 +7,7 @@ import { getLemmasOfWords } from '../db/lemmas';
 import { deleteSentence, getSentences } from '../db/sentences';
 import { getWordsOfSentences } from '../db/words';
 import { getSentenceWords } from '../logic/addSentence';
-import { toWords } from '../logic/toWords';
+import { toWordStrings } from '../logic/toWordStrings';
 
 const language = SPANISH;
 
@@ -26,7 +26,7 @@ async function fixSentenceWords() {
 		sentences.map((sentence, i) => async () => {
 			const sentenceWords = words[i];
 
-			const wordStrings = toWords(sentence.sentence, language);
+			const wordStrings = toWordStrings(sentence.sentence, language);
 
 			let isCorrect = true;
 

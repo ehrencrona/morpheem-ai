@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { isSeparator, toWordsWithSeparators } from '../../../../logic/toWords';
+	import { isSeparator, toWordsWithSeparators } from '../../../../logic/toWordStrings';
 	import type { Language } from '../../../../logic/types';
 	import type { UnknownWordResponse } from '../../api/word/unknown/+server';
 

@@ -2,90 +2,61 @@ import { z } from 'zod';
 import { Language } from '../logic/types';
 import { askForJson } from './askForJson';
 
-const translationResponseSchema = z.object({
-	feedback: z.string(),
-	correctedPart: z.string().optional(),
-	errors: z
-		.array(
-			z.object({
-				word: z.string(),
-				shouldBe: z.string(),
-				error: z.enum(['inflection', 'other'])
-			})
-		)
-		.optional()
+const correctedPartSchema = z.object({
+	correction: z.string(),
+	userWrote: z.string().nullish(),
+	english: z.string().nullish(),
+	severity: z.number()
 });
 
-const writingResponseSchema = translationResponseSchema.extend({
-	correctedSentence: z.string().optional()
+const writeEvaluationSchema = z.object({
+	feedback: z.string(),
+	correctedSentence: z.string(),
+	correctedParts: z.array(correctedPartSchema)
 });
+
+export type CorrectedPart = z.infer<typeof correctedPartSchema>;
 
 export async function evaluateWrite(
-	{ entered: sentence, word }: { entered: string; word: string },
+	exercise: ({ exercise: 'translate'; english: string } | { exercise: 'write'; word: string }) & {
+		entered: string;
+	},
 	language: Language
-): Promise<z.infer<typeof writingResponseSchema>> {
-	return askForJson({
-		model: 'gpt-4o',
-		messages: [
-			{
-				role: 'system',
-				content: `I am learning ${language.name} and am doing an exercise to write a sentence using "${word}". 
-
-You are a helpful teacher. Give feedback by briefly but friendly pointing out any errors. For grammatical errors, explain why it is wrong using grammatical terms. If the word "${word}" is missing, say so. 
-Write in English. If the sentence is correct, praise the user. 
-
-If there are errors, return a corrected text, applying all your suggestions. 
-
-Also return just the part of the sentence that was incorrect (if any) as a fragment, ignoring punctuation and minor typos, as well as what that part was corrected to. 
-
-Return a list of individual words with errors and the type of error. Inflection errors are about choosing the wrong inflection form of the right word; typos or wrong word choices are "other". 
-
-Return all this in JSON in the format {correctedSentence?: string, feedback: string, wrongPart?:string, correctedPart?: string, errors: {word: string, shouldBe: string, error: 'inflection'|'other}[]}`
-			},
-			{
-				role: 'assistant',
-				content: `Write a ${language.name} sentence or fragment containing "${word}"`
-			},
-			{
-				role: 'user',
-				content: sentence
-			}
-		],
-		temperature: 1,
-		logResponse: true,
-		schema: writingResponseSchema
-	});
-}
-
-export async function generateTranslationFeedback(
-	{ english, correct, entered }: { english: string; correct: string; entered: string },
-	language: Language
-): Promise<z.infer<typeof translationResponseSchema>> {
+): Promise<z.infer<typeof writeEvaluationSchema>> {
 	return askForJson({
 		model: 'gpt-4o',
 		messages: [
 			{
 				role: 'system',
 				content:
-					`The user is learning ${language.name} and being asked to translate a sentence as an exercise. ` +
-					`The correct translation is "${correct}". The user will be shown it; no need to mention it. ` +
-					`Briefly but friendly point out any grammatical mistakes, spelling mistakes, unidiomatic constructs or divergences in meaning. Write in English. ` +
-					`If the sentence generally captures the intended meaning and is grammatically correct (it does not need to match the provided translation), praise the user. ` +
-					`Also return just the part of the sentence that was incorrect (if any) as a fragment, ignoring punctuation and minor typos, as well as what that part was corrected to. ` +
-					`Return a list of individual words with errors and the type of error. Inflection errors are about choosing the wrong inflection form of the right word; typos or wrong word choices are "other". ` +
-					`Return JSON in the format {feedback: string, wrongPart?:string, correctedPart?: string, errors: {word: string, shouldBe: string, error: 'inflection'|'other}[]}`
+					`The user is learning ${language.name} and ` +
+					(exercise.exercise == 'write'
+						? `is doing an exercise to write a sentence using "${exercise.word}". `
+						: `has been asked to translate a sentence as an exercise. `) +
+					`Briefly but friendly give feedback, pointing out any grammatical mistakes, spelling mistakes, unidiomatic constructs or divergences from the intended meaning. Write in English. ` +
+					`For grammatical errors, explain why they are wrong using grammatical terms. ` +
+					`Return the corrected sentence with all your suggestions applied. ` +
+					`Also return a list of your corrections, in the exact same way they are written in the corrected sentence together with what the user wrote (when applicable) and the English translation of (only) the correction (if applicable). ` +
+					`If a word is missing, include some context around the word in the correction. ` +
+					`This will be used to highlight what was corrected. ` +
+					`If the whole sentence was changed, break the corrections down into clauses. ` +
+					`Categorize the severity of each error as 2 (wrong meaning), 1 (minor: a wrong inflection or a suboptimal word choice) or 0 (a typo or punctation). ` +
+					`Return JSON in the format { feedback: string, correctedSentence: string, correctedParts: { correction: string, userWrote: string?, english: string?, severity: number }[] }`
 			},
 			{
 				role: 'assistant',
-				content: `Translate the following sentence to ${language.name}: "${english}"`
+				content:
+					exercise.exercise == 'write'
+						? `Write a ${language.name} sentence or fragment containing "${exercise.word}"`
+						: `Translate the following sentence to ${language.name}: "${exercise.english}"`
 			},
 			{
 				role: 'user',
-				content: entered
+				content: exercise.entered
 			}
 		],
 		temperature: 1,
 		logResponse: true,
-		schema: translationResponseSchema
+		schema: writeEvaluationSchema
 	});
 }

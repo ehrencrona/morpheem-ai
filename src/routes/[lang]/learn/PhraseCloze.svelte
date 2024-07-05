@@ -8,7 +8,7 @@
 	import { KNOWLEDGE_TYPE_PHRASE_CLOZE } from '../../../db/knowledgeTypes';
 	import * as DB from '../../../db/types';
 	import { standardize } from '../../../logic/isomorphic/standardize';
-	import { toWordsWithSeparators } from '../../../logic/toWords';
+	import { toWordsWithSeparators } from '../../../logic/toWordStrings';
 	import type { Language, SentenceWord } from '../../../logic/types';
 	import { fetchPhraseClozeEvaluation } from '../../../routes/[lang]/api/phrase-cloze/client';
 	import type { Translation } from '../api/sentences/[sentence]/english/client';

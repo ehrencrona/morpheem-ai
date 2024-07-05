@@ -3,7 +3,7 @@ import * as DB from '../db/types';
 import { getWordByLemma } from '../db/words';
 import { standardize } from './isomorphic/standardize';
 import { lemmatizeSentences } from './lemmatize';
-import { toWords } from './toWords';
+import { toWordStrings } from './toWordStrings';
 import { Language } from './types';
 
 export interface Evaluation {
@@ -58,7 +58,7 @@ export async function evaluateCloze(
 	if (outcome == 'alternate' || outcome == 'alternateWrongForm') {
 		const sentence = cloze.replace(/_+/, answered);
 
-		const words = toWords(sentence, language);
+		const words = toWordStrings(sentence, language);
 		const lemmatized = await lemmatizeSentences([sentence], { language, ignoreErrors: true });
 
 		const wordIndex = words.findIndex((word) => word === answered);

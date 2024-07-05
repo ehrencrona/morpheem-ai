@@ -7,7 +7,7 @@ import {
 } from '../db/userExercises';
 import { getWordsOfSentence } from '../db/words';
 import { didNotKnow, didNotKnowFirst, knew, knewFirst, now } from './isomorphic/knowledge';
-import { toWords } from './toWords';
+import { toWordStrings } from './toWordStrings';
 import type { ExerciseKnowledge, Language } from './types';
 
 export async function updateUserExercises(
@@ -63,7 +63,7 @@ async function handleSentenceExercises(
 
 	let originallyExistingExercises = existingExercises;
 
-	const wordStrings = toWords(sentence.sentence, language, { doLowerCase: true });
+	const wordStrings = toWordStrings(sentence.sentence, language, { doLowerCase: true });
 	const toDelete = new Set<number>();
 
 	function getPhrase(e: DB.Exercise) {
@@ -126,16 +126,18 @@ async function handleSentenceExercises(
 		}
 	});
 
-	// if we are updating a translate exercise but also add other exercises, drop the translate
-	// (but not too many other exercises, in that case it's better to just have translate)
-	const translateExercise = addExercises.find((e) => e.exercise == 'translate');
+	// we don't repeat translate or write exercises; the assumption is that more detailed exercises supercede them
+	// if the user made a mistake.
+	const doneWrites = addExercises.filter(
+		(e) => (e.exercise == 'translate' || e.exercise == 'write') && e.isKnown
+	);
 
-	if (translateExercise?.id != null && addExercises.length > 1 && addExercises.length < 4) {
+	for (const exercise of doneWrites) {
 		console.log(
-			`Dropping exercise ${toString(translateExercise)} because the other, more detaile exercises supercede it.`
+			`Dropping exercise ${toString(exercise)} because we don't repeat write or translate.`
 		);
 
-		deleteExercise(translateExercise);
+		deleteExercise(exercise);
 	}
 
 	const allExercises = (existingExercises as DB.Exercise[]).concat(addExercises);

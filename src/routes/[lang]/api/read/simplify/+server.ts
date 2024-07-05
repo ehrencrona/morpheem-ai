@@ -6,7 +6,7 @@ import { getAggregateKnowledgeForUserWords } from '../../../../../db/knowledge';
 import { getLemmasOfWords } from '../../../../../db/lemmas';
 import * as DB from '../../../../../db/types';
 import { expectedKnowledge, now } from '../../../../../logic/isomorphic/knowledge';
-import { toWords } from '../../../../../logic/toWords';
+import { toWordStrings } from '../../../../../logic/toWordStrings';
 import { Language } from '../../../../../logic/types';
 import { toSentences } from '../../../../../logic/toSentences';
 
@@ -42,7 +42,7 @@ async function getHardWordsInSentences(
 		(
 			await Promise.all(
 				sentences.map(async (sentence) => {
-					let wordStrings = toWords(sentence, language, { doLowerCase: false });
+					let wordStrings = toWordStrings(sentence, language, { doLowerCase: false });
 
 					// skip names
 					wordStrings = wordStrings.filter((word) => !isCapitalized(word));

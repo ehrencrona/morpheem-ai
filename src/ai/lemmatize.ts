@@ -1,7 +1,7 @@
 import { CodedError } from '../CodedError';
 import { getLemmasOfWord } from '../db/lemmas';
 import { standardize } from '../logic/isomorphic/standardize';
-import { toWords } from '../logic/toWords';
+import { toWordStrings } from '../logic/toWordStrings';
 import type { Language, LanguageCode } from '../logic/types';
 import { Message, ask } from './ask';
 
@@ -157,7 +157,7 @@ ${examples[language.code]}`
 		).concat({
 			role: 'user',
 			content: sentences
-				.map((sentence) => toWords(sentence, language, { doLowerCase: false }).join(' '))
+				.map((sentence) => toWordStrings(sentence, language, { doLowerCase: false }).join(' '))
 				.join('\n')
 		}),
 		temperature,
@@ -192,7 +192,7 @@ ${examples[language.code]}`
 			let lemmas = lemmasByLine[i] || [];
 
 			return Promise.all(
-				toWords(sentence, language).map(async (word, i) => {
+				toWordStrings(sentence, language).map(async (word, i) => {
 					const standardized = standardize(word);
 
 					let lemma: { word: string; lemma: string } | undefined = lemmas[i];

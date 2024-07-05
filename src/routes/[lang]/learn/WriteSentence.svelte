@@ -1,7 +1,6 @@
 <script lang="ts">
 	import type { SendKnowledge } from '$lib/SendKnowledge';
 	import { logError } from '$lib/logError';
-	import { splitIntoDiff } from '$lib/splitIntoDiff';
 	import { onMount } from 'svelte';
 	import { slide } from 'svelte/transition';
 	import { CodedError } from '../../../CodedError';
@@ -16,7 +15,7 @@
 	import type { WriteEvaluation } from '../../../logic/evaluateWrite';
 	import type { Fragment } from '../../../logic/isomorphic/translationToFragments';
 	import { translationToFragments } from '../../../logic/isomorphic/translationToFragments';
-	import type { ExerciseKnowledge, Language } from '../../../logic/types';
+	import type { ExerciseKnowledge, Language, WordKnowledge } from '../../../logic/types';
 	import { getLanguageOnClient } from '../api/api-call';
 	import { fetchClauses } from '../api/sentences/[sentence]/clauses/client';
 	import type { Translation } from '../api/sentences/[sentence]/english/client';
@@ -29,6 +28,8 @@
 	import AMA from './AMA.svelte';
 	import ClauseCardDumb from './ClauseCardDumb.svelte';
 	import WordCard from './WordCard.svelte';
+	import { exerciseToString } from '$lib/exerciseToString';
+	import { filterUndefineds } from '$lib/filterUndefineds';
 
 	export let word: { id: number; word: string; level: number } | undefined;
 	export let onNext: () => Promise<any>;
@@ -65,9 +66,46 @@
 	$: sentenceId = sentence?.id;
 	$: isRevealed = word && (showChars > 2 || showChars > word.word.length - 1);
 
-	$: correct = exercise == 'write' ? feedback?.correctedSentence || entered : correctSentence;
-	$: correctParts = splitIntoDiff(correct, entered);
-	$: enteredParts = splitIntoDiff(entered, correct);
+	$: correctParts =
+		feedback && !feedback.isCorrect
+			? getCorrectedParts(
+					feedback.correctedSentence,
+					filterUndefineds(feedback.correctedParts.map(({ correction }) => correction))
+				)
+			: undefined;
+	$: enteredParts = feedback
+		? getCorrectedParts(
+				entered,
+				filterUndefineds(feedback.correctedParts.map(({ userWrote }) => userWrote))
+			)
+		: undefined;
+
+	function getCorrectedParts(sentence: string, corrected: string[]) {
+		let parts: { part: string; isCorrected: boolean }[] = [];
+
+		parts = [{ part: sentence, isCorrected: false }];
+
+		corrected.forEach((correctedString) => {
+			for (let i = parts.length - 1; i >= 0; i--) {
+				const part = parts[i];
+
+				if (!part.isCorrected && part.part.indexOf(correctedString) > -1) {
+					parts.splice(
+						i,
+						1,
+						{ part: part.part.slice(0, part.part.indexOf(correctedString)), isCorrected: false },
+						{ part: correctedString, isCorrected: true },
+						{
+							part: part.part.slice(part.part.indexOf(correctedString) + correctedString.length),
+							isCorrected: false
+						}
+					);
+				}
+			}
+		});
+
+		return parts.filter((part) => part.part);
+	}
 
 	function clear() {
 		entered = '';
@@ -116,70 +154,65 @@
 			throw new CodedError('Please enter a sentence', 'sentenceMissing');
 		}
 
+		if (!translation) {
+			logError(`Had no translation when fetching write evaluation`);
+		}
+
 		feedback = await fetchWriteEvaluation(
 			exercise == 'write'
 				? {
 						exercise,
-						exerciseId,
 						entered,
 						word: word!.word
 					}
 				: {
 						exercise,
-						exerciseId,
-						entered,
-						sentenceId,
 						english: translation?.english || '',
-						correct: correctSentence!,
+						entered,
 						revealedClauses
 					}
 		);
 
 		console.log(
 			`Feedback on "${entered}":\nCorrected sentence: ${feedback.correctedSentence}\n` +
-				`Corrected part: ${feedback.correctedPart}\n` +
-				`Unknown words: ${feedback.unknownWords.map((u) => u.word).join(', ')}\n` +
-				`User exercises: ${feedback.userExercises.map((e) => `${e.isKnown ? 'knew' : 'did not know'} ${e.exercise}${'phrase' in e ? ` phrase "${e.phrase}" ` : ''}${'word' in e ? ` (word ${e.word})` : ''}`).join(', ')}`
+				`Corrected part: ${feedback.correctedParts.map((part) => `"${part.userWrote}" -> "${part.correction}" (severity ${part.severity})`).join(', ') || 'none'}\n` +
+				`User exercises: ${feedback.userExercises.map(exerciseToString).join(', ')}`
 		);
-
-		unknownWords = dedup([...unknownWords, ...feedback!.unknownWords]);
 	};
 
-	const clickedContinue = async () => {
-		if (!feedback) {
-			throw new Error('Invalid state');
-		}
-
+	const store = async ({
+		feedback,
+		entered,
+		unknownWords
+	}: {
+		feedback: WriteEvaluation;
+		entered: string;
+		unknownWords: UnknownWordResponse[];
+	}) => {
 		const studiedWordId = word?.id;
 
-		let newSentenceId = sentenceId;
-
-		const newSentence = await sendWrittenSentence({
+		let { sentence: newSentence, knowledge: gotKnowledge } = await sendWrittenSentence({
 			wordId: studiedWordId,
 			sentence: feedback.correctedSentence || entered,
-			entered,
-			createNewSentence: exercise == 'write'
+			entered
 		});
 
-		if (newSentence?.id) {
-			newSentenceId = newSentence.id;
-		}
+		const newSentenceId = newSentence.id;
 
-		const knowledge = feedback.knowledge.map((k) => ({
+		const knowledge: (WordKnowledge & { word: DB.Word })[] = gotKnowledge.map((k) => ({
 			...k,
 			isKnown: !unknownWords.some(({ id }) => id == k.wordId) && k.isKnown,
-			studiedWordId,
-			sentenceId: newSentenceId
+			studiedWordId
 		}));
 
 		for (const word of unknownWords) {
 			if (!knowledge.some(({ wordId }) => wordId == word.id)) {
 				knowledge.push({
 					isKnown: false,
-					word: word,
 					wordId: word.id,
 					studiedWordId,
 					sentenceId,
+					word,
 					type: KNOWLEDGE_TYPE_WRITE,
 					userId: 0
 				});
@@ -195,6 +228,58 @@
 		);
 
 		sendKnowledge(knowledge, userExercises);
+	};
+
+	const clickedContinue = async () => {
+		if (!feedback) {
+			throw new Error('Invalid state');
+		}
+
+		const userExercise: ExerciseKnowledge | undefined = exerciseId
+			? exercise == 'write'
+				? {
+						sentenceId: sentenceId,
+						exercise: 'write',
+						id: exerciseId,
+						word: word!.word,
+						wordId: word!.id,
+						level: word!.level || 20,
+						isKnown: true
+					}
+				: {
+						sentenceId: sentenceId,
+						exercise: 'translate',
+						id: exerciseId,
+						level: word?.level || 20,
+						isKnown: true
+					}
+			: undefined;
+
+		store({ feedback, entered, unknownWords }).catch(logError);
+
+		// send the user exercise and word here since there is otherwise a risk
+		// we get the exercise again before the storing completes
+		if (userExercise || word) {
+			sendKnowledge(
+				word
+					? [
+							{
+								isKnown: true,
+								word: {
+									...word,
+									type: undefined
+								},
+								wordId: word.id,
+								studiedWordId: word.id,
+								sentenceId: sentenceId,
+								type: KNOWLEDGE_TYPE_WRITE,
+								userId: 0
+							}
+						]
+					: [],
+				userExercise ? [userExercise] : []
+			);
+		}
 
 		return onNext();
 	};
@@ -308,10 +393,15 @@
 				</div>
 			{/if}
 		{:else}
-			{#if !!feedback.correctedPart}
-				<div class="text-xl font-bold mb-6 text-balance">
-					{enteredParts[0]}<span class="line-through text-red">{enteredParts[1]}</span
-					>{enteredParts[2]}
+			{#if enteredParts}
+				<div class="text-xl font-bold mb-6 text-balance {feedback.isCorrect ? 'text-green' : ''}">
+					{#each enteredParts as part}
+						{#if part.isCorrected}
+							<span class="line-through text-red">{part.part}</span>
+						{:else}
+							{part.part}
+						{/if}
+					{/each}
 				</div>
 			{/if}
 
@@ -319,13 +409,17 @@
 				{feedback.feedback}
 			</div>
 
-			<div class="text-xl font-bold mb-6 text-balance">
-				{#if feedback.correctedPart}
-					{correctParts[0]}<span class="text-green">{correctParts[1]}</span>{correctParts[2]}
-				{:else}
-					<span class="text-green">{entered}</span>
-				{/if}
-			</div>
+			{#if correctParts}
+				<div class="text-xl font-bold mb-6 text-balance">
+					{#each correctParts as part}
+						{#if part.isCorrected}
+							<span class="text-green">{part.part}</span>
+						{:else}
+							{part.part}
+						{/if}
+					{/each}
+				</div>
+			{/if}
 		{/if}
 
 		{#if revealedClauses.length > 0}

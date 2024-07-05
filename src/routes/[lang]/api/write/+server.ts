@@ -5,8 +5,7 @@ import { storeWrittenSentence } from '../../../../logic/storeWrittenSentence';
 const postSchema = z.object({
 	sentence: z.string(),
 	entered: z.string(),
-	wordId: z.number().optional(),
-	createNewSentence: z.boolean()
+	wordId: z.number().optional()
 });
 
 export type PostSchema = z.infer<typeof postSchema>;

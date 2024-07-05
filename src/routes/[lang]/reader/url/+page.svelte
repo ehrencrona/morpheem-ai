@@ -6,7 +6,7 @@
 	import Spinner from '../../../../components/Spinner.svelte';
 	import SpinnerButton from '../../../../components/SpinnerButton.svelte';
 	import Tutorial from '../../../../components/Tutorial.svelte';
-	import { toWords } from '../../../../logic/toWords';
+	import { toWordStrings } from '../../../../logic/toWordStrings';
 	import { fetchSimplified } from '../../api/read/simplify/client';
 	import { sendReadText } from '../../api/read/text/client';
 	import { fetchTranslation } from '../../api/read/translate/client';
@@ -43,7 +43,7 @@
 
 		const wordsPerSecond = 2;
 
-		const wordCount = page.reduce((acc, { text }) => acc + toWords(text, language).length, 0);
+		const wordCount = page.reduce((acc, { text }) => acc + toWordStrings(text, language).length, 0);
 
 		if (timeSpent > wordCount / wordsPerSecond) {
 			console.warn(`User spent ${timeSpent} seconds reading ${wordCount} words.`);

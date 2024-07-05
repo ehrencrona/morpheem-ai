@@ -16,5 +16,5 @@ export const POST: ServerLoad = async ({ url, request, locals: { language, userI
 		return redirectToLogin(url);
 	}
 
-	return json(await evaluateWrite(post, { language, userId }));
+	return json(await evaluateWrite(post, { language }));
 };

@@ -14,6 +14,7 @@ test('userExercises', async ({}) => {
 			level: 1,
 			alpha: 1,
 			beta: 1,
+			id: null,
 			word: null,
 			wordId: null
 		},

@@ -1,6 +1,6 @@
 import { Language, LanguageCode } from './types';
 
-export function toWords(
+export function toWordStrings(
 	sentence: string,
 	language: Language,
 	{ doLowerCase = true }: { doLowerCase?: boolean } = {}

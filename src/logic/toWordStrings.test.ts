@@ -1,10 +1,10 @@
 import { describe, expect } from 'vitest';
-import { toWords, toWordsWithSeparators } from './toWords';
+import { toWordStrings, toWordsWithSeparators } from './toWordStrings';
 import { DUTCH, FRENCH, KOREAN, POLISH, RUSSIAN } from '../constants';
 
-describe('toWords', (it) => {
+describe('toWordStrings', (it) => {
 	it('should split a sentence into words', () => {
-		expect(toWords('Hello, world!', POLISH)).toEqual(['hello', 'world']);
+		expect(toWordStrings('Hello, world!', POLISH)).toEqual(['hello', 'world']);
 	});
 
 	it('should split a sentence into words with separators', () => {
@@ -12,52 +12,52 @@ describe('toWords', (it) => {
 	});
 
 	it('handles dashed compound words', () => {
-		expect(toWords(`On eks-prezydentem`, POLISH)).toEqual(['on', 'eks-prezydentem']);
+		expect(toWordStrings(`On eks-prezydentem`, POLISH)).toEqual(['on', 'eks-prezydentem']);
 	});
 
 	it(`handles Dutch`, () => {
-		expect(toWords(`Zo'n gekke vent!`, DUTCH)).toEqual([`zo'n`, 'gekke', 'vent']);
+		expect(toWordStrings(`Zo'n gekke vent!`, DUTCH)).toEqual([`zo'n`, 'gekke', 'vent']);
 
-		expect(toWords(`Men zegt: 'Zomaar?'`, DUTCH)).toEqual(['men', 'zegt', `zomaar`]);
+		expect(toWordStrings(`Men zegt: 'Zomaar?'`, DUTCH)).toEqual(['men', 'zegt', `zomaar`]);
 
-		expect(toWords(`How gaat 't?`, DUTCH)).toEqual(['how', 'gaat', `'t`]);
+		expect(toWordStrings(`How gaat 't?`, DUTCH)).toEqual(['how', 'gaat', `'t`]);
 
-		expect(toWords(`Zo'n gekke vent!`, DUTCH)).toEqual([`zo'n`, 'gekke', 'vent']);
+		expect(toWordStrings(`Zo'n gekke vent!`, DUTCH)).toEqual([`zo'n`, 'gekke', 'vent']);
 
-		expect(toWords(`Dit is Anna's huis.`, DUTCH)).toEqual(['dit', 'is', `anna's`, 'huis']);
+		expect(toWordStrings(`Dit is Anna's huis.`, DUTCH)).toEqual(['dit', 'is', `anna's`, 'huis']);
 	});
 
 	it(`handles Dutch apostrophes`, () => {
 		{
 			const sentence = `Ik zei: 'hoe is 't?'`;
-			expect(toWords(sentence, DUTCH)).toEqual(['ik', 'zei', `hoe`, 'is', `'t`]);
+			expect(toWordStrings(sentence, DUTCH)).toEqual(['ik', 'zei', `hoe`, 'is', `'t`]);
 			expect(toWordsWithSeparators(sentence, DUTCH).join('')).toEqual(sentence);
-			expect(toWords(sentence, DUTCH)).toContain(`'t`);
+			expect(toWordStrings(sentence, DUTCH)).toContain(`'t`);
 		}
 
 		{
 			const sentence = `'s-Hertogenbosch is m'n stad. Ze wordt genoemd de 'moerasdraak'.`;
 
-			expect(toWords(sentence, DUTCH)).toContain(`'s-hertogenbosch`);
-			expect(toWords(sentence, DUTCH)).toContain(`m'n`);
-			expect(toWords(sentence, DUTCH)).toContain(`de`);
-			expect(toWords(sentence, DUTCH)).toContain(`moerasdraak`);
+			expect(toWordStrings(sentence, DUTCH)).toContain(`'s-hertogenbosch`);
+			expect(toWordStrings(sentence, DUTCH)).toContain(`m'n`);
+			expect(toWordStrings(sentence, DUTCH)).toContain(`de`);
+			expect(toWordStrings(sentence, DUTCH)).toContain(`moerasdraak`);
 
 			expect(toWordsWithSeparators(sentence, DUTCH).join('')).toEqual(sentence);
 		}
 	});
 
 	it(`handles Russian`, () => {
-		expect(toWords('вперёд!', RUSSIAN)).toEqual(['вперёд']);
+		expect(toWordStrings('вперёд!', RUSSIAN)).toEqual(['вперёд']);
 		expect(toWordsWithSeparators('вперёд!', RUSSIAN)).toEqual(['вперёд', '!']);
 
-		expect(toWords(`убийстве 18-летней девушки`, RUSSIAN)).toEqual([
+		expect(toWordStrings(`убийстве 18-летней девушки`, RUSSIAN)).toEqual([
 			'убийстве',
 			'летней',
 			'девушки'
 		]);
 
-		expect(toWords(`Об этом сообщает «Татар-информ» и «Коммерсант».`, RUSSIAN)).toEqual([
+		expect(toWordStrings(`Об этом сообщает «Татар-информ» и «Коммерсант».`, RUSSIAN)).toEqual([
 			'об',
 			'этом',
 			'сообщает',
@@ -68,7 +68,7 @@ describe('toWords', (it) => {
 	});
 
 	it('should split a French sentence into words', () => {
-		expect(toWords(`Que-ce que c'est que ça?`, FRENCH)).toEqual([
+		expect(toWordStrings(`Que-ce que c'est que ça?`, FRENCH)).toEqual([
 			`que-ce`,
 			`que`,
 			`c'`,
@@ -77,7 +77,7 @@ describe('toWords', (it) => {
 			`ça`
 		]);
 
-		expect(toWords(`J'ai dit: "Tais-toi!" Et il m'a répondu: 'Saloppe!'`, FRENCH)).toEqual([
+		expect(toWordStrings(`J'ai dit: "Tais-toi!" Et il m'a répondu: 'Saloppe!'`, FRENCH)).toEqual([
 			`j'`,
 			`ai`,
 			`dit`,
@@ -90,7 +90,7 @@ describe('toWords', (it) => {
 			`saloppe`
 		]);
 
-		expect(toWords(`Le «Minitel» est une invention française.`, FRENCH)).toEqual([
+		expect(toWordStrings(`Le «Minitel» est une invention française.`, FRENCH)).toEqual([
 			'le',
 			'minitel',
 			'est',
@@ -164,7 +164,7 @@ describe('toWords', (it) => {
 	});
 
 	it('should split a Korean sentence into words', () => {
-		expect(toWords(`내일 중요한 결정을 내려야 합니다`, KOREAN)).toEqual([
+		expect(toWordStrings(`내일 중요한 결정을 내려야 합니다`, KOREAN)).toEqual([
 			'내일',
 			'중요한',
 			'결정을',

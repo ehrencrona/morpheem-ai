@@ -1,5 +1,5 @@
 import * as DB from '../db/types';
-import { toWords } from '../logic/toWords';
+import { toWordStrings } from '../logic/toWordStrings';
 import { Language } from '../logic/types';
 import { ask } from './ask';
 
@@ -9,7 +9,7 @@ export async function isContextProvided(
 	lemmas: string[],
 	language: Language
 ) {
-	const wordStrings = toWords(sentence, language);
+	const wordStrings = toWordStrings(sentence, language);
 
 	if (wordStrings.length !== lemmas.length) {
 		throw new Error(`Word count mismatch: ${wordStrings.length} !== ${lemmas.length}`);

@@ -1,6 +1,6 @@
 import { lemmatizeSentences as lemmatizeSentencesAi } from '../ai/lemmatize';
 import { getLemmasOfWords } from '../db/lemmas';
-import { toWords } from './toWords';
+import { toWordStrings } from './toWordStrings';
 import { Language } from './types';
 
 export async function lemmatizeSentences(
@@ -13,7 +13,7 @@ export async function lemmatizeSentences(
 ) {
 	const lemmas = await Promise.all(
 		sentences.map(async (sentence) => {
-			const wordStrings = toWords(sentence, language);
+			const wordStrings = toWordStrings(sentence, language);
 
 			if (wordStrings.length == 0) {
 				return [];

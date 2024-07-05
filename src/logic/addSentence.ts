@@ -1,6 +1,6 @@
 import { addWordToLemma, getLemmasOfWords } from '../db/lemmas';
 import { addWord, getMultipleWordsByLemmas } from '../db/words';
-import { toWords } from './toWords';
+import { toWordStrings } from './toWordStrings';
 
 import { classifyLemmas } from '../ai/classifyLemmas';
 import * as sentences from '../db/sentences';
@@ -59,7 +59,7 @@ export async function getSentenceWords(
 
 	let lemmas = ls || (await lemmatizeSentences([sentenceString], { language }))[0];
 
-	const wordStrings = toWords(sentenceString, language);
+	const wordStrings = toWordStrings(sentenceString, language);
 
 	if (wordStrings.length !== lemmas.length) {
 		throw new Error(

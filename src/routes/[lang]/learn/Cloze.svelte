@@ -12,7 +12,7 @@
 	import type { Evaluation } from '../../../logic/evaluateCloze';
 	import { expectedKnowledge, now } from '../../../logic/isomorphic/knowledge';
 	import { standardize } from '../../../logic/isomorphic/standardize';
-	import { toWords, toWordsWithSeparators } from '../../../logic/toWords';
+	import { toWordStrings, toWordsWithSeparators } from '../../../logic/toWordStrings';
 	import type { Language, SentenceWord } from '../../../logic/types';
 	import { fetchClozeEvaluation } from '../api/cloze/client';
 	import type { Translation } from '../api/sentences/[sentence]/english/client';
@@ -141,7 +141,7 @@
 	}
 
 	function findSentenceWord(sentenceWords: SentenceWord[], word: DB.Word) {
-		const wordStrings = toWords(sentence.sentence, language);
+		const wordStrings = toWordStrings(sentence.sentence, language);
 		const wordIndex = sentenceWords.findIndex(({ id }) => id === word.id);
 
 		if (wordIndex >= 0 && sentenceWords.length == wordStrings.length) {

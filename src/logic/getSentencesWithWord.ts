@@ -2,7 +2,7 @@ import { getSentence, getSentencesWithWord as getSentencesWithWordFromDd } from 
 import { getLastSeen } from '../db/sentencesSeen';
 import type * as DB from '../db/types';
 import { getWordsOfSentences } from '../db/words';
-import { toWords } from './toWords';
+import { toWordStrings } from './toWordStrings';
 import type { CandidateSentenceWithWords, Language } from './types';
 
 export async function getSentencesWithWord(
@@ -73,11 +73,12 @@ export async function addWordsToSentences(
 				}
 			}
 
-			const wordCountCorrect = sentence.words.length == toWords(sentence.sentence, language).length;
+			const wordCountCorrect =
+				sentence.words.length == toWordStrings(sentence.sentence, language).length;
 
 			if (!wordCountCorrect) {
 				console.warn(
-					`Sentence ${sentence.id} (${language.code}) has ${toWords(sentence.sentence, language).length} actual words, but has ${sentence.words.length} words in the DB`
+					`Sentence ${sentence.id} (${language.code}) has ${toWordStrings(sentence.sentence, language).length} actual words, but has ${sentence.words.length} words in the DB`
 				);
 			}
 

@@ -7,7 +7,7 @@
 	import SpinnerButton from '../../../components/SpinnerButton.svelte';
 	import * as DB from '../../../db/types';
 	import type { PhraseEvaluation } from '../../../ai/evaluatePhraseCloze';
-	import { isSeparator, toWordsWithSeparators } from '../../../logic/toWords';
+	import { isSeparator, toWordsWithSeparators } from '../../../logic/toWordStrings';
 	import type { Language } from '../../../logic/types';
 	import type { Translation } from '../api/sentences/[sentence]/english/client';
 	import type { UnknownWordResponse } from '../api/word/unknown/+server';
