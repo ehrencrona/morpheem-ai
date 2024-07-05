@@ -54,8 +54,10 @@ export async function addWord(
 			'zajęcia',
 			'gdybyć',
 			'cię',
+			'jego',
 			'ci',
 			'mi',
+			'ich',
 			'ludzie',
 			'ludzi'
 		].includes(lemma)

@@ -170,8 +170,6 @@ it('lemmatizes French', async () => {
 		{ language: FRENCH }
 	);
 
-	console.log(lemmas);
-
 	expect(lemmas).toEqual([
 		[
 			'nous',

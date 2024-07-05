@@ -60,51 +60,51 @@ async function lemmatizeBatch(
 	}
 
 	const examples: Record<LanguageCode, string> = {
-		pl: `“Byłoby dobrze, gdybyś był gorszym przykładem.”
+		pl: `Byłoby dobrze, gdybyś był gorszym przykładem
 
 		becomes 
 		
 		byłoby (być) dobrze (dobrze), gdybyś (gdyby) był (być) gorszym (zły) przykładem (przykład)
 		
-		niesamowicie cię kocham
+		Niesamowicie cię kocham
 		
 		becomes
 		
 		niesamowicie (niesamowicie) cię (ty) kocham (kochać)`,
-		fr: `"y a-t-il des chaises"
+		fr: `"Y a-t-il des chaises"
 		
 		becomes
 
-		y (y) a-t-il (avoir) des (de) chaises (chaise)
+		Y (y) a-t-il (avoir) des (de) chaises (chaise)
 		
-		qu' est-ce que c' est
-		
-		becomes
-		
-		qu' (que) est-ce (être) que (que) c' (ce) est (être)
-		
-		ils ont une télé dorée 
+		Qu' est-ce que c' est
 		
 		becomes
 		
-		ils (ils) ont (avoir) une (un) télé (télé) dorée (doré)`,
-		es: `cómo va el trabajo
+		Qu' (que) est-ce (être) que (que) c' (ce) est (être)
+		
+		Ils ont une télé dorée 
 		
 		becomes
 		
-		cómo (cómo) va (ir) el (el) trabajo (trabajo)
+		Ils (ils) ont (avoir) une (un) télé (télé) dorée (doré)`,
+		es: `Cómo va el trabajo
 		
-		dáme un beso
+		becomes
+		
+		Cómo (cómo) va (ir) el (el) trabajo (trabajo)
+		
+		Dáme un beso
 		
 		becomes 
 		
-		dáme (dar) un (uno) beso (beso)
+		Dáme (dar) un (uno) beso (beso)
 
-		irse al parque
+		Irse al parque
 
 		becomes
 
-		irse (ir) al (a) parque (parque)
+		Irse (ir) al (a) parque (parque)
 		
 		(treat un/una as "uno", la as "el", al as "a", del as "de", me as "me")`,
 		ko: `우리는 결과를 예상했습니다 becomes 우리는 (우리) 결과를 (결과) 예상했습니다 (예상하다)
@@ -115,29 +115,29 @@ async function lemmatizeBatch(
 물 주세요 becomes 물 (물) 주세요 (주다)
 케이크이다 becomes 케이크이다 (케이크)
 서연이네 becomes 서연이네 (서연)`,
-		nl: `komt anna's man mee
+		nl: `Komt anna's man mee
 
 becomes
 
-komt (komen) anna's (anna) man (man) mee (met)
+Komt (komen) anna's (anna) man (man) mee (met)
 
-je bent de ergste
-
-becomes
-
-je (jij) bent (zijn) de (de) ergste (erg)
-
-het zijn onze boekjes
+Je bent de ergste
 
 becomes
 
-het (het) zijn (zijn) onze (ons) boekjes (boek)
+Je (jij) bent (zijn) de (de) ergste (erg)
+
+Het zijn onze boekjes
+
+becomes
+
+Het (het) zijn (zijn) onze (ons) boekjes (boek)
 		`,
-		ru: `как дела?
+		ru: `Как дела?
 
 becomes
 
-как (как) дела (дело)`
+Как (как) дела (дело)`
 	};
 
 	const response = await ask({
@@ -156,7 +156,9 @@ ${examples[language.code]}`
 			] as Message[]
 		).concat({
 			role: 'user',
-			content: sentences.map((sentence) => toWords(sentence, language).join(' ')).join('\n')
+			content: sentences
+				.map((sentence) => toWords(sentence, language, { doLowerCase: false }).join(' '))
+				.join('\n')
 		}),
 		temperature,
 		max_tokens: 1000,
