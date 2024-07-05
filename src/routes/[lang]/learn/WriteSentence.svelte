@@ -11,11 +11,13 @@
 	import SpinnerButton from '../../../components/SpinnerButton.svelte';
 	import Tutorial from '../../../components/Tutorial.svelte';
 	import { KNOWLEDGE_TYPE_WRITE } from '../../../db/knowledgeTypes';
+	import type * as DB from '../../../db/types';
 	import type { ExerciseSource } from '../../../db/types';
 	import type { WriteEvaluation } from '../../../logic/evaluateWrite';
 	import type { Fragment } from '../../../logic/isomorphic/translationToFragments';
 	import { translationToFragments } from '../../../logic/isomorphic/translationToFragments';
 	import type { ExerciseKnowledge, Language } from '../../../logic/types';
+	import { getLanguageOnClient } from '../api/api-call';
 	import { fetchClauses } from '../api/sentences/[sentence]/clauses/client';
 	import type { Translation } from '../api/sentences/[sentence]/english/client';
 	import type { UnknownWordResponse } from '../api/word/unknown/+server';
@@ -23,13 +25,10 @@
 	import { fetchAskMeAnything } from '../api/write/ama/client';
 	import { fetchProvidedWordsInAnswer } from '../api/write/ama/provided/client';
 	import { sendWrittenSentence } from '../api/write/client';
-	import { fetchWriteEvaluation as fetchWriteEvaluation } from '../api/write/evaluate/client';
+	import { fetchWriteEvaluation } from '../api/write/evaluate/client';
 	import AMA from './AMA.svelte';
-	import WordCard from './WordCard.svelte';
-	import type * as DB from '../../../db/types';
-	import { getLanguageOnClient } from '../api/api-call';
-	import CloseSvg from '../../../components/CloseSvg.svelte';
 	import ClauseCardDumb from './ClauseCardDumb.svelte';
+	import WordCard from './WordCard.svelte';
 
 	export let word: { id: number; word: string; level: number } | undefined;
 	export let onNext: () => Promise<any>;

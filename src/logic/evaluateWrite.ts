@@ -4,6 +4,7 @@ import {
 	evaluateWrite as evaluateWriteAi,
 	generateTranslationFeedback as generateTranslationFeedbackAi
 } from '../ai/evaluateWrite';
+import { Clause } from '../ai/splitIntoClauses';
 import { getAggregateKnowledgeForUserWords } from '../db/knowledge';
 import { KNOWLEDGE_TYPE_WRITE } from '../db/knowledgeTypes';
 import { getSentence } from '../db/sentences';
@@ -11,12 +12,12 @@ import * as DB from '../db/types';
 import { getMultipleWordsByLemmas, getWordByLemma, getWordsOfSentence } from '../db/words';
 import { UnknownWordResponse } from '../routes/[lang]/api/word/unknown/+server';
 import { wordsToUnknownWords } from './findProvidedWordsInAnswer';
+import { getWordInSentence } from './getWordInSentence';
 import { expectedKnowledge, now } from './isomorphic/knowledge';
+import { standardize } from './isomorphic/standardize';
 import { lemmatizeSentences } from './lemmatize';
 import { toWords } from './toWords';
-import { ExerciseKnowledge, Language, WordKnowledge } from './types';
-import { standardize } from './isomorphic/standardize';
-import { error } from '@sveltejs/kit';
+import { ExerciseKnowledge, Language, SentenceWord, WordKnowledge } from './types';
 
 export type WriteEvaluationOpts = z.infer<typeof writeEvaluationOptsSchema>;
 
@@ -212,31 +213,12 @@ export async function evaluateWrite(
 	) {
 		userExercises = [
 			...userExercises,
-			...opts.revealedClauses
-				.filter((c) => {
-					if (!sentence.sentence.toLowerCase().includes(c.sentence.toLowerCase())) {
-						logError(
-							`Sentence "${sentence.sentence}" (${sentence.id}) does not include clause "${c.sentence}" with hint "${c.english}"`
-						);
-
-						return false;
-					}
-
-					return true;
-				})
-				.map(
-					(c) =>
-						({
-							id: null,
-							// TODO?!?
-							level: 20,
-							exercise: 'phrase-cloze',
-							sentenceId: sentence.id,
-							phrase: c.sentence,
-							hint: c.english,
-							isKnown: false
-						}) satisfies ExerciseKnowledge
-				)
+			...(await revealedClausesToUserExercises({
+				revealedClauses: opts.revealedClauses,
+				sentence,
+				sentenceWords,
+				language
+			}))
 		];
 	}
 
@@ -255,6 +237,69 @@ export async function evaluateWrite(
 		})),
 		userExercises
 	};
+}
+
+function revealedClausesToUserExercises({
+	revealedClauses,
+	sentence,
+	sentenceWords,
+	language
+}: {
+	revealedClauses: Clause[];
+	sentence: DB.Sentence;
+	sentenceWords: SentenceWord[];
+	language: Language;
+}) {
+	return Promise.all(
+		revealedClauses
+			.filter((c) => {
+				if (!sentence.sentence.toLowerCase().includes(c.sentence.toLowerCase())) {
+					logError(
+						`Sentence "${sentence.sentence}" (${sentence.id}) does not include clause "${c.sentence}" with hint "${c.english}"`
+					);
+
+					return false;
+				}
+
+				return true;
+			})
+			.map(async (c): Promise<ExerciseKnowledge> => {
+				// if the phrase is a single word, prefer cloze
+				if (toWords(c.sentence, language).length == 1) {
+					try {
+						const {
+							level,
+							id: wordId,
+							word
+						} = await getWordInSentence(c.sentence, sentence.id, sentenceWords, language);
+
+						return {
+							id: null,
+							exercise: 'cloze',
+							sentenceId: sentence.id,
+							level,
+							word,
+							wordId,
+							isKnown: false
+						};
+					} catch (e: any) {
+						e.message = `While trying to find word for clause "${c.sentence}" in sentence "${sentence.sentence}" (${sentence.id}): ${e.message}`;
+						logError(e);
+					}
+				}
+
+				return {
+					id: null,
+					// TODO?!?
+					level: 20,
+					exercise: 'phrase-cloze',
+					sentenceId: sentence.id,
+					phrase: c.sentence,
+					hint: c.english,
+					isKnown: false
+				};
+			})
+	);
 }
 
 export async function filterClearlyKnownWords<W extends DB.Word>(
