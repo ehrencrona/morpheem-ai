@@ -20,6 +20,7 @@
 	import ParagraphComponent from './Paragraph.svelte';
 	import { onMount } from 'svelte';
 	import { addToReaderHistory } from '../history';
+	import { goto } from '$app/navigation';
 
 	export let data: PageData;
 
@@ -96,7 +97,9 @@
 	}
 
 	async function done() {
-		onParagraphDone();
+		await onParagraphDone();
+
+		goto(`/${language.code}/reader`);
 	}
 
 	async function onClickedWord(word: string) {
