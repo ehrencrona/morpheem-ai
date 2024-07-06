@@ -50,7 +50,21 @@
 	$: userExercises = data.userExercises;
 	$: languageCode = data.languageCode;
 
-	let exerciseFilter = $page.url.searchParams.get('exercise');
+	let exerciseFilter: (ex: DB.ScoreableExercise) => boolean;
+
+	$: filterParam = $page.url.searchParams.get('exercise');
+
+	exerciseFilter = (e) => {
+		const id = filterParam && parseInt(filterParam);
+
+		if (id) {
+			return e.id == id;
+		} else if (filterParam) {
+			return e.exercise == filterParam;
+		} else {
+			return true;
+		}
+	};
 
 	let knowledge: DB.AggKnowledgeForUser[] = [];
 	let wordsKnown: { read: number; write: number };
@@ -143,7 +157,7 @@
 			!(excludeWordId && 'wordId' in e && e.wordId == excludeWordId) &&
 			!(excludeSentenceId && e.sentenceId == excludeSentenceId) &&
 			(e.id == null || !userExercisesBeingUpdated.includes(e.id)) &&
-			(!exerciseFilter || e.exercise == exerciseFilter);
+			exerciseFilter(e);
 
 		exercises = exercises.filter(filter);
 
