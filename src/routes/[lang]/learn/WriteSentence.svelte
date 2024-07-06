@@ -340,8 +340,10 @@
 											on:click={() => {
 												revealedClauses = [...revealedClauses, ...fragment.clauses];
 											}}
-											class="inline hover:underline decoration-yellow">{fragment.fragment}</button
-										>{:else}<span class="inline border-b-2 border-blue-3 border-dotted"
+											class="inline hover:underline decoration-yellow"
+										>
+											{fragment.fragment}
+										</button>{:else}<span class="inline border-b-2 border-blue-3 border-dotted"
 											>{fragment.fragment}</span
 										>{/if}{:else}{fragment.fragment}{/if}{/each}"
 						{:else if translation}

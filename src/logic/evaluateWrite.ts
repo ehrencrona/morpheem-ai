@@ -62,6 +62,10 @@ export async function evaluateWriteFromAiOutput({
 	feedback: string;
 	language: Language;
 }): Promise<WriteEvaluation> {
+	const isCorrect = correctedParts.length == 0;
+
+	const originalCorrectedParts = correctedParts;
+
 	correctedParts = correctedParts
 		.filter(({ severity }) => severity > 0)
 		// validate that the clauses exist in the sentence
@@ -79,8 +83,6 @@ export async function evaluateWriteFromAiOutput({
 
 	const isSevere = ({ severity }: { severity: number }) => severity > 1;
 	const isMinor = ({ severity }: { severity: number }) => severity == 1;
-
-	const isCorrect = correctedParts.length == 0;
 
 	// if there are more than two clauses, drop the minor ones
 	if (correctedParts.length > 2 && correctedParts.some(isSevere) && correctedParts.some(isMinor)) {
@@ -219,7 +221,7 @@ export async function evaluateWriteFromAiOutput({
 		feedback,
 		correctedSentence,
 		userExercises,
-		correctedParts
+		correctedParts: originalCorrectedParts
 	};
 }
 
