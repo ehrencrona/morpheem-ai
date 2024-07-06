@@ -508,7 +508,7 @@
 				phrase={current.phrase}
 				exercise={current}
 				onBrokenExercise={() => {
-					logError(`Broken phrase cloze exercise ${JSON.stringify(current)}`);
+					logError(`Broken exercise #${current?.id}`);
 					showNextSentence();
 				}}
 			/>
