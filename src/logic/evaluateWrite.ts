@@ -64,8 +64,6 @@ export async function evaluateWriteFromAiOutput({
 }): Promise<WriteEvaluation> {
 	const isCorrect = correctedParts.length == 0;
 
-	const originalCorrectedParts = correctedParts;
-
 	correctedParts = correctedParts
 		.filter(({ severity }) => severity > 0)
 		// validate that the clauses exist in the sentence
@@ -78,8 +76,16 @@ export async function evaluateWriteFromAiOutput({
 				);
 			}
 
-			return isIncluded;
+			const isChange = opts.entered.toLowerCase() != correction.toLowerCase();
+
+			if (!isChange) {
+				console.warn(`Corrected clause "${correction}" is the same as the original.`);
+			}
+
+			return isIncluded && isChange;
 		});
+
+	const originalCorrectedParts = correctedParts;
 
 	const isSevere = ({ severity }: { severity: number }) => severity > 1;
 	const isMinor = ({ severity }: { severity: number }) => severity == 1;
