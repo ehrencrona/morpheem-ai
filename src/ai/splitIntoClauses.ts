@@ -52,6 +52,10 @@ breaks down to
 `
 };
 
+const commonPrompt = `determine which part of the translation corresponds to which part of the original sentence. 
+Break down the sentence into the shortest clauses that have a corresponding part of the English translation. 
+Return clauses with their corresponding part of the English sentence written exactly as in the English sentence provided. `;
+
 export async function splitIntoClauses(
 	{ sentence, english }: Pick<Sentence, 'sentence' | 'english'>,
 	language: Language
@@ -60,7 +64,7 @@ export async function splitIntoClauses(
 		messages: [
 			{
 				role: 'system',
-				content: `You will get a ${language.name} sentence and its English translation. We want to determine which part of the translation corresponds to which part of the original sentence. Break down the sentence into the shortest clauses that have a corresponding part of the English translation. Return clauses with their corresponding part of the English sentence written exactly as in the English sentence provided. 
+				content: `You will get a ${language.name} sentence and its English translation. We want to ${commonPrompt}
 
 Example
 ${examples[language.code]}
@@ -79,4 +83,39 @@ Return a JSON array of clauses, each an array with the ${language.name} clause f
 	});
 
 	return res.clauses.map(([sentence, english]) => ({ sentence, english }));
+}
+
+export async function splitIntoClausesAndTranslate(
+	{ sentence }: Pick<Sentence, 'sentence'>,
+	language: Language
+): Promise<{ translation: string; clauses: Clause[] }> {
+	const res = await askForJson({
+		messages: [
+			{
+				role: 'system',
+				content: `You will get a ${language.name} sentence. First translate it into English. Then ${commonPrompt}
+
+Example
+${examples[language.code]}
+
+Return a JSON array of clauses, each an array with the ${language.name} clause followed by the corresponding English clause: {translation: string, clauses: string[][]}.`
+			},
+			{
+				role: 'user',
+				content: sentence
+			}
+		],
+		temperature: 0.5,
+		schema: z.object({
+			translation: z.string(),
+			clauses: z.array(z.array(z.string()).min(2).max(2))
+		}),
+		logResponse: true,
+		model: 'gpt-4o'
+	});
+
+	return {
+		translation: res.translation,
+		clauses: res.clauses.map(([sentence, english]) => ({ sentence, english }))
+	};
 }

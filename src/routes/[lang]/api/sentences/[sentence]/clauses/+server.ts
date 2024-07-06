@@ -1,8 +1,12 @@
 import { json, type ServerLoad } from '@sveltejs/kit';
-import { getSentence } from '../../../../../../db/sentences';
-import { addEnglishToSentence } from '../../../../../../logic/translate';
-import { splitIntoClauses } from '../../../../../../ai/splitIntoClauses';
+import {
+	Clause,
+	splitIntoClauses,
+	splitIntoClausesAndTranslate
+} from '../../../../../../ai/splitIntoClauses';
+import { getSentence, storeEnglish } from '../../../../../../db/sentences';
 import { Language } from '../../../../../../logic/types';
+import { logError } from '$lib/logError';
 
 export type ClausesResponse = Awaited<ReturnType<typeof getClauses>>;
 
@@ -17,13 +21,25 @@ export const GET: ServerLoad = async ({ params, locals: { language } }) => {
 };
 
 async function getClauses(sentenceId: number, language: Language) {
-	const sentence = await addEnglishToSentence(await getSentence(sentenceId, language), language);
+	const sentence = await getSentence(sentenceId, language);
 
-	const clauses = await splitIntoClauses(sentence, language);
+	let clauses: Clause[] = [];
+	let english: string = '';
+
+	if (sentence.english) {
+		clauses = await splitIntoClauses(sentence, language);
+		english = sentence.english;
+	} else {
+		({ translation: english, clauses } = await splitIntoClausesAndTranslate(sentence, language));
+
+		storeEnglish({ english: sentence.english || '' }, { sentenceId: sentence.id, language }).catch(
+			logError
+		);
+	}
 
 	return {
 		clauses,
-		english: sentence.english,
+		english,
 		transliteration: sentence.transliteration || undefined
 	};
 }
