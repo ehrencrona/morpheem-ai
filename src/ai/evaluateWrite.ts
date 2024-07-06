@@ -33,15 +33,15 @@ export async function evaluateWrite(
 					(exercise.exercise == 'write'
 						? `is doing an exercise to write a sentence using "${exercise.word}". `
 						: `has been asked to translate a sentence as an exercise. `) +
-					`Briefly but friendly give feedback, pointing out any grammatical mistakes, spelling mistakes, unidiomatic constructs or divergences from the intended meaning. Write in English. ` +
-					`For grammatical errors, explain why they are wrong using grammatical terms. ` +
-					`Return the corrected sentence with all your suggestions applied. ` +
+					`Correct the sentence so that it grammatically correct, idiomatic and conveys the intended meaning. ` +
+					`Then briefly but friendly give feedback, explaining why the corrections had to be applied. Write in English. ` +
+					`For grammatical errors, explain why the error in grammatical terms. ` +
 					`Also return a list of your corrections, in the exact same way they are written in the corrected sentence together with what the user wrote (when applicable) and the English translation of (only) the correction (if applicable). ` +
 					`If a word is missing, include some context around the word in the correction. ` +
 					`This will be used to highlight what was corrected. ` +
 					`If the whole sentence was changed, break the corrections down into clauses. ` +
 					`Categorize the severity of each error as 2 (wrong meaning), 1 (minor: a wrong inflection or a suboptimal word choice) or 0 (a typo or punctation). ` +
-					`Return JSON in the format { feedback: string, correctedSentence: string, correctedParts: { correction: string, userWrote: string?, english: string?, severity: number }[] }`
+					`Return JSON in the format { correctedSentence: string, feedback: string, correctedParts: { correction: string, userWrote: string?, english: string?, severity: number }[] }`
 			},
 			{
 				role: 'assistant',
