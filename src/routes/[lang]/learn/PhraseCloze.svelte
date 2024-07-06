@@ -2,6 +2,7 @@
 	import type { SendKnowledge } from '$lib/SendKnowledge';
 	import { dedupUnknown } from '$lib/dedupUnknown';
 	import { filterUndefineds } from '$lib/filterUndefineds';
+	import { findPhraseIndex } from '$lib/findPhraseIndex';
 	import type { PhraseEvaluation } from '../../../ai/evaluatePhraseCloze';
 	import Speak from '../../../components/Speak.svelte';
 	import Tutorial from '../../../components/Tutorial.svelte';
@@ -31,41 +32,18 @@
 	export let onBrokenExercise: () => void;
 
 	$: wordsWithSeparators = toWordsWithSeparators(sentence.sentence, language);
-	$: phraseBoundary = findPhraseIndex(wordsWithSeparators);
+	$: phraseBoundary = findPhraseBoundary(wordsWithSeparators);
 
-	function isPhraseAtIndex(index: number) {
-		let phraseAtIndex = '';
-		const lowerCasePhrase = phrase.toLowerCase();
+	function findPhraseBoundary(wordsWithSeparators: string[]) {
+		const result = findPhraseIndex(phrase, wordsWithSeparators);
 
-		for (let i = index; i < index + lowerCasePhrase.length; i++) {
-			phraseAtIndex += wordsWithSeparators[i].toLowerCase();
+		if (result) {
+			return result;
+		} else {
+			onBrokenExercise();
 
-			if (lowerCasePhrase == phraseAtIndex) {
-				return { from: index, to: i };
-			}
-
-			if (!lowerCasePhrase.startsWith(phraseAtIndex.toLowerCase())) {
-				break;
-			}
+			return { from: 0, to: 0 };
 		}
-
-		return undefined;
-	}
-
-	function findPhraseIndex(wordsWithSeparators: string[]) {
-		for (let i = 0; i < wordsWithSeparators.length; i++) {
-			const result = isPhraseAtIndex(i);
-
-			if (result) {
-				return result;
-			}
-		}
-
-		console.error(`Phrase not found: "${phrase}" in "${wordsWithSeparators.join('')}"`);
-
-		onBrokenExercise();
-
-		return { from: 0, to: 0 };
 	}
 
 	let isFetchingEvaluation = false;
