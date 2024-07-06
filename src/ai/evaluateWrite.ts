@@ -48,7 +48,7 @@ export async function evaluateWrite(
 				content:
 					exercise.exercise == 'write'
 						? `Write a ${language.name} sentence or fragment containing "${exercise.word}"`
-						: `Translate the following sentence to ${language.name}: "${exercise.english}"`
+						: `Translate the following English sentence to ${language.name}: "${exercise.english}"`
 			},
 			{
 				role: 'user',
