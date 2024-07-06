@@ -18,8 +18,25 @@
 	import { trackActivity } from '../../learn/trackActivity';
 	import type { PageData } from './$types';
 	import ParagraphComponent from './Paragraph.svelte';
+	import { onMount } from 'svelte';
+	import { addToReaderHistory } from '../history';
 
 	export let data: PageData;
+
+	onMount(() => {
+		function formatDate(date: string) {
+			return new Date(date).toLocaleDateString('en-GB', {
+				day: 'numeric',
+				month: 'short'
+			});
+		}
+
+		addToReaderHistory({
+			url: data.articleUrl,
+			title: data.title || data.articleUrl,
+			date: formatDate(new Date().toISOString())
+		});
+	});
 
 	let isLookingUpUnknown = false;
 	let showedParagraphAt = Date.now();
