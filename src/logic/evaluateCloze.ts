@@ -1,4 +1,5 @@
 import { evaluateCloze as evaluateClozeAi } from '../ai/evaluateCloze';
+import { getLemmasOfWord } from '../db/lemmas';
 import * as DB from '../db/types';
 import { getWordByLemma } from '../db/words';
 import { standardize } from './isomorphic/standardize';
@@ -56,37 +57,46 @@ export async function evaluateCloze(
 	}
 
 	if (outcome == 'alternate' || outcome == 'alternateWrongForm') {
-		const sentence = cloze.replace(/_+/, answered);
+		const quickLemmas = await getLemmasOfWord(answered, language);
 
-		const words = toWordStrings(sentence, language);
-		const lemmatized = await lemmatizeSentences([sentence], { language, ignoreErrors: true });
+		if (quickLemmas.length == 1) {
+			alternateWord = {
+				...quickLemmas[0],
+				conjugated: answered
+			};
+		} else {
+			const sentence = cloze.replace(/_+/, answered);
 
-		const wordIndex = words.findIndex((word) => word === answered);
+			const words = toWordStrings(sentence, language);
+			const lemmatized = await lemmatizeSentences([sentence], { language, ignoreErrors: true });
 
-		if (wordIndex >= 0) {
-			const differentWordString = lemmatized[0][wordIndex];
+			const wordIndex = words.findIndex((word) => word === answered);
 
-			try {
-				alternateWord = {
-					...(await getWordByLemma(differentWordString, language)),
-					conjugated: answered
-				};
+			if (wordIndex >= 0) {
+				const differentWordString = lemmatized[0][wordIndex];
 
-				console.log(
-					`User answer "${answered}" is lemma "${alternateWord.word}" (${alternateWord.id}).`
-				);
-			} catch (e) {
-				// add the word?
+				try {
+					alternateWord = {
+						...(await getWordByLemma(differentWordString, language)),
+						conjugated: answered
+					};
 
+					console.log(
+						`User answer "${answered}" is lemma "${alternateWord.word}" (${alternateWord.id}).`
+					);
+				} catch (e) {
+					// add the word?
+
+					console.error(
+						`Error getting different "${differentWordString}" word by lemma "${lemmatized[0][wordIndex]}":`,
+						e
+					);
+				}
+			} else {
 				console.error(
-					`Error getting different "${differentWordString}" word by lemma "${lemmatized[0][wordIndex]}":`,
-					e
+					`Word "${answered}" not found in sentence "${sentence}" generated from cloze ${cloze}.`
 				);
 			}
-		} else {
-			console.error(
-				`Word "${answered}" not found in sentence "${sentence}" generated from cloze ${cloze}.`
-			);
 		}
 	}
 
