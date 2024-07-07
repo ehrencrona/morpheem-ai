@@ -25,7 +25,7 @@ export async function addWordToLemma(wordString: string, word: DB.Word, language
 
 	if (
 		language.code == 'pl' &&
-		['co->coś', 'mi->mój', 'ci->ten'].includes(`${wordString}->${word.word}`)
+		['co->coś', 'mi->mój', 'ci->ten', 'ktoś->kto'].includes(`${wordString}->${word.word}`)
 	) {
 		throw new Error(`${word.word} is not the dictionary form of ${wordString}`);
 	}

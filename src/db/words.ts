@@ -46,20 +46,25 @@ export async function addWord(
 	if (
 		language.code == 'pl' &&
 		[
+			'ci',
+			'cię',
+			'dana',
+			'gdybyć',
+			'ich',
+			'je',
+			'jego',
+			'ludzi',
+			'ludzie',
+			'mi',
+			'można',
+			'sobą',
+			'sobie',
 			'ta',
 			'wielu',
-			'można',
 			'wszystki',
 			'wszystkie',
 			'zajęcia',
-			'gdybyć',
-			'cię',
-			'jego',
-			'ci',
-			'mi',
-			'ich',
-			'ludzie',
-			'ludzi'
+			'ze'
 		].includes(lemma)
 	) {
 		throw new CodedError(`"${lemma}" is not the dictionary form`, 'notALemma');
