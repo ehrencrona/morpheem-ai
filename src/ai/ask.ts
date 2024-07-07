@@ -1,12 +1,20 @@
 import { groq } from './groq-client';
 import { openai } from './openai-client';
+import Anthropic from '@anthropic-ai/sdk';
+
+const ANTHROPIC_API_KEY = import.meta.env.VITE_ANTHROPIC_API_KEY as string;
+
+const anthropic = new Anthropic({
+	apiKey: ANTHROPIC_API_KEY
+});
 
 export type Model =
 	| 'gpt-3.5-turbo'
 	| 'gpt-4o'
 	| 'llama3-8b-8192'
 	| 'llama3-70b-8192'
-	| 'mixtral-8x7b-32768';
+	| 'mixtral-8x7b-32768'
+	| 'claude-3-5-sonnet-20240620';
 
 export interface Message {
 	role: 'system' | 'user' | 'assistant';
@@ -64,6 +72,40 @@ export async function ask<T>({
 				model,
 				...params
 			});
+		} else if (model == 'claude-3-5-sonnet-20240620') {
+			const message = await anthropic.messages.create({
+				temperature,
+				max_tokens: max_tokens || 4096,
+				model,
+				system: messages.find(({ role }) => role === 'system')?.content,
+				messages: messages.filter(({ role }) => role != 'system') as {
+					role: 'user' | 'assistant';
+					content: string;
+				}[]
+			});
+
+			const content = message.content[0];
+
+			console.log({ logResponse });
+			console.log(JSON.stringify(content, null, 2));
+
+			if (content.type == 'text') {
+				if (message.stop_reason == 'max_tokens') {
+					throw new Error(
+						`Too long response: ${content.text}\n${messages.map((message) => `[${message.role}] ${message.content}`).join('\n')}`
+					);
+				}
+
+				if (logResponse) {
+					console.debug(
+						`${requestId}. [${model}] ${content.text.replaceAll(/\n/g, '\\n').replaceAll(/[\n\t ]+/g, ' ')}`
+					);
+				}
+
+				return content.text;
+			} else {
+				throw new Error(`Unexpected response type: ${content.type}`);
+			}
 		} else {
 			completion = await openai.chat.completions.create({
 				model,

@@ -27,7 +27,8 @@ export async function evaluateCloze(
 			{
 				role: 'system',
 				content:
-					`I am a ${language.name} learner trying to solve a cloze exercise; you are a helpful teacher giving me feedback.\n\n` +
+					`I am a ${language.name} learner trying to solve the following cloze exercise; you are a helpful teacher giving me feedback:\n\n` +
+					`Find the missing word:\n\n${cloze.replace(/_+/, `_______ ("${hint}")`)}\n\n` +
 					`The expected answer is "${correctAnswer.conjugated}".\n` +
 					(isRightLemma
 						? `Very briefly explain how the required grammatical form/inflection relates to the one I picked and why it is right or wrong in the field "evaluation". In "case", return "correct" or "wrongForm". Return JSON in the form \`{ evaluation: string, case: string }\``
@@ -44,13 +45,9 @@ export async function evaluateCloze(
 						
 						Return JSON in the form \`{ evaluation: string, case: string, corrected?: string }\``)
 			},
-			{
-				role: 'assistant',
-				content: `Find the missing word:\n\n${cloze.replace(/_+/, `_______ ("${hint}")`)}\n\n`
-			},
 			{ role: 'user', content: cloze.replace(/_+/, `***` + answered + `***`) }
 		],
-		model: 'gpt-4o',
+		model: 'claude-3-5-sonnet-20240620',
 		temperature: 0.5,
 		logResponse: true,
 		schema: z.object({

@@ -21,7 +21,7 @@ export async function askForJson<T>({
 	logResponse?: boolean;
 	logRequest?: boolean;
 }) {
-	const response = await ask({
+	let response = await ask({
 		messages,
 		model,
 		format: 'json_object',

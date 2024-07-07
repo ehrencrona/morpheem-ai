@@ -21,22 +21,15 @@ export async function askMeAnythingWrite({
 	language: Language;
 }) {
 	return ask({
-		model: 'gpt-4o',
+		model: 'claude-3-5-sonnet-20240620',
 		messages: [
 			{
 				role: 'system',
 				content: `${
 					exercise == 'translate'
-						? `The user is doing a translation exercise in ${language.name}. The expected translation is "${correctTranslation}"`
-						: `The user is practicing writing in ${language.name}`
+						? `The user is studying ${language.name} and translating the sentence "${sentence}" as an exercise. The expected translation is "${correctTranslation}"`
+						: `The user is practicing writing in ${language.name} and writing a sentence or fragment containing "${word}" as an exercise`
 				}. Briefly but helpfully and friendly answer the question in English. If the user wrote an English word or phrase, provide the ${language.name} translation. Do not provide the whole sentence for the user (unless explicitly asked for).`
-			},
-			{
-				role: 'assistant',
-				content:
-					exercise == 'translate'
-						? `Translate the sentence "${sentence}" into ${language.name}`
-						: `Write a ${language.name} sentence or fragment containing "${word}"`
 			},
 			...(sentenceEntered?.trim()
 				? ([
@@ -79,7 +72,7 @@ export async function askMeAnythingRead({
 	language: Language;
 }) {
 	return ask({
-		model: 'gpt-4o',
+		model: 'claude-3-5-sonnet-20240620',
 		messages: [
 			{
 				role: 'system',
@@ -131,7 +124,7 @@ export async function findProvidedWordsInAnswer(
 	language: Language
 ) {
 	const wordString = await ask({
-		model: 'gpt-4o',
+		model: 'claude-3-5-sonnet-20240620',
 		messages: [
 			{
 				role: 'system',
