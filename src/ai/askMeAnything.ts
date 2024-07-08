@@ -39,14 +39,14 @@ export async function askMeAnythingWrite({
 						}
 					] as Message[])
 				: []),
-			...(sentenceCorrected?.trim()
-				? ([
-						{
-							role: 'assistant',
-							content: `I corrected your sentence. It should read "${sentenceCorrected}"`
-						}
-					] as Message[])
-				: []),
+			...([
+				{
+					role: 'assistant',
+					content: sentenceCorrected?.trim()
+						? `I corrected your sentence. It should read "${sentenceCorrected}"`
+						: 'What is your question?'
+				}
+			] as Message[]),
 			{ role: 'user', content: question }
 		],
 		temperature: 1,
