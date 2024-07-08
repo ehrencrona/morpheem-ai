@@ -86,9 +86,6 @@ export async function ask<T>({
 
 			const content = message.content[0];
 
-			console.log({ logResponse });
-			console.log(JSON.stringify(content, null, 2));
-
 			if (content.type == 'text') {
 				if (message.stop_reason == 'max_tokens') {
 					throw new Error(

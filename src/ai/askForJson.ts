@@ -8,7 +8,7 @@ export async function askForJson<T>({
 	max_tokens,
 	schema,
 	model,
-	retriesLeft = 1,
+	retriesLeft = 0,
 	logResponse,
 	logRequest
 }: {
@@ -21,6 +21,14 @@ export async function askForJson<T>({
 	logResponse?: boolean;
 	logRequest?: boolean;
 }) {
+	// https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/prefill-claudes-response
+	if (model == 'claude-3-5-sonnet-20240620') {
+		messages.push({
+			role: 'assistant',
+			content: '{'
+		});
+	}
+
 	let response = await ask({
 		messages,
 		model,
@@ -30,6 +38,10 @@ export async function askForJson<T>({
 		logRequest,
 		logResponse
 	});
+
+	if (model == 'claude-3-5-sonnet-20240620') {
+		response = '{' + response;
+	}
 
 	try {
 		return zodParse(response!, schema);

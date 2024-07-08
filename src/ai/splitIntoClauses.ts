@@ -111,7 +111,7 @@ Return a JSON array of clauses, each an array with the ${language.name} clause f
 			clauses: z.array(z.array(z.string()).min(2).max(2))
 		}),
 		logResponse: true,
-		model: 'gpt-4o'
+		model: 'claude-3-5-sonnet-20240620'
 	});
 
 	return {
