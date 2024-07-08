@@ -1,12 +1,6 @@
 import { groq } from './groq-client';
 import { openai } from './openai-client';
-import Anthropic from '@anthropic-ai/sdk';
-
-const ANTHROPIC_API_KEY = import.meta.env.VITE_ANTHROPIC_API_KEY as string;
-
-const anthropic = new Anthropic({
-	apiKey: ANTHROPIC_API_KEY
-});
+import { anthropic } from './anthropic-client';
 
 export type Model =
 	| 'gpt-3.5-turbo'
@@ -126,7 +120,7 @@ export async function ask<T>({
 
 		return response;
 	} catch (error) {
-		const message = `Failed to prompt for ${format}: ${error}\n${messages.map((message) => `[${message.role}] ${message.content}`).join('\n')}`;
+		const message = `${requestId}. Failed to prompt for ${format}: ${error}`;
 
 		if (retriesLeft > 0) {
 			console.error(message + ' Retrying...');

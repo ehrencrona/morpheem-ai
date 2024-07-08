@@ -44,9 +44,9 @@ export async function askForJson<T>({
 	}
 
 	try {
-		return zodParse(response!, schema);
+		return zodParse(response, schema);
 	} catch (error) {
-		const message = `Failed to parse response: ${error}\nResponse: ${response}\nPrompt: ${messages.map(({ content }) => content).join(', ')}`;
+		const message = `Failed to parse response: ${error}\nResponse: ${response.replace(/\n/g, '\\n')}`;
 
 		if (retriesLeft > 0) {
 			console.error(`${message}. Retrying...`);
