@@ -31,22 +31,16 @@ export async function askMeAnythingWrite({
 						: `The user is practicing writing in ${language.name} and writing a sentence or fragment containing "${word}" as an exercise`
 				}. Briefly but helpfully and friendly answer the question in English. If the user wrote an English word or phrase, provide the ${language.name} translation. Do not provide the whole sentence for the user (unless explicitly asked for).`
 			},
-			...(sentenceEntered?.trim()
-				? ([
-						{
-							role: 'user',
-							content: sentenceEntered
-						}
-					] as Message[])
-				: []),
-			...([
-				{
-					role: 'assistant',
-					content: sentenceCorrected?.trim()
-						? `I corrected your sentence. It should read "${sentenceCorrected}"`
-						: 'What is your question?'
-				}
-			] as Message[]),
+			{
+				role: 'user',
+				content: sentenceEntered?.trim() ? sentenceEntered : 'Let me think...'
+			} as Message,
+			{
+				role: 'assistant',
+				content: sentenceCorrected?.trim()
+					? `I corrected your sentence. It should read "${sentenceCorrected}"`
+					: 'What is your question?'
+			} as Message,
 			{ role: 'user', content: question }
 		],
 		temperature: 1,
