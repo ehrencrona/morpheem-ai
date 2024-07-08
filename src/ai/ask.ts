@@ -126,6 +126,7 @@ export async function ask<T>({
 			console.error(message + ' Retrying...');
 
 			return ask({
+				model,
 				messages,
 				temperature: temperature + (1 - temperature) / 2,
 				max_tokens,
