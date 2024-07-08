@@ -49,21 +49,32 @@ export function addAggregateKnowledgeUnlessExists(
 	language: Language
 ) {
 	return db.transaction().execute(async (transaction) => {
-		for (const { alpha, beta, wordId } of knowledge) {
+		const time = new Date();
+		const rows = knowledge.map(({ alpha, beta, wordId }) => ({
+			word_id: wordId,
+			user_id: userId,
+			alpha,
+			beta,
+			time
+		}));
+
+		for (const batch of toBatches(rows, 200)) {
 			await transaction
 				.withSchema(language.schema)
 				.insertInto('aggregate_knowledge')
-				.values({
-					word_id: wordId,
-					user_id: userId,
-					alpha,
-					beta,
-					time: new Date()
-				})
+				.values(batch)
 				.onConflict((oc) => oc.columns(['word_id', 'user_id']).doNothing())
 				.execute();
 		}
 	});
+}
+
+function toBatches<T>(arr: T[], size: number): T[][] {
+	const batches = [];
+	for (let i = 0; i < arr.length; i += size) {
+		batches.push(arr.slice(i, i + size));
+	}
+	return batches;
 }
 
 export async function setBetaIfNull(
