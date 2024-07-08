@@ -78,6 +78,10 @@ export async function ask<T>({
 				}[]
 			});
 
+			if (message.content.length == 0) {
+				return '';
+			}
+
 			const content = message.content[0];
 
 			if (content.type == 'text') {
@@ -95,7 +99,7 @@ export async function ask<T>({
 
 				return content.text;
 			} else {
-				throw new Error(`Unexpected response type: ${content.type}`);
+				throw new Error(`Unexpected response type: ${JSON.stringify(content)}`);
 			}
 		} else {
 			completion = await openai.chat.completions.create({
