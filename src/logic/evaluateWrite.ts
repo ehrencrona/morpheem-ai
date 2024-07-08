@@ -113,7 +113,17 @@ export async function evaluateWriteFromAiOutput({
 	let userExercises: (ExerciseKnowledge & { severity: number; phrase?: string })[] =
 		opts.exercise == 'translate'
 			? await revealedClausesToUserExercises({
-					revealedClauses: opts.revealedClauses,
+					revealedClauses: opts.revealedClauses.filter((clause) => {
+						if (!correctedSentence.toLowerCase().includes(clause.sentence.toLowerCase())) {
+							console.warn(
+								`Corrected sentence "${correctedSentence}" does not include clause "${clause.sentence}". Dropping it.`
+							);
+
+							return false;
+						}
+
+						return true;
+					}),
 					sentence: opts.entered,
 					language
 				})
