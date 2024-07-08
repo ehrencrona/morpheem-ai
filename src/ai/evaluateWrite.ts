@@ -41,7 +41,7 @@ export async function evaluateWrite(
 					`This will be used to highlight what was corrected. ` +
 					`If the whole sentence was changed, break the corrections down into clauses. ` +
 					`Categorize the severity of each error as 2 (wrong meaning), 1 (minor: a wrong inflection or a suboptimal word choice) or 0 (a typo or punctation). ` +
-					`Return JSON in the format { correctedSentence: string, feedback: string, correctedParts: { correction: string, userWrote: string?, english: string?, severity: number }[] }`
+					`Return JSON in the format { correctedSentence: string, feedback: string, correctedParts: { userWrote: string?, correction: string, english: string?, severity: number }[] }`
 			},
 			{
 				role: 'assistant',
