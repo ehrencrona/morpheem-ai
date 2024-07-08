@@ -25,15 +25,17 @@ export async function askMeAnythingWrite({
 		messages: [
 			{
 				role: 'system',
-				content: `${
-					exercise == 'translate'
-						? `The user is studying ${language.name} and translating the sentence "${sentence}" as an exercise. The expected translation is "${correctTranslation}"`
-						: `The user is practicing writing in ${language.name} and writing a sentence or fragment containing "${word}" as an exercise`
-				}. Briefly but helpfully and friendly answer the question in English. If the user wrote an English word or phrase, provide the ${language.name} translation. Do not provide the whole sentence for the user (unless explicitly asked for).`
+				content: `${exercise == 'translate' ? `The expected answer to the exercise is "${correctTranslation}"` : ''} If I wrote an English word or phrase, provide the ${language.name} translation. Do not provide the whole sentence for me (unless explicitly asked for).`
 			},
 			{
 				role: 'user',
-				content: sentenceEntered?.trim() ? sentenceEntered : 'Let me think...'
+				content: `${
+					exercise == 'translate'
+						? `I am studying ${language.name} and translating the sentence "${sentence}" as an exercise.`
+						: `I am practicing writing in ${language.name} and writing a sentence or fragment containing "${word}" as an exercise`
+				}.
+
+				${sentenceEntered?.trim() ? `So far I've come up with "${sentenceEntered}"` : ''}`
 			} as Message,
 			{
 				role: 'assistant',
