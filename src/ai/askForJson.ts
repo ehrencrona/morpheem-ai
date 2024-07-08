@@ -39,7 +39,7 @@ export async function askForJson<T>({
 		logResponse
 	});
 
-	if (model == 'claude-3-5-sonnet-20240620') {
+	if (model == 'claude-3-5-sonnet-20240620' && !response.trim().startsWith('{')) {
 		response = '{' + response;
 	}
 
