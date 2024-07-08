@@ -21,16 +21,18 @@ export async function askForJson<T>({
 	logResponse?: boolean;
 	logRequest?: boolean;
 }) {
-	// https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/prefill-claudes-response
-	if (model == 'claude-3-5-sonnet-20240620') {
-		messages.push({
-			role: 'assistant',
-			content: '{'
-		});
-	}
-
 	let response = await ask({
-		messages,
+		// https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/prefill-claudes-response
+		messages:
+			model == 'claude-3-5-sonnet-20240620'
+				? [
+						...messages,
+						{
+							role: 'assistant',
+							content: '{'
+						}
+					]
+				: messages,
 		model,
 		format: 'json_object',
 		temperature,
