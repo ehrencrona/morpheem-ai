@@ -1,4 +1,5 @@
 import { KNOWLEDGE_TYPE_WRITE } from '../db/knowledgeTypes';
+import { addSeenSentence } from '../db/sentencesSeen';
 import { getMultipleWordsByLemmas } from '../db/words';
 import { addWrittenSentence } from '../db/writtenSentences';
 import { addSentence } from './addSentence';
@@ -40,6 +41,8 @@ export async function storeWrittenSentence({
 			language
 		})
 	]);
+
+	await addSeenSentence(sentence.id, userId, language);
 
 	let nonEntered: string[] = [];
 
