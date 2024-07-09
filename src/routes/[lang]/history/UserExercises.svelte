@@ -39,12 +39,13 @@
 			on:click={() => toggleExercise(exercise.id)}
 			class="cursor-pointer bg-light-gray rounded-md px-4 py-3"
 		>
-			{openExercises.includes(exercise.id)
-				? exercise.sentence.sentence
-				: exercise.sentence.sentence.replace(
-						'word' in exercise ? exercise.word : 'phrase' in exercise ? exercise.phrase : '__',
-						'_____'
-					)}
+			{#if exercise.exercise == 'phrase-cloze'}
+				{openExercises.includes(exercise.id)
+					? exercise.sentence.sentence
+					: exercise.sentence.sentence.replace(exercise.phrase, '_____')}
+			{:else}
+				{exercise.sentence.sentence} [{'word' in exercise && exercise.word}]
+			{/if}
 		</div>
 
 		<div>
