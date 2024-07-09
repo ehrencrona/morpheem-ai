@@ -16,6 +16,25 @@ it('translates sentences', async () => {
 	).toEqual(['What were you doing last night?', 'I really like this movie.']);
 });
 
+it('adds context when translating words', async () => {
+	const res = await translateWordInContext(
+		'zaprosiła',
+		{
+			sentence: 'Zaprosiła go na odiad do swojego ulubionego lokalu',
+			english: 'She invited him to a party at her favorite place.'
+		},
+		POLISH
+	);
+
+	expect(res.english).toEqual('she invited');
+});
+
+it('translates words out of context', async () => {
+	const res = await translateWordInContext('zaprosić', undefined, POLISH);
+
+	expect(res.english).toEqual('to invite');
+});
+
 it('translates word in context', async () => {
 	const [peace, world] = await Promise.all([
 		translateWordInContext(

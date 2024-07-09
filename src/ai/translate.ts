@@ -25,22 +25,13 @@ export async function translateWordInContext(
 
 	const definition = await ask({
 		messages: [
-			...(sentence?.english
-				? ([
-						{
-							role: 'user',
-							content: `Translate the ${language.name} sentence "${sentence.sentence}" into English.`
-						},
-						{ role: 'assistant', content: sentence.english }
-					] as Message[])
-				: []),
 			{
 				role: 'user',
 				content:
 					(sentence
-						? `What is the English translation of the word "${lemma}" in this sentence?`
-						: `What is the English translation of the ${language.name} word "${lemma}"?`) +
-					` Only answer with the definition (as a fragment; no final full stop).` +
+						? `The ${language.name} sentence "${sentence.sentence}" translates to "${sentence.english}". What part of the English sentence corresponds to the word "${lemma}"? Answer only with the fragment of the sentence (i.e. no need to capitalize it)`
+						: `What is the English translation of the ${language.name} word "${lemma}"? Only answer with the definition (as a fragment; no final full stop).`) +
+					` ` +
 					(isFormWanted
 						? `\nOn a second line, provide the form of the word in the sentence e.g. ${formExamples[language.code]}.`
 						: '') +
@@ -52,7 +43,7 @@ export async function translateWordInContext(
 		temperature: 0.5,
 		max_tokens: 30,
 		logResponse: true,
-		model: 'gpt-4o'
+		model: 'claude-3-5-sonnet-20240620'
 	});
 
 	const lines = definition.split('\n');
