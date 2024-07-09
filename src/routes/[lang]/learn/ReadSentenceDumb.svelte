@@ -63,7 +63,7 @@
 	Read the sentence and click any word you don't understand. This marks them for later repetition.
 </div>
 
-<div class="text-3xl lg:text-4xl mb-4 mt-2 font-medium leading-snug">
+<div class="font-sans text-3xl lg:text-4xl mb-4 mt-2 font-medium leading-snug">
 	{#each wordsWithSeparators as word, index}{#if !isSeparator(word)}<span
 				style="cursor: pointer"
 				role="button"

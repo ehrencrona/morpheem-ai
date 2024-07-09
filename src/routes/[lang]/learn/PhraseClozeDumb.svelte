@@ -81,7 +81,7 @@
 </script>
 
 <form on:submit={onSubmit}>
-	<div class="text-3xl lg:text-4xl leading-snug mb-8 mt-8 font-medium">
+	<div class="font-sans text-3xl lg:text-4xl leading-snug mb-8 mt-8 font-medium">
 		{#each wordsWithSeparators as wordString, index}
 			{#if index >= phraseBoundary.from && index <= phraseBoundary.to}
 				{#if index == phraseBoundary.from}

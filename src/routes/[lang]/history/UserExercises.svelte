@@ -32,7 +32,7 @@
 </p>
 
 <div
-	class="grid gap-3 items-baseline grid-cols-[auto_1fr_auto] md:grid-cols-[1fr_auto] text-sm mb-4"
+	class="grid gap-3 items-baseline grid-cols-[auto_1fr_auto] md:grid-cols-[1fr_auto] text-base mb-4"
 >
 	{#each showAll ? exercises : exercises.slice(0, 6) as exercise}
 		<div

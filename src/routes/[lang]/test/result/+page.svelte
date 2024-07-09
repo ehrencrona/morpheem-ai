@@ -18,7 +18,7 @@
 	}
 </script>
 
-<h1 class="text-3xl font-bold mt-12 mb-8">Done!</h1>
+<h1 class="font-sans text-2xl font-bold mt-12 mb-8">Done!</h1>
 
 <div class="max-w-[600px]">
 	<p class="mb-4">

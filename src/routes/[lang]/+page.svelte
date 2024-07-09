@@ -405,7 +405,7 @@
 	}
 </script>
 
-<main class="font-sans bold w-full" use:trackActivity>
+<main class="w-full" use:trackActivity>
 	{#if wordsKnown}
 		<a
 			href="{languageCode}/progress"

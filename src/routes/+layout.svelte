@@ -8,7 +8,7 @@
 
 <Menu></Menu>
 
-<div class="flex align-center justify-center p-4 pb-[170px]">
+<div class="flex align-center justify-center p-4 pb-[170px] font-lato">
 	<div class="w-full {isWide ? `lg:w-[900px]` : `lg:w-[800px]`}">
 		<slot />
 	</div>

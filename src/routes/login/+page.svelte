@@ -7,7 +7,7 @@
 
 <div class="flex justify-center align-center">
 	<div>
-		<h1 class="font-bold text-3xl mb-6 mt-12">Log in</h1>
+		<h1 class="font-sans font-bold text-2xl mb-6 mt-12">Log in</h1>
 
 		{#if form?.message}
 			<p class="text-red text-sm mb-6">

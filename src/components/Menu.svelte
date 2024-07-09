@@ -92,7 +92,7 @@
 						{#each languages as language}
 							<a
 								href={`/${language.code}`}
-								class="text-sm text-xs p-[3px] rounded bg-gray-1 text-white"
+								class="text-xs p-[3px] rounded bg-gray-1 text-white"
 							>
 								{language.code.toUpperCase()}
 							</a>
@@ -103,13 +103,13 @@
 		</div>
 	{/if}
 
-	<nav class="absolute hidden lg:block w-[100px] xl:w-[180px]">
+	<nav class="absolute hidden lg:block w-[100px] xl:w-[180px] font-lato">
 		<ul class="mt-8 xl:ml-4">
 			{#each links as link}
-				<li class="px-2 mb-2 text-sm">
+				<li class="px-2 mb-2 text-base">
 					<a
 						href={link.href}
-						class={`block p-1 px-3 ${link.active ? 'bg-light-gray font-bold rounded-lg' : ''}`}
+						class={`block p-1 px-3 ${link.active ? 'bg-light-gray font-sans font-bold rounded-lg' : 'text-gray-1'}`}
 						>{link.name}</a
 					>
 				</li>

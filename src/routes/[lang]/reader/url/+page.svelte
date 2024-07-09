@@ -148,7 +148,7 @@
 </script>
 
 <main use:trackActivity>
-	<h3 class="mt-4 mb-2">
+	<h3 class="mt-8 mb-2">
 		<a
 			href={data.articleUrl}
 			class="text-blue-3 underline text-xs"
@@ -168,7 +168,7 @@
 	</h3>
 
 	<div class="grid grid-flow-row{translatedTitle ? ` md:grid-cols-2` : ''} items-start gap-8">
-		<h1 class="text-3xl lg:text-4xl mb-4 leading-tight font-bold">
+		<h1 class="font-sans text-3xl lg:text-4xl mb-4 leading-tight font-bold">
 			<ParagraphComponent text={data.title || ''} {language} {unknown} {onClickedWord} />
 
 			{#if translatedTitle?.transliteration && showTransliteration}
@@ -177,7 +177,7 @@
 		</h1>
 
 		{#if translatedTitle}
-			<h1 class="text-2xl mb-4 leading-tight font-bold">
+			<h1 class="text-2xl font-sans mb-4 leading-tight font-bold">
 				{translatedTitle.translation}
 			</h1>
 		{/if}
@@ -195,7 +195,7 @@
 			? ` md:grid-cols-2`
 			: ''} items-start gap-8"
 	>
-		<div class="text-xl mb-4 mt-2 font-medium flex flex-col gap-4">
+		<div class="font-sans text-xl mb-4 mt-2 font-medium flex flex-col gap-4">
 			{#each page as paragraph, index}
 				<div class={paragraph.style == 'h' ? 'font-bold' : ''}>
 					<ParagraphComponent text={paragraph.text} {language} {unknown} {onClickedWord} />
@@ -210,12 +210,12 @@
 		</div>
 
 		{#if translatedParagraphs?.length}
-			<div class="text-sm mb-6 mt-2" in:slide>
-				<div class="text-xs font-lato block md:hidden mb-1">The paragraph means</div>
+			<div class="mb-6 mt-2" in:slide>
+				<div class="text-xs font-lato block md:hidden mb-2">Translation:</div>
 
 				<div class="flex flex-col gap-4">
 					{#each translatedParagraphs as translated}
-						<div class="text-base">{translated.translation}</div>
+						<div class="text-base lg:text-lg">{translated.translation}</div>
 					{/each}
 				</div>
 			</div>

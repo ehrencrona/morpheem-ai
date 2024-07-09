@@ -22,7 +22,7 @@
 </script>
 
 {#if sentenceIndex == -1}
-	<h1 class="text-3xl font-bold mt-12 mb-8">1. Reading comprehension</h1>
+	<h1 class="text-2xl font-sans font-bold mt-12 mb-8">1. Reading comprehension</h1>
 
 	<div class="max-w-[600px]">
 		<p class="mb-4">

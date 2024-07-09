@@ -26,7 +26,7 @@
 	$: setShowTransliteration(doTransliterate);
 </script>
 
-<h1 class="text-2xl mb-8 mt-8">Settings</h1>
+<h1 class="text-2xl font-sans font-bold mb-8 mt-8">Settings</h1>
 
 <label class="block mt-4 mb-4">
 	<input type="checkbox" bind:checked={doTransliterate} class="mr-1" />
