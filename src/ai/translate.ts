@@ -66,19 +66,15 @@ export async function translateWordInContext(
 
 export async function translateSentences(
 	sentences: string[],
-	{
-		temperature = 0.5,
-		instruction,
-		language,
-		retriesLeft = 1
-	}: {
-		temperature?: number;
-		instruction?: string;
-		variableName?: string;
-		retriesLeft?: number;
+	opts: {
 		language: Language;
+		temperature?: number;
+		retriesLeft?: number;
+		literalTranslation?: boolean;
 	}
 ): Promise<{ translations: string[]; transliterations?: string[] }> {
+	const { temperature = 0.5, language, retriesLeft = 1, literalTranslation = false } = opts;
+
 	if (sentences.length === 0) {
 		return { translations: [] };
 	}
@@ -86,11 +82,11 @@ export async function translateSentences(
 	let { translations, transliterations } = await askForJson({
 		messages: toMessages({
 			instruction:
-				instruction ||
 				`Translate the sentences in the JSON from ${language.name} to English.` +
-					(language.isLatin
-						? '\nReturn it as { translations: string[] }.'
-						: '\nAlso provide the transliteration in Latin script as a string array. Return it in the format { translations: string[], transliterations: string[] }'),
+				(literalTranslation ? ' Prefer a somewhat literal translation.' : '') +
+				(language.isLatin
+					? '\nReturn it as { translations: string[] }.'
+					: '\nAlso provide the transliteration in Latin script as a string array. Return it in the format { translations: string[], transliterations: string[] }'),
 			prompt: JSON.stringify({ sentences })
 		}),
 		temperature,
@@ -119,9 +115,8 @@ export async function translateSentences(
 			console.error('Retrying with higher temperature...');
 
 			return translateSentences(sentences, {
+				...opts,
 				temperature: temperature + (2 - temperature) / 2,
-				instruction,
-				language,
 				retriesLeft: retriesLeft - 1
 			});
 		} else {

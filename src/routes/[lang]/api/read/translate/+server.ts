@@ -14,7 +14,8 @@ export const POST: ServerLoad = async ({ request, locals: { language, userId } }
 	const { text } = postSchema.parse(await request.json());
 
 	const translation = await translateSentences([text], {
-		language
+		language,
+		literalTranslation: false
 	});
 
 	return json({

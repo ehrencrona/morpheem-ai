@@ -14,7 +14,8 @@ export async function addEnglishToSentence(
 ): Promise<DB.Sentence & { english: string }> {
 	if (!sentence.english) {
 		const { translations, transliterations } = await translateSentences([sentence.sentence], {
-			language
+			language,
+			literalTranslation: true
 		});
 
 		sentence.english = translations[0];
