@@ -9,6 +9,9 @@ export interface Fragment {
 export function translationToFragments(englishSentence: string, clauses: Clause[]): Fragment[] {
 	const words = toWordsWithSeparators(englishSentence, { code: 'en' });
 
+	const escape = (string: string) => string.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+	const matchWord = (string: string) => new RegExp(`\\b${escape(string.toLowerCase())}\\b`);
+
 	let fragments: Fragment[] = [];
 
 	let atWord = 0;
@@ -16,9 +19,8 @@ export function translationToFragments(englishSentence: string, clauses: Clause[
 	while (atWord < words.length) {
 		const wordString = words[atWord];
 
-		const fragmentClauses = clauses.filter((clause) =>
-			clause.english.toLowerCase().includes(wordString.toLowerCase())
-		);
+		const regexp = matchWord(wordString.toLowerCase());
+		const fragmentClauses = clauses.filter((clause) => regexp.test(clause.english.toLowerCase()));
 
 		if (!isSeparator(wordString) && fragmentClauses.length) {
 			let fragment: Fragment = {
@@ -30,8 +32,9 @@ export function translationToFragments(englishSentence: string, clauses: Clause[
 			for (let fragmentLength = 1; fragmentLength < words.length - atWord; fragmentLength++) {
 				let fragmentString = fragment.fragment + words[atWord + fragmentLength];
 
+				const regexp = matchWord(fragmentString);
 				const fragmentClauses = clauses.filter((clause) =>
-					clause.english.toLowerCase().includes(fragmentString.toLowerCase())
+					regexp.test(clause.english.toLowerCase())
 				);
 
 				if (fragmentClauses.length == 0) {
