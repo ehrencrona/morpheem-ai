@@ -17,7 +17,8 @@ export const GET: ServerLoad = async ({ params, locals: { language } }) => {
 
 	return new Response(buffer, {
 		headers: {
-			'Content-Type': 'audio/opus'
+			'Content-Type': 'audio/opus',
+			'cache-control': 'public, max-age=31536000, immutable'
 		}
 	});
 };

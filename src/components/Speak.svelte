@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 
 	export let url: string;
+	export let isPreload = false;
 
 	let audioPlayer: HTMLAudioElement;
 	let autoplay: boolean = false;
@@ -14,11 +15,9 @@
 		autoplay = storedAutoplay === 'true';
 	});
 
-	$: if (url) {
+	$: if (url && !isPreload) {
 		onUrlChange();
 	}
-
-	onMount(onUrlChange);
 
 	function onUrlChange() {
 		if (autoplay) {
@@ -48,9 +47,11 @@
 
 <audio bind:this={audioPlayer} autoplay></audio>
 
-<div class="flex gap-4 mt-8">
-	<button class="text-xs font-lato underline text-red" on:click={play}>Play</button>
-	<button class="text-xs font-lato underline text-red" on:click={toggleAutoplay}>
-		{autoplay ? 'Read: on' : 'Silent'}
-	</button>
-</div>
+{#if !isPreload}
+	<div class="flex gap-4 mt-8">
+		<button class="text-xs font-lato underline text-red" on:click={play}>Play</button>
+		<button class="text-xs font-lato underline text-red" on:click={toggleAutoplay}>
+			{autoplay ? 'Read: on' : 'Silent'}
+		</button>
+	</div>
+{/if}
