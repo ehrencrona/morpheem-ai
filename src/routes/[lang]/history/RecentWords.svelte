@@ -40,7 +40,7 @@
 				on:click={() => onUnknown(word.knowledge)}
 				type="button"
 			>
-				<div class="text-xs flex items-center w-full">
+				<div class="text-sm flex items-center w-full">
 					<span class="flex-1">{word.knowledge.word}</span>
 					<span class="text-xxs font-lato ml-1">
 						{toPercent(

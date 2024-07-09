@@ -12,7 +12,7 @@
 	</p>
 {/if}
 
-<div class="grid grid-cols-1 md:grid-cols-2 w-full gap-x-4 text-xs">
+<div class="grid grid-cols-1 md:grid-cols-2 w-full gap-x-4 text-sm">
 	{#each showAll ? sentences : sentences.slice(0, 6) as sentence}
 		<div class="bg-light-gray rounded-md px-4 py-3 w-full mb-4">
 			{sentence.sentence}
