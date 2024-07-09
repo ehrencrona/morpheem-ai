@@ -165,7 +165,8 @@ export async function getUserExercise(
 export async function getUserExercises(
 	userId: number,
 	language: Language,
-	orderBy?: 'last_time desc'
+	orderBy?: 'last_time desc',
+	limit?: number
 ): Promise<UserExercise[]> {
 	let query = db
 		.withSchema(language.code)
@@ -188,6 +189,10 @@ export async function getUserExercises(
 
 	if (orderBy == 'last_time desc') {
 		query = query.orderBy('last_time desc');
+	}
+
+	if (limit != null) {
+		query = query.limit(limit);
 	}
 
 	return filterUndefineds(

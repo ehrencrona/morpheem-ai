@@ -22,3 +22,17 @@ test('evaluateWrite', async ({}) => {
 		}
 	]);
 });
+
+test.only('evaluateWrite', async ({}) => {
+	const result = await evaluateWrite(
+		{
+			exercise: 'translate',
+			english: 'On holidays we visit family.',
+			entered: 'Na wakacje my odwiedzamy rodzinę.',
+			correct: 'W święto odwiedzamy rodzinę.'
+		},
+		POLISH
+	);
+
+	console.log(result);
+});

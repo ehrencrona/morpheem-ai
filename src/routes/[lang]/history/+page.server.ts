@@ -1,8 +1,12 @@
+import { formatMinutes } from '$lib/formatMinutes';
 import { redirectToLogin } from '$lib/redirectToLogin';
 import { type ServerLoad } from '@sveltejs/kit';
 import { getRecentKnowledge, getRecentReadSentences } from '../../../db/knowledge';
+import { getSentencesByIds } from '../../../db/sentences';
+import { getUserExercises } from '../../../db/userExercises';
 import { getActivity } from '../../../db/wordsKnown';
 import { getRecentWrittenSentences } from '../../../db/writtenSentences';
+import { timeToDate } from '../../../logic/isomorphic/knowledge';
 
 export const load = (async ({ locals, url }) => {
 	const { language } = locals;
@@ -13,13 +17,33 @@ export const load = (async ({ locals, url }) => {
 
 	const userId = locals.user.num;
 
-	return {
-		knowledge: await getRecentKnowledge({
+	const [exercises, knowledge, writtenSentences, readSentences, activity] = await Promise.all([
+		getUserExercises(userId, language, 'last_time desc', 20),
+		getRecentKnowledge({
 			userId,
 			language
 		}),
-		writtenSentences: await getRecentWrittenSentences({ userId, language }),
-		readSentences: await getRecentReadSentences({ userId, language }),
-		activity: await getActivity(userId, language)
+		getRecentWrittenSentences({ userId, language }),
+		getRecentReadSentences({ userId, language }),
+		getActivity(userId, language)
+	]);
+
+	const exerciseSentences = await getSentencesByIds(
+		exercises.map((exercise) => exercise.sentenceId),
+		language
+	);
+
+	return {
+		knowledge,
+		writtenSentences,
+		readSentences,
+		activity,
+		exercises: exercises
+			.map((exercise) => ({
+				sentence: exerciseSentences.find((sentence) => sentence.id === exercise.sentenceId),
+				...exercise,
+				timeAgo: formatMinutes((Date.now() - timeToDate(exercise.lastTime).getTime()) / 60000)
+			}))
+			.filter((exercise) => !!exercise.sentence)
 	};
 }) satisfies ServerLoad;
