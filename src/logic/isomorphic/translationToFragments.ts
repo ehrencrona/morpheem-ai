@@ -7,7 +7,7 @@ export interface Fragment {
 }
 
 export function translationToFragments(englishSentence: string, clauses: Clause[]): Fragment[] {
-	const words = toWordsWithSeparators(englishSentence, { code: 'en' });
+	const englishWords = toWordsWithSeparators(englishSentence, { code: 'en' });
 
 	const escape = (string: string) => string.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
 	const matchWord = (string: string) => new RegExp(`\\b${escape(string.toLowerCase())}\\b`);
@@ -16,21 +16,44 @@ export function translationToFragments(englishSentence: string, clauses: Clause[
 
 	let atWord = 0;
 
-	while (atWord < words.length) {
-		const wordString = words[atWord];
+	while (atWord < englishWords.length) {
+		const wordString = englishWords[atWord];
 
-		const regexp = matchWord(wordString.toLowerCase());
+		const regexp = matchWord(wordString);
 		const fragmentClauses = clauses.filter((clause) => regexp.test(clause.english.toLowerCase()));
 
 		if (!isSeparator(wordString) && fragmentClauses.length) {
-			let fragment: Fragment = {
-				fragment: wordString,
+			let current = {
+				words: [wordString],
 				clauses: fragmentClauses
 			};
 			let didFind = false;
 
-			for (let fragmentLength = 1; fragmentLength < words.length - atWord; fragmentLength++) {
-				let fragmentString = fragment.fragment + words[atWord + fragmentLength];
+			function foundFragment() {
+				let lastWord = current.words.pop()!;
+
+				if (isSeparator(lastWord)) {
+					fragments.push({
+						fragment: current.words.join(''),
+						clauses: current.clauses
+					});
+
+					fragments.push({ fragment: lastWord, clauses: [] });
+				} else {
+					fragments.push({
+						fragment: current.words.join('') + lastWord,
+						clauses: current.clauses
+					});
+				}
+			}
+
+			for (
+				let fragmentLength = 1;
+				fragmentLength < englishWords.length - atWord;
+				fragmentLength++
+			) {
+				const word = englishWords[atWord + fragmentLength];
+				let fragmentString = current.words.join('') + word;
 
 				const regexp = matchWord(fragmentString);
 				const fragmentClauses = clauses.filter((clause) =>
@@ -38,23 +61,24 @@ export function translationToFragments(englishSentence: string, clauses: Clause[
 				);
 
 				if (fragmentClauses.length == 0) {
-					fragments.push(fragment);
+					foundFragment();
+
 					atWord += fragmentLength;
 
 					didFind = true;
 					break;
 				} else {
-					fragment = {
-						fragment: fragmentString,
+					current = {
+						words: current.words.concat(word),
 						clauses: fragmentClauses
 					};
 				}
 			}
 
 			if (!didFind) {
-				fragments.push(fragment);
+				foundFragment();
 
-				atWord = words.length;
+				atWord = englishWords.length;
 			}
 		} else {
 			fragments.push({ fragment: wordString, clauses: [] });

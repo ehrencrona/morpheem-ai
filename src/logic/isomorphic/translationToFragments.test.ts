@@ -2,7 +2,7 @@ import { expect, test } from 'vitest';
 import { Clause } from '../../ai/splitIntoClauses';
 import { translationToFragments } from './translationToFragments';
 
-test('translationToClauses Dutch', async () => {
+test('translationToFragments Dutch', async () => {
 	const sentence = {
 		sentence: `Ze zeggen wel eens: 'Zonder plan ben je als een dichte doos zonder sleutel.'`,
 		english: `They sometimes say: 'Without a plan you are like a closed box without a key.'`
@@ -21,13 +21,17 @@ test('translationToClauses Dutch', async () => {
 
 	expect(fragments).toEqual([
 		{
-			fragment: 'They ',
+			fragment: 'They',
 			clauses: [
 				{
 					sentence: 'Ze zeggen',
 					english: 'They say'
 				}
 			]
+		},
+		{
+			fragment: ' ',
+			clauses: []
 		},
 		{
 			fragment: 'sometimes',
@@ -110,7 +114,7 @@ test('translationToClauses Dutch', async () => {
 	]);
 });
 
-test('translationToClauses', async () => {
+test('translationToFragments', async () => {
 	const sentence = {
 		sentence: 'Długo szukałam idealnej sukienki na wesele mojej przyjaciółki.',
 		english: "I searched for the perfect dress for my friend's wedding for a long time."
