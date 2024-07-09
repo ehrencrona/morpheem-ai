@@ -29,6 +29,19 @@ it('adds context when translating words', async () => {
 	expect(res.english).toEqual('she invited');
 });
 
+it.only('works', async () => {
+	const res = await translateWordInContext(
+		'wynosił',
+		{
+			sentence: 'Wynosił się z domu bez żadnego słowa.',
+			english: 'He left the house without a word.'
+		},
+		POLISH
+	);
+
+	expect(res.english).toEqual('he left');
+});
+
 it('translates words out of context', async () => {
 	const res = await translateWordInContext('zaprosić', undefined, POLISH);
 

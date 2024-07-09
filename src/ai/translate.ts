@@ -29,7 +29,7 @@ export async function translateWordInContext(
 				role: 'user',
 				content:
 					(sentence
-						? `The ${language.name} sentence "${sentence.sentence}" translates to "${sentence.english}". What part of the English sentence corresponds to the word "${lemma}"? Answer only with the fragment of the sentence (i.e. no need to capitalize it)`
+						? `The ${language.name} sentence "${sentence.sentence}" translates to "${sentence.english}". What part(s) of the English sentence corresponds to the word "${lemma}"? Answer only with the fragment of the sentence (i.e. no need to capitalize it).`
 						: `What is the English translation of the ${language.name} word "${lemma}"? Only answer with the definition (as a fragment; no final full stop).`) +
 					` ` +
 					(isFormWanted
