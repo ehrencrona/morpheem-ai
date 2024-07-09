@@ -233,6 +233,28 @@ export async function evaluateWriteFromAiOutput({
 		userExercises = userExercises.slice(0, 2);
 	}
 
+	if (
+		userExercises.some(
+			(e) => e.exercise == 'phrase-cloze' && e.phrase.length > (correctedSentence.length * 3) / 4
+		)
+	) {
+		console.log(
+			`Phrase exercise is almost the full sentence. Switching to a translation exercise.`
+		);
+
+		userExercises = [
+			{
+				exercise: 'translate',
+				id: null,
+				sentenceId: -1,
+				isKnown: false,
+				// ???
+				level: 20,
+				severity: 2
+			}
+		];
+	}
+
 	return {
 		isCorrect,
 		feedback,
