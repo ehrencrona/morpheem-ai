@@ -168,6 +168,7 @@
 				: {
 						exercise,
 						english: translation?.english || '',
+						correct: sentence.sentence,
 						entered,
 						revealedClauses
 					}

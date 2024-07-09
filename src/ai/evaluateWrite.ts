@@ -18,7 +18,10 @@ const writeEvaluationSchema = z.object({
 export type CorrectedPart = z.infer<typeof correctedPartSchema>;
 
 export async function evaluateWrite(
-	exercise: ({ exercise: 'translate'; english: string } | { exercise: 'write'; word: string }) & {
+	exercise: (
+		| { exercise: 'translate'; english: string; correct: string }
+		| { exercise: 'write'; word: string }
+	) & {
 		entered: string;
 	},
 	language: Language
@@ -32,8 +35,8 @@ export async function evaluateWrite(
 					`The user is learning ${language.name} and ` +
 					(exercise.exercise == 'write'
 						? `is doing an exercise to write a sentence using "${exercise.word}". `
-						: `has been asked to translate a sentence as an exercise. `) +
-					`Correct the sentence so that it grammatically correct, idiomatic and conveys the intended meaning. ` +
+						: `has been asked to translate a sentence as an exercise. The expected answer is "${exercise.correct}" `) +
+					`Correct the user's answer so that it grammatically correct, idiomatic and conveys the intended meaning.${exercise.exercise == 'write' ? '' : ' Prefer the expected answer, but if the user chose different, equivalent expressions, that is ok.'} ` +
 					`Then briefly but friendly give feedback, explaining why the corrections had to be applied. Write in English. ` +
 					`For grammatical errors, explain why the error in grammatical terms. ` +
 					`Also return a list of your corrections, in the exact same way they are written in the corrected sentence together with what the user wrote (when applicable) and the English translation of (only) the correction (if applicable). ` +

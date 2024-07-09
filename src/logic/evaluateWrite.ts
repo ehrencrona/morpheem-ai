@@ -31,6 +31,7 @@ export const writeEvaluationOptsSchema = z
 			exercise: z.literal('translate'),
 			entered: z.string(),
 			english: z.string(),
+			correct: z.string(),
 			revealedClauses: z.array(
 				z.object({
 					sentence: z.string(),
