@@ -1,8 +1,6 @@
 <script lang="ts">
 	import Plot from 'svelte-plotly.js';
 	import type { PageData } from './$types';
-	import RecentSentences from './RecentSentences.svelte';
-	import RecentWords from './RecentWords.svelte';
 
 	export let data: PageData;
 
@@ -22,7 +20,7 @@
 	let readTrace = {
 		x: readData.map(({ day }) => day),
 		y: readData.map(({ y }) => y),
-		type: 'scatter',
+		type: 'scatter'
 	};
 
 	const writeData = data.activity
@@ -35,7 +33,7 @@
 	let writeTrace = {
 		x: writeData.map(({ day }) => day),
 		y: writeData.map(({ y }) => y),
-		type: 'scatter',
+		type: 'scatter'
 	};
 
 	const timeData = data.activity
@@ -52,7 +50,16 @@
 
 <h1 class="text-2xl mb-8 mt-8">Your Progress</h1>
 
-<div class="flex flex-wrap mb-8">
+<p class="mb-4 text-sm font-lato">
+	{#if data.activity.length > 0}
+		This shows the development of your active and passive vocabulary and how much time you've been
+		studying.
+	{:else}
+		No data yet. Start reading articles or doing exercises and check back in a day. You will see how your vocabulary has developed during your studies.
+	{/if}
+</p>
+
+<div class="flex flex-wrap mb-8 mt-12">
 	{#if readTrace.x.length > 2 || writeTrace.x.length > 2}
 		<div class="h-[200px] min-w-[300px] flex-1">
 			<div class="text-center text-xs font-lato">Vocabulary</div>
@@ -91,29 +98,31 @@
 	{/if}
 </div>
 
-<div class="mt-16 grid grid-cols-5 gap-h-1 max-w-[700px] text-xs w-full font-lato">
-	<div class="col-span-3"></div>
-	<div class="col-span-2 text-right">Vocabulary size</div>
-	<div class="pb-1 border-b border-blue-2">Date</div>
-	<div class="pb-1 text-right border-b border-blue-2">Time spent</div>
-	<div class="pb-1 text-right border-b border-blue-2">Sentences</div>
-	<div class="pb-1 text-right border-b border-blue-2">Passive</div>
-	<div class="pb-1 text-right border-b border-blue-2">Active</div>
-	{#each data.activity.slice(0, 10) as date}
-		<div class="pt-1 border-r border-blue-2">
-			{dateFormat.format(date.date)}
-		</div>
-		<div class="pt-1 text-right">
-			{date.minutes_spent} min
-		</div>
-		<div class="pt-1 text-right">
-			{date.sentences_done}
-		</div>
-		<div class="pt-1 text-right">
-			{formatNumber(date.words_known)} <span class="hidden md:inline">words</span>
-		</div>
-		<div class="pt-1 text-right">
-			{formatNumber(date.words_known_write)} <span class="hidden md:inline">words</span>
-		</div>
-	{/each}
-</div>
+{#if data.activity.length > 0}
+	<div class="mt-16 grid grid-cols-5 gap-h-1 max-w-[700px] text-xs w-full font-lato">
+		<div class="col-span-3"></div>
+		<div class="col-span-2 text-right">Vocabulary size</div>
+		<div class="pb-1 border-b border-blue-2">Date</div>
+		<div class="pb-1 text-right border-b border-blue-2">Time spent</div>
+		<div class="pb-1 text-right border-b border-blue-2">Sentences</div>
+		<div class="pb-1 text-right border-b border-blue-2">Passive</div>
+		<div class="pb-1 text-right border-b border-blue-2">Active</div>
+		{#each data.activity.slice(0, 10) as date}
+			<div class="pt-1 border-r border-blue-2">
+				{dateFormat.format(date.date)}
+			</div>
+			<div class="pt-1 text-right">
+				{date.minutes_spent} min
+			</div>
+			<div class="pt-1 text-right">
+				{date.sentences_done}
+			</div>
+			<div class="pt-1 text-right">
+				{formatNumber(date.words_known)} <span class="hidden md:inline">words</span>
+			</div>
+			<div class="pt-1 text-right">
+				{formatNumber(date.words_known_write)} <span class="hidden md:inline">words</span>
+			</div>
+		{/each}
+	</div>
+{/if}

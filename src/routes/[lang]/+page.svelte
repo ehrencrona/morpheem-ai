@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/stores';
+	import { exerciseToString } from '$lib/exerciseToString';
+	import { filterUndefineds } from '$lib/filterUndefineds';
 	import { logError } from '$lib/logError';
 	import { getClozePreference } from '$lib/settings';
 	import { toPercent } from '$lib/toPercent';
@@ -40,10 +42,8 @@
 	import Cloze from './learn/Cloze.svelte';
 	import PhraseCloze from './learn/PhraseCloze.svelte';
 	import ReadSentence from './learn/ReadSentence.svelte';
-	import WriteSentence from './learn/WriteSentence.svelte';
-	import { exerciseToString } from '$lib/exerciseToString';
 	import { trackActivity } from './learn/trackActivity';
-	import { filterUndefineds } from '$lib/filterUndefineds';
+	import WriteSentence from './learn/WriteSentence.svelte';
 
 	export let data: PageData;
 
@@ -448,7 +448,8 @@
 				If you don't want to start from a complete beginner level, take the <a
 					href={`${data.languageCode}/test`}
 					class="underline">placement test</a
-				>.
+				>
+				or use the <a href={`/${data.languageCode}/reader`}>reader</a> to read a text.`}.
 			</p>
 		{/if}
 

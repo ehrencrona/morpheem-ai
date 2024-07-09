@@ -249,7 +249,7 @@
 	<Tutorial
 		id="reader"
 		paragraphs={[
-			"Click on words you don't know to reveal their meaning.",
+			"Click on words you don't know to reveal their meaning. These will be turned into exercises.",
 			'Pressing next will mark that you know all other words in the paragraph.'
 		]}
 	/>

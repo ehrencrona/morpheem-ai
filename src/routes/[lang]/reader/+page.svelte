@@ -15,9 +15,9 @@
 
 <h1 class="text-2xl mb-6 mt-8">Reader</h1>
 
-<p class="mb-8 text-xs font-lato">
+<p class="mb-8 text-sm font-lato">
 	Import a {getLanguageOnClient().name} article from another website. You will get tools to translate
-	and simplify the text. Any words you read will feed into your exercises.
+	and simplify the text. Any unknown words will feed into your exercises.
 </p>
 
 {#if history.length > 0}
@@ -34,7 +34,7 @@
 	</ul>
 {/if}
 
-<p class="mb-2 text-xs font-lato">Article URL</p>
+<p class="mb-2 text-sm font-lato">Article URL</p>
 
 <form>
 	<input

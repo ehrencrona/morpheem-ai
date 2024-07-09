@@ -26,6 +26,10 @@
 			href: '/history'
 		},
 		{
+			name: 'Placement test',
+			href: '/test'
+		},
+		{
 			name: 'Add exercises',
 			href: '/add-exercises'
 		},
