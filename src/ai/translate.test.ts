@@ -29,7 +29,7 @@ it('adds context when translating words', async () => {
 	expect(res.english).toEqual('she invited');
 });
 
-it.only('works', async () => {
+it('handles wynosić', async () => {
 	const res = await translateWordInContext(
 		'wynosił',
 		{
