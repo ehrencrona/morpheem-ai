@@ -194,9 +194,7 @@
 	id="phrase-cloze"
 />
 
-{#if evaluation}
-	<Speak url={`/${language.code}/api/sentences/${sentence.id}/tts.opus`} />
-{/if}
+<Speak url={`/${language.code}/api/sentences/${sentence.id}/tts.opus`} isPreload={!evaluation} />
 
 <Ama
 	wordId={/* TODO */
