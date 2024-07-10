@@ -10,9 +10,9 @@ export async function simplifyText(
 			{
 				role: 'system',
 				content:
-					`Rewrite the following text in simpler ${language.name}. Some changes in meaning are acceptable if necessary to simplify the text.` +
+					`Rewrite the following text in simpler ${language.name}. Reformulate difficult terms in simpler words. Some changes in meaning are acceptable if necessary to simplify the text.` +
 					(hardWords?.length
-						? ` Some of these words might be considered difficult: ${hardWords.join(', ')}.`
+						? ` Some of these words might be difficult: ${hardWords.join(', ')}.`
 						: '')
 			},
 			{
