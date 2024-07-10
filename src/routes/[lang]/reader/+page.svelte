@@ -26,9 +26,9 @@
 			<li class="mb-3">
 				<a
 					href="./reader/url?url={encodeURIComponent(item.url)}"
-					class="text-blue-4 underline text-lg">{item.title}</a
+					class="text-blue-4 underline text-base">{item.title}</a
 				>
-				<div class="font-lato text-sm">{new URL(item.url).host} {item.date}</div>
+				<div class="font-lato text-xs">{new URL(item.url).host} {item.date}</div>
 			</li>
 		{/each}
 	</ul>

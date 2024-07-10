@@ -195,13 +195,13 @@
 			? ` md:grid-cols-2`
 			: ''} items-start gap-8"
 	>
-		<div class="font-sans text-xl mb-4 mt-2 font-medium flex flex-col gap-4">
+		<div class="text-lg mb-4 mt-2 font-medium flex flex-col gap-4">
 			{#each page as paragraph, index}
 				<div class={paragraph.style == 'h' ? 'font-bold' : ''}>
 					<ParagraphComponent text={paragraph.text} {language} {unknown} {onClickedWord} />
 
 					{#if translatedParagraphs?.[index].transliteration && showTransliteration}
-						<div class="text-xs font-lato mt-2">
+						<div class="text-xs mt-2">
 							{translatedParagraphs[index].transliteration}
 						</div>
 					{/if}
@@ -211,18 +211,18 @@
 
 		{#if translatedParagraphs?.length}
 			<div class="mb-6 mt-2" in:slide>
-				<div class="text-xs font-lato block md:hidden mb-2">Translation:</div>
+				<div class="text-xs block md:hidden mb-2">Translation:</div>
 
 				<div class="flex flex-col gap-4">
 					{#each translatedParagraphs as translated}
-						<div class="text-base lg:text-lg">{translated.translation}</div>
+						<div class="text-base">{translated.translation}</div>
 					{/each}
 				</div>
 			</div>
 		{/if}
 	</div>
 
-	<div class="grid grid-cols-1 md:grid-cols-2 w-full gap-x-4">
+	<div class="grid grid-cols-1 md:grid-cols-2 w-full gap-x-4 mt-8">
 		{#each unknown as word (word.id)}
 			<WordCard {word} onRemove={() => onRemoveUnknown(word.word)} />
 		{/each}

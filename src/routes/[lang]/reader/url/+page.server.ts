@@ -31,12 +31,9 @@ export const load: ServerLoad = async ({ locals: { language }, url }) => {
 		}
 	}
 
-	function paragraphEnds(isEnd = false) {
+	function paragraphEnds() {
 		if (currentParagraph.trim()) {
-			if (
-				style == 'p' &&
-				(isEnd || currentPage.reduce((acc, { text }) => acc + text.length, 0) > 120 || style == 'p')
-			) {
+			if (currentPage.reduce((acc, { text }) => acc + text.length, 0) > 120) {
 				pageEnds();
 			}
 
@@ -54,6 +51,7 @@ export const load: ServerLoad = async ({ locals: { language }, url }) => {
 		onopentag(name, attributes) {
 			if (name[0] == 'h' && name.length == 2) {
 				style = 'h';
+				pageEnds();
 			}
 		},
 		ontext(text) {
@@ -61,13 +59,13 @@ export const load: ServerLoad = async ({ locals: { language }, url }) => {
 		},
 
 		onclosetag(tagname) {
-			if (tagname === 'p' || tagname == 'div') {
+			if (tagname === 'p' || tagname == 'div' || (tagname[0] == 'h' && tagname.length == 2)) {
 				paragraphEnds();
 			}
 		}
 	});
 
-	paragraphEnds(true);
+	paragraphEnds();
 	pageEnds();
 
 	parser.write(article!.content || '');
