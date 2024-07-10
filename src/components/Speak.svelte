@@ -22,7 +22,7 @@
 	}
 
 	function onUrlChange() {
-		if (autoplay) {
+		if (autoplay && !isPreload) {
 			play();
 		}
 	}
