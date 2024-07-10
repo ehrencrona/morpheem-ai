@@ -52,6 +52,25 @@ describe('evaluateCloze', async () => {
 		expect(evaluation.outcome).toEqual('typo');
 	});
 
+	test('handles implied gender', async () => {
+		const cloze = {
+			cloze: `Powiedziała, żebym ______ wcześniej spać`,
+			hint: 'go',
+			correctAnswer: { conjugated: 'poszedł', word: 'pójść', id: 123 }
+		};
+
+		const evaluation = await evaluateCloze(
+			{
+				...cloze,
+				answered: 'poszła',
+				isRightLemma: false
+			},
+			{ language: POLISH }
+		);
+
+		expect(evaluation.outcome).toEqual('alternate');
+	});
+
 	test('handles alternate', async () => {
 		const evaluation = await evaluateCloze(
 			{
