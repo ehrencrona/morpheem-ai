@@ -13,6 +13,8 @@
 	onMount(() => {
 		const storedAutoplay = localStorage.getItem('autoplay');
 		autoplay = storedAutoplay === 'true';
+
+		onUrlChange();
 	});
 
 	$: if (url && !isPreload) {
