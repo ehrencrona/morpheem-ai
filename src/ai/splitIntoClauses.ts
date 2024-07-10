@@ -53,8 +53,8 @@ breaks down to
 };
 
 const commonPrompt = `determine which part of the translation corresponds to which part of the original sentence. 
-Break down the sentence into the shortest clauses that have a corresponding part of the English translation. 
-Return clauses with their corresponding part of the English sentence written exactly as in the English sentence provided. `;
+Break down the sentence into the shortest fragments that correspond to a part of the English translation. 
+Return fragments with their corresponding part of the English translation written exactly as in the English sentence provided. `;
 
 export async function splitIntoClauses(
 	{ sentence, english }: Pick<Sentence, 'sentence' | 'english'>,
