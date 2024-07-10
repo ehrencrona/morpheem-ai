@@ -32,9 +32,7 @@ async function getClauses(sentenceId: number, language: Language) {
 	} else {
 		({ translation: english, clauses } = await splitIntoClausesAndTranslate(sentence, language));
 
-		storeEnglish({ english: sentence.english || '' }, { sentenceId: sentence.id, language }).catch(
-			logError
-		);
+		storeEnglish({ english }, { sentenceId: sentence.id, language }).catch(logError);
 	}
 
 	return {

@@ -426,7 +426,7 @@
 				{/if}
 			</div>
 
-			<div class="font-lato text-xs flex gap-3 justify-end text-gray-1">
+			<div class="font-lato text-xxs flex gap-3 justify-end text-gray-1">
 				{#if current.id != null}
 					<div>
 						Exercise #{current.id}
@@ -437,7 +437,7 @@
 					Sentence #{current.sentence.id}
 				</div>
 
-				<a href={`/${languageCode}/sentences/${current?.sentence.id}/delete`} class="text-gray-1">
+				<a href={`/${languageCode}/sentences/${current?.sentence.id}/delete`} class="text-gray-1 underline">
 					Delete sentence
 				</a>
 			</div>
