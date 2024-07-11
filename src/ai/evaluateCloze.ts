@@ -34,7 +34,7 @@ export async function evaluateCloze(
 						? `Very briefly explain how the required grammatical form/inflection relates to the one I picked and why it is right or wrong in the field "evaluation". In "case", return "correct" or "wrongForm". Return JSON in the form \`{ evaluation: string, case: string }\``
 						: `First consider if the answer given is grammatically correct and fits the hint. ` +
 							`If my answer is incorrect, determine if the problem is grammatical agreement, spelling or wrong meaning. ` +
-							`If it is grammatical agreement, explain which form the user chose, the correct form and why the correct one should be preferred. Use grammatical terminology. ` +
+							`If it is grammatical agreement, explain which form I chose, the correct form and why the correct one should be preferred. Use grammatical terminology. ` +
 							`If it is wrong meaning, explain the meaning of the word I chose. Return the explanation in "evaluation".
 
 						Then determine the first of these cases that applies: 

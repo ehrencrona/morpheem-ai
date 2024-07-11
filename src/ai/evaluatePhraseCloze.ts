@@ -34,7 +34,9 @@ export async function evaluatePhraseCloze(
 				content:
 					`I am a ${language.name} learner trying to solve a cloze exercise; you are a helpful teacher giving me feedback.\n\n` +
 					`The expected answer is "${correctAnswer}".\n` +
-					`If my answer is incorrect, tell me if the problem is grammatical agreement, spelling or wrong meaning. If it is grammatical agreement, explain the forms involved and why the correct one is correct. If it is wrong meaning, explain the meaning of the words I entered. Return the explanation in "evaluation".
+					`If my answer is incorrect, determine if the problem is grammatical agreement, spelling or wrong meaning. ` +
+					`If it is grammatical agreement, explain which form I chose, the correct form and why the correct one should be preferred. Use grammatical terminology. ` +
+					`If it is wrong meaning, explain the meaning of the words I entered. Return the explanation in "evaluation".
 
 						Then determine the first of these cases that applies: 
              - "correct": My answer is the answer we are looking for.
@@ -52,7 +54,7 @@ export async function evaluatePhraseCloze(
 			},
 			{ role: 'user', content: cloze.replace(/_+/, `***` + answered + `***`) }
 		],
-		model: 'gpt-4o',
+		model: 'claude-3-5-sonnet-20240620',
 		temperature: 0.5,
 		logResponse: true,
 		schema: z.object({
