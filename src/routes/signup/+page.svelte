@@ -9,6 +9,11 @@
 	<div>
 		<h1 class="font-sans font-bold text-2xl mb-6 mt-12">Sign up</h1>
 
+		<p class="text-sm mb-6 text-balance">
+			Just choose a username and password and you'll immediately be up and running. No verification
+			required. Morpheem is completely free.
+		</p>
+
 		{#if form?.message}
 			<p class="text-red text-sm mb-6">
 				{form?.message}
@@ -34,7 +39,7 @@
 				class="bg-blue-1 rounded-sm block p-2 text-lg mb-2 w-80"
 			/>
 
-			<button class="text-blue-1 rounded-md px-6 py-1 m-2 ml-0 bg-blue-4 mt-6">Continue</button>
+			<button class="text-blue-1 rounded-md px-6 py-1 m-2 ml-0 bg-blue-4 mt-6">Sign up</button>
 
 			<a href="/login" class="text-blue-4 underline ml-4">Log in</a>
 		</form>

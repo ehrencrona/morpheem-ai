@@ -4,7 +4,7 @@
 
 <img src="/morpheem-logo-square.png" class="w-16 mx-auto mt-8" alt="Morpheem" />
 
-<p class="text-center text-sm mt-8 font-lato">Pick a language:</p>
+<p class="text-center text-sm mt-8 font-lato">What language do you want to learn?</p>
 
 <div class="w-full my-4 grid grid-cols-2 gap-12 max-w-[400px] mx-auto">
 	{#each [DUTCH, FRENCH, KOREAN, POLISH, RUSSIAN, SPANISH] as language}
