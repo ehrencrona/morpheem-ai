@@ -396,9 +396,9 @@
 				</div>
 			{/if}
 		{:else}
-			{#if exercise == 'translate'}
+			{#if exercise == 'translate' && translation}
 				<div class="text-sm mb-3">
-					Translate "{sentence.english}"
+					Translate "{translation.english}"
 				</div>
 			{/if}
 			{#if enteredParts}
