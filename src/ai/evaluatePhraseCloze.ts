@@ -32,8 +32,9 @@ export async function evaluatePhraseCloze(
 			{
 				role: 'system',
 				content:
-					`I am a ${language.name} learner trying to solve a cloze exercise; you are a helpful teacher giving me feedback.\n\n` +
-					`The expected answer is "${correctAnswer}".\n` +
+					`I am a ${language.name} learner trying to solve the following cloze exercise; you are a helpful teacher giving me feedback.\n\n` +
+					`Find the missing words:\n\n${cloze.replace(/_+/, `_______ ("${hint}")`)}\n\n` +
+					`The expected answer is "${correctAnswer}", but other answers might be possible. Do not make assumptions about gender, formality level etc, if they cannot be inferred from the context. \n` +
 					`If my answer is incorrect, determine if the problem is grammatical agreement, spelling or wrong meaning. ` +
 					`If it is grammatical agreement, explain which form I chose, the correct form and why the correct one should be preferred. Use grammatical terminology. ` +
 					`If it is wrong meaning, explain the meaning of the words I entered. Return the explanation in "evaluation".
@@ -47,10 +48,6 @@ export async function evaluatePhraseCloze(
 						I will be shown the right answer so no need to repeat it. Also no need to repeat my answer. 
 						
 						Return JSON in the form \`{ evaluation: string, case: string, corrected?: string }\``
-			},
-			{
-				role: 'assistant',
-				content: `Find the missing words:\n\n${cloze.replace(/_+/, `_______ ("${hint}")`)}\n\n`
 			},
 			{ role: 'user', content: cloze.replace(/_+/, `***` + answered + `***`) }
 		],
