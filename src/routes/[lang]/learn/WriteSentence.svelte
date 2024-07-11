@@ -396,6 +396,11 @@
 				</div>
 			{/if}
 		{:else}
+			{#if exercise == 'translate'}
+				<div class="text-sm mb-3">
+					Translate "{sentence.english}"
+				</div>
+			{/if}
 			{#if enteredParts}
 				<div class="text-xl font-bold mb-6 text-balance {feedback.isCorrect ? 'text-green' : ''}">
 					{#each enteredParts as part}
@@ -408,7 +413,7 @@
 				</div>
 			{/if}
 
-			<div class="mb-6 font-lato text-xs">
+			<div class="mb-6 text-sm text-balance">
 				{feedback.feedback}
 			</div>
 
