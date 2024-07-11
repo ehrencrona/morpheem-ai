@@ -3,6 +3,12 @@ import { expect, test } from 'vitest';
 import { KOREAN, POLISH } from '../constants';
 import { classifyLemmas } from './classifyLemmas';
 
+test('classify single word', async () => {
+	const res = await classifyLemmas(['finanse'], { language: POLISH, throwOnInvalid: false });
+
+	expect(res[0].type).toBe('cognate');
+});
+
 test('cognates', async ({}) => {
 	const cognates = (
 		await classifyLemmas(
@@ -147,7 +153,7 @@ test('classifies Polish lemmas', async ({}) => {
 			{ language: POLISH, throwOnInvalid: false }
 		)
 	).toEqual([
-		{ lemma: 'walentynki', type: undefined },
+		{ lemma: 'walentynki', type: 'cognate' },
 		{ lemma: 'powinien', type: undefined },
 		{ lemma: 'folia', type: 'cognate' },
 		{ lemma: 'kręcić', type: undefined },

@@ -110,7 +110,9 @@ export async function classifyLemmas(
 				role: 'system',
 				content:
 					// `I want to find which  words have ${cognateTo} cognates. ` +
-					`For each entered ${language.name} word, print it and the most similar sounding ${cognateTo} translation.` +
+					(lemmas.length == 1
+						? `For the entered ${language.name} word, first print the most similar sounding ${cognateTo} translation.`
+						: `For each entered ${language.name} word, print it and the most similar sounding ${cognateTo} translation.`) +
 					`Then, classify the word:\n` +
 					` - if the word is an inflection different from the dictionary form, print "inflection".\n` +
 					` - if the word is a name, print "name".\n` +
@@ -121,7 +123,7 @@ export async function classifyLemmas(
 			},
 			{ role: 'user', content: lemmas.join('\n') }
 		],
-		model: 'gpt-4o',
+		model: 'claude-3-5-sonnet-20240620',
 		temperature: 0.5,
 		logResponse: true
 	});
@@ -131,51 +133,54 @@ export async function classifyLemmas(
 	let result: { lemma: string; type: LemmaType | undefined }[] = [];
 
 	for (const line of lines) {
-		if (line.includes(':')) {
-			let [word, rest] = line.split(':');
+		let [word, rest] = line.split(':');
 
-			// when querying a single word it sometimes decides to not repeat the word.
-			if (!rest && !!word && lemmas.length == 1) {
-				rest = word;
-				word = lemmas[0];
-			}
-
-			let [translation, type] = rest.split(', ');
-			translation = translation.replaceAll(' ', '');
-
-			// it sometimes decides not to translate the word after all
-			if (type == undefined) {
-				type = translation;
-				translation = '';
-			}
-
-			if (!lemmas.includes(word)) {
-				if (!word.startsWith('Here')) {
-					console.warn(`Non-requested word: ${word}. Requested words: ${lemmas.join(', ')}`);
-				}
-
-				continue;
-			}
-
-			if (!['cognate', 'inflection', 'particle', 'wrong', 'other', 'name'].includes(type)) {
-				console.warn(`Unexpected type: ${type} on line ${line}`);
-				continue;
-			}
-
-			if (type == 'cognate' && !isPlausibleCognate(word, translation, language)) {
-				console.warn(`${word} is not a plausible cognate: ${translation}`);
-
-				type = 'other';
-			}
-
-			if (word.length == 1 && language.code != 'ko' && type == 'cognate') {
-				console.warn(`${word} is a single letter and probably misinterpreted as a cognate`);
-
-				type = 'other';
-			}
-
-			result.push({ lemma: word, type: type == 'other' ? undefined : (type as LemmaType) });
+		// when querying a single word it sometimes decides to not repeat the word.
+		if (!rest && !!word && lemmas.length == 1) {
+			rest = word;
+			word = lemmas[0];
 		}
+
+		if (!rest || !word) {
+			console.warn(`Unexpected line: ${line}`);
+			continue;
+		}
+
+		let [translation, type] = rest.split(', ');
+		translation = translation.replaceAll(' ', '');
+
+		// it sometimes decides not to translate the word after all
+		if (type == undefined) {
+			type = translation;
+			translation = '';
+		}
+
+		if (!lemmas.includes(word)) {
+			if (!word.startsWith('Here')) {
+				console.warn(`Non-requested word: ${word}. Requested words: ${lemmas.join(', ')}`);
+			}
+
+			continue;
+		}
+
+		if (!['cognate', 'inflection', 'particle', 'wrong', 'other', 'name'].includes(type)) {
+			console.warn(`Unexpected type: ${type} on line ${line}`);
+			continue;
+		}
+
+		if (type == 'cognate' && !isPlausibleCognate(word, translation, language)) {
+			console.warn(`${word} is not a plausible cognate: ${translation}`);
+
+			type = 'other';
+		}
+
+		if (word.length == 1 && language.code != 'ko' && type == 'cognate') {
+			console.warn(`${word} is a single letter and probably misinterpreted as a cognate`);
+
+			type = 'other';
+		}
+
+		result.push({ lemma: word, type: type == 'other' ? undefined : (type as LemmaType) });
 	}
 
 	const inflected = result.filter(({ type }) => type == 'inflection').map(({ lemma }) => lemma);
