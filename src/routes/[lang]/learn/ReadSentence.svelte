@@ -86,7 +86,7 @@
 		paragraphs={[
 			`To grow your vocabulary, we show you sentences at a level you should find challenging.`,
 			`By clicking words you don't know, you mark them for later repetition.`,
-			`Click "I understand" to go to the next exercise.`
+			`Once you understand the sentence, click "Continue" to go to the next exercise.`
 		]}
 		id="read"
 	/>

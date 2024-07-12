@@ -120,7 +120,7 @@
 		</SpinnerButton>
 	{/if}
 
-	<SpinnerButton onClick={onNext} grabFocus={true}>I understand</SpinnerButton>
+	<SpinnerButton onClick={onNext} grabFocus={true}>Continue</SpinnerButton>
 </div>
 
 <Ama
