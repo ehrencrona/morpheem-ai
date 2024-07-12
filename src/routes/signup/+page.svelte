@@ -1,4 +1,5 @@
 <script lang="ts">
+	import '../../app.css';
 	import { enhance } from '$app/forms';
 	import type { ActionData } from './$types';
 
@@ -10,8 +11,8 @@
 		<h1 class="font-sans font-bold text-2xl mb-6 mt-12">Sign up</h1>
 
 		<p class="text-sm mb-6 text-balance">
-			Just choose a username and password and you'll immediately be up and running. No verification
-			required. Morpheem is completely free.
+			Just choose a username and password and you'll immediately be up and running.
+			<br />No verification required. Morpheem is completely free.
 		</p>
 
 		{#if form?.message}
@@ -20,7 +21,11 @@
 			</p>
 		{/if}
 
-		<form method="post" use:enhance>
+		<form
+			method="post"
+			use:enhance
+			class="mt-4 mx-auto border-4 border-blue-4 rounded-lg p-8 inline-block"
+		>
 			<label for="username" class="block text-sm font-lato mb-2">Username</label>
 			<input
 				name="username"
@@ -45,3 +50,4 @@
 		</form>
 	</div>
 </div>
+

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import '../../app.css';
 	import { enhance } from '$app/forms';
 	import type { ActionData } from './$types';
 
@@ -14,7 +15,8 @@
 				{form?.message}
 			</p>
 		{/if}
-		<form method="post" use:enhance>
+
+		<form method="post" use:enhance class="mt-8 mx-auto border-4 border-blue-4 rounded-lg p-8">
 			<label for="username" class="block text-sm font-lato mb-2">Username</label>
 			<input
 				name="username"
