@@ -240,7 +240,17 @@
 			);
 			let nextSentence = getNextSentence(sentences, knowledge, wordId, exercise);
 
-			if (!nextSentence || nextSentence.score < 0.93) {
+			if (
+				!nextSentence ||
+				(knowledge.length > 0 &&
+					(knowledge.length < 50 ? nextSentence.score < 0.8 : nextSentence.score < 0.91))
+			) {
+				if (nextSentence) {
+					console.log(
+						`Best sentence ${nextSentence.sentence} with word ${wordId} has low score ${nextSentence.score}. Finding more...`
+					);
+				}
+
 				let newSentences: CandidateSentenceWithWords[] = [];
 
 				try {
@@ -437,7 +447,10 @@
 					Sentence #{current.sentence.id}
 				</div>
 
-				<a href={`/${languageCode}/sentences/${current?.sentence.id}/delete`} class="text-gray-1 underline">
+				<a
+					href={`/${languageCode}/sentences/${current?.sentence.id}/delete`}
+					class="text-gray-1 underline"
+				>
 					Delete sentence
 				</a>
 			</div>
