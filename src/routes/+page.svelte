@@ -62,7 +62,7 @@
 
 	<div class="flex flex-col gap-8 items-center justify-center">
 		<div class="flex mt-10 w-[800px] max-w-[90vw]">
-			{#each [DUTCH, FRENCH, KOREAN, POLISH, RUSSIAN, SPANISH] as language}
+			{#each [POLISH, KOREAN, SPANISH, FRENCH, DUTCH, RUSSIAN] as language}
 				<div class="flex-1 flex justify-center">
 					<a
 						href="/{language.code}"
@@ -78,9 +78,9 @@
 				</div>
 			{/each}
 		</div>
-		<div class="text-sm text-center">
-			Currently available in Korean, Polish, Spanish, French, Dutch and Russian.<br />Languages can
-			be added on request.
+		<div class="text-sm text-center text-balance">
+			Currently available in Polish, Korean, Spanish, French, Dutch and Russian.
+			<div class="mt-2">Languages can be added on request.</div>
 		</div>
 	</div>
 
