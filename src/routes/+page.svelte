@@ -149,7 +149,7 @@
 		</p>
 
 		<p class="mb-2">
-			It currently has a very small user group that are giving active feedback and helping steer
+			It currently has a very small user group that is giving active feedback and helping steer
 			development. Your feedback is crucial; do reach out and let me know what works for you and
 			what doesn’t.
 		</p>

@@ -6,7 +6,7 @@
 	export let form: ActionData;
 </script>
 
-<div class="flex justify-center align-center">
+<div class="flex justify-center align-center p-4">
 	<div>
 		<h1 class="font-sans font-bold text-2xl mb-6 mt-12">Sign up</h1>
 
@@ -26,22 +26,22 @@
 			use:enhance
 			class="mt-4 mx-auto border-4 border-blue-4 rounded-lg p-8 inline-block"
 		>
-			<label for="username" class="block text-sm font-lato mb-2">Username</label>
+			<label for="username" class="block text-sm font-lato mb-2">Choose a username:</label>
 			<input
 				name="username"
 				id="username"
 				autocomplete="username"
-				class="bg-blue-1 rounded-sm block w-80 p-2 text-lg mb-2"
+				class="bg-blue-1 rounded-sm block max-w-80 p-2 text-lg mb-2"
 			/>
 
-			<label for="password" class="block text-sm font-lato mb-2">Password</label>
+			<label for="password" class="block text-sm font-lato mb-2">Choose a password:</label>
 
 			<input
 				type="password"
 				name="password"
 				id="password"
 				autocomplete="new-password"
-				class="bg-blue-1 rounded-sm block p-2 text-lg mb-2 w-80"
+				class="bg-blue-1 rounded-sm block p-2 text-lg mb-2 max-w-80"
 			/>
 
 			<button class="text-blue-1 rounded-md px-6 py-1 m-2 ml-0 bg-blue-4 mt-6">Sign up</button>

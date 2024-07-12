@@ -22,7 +22,7 @@
 				name="username"
 				id="username"
 				autocomplete="username"
-				class="bg-blue-1 rounded-sm block w-80 p-2 text-lg mb-2"
+				class="bg-blue-1 rounded-sm block max-w-80 p-2 text-lg mb-2"
 				value={form?.username ?? ''}
 			/>
 
@@ -33,7 +33,7 @@
 				name="password"
 				id="password"
 				autocomplete="current-password"
-				class="bg-blue-1 rounded-sm block p-2 text-lg mb-2 w-80"
+				class="bg-blue-1 rounded-sm block p-2 text-lg mb-2 max-w-80"
 			/>
 
 			<button class="text-blue-1 rounded-md px-6 py-1 m-2 ml-0 bg-blue-4 mt-6">Continue</button>
