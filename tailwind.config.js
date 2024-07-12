@@ -31,7 +31,10 @@ export default {
 			'blue-3': '#457B9D',
 			'blue-4': '#1D3557',
 			'gray-1': '#777777',
-			yellow: '#FFD700'
+			offwhite: '#f8f9fa',
+			yellow: '#FFD700',
+			'morpheem-red': '#d7495f',
+			'morpheem-darkred': '#b33a4b'
 		}
 	},
 	plugins: []

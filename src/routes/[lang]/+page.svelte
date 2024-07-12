@@ -247,7 +247,7 @@
 			) {
 				if (nextSentence) {
 					console.log(
-						`Best sentence ${nextSentence.sentence} with word ${wordId} has low score ${nextSentence.score}. Finding more...`
+						`Best sentence #${nextSentence.sentence.id} with word #${wordId} has low score ${toPercent(nextSentence.score)}. Finding more...`
 					);
 				}
 
@@ -432,7 +432,7 @@
 		<div class="flex mb-6 pb-3 -mx-4 pr-4 bg-[#f9f9f9] lg:bg-white -mt-4 pt-4">
 			<div class="flex-1 font-lato text-xs flex items-center">
 				{#if current.source == 'unstudied'}
-					<div class="bg-red text-[#fff] px-1 font-sans text-xxs">NEW WORD</div>
+					<div class="bg-red text-[#fff] px-1 font-sans text-xxs ml-12 lg:ml-0">NEW WORD</div>
 				{/if}
 			</div>
 
@@ -462,7 +462,7 @@
 					href={`${data.languageCode}/test`}
 					class="underline">placement test</a
 				>
-				or use the <a href={`/${data.languageCode}/reader`}>reader</a> to read a text.`}.
+				or use the <a href={`/${data.languageCode}/reader`} class="underline">reader</a> to read a text.
 			</p>
 		{/if}
 

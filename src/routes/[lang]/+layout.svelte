@@ -1,6 +1,6 @@
 <script>
-	import '../app.css';
-	import Menu from '../components/Menu.svelte';
+	import '../../app.css';
+	import Menu from '../../components/Menu.svelte';
 	import { page } from '$app/stores';
 
 	$: isWide = $page.url.pathname.includes('/reader') || $page.url.pathname.includes('/history');

@@ -51,9 +51,15 @@
 
 {#if !isPreload}
 	<div class="flex gap-4 mt-8">
-		<button class="text-xs font-lato underline text-red" on:click={play}>Play</button>
-		<button class="text-xs font-lato underline text-red" on:click={toggleAutoplay}>
-			{autoplay ? 'Read: on' : 'Silent'}
+		<button class="text-xs font-lato rounded-full" on:click={play}>
+			<img src="/icons/play.svg" class="w-8 h-8" alt="Play" />
+		</button>
+		<button class="text-xs font-lato rounded-full" on:click={toggleAutoplay}>
+			{#if autoplay}
+				<img src="/icons/sound.svg" class="w-8 h-8" alt="Mute" />
+			{:else}
+				<img src="/icons/mute.svg" class="w-8 h-8" alt="Unmute" />
+			{/if}
 		</button>
 	</div>
 {/if}
