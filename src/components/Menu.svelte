@@ -103,13 +103,13 @@
 		</div>
 	{/if}
 
-	<nav class="absolute hidden lg:block w-[100px] xl:w-[180px] font-lato">
+	<nav class="absolute hidden lg:block w-[calc(50vw-400px)] max-w-[200px] font-lato">
 		<ul class="mt-8 xl:ml-4">
 			{#each links as link}
 				<li class="px-2 mb-2 text-base">
 					<a
 						href={link.href}
-						class={`block p-1 px-3 ${link.active ? 'bg-light-gray font-sans font-bold rounded-lg' : 'text-gray-1'}`}
+						class={`block p-1 px-3 leading-snug ${link.active ? 'bg-light-gray font-sans font-bold rounded-lg' : 'text-gray-1'}`}
 						>{link.name}</a
 					>
 				</li>
