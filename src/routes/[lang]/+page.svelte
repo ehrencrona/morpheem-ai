@@ -243,7 +243,7 @@
 			if (
 				!nextSentence ||
 				(knowledge.length > 0 &&
-					(knowledge.length < 50 ? nextSentence.score < 0.8 : nextSentence.score < 0.91))
+					(knowledge.length < 50 ? nextSentence.score < 0.75 : nextSentence.score < 0.91))
 			) {
 				if (nextSentence) {
 					console.log(
