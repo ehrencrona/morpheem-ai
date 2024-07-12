@@ -36,12 +36,12 @@
 			on:click={() => (isSelectLanguage = false)}
 		>
 			<div
-				class="bg-offwhite p-12 px-20 rounded-lg border-4 border-morpheem-red"
+				class="bg-offwhite p-8 md:p-12 md:px-20 rounded-lg border-4 border-morpheem-red"
 				on:click|stopPropagation={() => {}}
 			>
 				<p class="text-center mb-12">What language do you want to learn?</p>
-				<div class="w-full my-4 grid grid-cols-3 gap-20 gap-y-12 max-w-[800px] mx-auto">
-					{#each [DUTCH, FRENCH, KOREAN, POLISH, RUSSIAN, SPANISH] as language}
+				<div class="w-full my-4 grid grid-cols-3 gap-12 gap-y-12 md:gap-20 max-w-[800px] mx-auto">
+					{#each [POLISH, KOREAN, SPANISH, FRENCH, DUTCH, RUSSIAN] as language}
 						<a href="/{language.code}">
 							<img
 								src="/flags/{language.name.toLowerCase()}.svg"
