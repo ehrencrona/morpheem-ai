@@ -11,7 +11,7 @@
 		style="background: url('/flags.webp') center center; background-size: cover;"
 		class="flex flex-col p-8 md:py-12 md:px-20"
 	>
-		<div class="p-8 w-[400px] md:w-[60%] bg-[#fffffff0] rounded-lg">
+		<div class="p-8 max-w-[400px] md:w-[60%] bg-[#fffffff0] rounded-lg">
 			<h1 class="text-5xl leading-tight font-sans font-bold mb-3">
 				Are you serious about learning a language?
 			</h1>
