@@ -1,6 +1,8 @@
 <script lang="ts">
 	import {
+	getClozePreference,
 		getPastDue,
+		getReadPreference,
 		getRepetitionTime,
 		getShowTransliteration,
 		setClozePreference,
@@ -19,6 +21,8 @@
 	onMount(() => {
 		repetitionTime = getRepetitionTime();
 		pastDue = getPastDue();
+		clozePreference = getClozePreference();
+		readPreference = getReadPreference();
 	});
 
 	let doTransliterate = getShowTransliteration();

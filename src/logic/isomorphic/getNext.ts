@@ -51,7 +51,7 @@ export function scoreExercises<
 				repetitionTime,
 				pastDue
 			}) *
-				(e.exercise == 'read' ? 1 + readPreference / 4 : 1) *
+				(e.exercise == 'read' ? 1 + readPreference / 16 : 1) *
 				(3 - Math.sqrt(e.level / 100))) /
 			2
 	}));
