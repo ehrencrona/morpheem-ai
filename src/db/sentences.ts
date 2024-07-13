@@ -73,6 +73,10 @@ export function getSentenceIds(language: Language) {
 }
 
 export async function getSentencesByIds(ids: number[], language: Language) {
+	if (ids.length == 0) {
+		return [];
+	}
+
 	return db
 		.withSchema(language.schema)
 		.selectFrom('sentences')
