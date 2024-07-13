@@ -64,7 +64,9 @@
 			class="max-h-60 overflow-auto mt-3 mb-3 font-lato flex flex-col gap-1 py-4 border-b border-t border-light-gray relative md:mt-8 md:border md:p-2"
 		>
 			{#each clozes as cloze}
-				<div>{cloze.exercise.replace('___', `[${cloze.answer}]`)}</div>
+				<div>
+					{cloze.cloze.replace('___', `[${cloze.englishMissingPart}: ${cloze.rightAnswer}]`)}
+				</div>
 			{/each}
 		</div>
 

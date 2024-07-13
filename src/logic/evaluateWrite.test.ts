@@ -169,6 +169,7 @@ describe('evaluateWrite', async () => {
 			opts: {
 				exercise: 'translate',
 				entered: `Czy znasz dobrego tichera angielskiego?`,
+				correct: `Czy znasz dobrego nauczyciela języka angielskiego?`,
 				english: 'Do you know a good English teacher?',
 				revealedClauses: []
 			},

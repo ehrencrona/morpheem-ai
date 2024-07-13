@@ -45,6 +45,9 @@ export async function askForJson<T>({
 		response = '{' + response;
 	}
 
+	// either the newlines are between attributes, in which case they are redudant, or they are within an attribute, in which case they are not allowed
+	response = response.replaceAll('\n', ' ');
+
 	try {
 		return zodParse(response, schema);
 	} catch (error) {

@@ -10,8 +10,9 @@ const createSchema = z.object({
 
 const storeSchema = z.array(
 	z.object({
-		exercise: z.string(),
-		answer: z.string()
+		cloze: z.string(),
+		englishMissingPart: z.string(),
+		rightAnswer: z.string()
 	})
 );
 

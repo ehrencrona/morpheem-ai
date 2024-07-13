@@ -1,10 +1,11 @@
-import { Language } from './types';
+import { logError } from '$lib/logError';
 import { generateCloze as generateClozeAi } from '../ai/generateCloze';
-import { filterUndefineds } from '$lib/filterUndefineds';
+import { Language } from './types';
 
 export interface Cloze {
-	exercise: string;
-	answer: string;
+	cloze: string;
+	englishMissingPart: string;
+	rightAnswer: string;
 }
 
 /** Make up cloze exercises for a certain skill */
@@ -22,26 +23,35 @@ export async function generateCloze(
 
 	const res = await generateClozeAi(skill, { numberOfExercises: noOfExercises, language });
 
-	const exercises = res.exercises
-		.filter((exercise: any) => exercise.isCorrect)
-		.map(({ cloze }) => cloze);
+	const clozes = res.exercises.filter((exercise) => {
+		if (!exercise.isCorrect) {
+			// TODO: if this never happens we can remove the check
+			console.warn(`Found an incorrect exercise: ${exercise.cloze}`);
 
-	let clozes = filterUndefineds(
-		exercises.map((exercise: string) => {
-			const regexp = /_+ \(([a-zA-ZáéíóúüñÁÉÍÓÚÜÑ-가-힣]+)\)/;
+			return false;
+		}
 
-			const m = exercise.match(regexp);
+		if (!exercise.cloze.match(/\b_+\b/g)) {
+			logError(`Cloze does not contain a placeholder: ${exercise.cloze}`);
 
-			if (m && !!m[1]) {
-				return {
-					exercise: exercise.replace(regexp, '___'),
-					answer: m[1]
-				};
-			} else {
-				console.warn(`Did not find placeholder in cloze exercise ${exercise}`);
-			}
-		})
-	);
+			return false;
+		}
+
+		if (new Array(...exercise.cloze.matchAll(/\b_+\b/g)).length > 1) {
+			logError(`Cloze contains multiple placeholders: ${exercise.cloze}`);
+
+			return false;
+		}
+
+		exercise.cloze = exercise.cloze.replace(/\b_+\b/g, '___');
+
+		// remove anything in parenthesis right after the underscores, so either ___ (bla) or ___ [bla]
+		// it sometimes wants to put the right answer there
+		exercise.cloze = exercise.cloze.replace(/___\s*\(.*?\)/, '___');
+		exercise.cloze = exercise.cloze.replace(/___\s*\[.*?\]/, '___');
+
+		return true;
+	});
 
 	if (!clozes.length) {
 		throw new Error('No cloze exercises found');
