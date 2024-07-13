@@ -14,7 +14,7 @@ export async function simplifyText(
 					(hardWords?.length
 						? ` Some of these words might be difficult: ${hardWords.join(', ')}.`
 						: '') +
-					`\nOnly return the simplified text.`
+					`\nReturn only the simplified text, nothing else.`
 			},
 			{
 				role: 'user',
