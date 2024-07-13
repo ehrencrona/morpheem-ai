@@ -13,7 +13,8 @@ export async function simplifyText(
 					`Rewrite the following text in simpler ${language.name}. Reformulate difficult terms in simpler words. Some changes in meaning are acceptable if necessary to simplify the text.` +
 					(hardWords?.length
 						? ` Some of these words might be difficult: ${hardWords.join(', ')}.`
-						: '')
+						: '') +
+					`\nOnly return the simplified text.`
 			},
 			{
 				role: 'user',
