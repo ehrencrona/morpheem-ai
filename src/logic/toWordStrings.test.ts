@@ -7,6 +7,10 @@ describe('toWordStrings', (it) => {
 		expect(toWordStrings('Hello, world!', POLISH)).toEqual(['hello', 'world']);
 	});
 
+	it('handles tweets', () => {
+		expect(toWordStrings(`Jestem #developerem!`, POLISH)).toEqual(['jestem', 'developerem']);
+	});
+
 	it('should split a sentence into words with separators', () => {
 		expect(toWordsWithSeparators('Hello, world!', POLISH)).toEqual(['Hello', ', ', 'world', '!']);
 	});
