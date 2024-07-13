@@ -20,6 +20,7 @@ export async function simplifyText(
 				content: text
 			}
 		],
-		temperature: 1
+		temperature: 1,
+		model: 'claude-3-5-sonnet-20240620'
 	});
 }
