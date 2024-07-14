@@ -35,7 +35,7 @@ export async function generateExampleSentences(
 		temperature: 1,
 		max_tokens: 6 * 200,
 		schema: z.object({ examples: z.array(z.string()) }),
-		model: 'gpt-4o',
+		model: 'claude-3-5-sonnet-20240620',
 		logResponse: true
 	});
 
@@ -67,34 +67,20 @@ export async function simplifySentences(
 	let { examples: simplified } = await askForJson({
 		messages: [
 			{
-				role: 'system',
-				content: `Return JSON in the format { "examples": [ ... ]}. No English. Use simple words.`
-			},
-			{
 				role: 'user',
-				content: `Give ${Math.max(sentences.length, 2)} ${language.name} sentences illustrating the use of the word "${lemma}".`
-			},
-			{
-				role: 'assistant',
-				content: JSON.stringify(
-					sentences.map(({ sentence }) => sentence),
-					null,
-					2
-				)
-			},
-			{
-				role: 'user',
-				content: `The following words are too difficult: ${dedup(
-					sentences.flatMap(({ hard }) => hard)
-				).join(', ')}.
-				Change the sentences to not use these words or use simpler words. The sentences' meaning can change, but they still should illustrate the use of "${lemma}", be grammatically correct and make logical sense. Only write in ${language.name}.`
+				content:
+					`I need ${Math.max(sentences.length, 2)} ${language.name} sentences illustrating the use of the word "${lemma}". I got the following sentences:\n` +
+					sentences.map(({ sentence }) => ' - ' + sentence).join('\n') +
+					`\n\nThe following words are too difficult: ${dedup(
+						sentences.flatMap(({ hard }) => hard)
+					).join(', ')}.
+				Write new sentences that do not use them, either by modifying the sentences or by making up new ones. All sentences should still should illustrate the use of "${lemma}", be grammatically correct and make logical sense. Only write in ${language.name}, no English.
+				Return JSON in the format { "examples": string[] }. The sentences are for a beginner learner, so use simple words.`
 			}
 		],
-
 		temperature: 1,
-		max_tokens: 6 * 200,
 		schema: z.object({ examples: z.array(z.string()) }),
-		model: 'gpt-4o'
+		model: 'claude-3-5-sonnet-20240620'
 	});
 
 	simplified = simplified.map((sentence) => {
