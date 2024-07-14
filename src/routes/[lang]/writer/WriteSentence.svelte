@@ -175,7 +175,7 @@
 	</form>
 
 	<Ama
-		suggestions={[`How do you say 'to scratch'?`]}
+		suggestions={[`Can I express this better?`]}
 		ask={askMeAnything}
 		wordId={0}
 	/>
