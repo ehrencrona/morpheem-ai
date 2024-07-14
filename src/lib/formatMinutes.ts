@@ -3,31 +3,31 @@ export function formatMinutes(minutes: number) {
 		return `${Math.round(minutes)} minutes`;
 	}
 
-	const hours = minutes / 60;
+	const hours = Math.round(minutes / 60);
 
 	if (hours < 24) {
-		return `${Math.round(hours)} hours`;
+		return `${hours} hour` + (hours != 1 ? 's' : '');
 	}
 
-	const days = hours / 24;
+	const days = Math.round(hours / 24);
 
 	if (days < 7) {
-		return `${Math.round(days)} days`;
+		return `${days} day` + (days != 1 ? 's' : '');
 	}
 
-	const weeks = days / 7;
+	const weeks = Math.round(days / 7);
 
 	if (weeks < 4) {
-		return `${Math.round(weeks)} weeks`;
+		return `${weeks} week` + (weeks != 1 ? 's' : '');
 	}
 
-	const months = days / 30;
+	const months = Math.round(days / 30);
 
 	if (months < 12) {
-		return `${Math.round(months)} months`;
+		return `${months} month` + (months != 1 ? 's' : '');
 	}
 
-	const years = months / 12;
+	const years = Math.round(months / 12);
 
-	return `${Math.round(years)} years`;
+	return `${Math.round(years)} year` + (years != 1 ? 's' : '');
 }

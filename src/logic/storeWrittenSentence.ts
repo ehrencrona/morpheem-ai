@@ -46,6 +46,8 @@ export async function storeWrittenSentence({
 
 	let nonEntered: string[] = [];
 
+	const lowerCaseEntered = entered.toLowerCase();
+
 	const knowledge = words
 		.filter((word) => {
 			const index = lemmatized.indexOf(word.word);
@@ -58,7 +60,7 @@ export async function storeWrittenSentence({
 				conjugated = word.word;
 			}
 
-			const wasEntered = entered.includes(conjugated);
+			const wasEntered = lowerCaseEntered.includes(conjugated);
 
 			if (!wasEntered) {
 				nonEntered.push(conjugated);
