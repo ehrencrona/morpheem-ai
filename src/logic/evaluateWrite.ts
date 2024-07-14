@@ -28,6 +28,12 @@ export const writeEvaluationOptsSchema = z
 	})
 	.or(
 		z.object({
+			exercise: z.literal('writer'),
+			entered: z.string()
+		})
+	)
+	.or(
+		z.object({
 			exercise: z.literal('translate'),
 			entered: z.string(),
 			english: z.string(),

@@ -102,16 +102,25 @@ export async function getSentence(id: number, language: Language) {
 
 export async function getSentencesWithWord(
 	wordId: number,
-	language: Language,
-	limit?: number,
-	orderBy?: 'level asc'
+	{
+		language,
+		userId,
+		orderBy,
+		limit
+	}: {
+		language: Language;
+		userId: number;
+		limit?: number;
+		orderBy?: 'level asc';
+	}
 ): Promise<Sentence[]> {
 	let select = db
 		.withSchema(language.schema)
 		.selectFrom('word_sentences')
 		.innerJoin('sentences', 'sentence_id', 'id')
 		.select(['id', 'sentence', 'english', 'transliteration'])
-		.where('word_id', '=', wordId);
+		.where('word_id', '=', wordId)
+		.where((eb) => eb('user_id', 'is', null).or('user_id', '=', userId));
 
 	if (orderBy) {
 		select = select.orderBy(orderBy);

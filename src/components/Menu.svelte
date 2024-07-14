@@ -18,6 +18,10 @@
 			href: '/reader'
 		},
 		{
+			name: 'Writer',
+			href: '/writer'
+		},
+		{
 			name: 'Progress',
 			href: '/progress'
 		},

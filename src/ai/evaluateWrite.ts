@@ -21,6 +21,7 @@ export async function evaluateWrite(
 	exercise: (
 		| { exercise: 'translate'; english: string; correct: string }
 		| { exercise: 'write'; word: string }
+		| { exercise: 'writer' }
 	) & {
 		entered: string;
 	},
@@ -35,8 +36,17 @@ export async function evaluateWrite(
 					`The user is learning ${language.name} and ` +
 					(exercise.exercise == 'write'
 						? `is doing an exercise to write a sentence using "${exercise.word}". `
-						: `has been asked to translate a sentence as an exercise. The expected answer is "${exercise.correct}" `) +
-					`Correct the user's answer so that it grammatically correct, idiomatic and conveys the intended meaning.${exercise.exercise == 'write' ? '' : " The user's sentence does not need to match the expected answer, only the English prompt provided."} ` +
+						: exercise.exercise == 'writer'
+							? `is doing a writing exercise. `
+							: `has been asked to translate a sentence as an exercise. The expected answer is "${exercise.correct}" `) +
+					`Correct the user's answer so that it grammatically correct, idiomatic and conveys the intended meaning.
+					${
+						exercise.exercise == 'translate'
+							? " The user's sentence does not need to match the expected answer, only the English prompt provided."
+							: exercise.exercise == 'writer'
+								? `The user may leave parts of the sentence in English or another language because they did not know them in ${language.name}. Translate these.`
+								: ''
+					} ` +
 					`Then briefly but friendly give feedback, explaining why the corrections had to be applied. Write in English. ` +
 					`For grammatical errors, explain why the error in grammatical terms. ` +
 					`Also return a list of your corrections, in the exact same way they are written in the corrected sentence together with what the user wrote (when applicable) and the English translation of (only) the correction (if applicable). ` +
@@ -51,7 +61,9 @@ export async function evaluateWrite(
 				content:
 					exercise.exercise == 'write'
 						? `Write a ${language.name} sentence or fragment containing "${exercise.word}"`
-						: `Translate the following English sentence to ${language.name}: "${exercise.english}"`
+						: exercise.exercise == 'writer'
+							? `Write a text in ${language.name}.`
+							: `Translate the following English sentence to ${language.name}: "${exercise.english}"`
 			},
 			{
 				role: 'user',

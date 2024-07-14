@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { ExerciseType } from '../logic/types';
 
 export interface Sentence {
 	sentence: string;

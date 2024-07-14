@@ -1,21 +1,25 @@
-import { json, type ServerLoad } from '@sveltejs/kit';
+import { error, json, type ServerLoad } from '@sveltejs/kit';
 import { getWordById } from '../../../../../../db/words';
 import { addSentencesForWord } from '../../../../../../logic/addSentencesForWord';
 import { getSentencesWithWord } from '../../../../../../logic/getSentencesWithWord';
 import { CandidateSentenceWithWords } from '../../../../../../logic/types';
 
-export const GET: ServerLoad = async ({ params, locals: { language } }) => {
+export const GET: ServerLoad = async ({ params, locals: { language, userId } }) => {
 	const wordId = parseInt(params.word || '');
 
 	if (isNaN(wordId)) {
 		throw new Error('Invalid word ID');
 	}
 
+	if (!userId) {
+		return error(401, 'Unauthorized');
+	}
+
 	const word = await getWordById(wordId, language);
 
 	console.log(`Getting sentences with word: ${word.word} (${wordId})`);
 
-	return new Response(JSON.stringify(await getSentencesWithWord(word, language)), {
+	return new Response(JSON.stringify(await getSentencesWithWord(word, { language, userId })), {
 		headers: {
 			'content-type': 'application/json'
 		}

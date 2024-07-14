@@ -7,12 +7,18 @@ import type { CandidateSentenceWithWords, Language } from './types';
 
 export async function getSentencesWithWord(
 	word: DB.Word,
-	language: Language
+	{
+		language,
+		userId
+	}: {
+		language: Language;
+		userId: number;
+	}
 ): Promise<CandidateSentenceWithWords[]> {
 	const limit = 200;
 
 	return addWordsToSentences(
-		await getSentencesWithWordFromDd(word.id, language, limit, 'level asc'),
+		await getSentencesWithWordFromDd(word.id, { language, limit, userId, orderBy: 'level asc' }),
 		word,
 		language
 	);

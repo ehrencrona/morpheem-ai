@@ -36,7 +36,7 @@ export async function getRecentWrittenSentences({
 	return db
 		.withSchema(language.schema)
 		.selectFrom('written_sentences')
-		.select(['sentence', 'word_id'])
+		.select(['id', 'sentence', 'word_id', 'time'])
 		.where('user_id', '=', userId)
 		.orderBy('time', 'desc')
 		.limit(20)

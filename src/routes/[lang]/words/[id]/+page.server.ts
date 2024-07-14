@@ -1,3 +1,4 @@
+import { redirectToLogin } from '$lib/redirectToLogin';
 import { error, redirect, type ServerLoad } from '@sveltejs/kit';
 import {
 	getAggregateKnowledgeForUserWords,
@@ -7,6 +8,7 @@ import { knowledgeTypeToExercise } from '../../../../db/knowledgeTypes';
 import { getForms } from '../../../../db/lemmas';
 import { getMnemonic } from '../../../../db/mnemonics';
 import { getSentencesWithWord } from '../../../../db/sentences';
+import * as DB from '../../../../db/types';
 import { getAllWordTranslations } from '../../../../db/wordTranslations';
 import { getWordById, getWordByLemma } from '../../../../db/words';
 import {
@@ -20,9 +22,12 @@ import {
 	now
 } from '../../../../logic/isomorphic/knowledge';
 import { AlphaBeta } from '../../../../logic/types';
-import * as DB from '../../../../db/types';
 
-export const load: ServerLoad = async ({ params, locals: { language, userId } }) => {
+export const load: ServerLoad = async ({ params, url, locals: { language, userId } }) => {
+	if (!userId) {
+		return redirectToLogin(url);
+	}
+
 	const wordId = parseInt(params.id!);
 
 	if (isNaN(wordId)) {
@@ -40,7 +45,11 @@ export const load: ServerLoad = async ({ params, locals: { language, userId } })
 
 	const word = await getWordById(wordId, language);
 
-	const sentences = await getSentencesWithWord(wordId, language, 30);
+	const sentences = await getSentencesWithWord(wordId, {
+		userId,
+		language,
+		limit: 30
+	});
 
 	const forms = await getForms(wordId, language);
 
