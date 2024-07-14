@@ -9,6 +9,7 @@ import { ExerciseSource } from '../db/types';
 import { getWords } from '../db/words';
 import { calculateWordsKnown } from '../logic/isomorphic/wordsKnown';
 import { Language } from '../logic/types';
+import { now } from './isomorphic/knowledge';
 
 export async function calculateTestResult({
 	userId,
@@ -59,7 +60,7 @@ export async function calculateTestResult({
 		source: ExerciseSource;
 	}[] = [];
 
-	const lastTime = Date.now();
+	const lastTime = now();
 
 	let highestLevel = 0;
 
