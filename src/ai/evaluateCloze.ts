@@ -41,7 +41,7 @@ export async function evaluateCloze(
 						 - "wrongForm": My answer is a different grammatical form of "${correctAnswer.word}".
 						 - "alternate": My answer works logically and the sentence is grammatically correct. 
 						 - "alternateWrongForm": My answer would work, but is in the wrong form. Return the correct form in the "corrected" field.
-						 - "typo": My answer is correct but is a misspelled.
+						 - "typo": My answer is correct but is a misspelling.
 						 - "wrong": My answer is not possible.
 						
 						I will be shown the right answer so no need to repeat it. Also no need to repeat my answer. 
