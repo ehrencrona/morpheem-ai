@@ -24,7 +24,7 @@ export async function generateExampleSentences(
 			prompt:
 				`Give ${count} ${language.name} sentences illustrating the use of the word "${lemma}". If the word is not a ${language.name} word, return an empty array of examples. ` +
 				`The sentences are intended for adults. ` +
-				`Use different styles such news text, fragments of dialog (e.g. in a shop, a workplace or a phone call, do not add the name of the speaker), fairy tales, informal conversation, tweets, reviews, advertising language, bureaucratic language, sayings, questions etc. ` +
+				`Use different styles such news text, fragments of dialog (e.g. in a shop, a workplace or a phone call, do not add the name of the speaker), fairy tales, informal conversation, reviews, advertising language, bureaucratic language, sayings, questions etc. ` +
 				`If you need names of people, use ${names[language.code]}.` +
 				(level != 'normal'
 					? level == 'beginner'
