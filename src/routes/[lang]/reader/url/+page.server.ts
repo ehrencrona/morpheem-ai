@@ -3,12 +3,14 @@ import { ServerLoad, error } from '@sveltejs/kit';
 import * as htmlparser2 from 'htmlparser2';
 import { Paragraph } from './Paragraph';
 
-export const load: ServerLoad = async ({ locals: { language }, url }) => {
+export const load: ServerLoad = async ({ locals: { language, userId }, url }) => {
 	const articleUrl = url.searchParams.get('url');
 
 	if (!articleUrl) {
 		return error(400, 'Bad Request');
 	}
+
+	console.log(`Reading article ${articleUrl} (user ${userId})...`);
 
 	const atPage = (parseInt(url.searchParams.get('page') || `1`) || 1) - 1;
 
