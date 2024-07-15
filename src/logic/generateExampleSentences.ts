@@ -13,6 +13,7 @@ import { lemmatizeSentences } from '../logic/lemmatize';
 import { expectedKnowledge, now } from './isomorphic/knowledge';
 import { toWordStrings } from './toWordStrings';
 import { Language } from './types';
+import { unzip, zip } from '$lib/zip';
 
 export async function generateExampleSentences(
 	lemma: string,
@@ -97,24 +98,6 @@ export async function generatePersonalizedExampleSentences(
 			let simplified = (await simplifySentences(almostSimple, lemma, language)).filter(
 				(s) => !sentences.some((sentence) => sentence.toLowerCase() === s.toLowerCase())
 			);
-
-			// not entirely sure this is needed. check if the warning below appears, if not remove it.
-			const incorrectIndices = (
-				await findIncorrectSentences(
-					simplified.map((sentence, i) => ({ sentence, id: i + 1 })),
-					language
-				)
-			).map((i) => i - 1);
-
-			if (incorrectIndices.length) {
-				console.warn(
-					`Simplify produced incorrect sentences: \n${incorrectIndices
-						.map((i) => simplified[i])
-						.join('\n')}`
-				);
-
-				simplified = simplified.filter((_, i) => !incorrectIndices.includes(i));
-			}
 
 			graded = almostSimple.concat(
 				await gradeSentences(simplified, { exceptLemma: lemma, hardLevel, userId, language })
@@ -258,25 +241,6 @@ export async function toDbWords(sentences: string[], { language }: { language: L
 	}
 
 	return { words, lemmas, sentences };
-}
-
-function zip<A, B>(a: A[], b: B[]): [A, B][] {
-	if (a.length != b.length) {
-		throw new Error('Arrays must be of the same length');
-	}
-
-	return a.map((a, i) => [a, b[i]]);
-}
-
-function unzip<A, B>(ab: [A, B][]): [A[], B[]] {
-	return ab.reduce(
-		(acc, [a, b]) => {
-			acc[0].push(a);
-			acc[1].push(b);
-			return acc;
-		},
-		[[], []] as [A[], B[]]
-	);
 }
 
 export async function addWords(wordStrings: string[], language: Language) {

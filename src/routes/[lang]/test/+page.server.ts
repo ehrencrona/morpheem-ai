@@ -1,8 +1,9 @@
 import { pick } from '$lib/pick';
 import { redirectToLogin } from '$lib/redirectToLogin';
+import { zip } from '$lib/zip';
 import { ServerLoad } from '@sveltejs/kit';
 import { getSentenceIds, getSentencesByIds } from '../../../db/sentences';
-import { getWordsOfSentence, getWordsOfSentences } from '../../../db/words';
+import { getWordsOfSentences } from '../../../db/words';
 
 export const load: ServerLoad = async ({ locals: { language, userId }, url }) => {
 	if (!userId) {
@@ -30,6 +31,3 @@ export const load: ServerLoad = async ({ locals: { language, userId }, url }) =>
 	};
 };
 
-function zip<T, U>(a: T[], b: U[]): [T, U][] {
-	return a.map((value, index) => [value, b[index]]);
-}

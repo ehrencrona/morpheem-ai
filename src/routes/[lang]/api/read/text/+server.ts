@@ -20,7 +20,7 @@ export const POST: ServerLoad = async ({ request, locals: { language, userId } }
 
 	const sentences = toSentences(text);
 
-	const lemmas = (await lemmatizeSentences(sentences, { language, ignoreErrors: true })).flat();
+	const lemmas = (await lemmatizeSentences(sentences, { language, onError: 'useword' })).flat();
 
 	const words = await getMultipleWordsByLemmas(lemmas, language);
 

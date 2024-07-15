@@ -78,6 +78,10 @@ export async function addWord(
 		throw new CodedError(`"${lemma}" is not the dictionary form`, 'notALemma');
 	}
 
+	if ((type as string) == 'wrong' || (type as string) == 'inflection') {
+		throw new CodedError(`"${lemma}" is not a lemma`, 'notALemma');
+	}
+
 	let result = await db
 		.withSchema(language.schema)
 		.insertInto('words')

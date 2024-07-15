@@ -7,9 +7,13 @@ export async function lemmatizeSentences(
 	sentences: string[],
 	{
 		language,
-		ignoreErrors = false,
+		onError = 'throw',
 		temperature
-	}: { language: Language; ignoreErrors?: boolean; temperature?: number }
+	}: {
+		language: Language;
+		onError?: 'useword' | 'throw' | 'returnempty';
+		temperature?: number;
+	}
 ) {
 	const lemmas = await Promise.all(
 		sentences.map(async (sentence) => {
@@ -45,7 +49,7 @@ export async function lemmatizeSentences(
 
 	const missingLemmas = await lemmatizeSentencesAi(missingSentences, {
 		language,
-		ignoreErrors,
+		onError,
 		temperature
 	});
 

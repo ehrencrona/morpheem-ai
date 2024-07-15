@@ -3,14 +3,14 @@ import { CodedError } from '../CodedError';
 import { lemmatizeSentences } from '../ai/lemmatize';
 import * as DB from '../db/types';
 import { deleteWord } from '../db/words';
-import { addSentence } from './addSentence';
-import { addWordsToSentences, getSentencesWithWord } from './getSentencesWithWord';
+import { addSentences } from './addSentence';
 import {
 	generateExampleSentences,
 	generatePersonalizedExampleSentences
 } from './generateExampleSentences';
+import { addWordsToSentences, getSentencesWithWord } from './getSentencesWithWord';
 import { Language } from './types';
-import { logError } from '$lib/logError';
+import { unzip, zip } from '$lib/zip';
 
 /** Makes up new sentences for the specified word */
 export async function addSentencesForWord(
@@ -21,47 +21,35 @@ export async function addSentencesForWord(
 		retriesLeft = 1
 	}: { userId?: number; language: Language; retriesLeft?: number }
 ): ReturnType<typeof getSentencesWithWord> {
-	async function getSentences(retriesLeft = 1) {
-		try {
-			return userId
-				? (
-						await generatePersonalizedExampleSentences(word.word, {
-							level: word.level,
-							userId,
-							language
-						})
-					).map(({ sentence }) => sentence)
-				: await generateExampleSentences(word.word, {
-						language,
-						level: word.level < 99 ? word.level : undefined
-					});
-		} catch (e: any) {
-			if (e.code == 'noLemmaFound' && retriesLeft > 0) {
-				// most likely, the sentence contained a word that doesn't actually exist
-				logError(e);
-
-				return getSentences(retriesLeft - 1);
-			}
-			throw e;
-		}
+	async function getSentences() {
+		return userId
+			? (
+					await generatePersonalizedExampleSentences(word.word, {
+						level: word.level,
+						userId,
+						language
+					})
+				).map(({ sentence }) => sentence)
+			: await generateExampleSentences(word.word, {
+					language,
+					level: word.level < 99 ? word.level : undefined
+				});
 	}
 
-	const sentences = await getSentences();
-	const lemmas = await lemmatizeSentences(sentences, { language });
+	let sentences = await getSentences();
+	let lemmas = await lemmatizeSentences(sentences, { language, onError: 'returnempty' });
+
+	[sentences, lemmas] = unzip(
+		zip(sentences, lemmas).filter(([sentence, lemmas]) => lemmas.length > 0)
+	);
 
 	const result = filterUndefineds(
-		(
-			await Promise.all(
-				sentences.map(async (sentence, i) =>
-					addSentence(sentence, { english: undefined, lemmas: lemmas[i], language })
-				)
-			)
-		).filter((sentence) => {
+		(await addSentences(sentences, undefined, lemmas, { language })).filter((sentence) => {
 			const hasWord = sentence.words.some((sentenceWord) => sentenceWord.word === word.word);
 
 			if (!hasWord) {
 				console.warn(
-					`Word ${word.word} not found in sentence ${sentence}, only ${sentence.words.map(({ word }) => word).join(', ')}`
+					`Word ${word.word} not found in sentence ${sentence.sentence}, only ${sentence.words.map(({ word }) => word).join(', ')}`
 				);
 			}
 

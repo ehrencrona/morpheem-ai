@@ -9,25 +9,29 @@ export async function addWordToLemma(wordString: string, word: DB.Word, language
 		language.code == 'fr' &&
 		['ils->il', 'elle->il', 'ce->ça'].includes(`${wordString}->${word.word}`)
 	) {
-		throw new Error(`${word.word} is not the dictionary form of ${wordString}`);
+		console.error(`${word.word} is not the dictionary form of ${wordString}`);
+		return;
 	}
 
 	if (
 		language.code == 'es' &&
 		['se->ser', 'al->el', 'me->yo', 'me->mí', 'esta->estar'].includes(`${wordString}->${word.word}`)
 	) {
-		throw new Error(`${word.word} is not the dictionary form of ${wordString}`);
+		console.error(`${word.word} is not the dictionary form of ${wordString}`);
+		return;
 	}
 
 	if (language.code == 'nl' && ['mee->met'].includes(`${wordString}->${word.word}`)) {
-		throw new Error(`${word.word} is not the dictionary form of ${wordString}`);
+		console.error(`${word.word} is not the dictionary form of ${wordString}`);
+		return;
 	}
 
 	if (
 		language.code == 'pl' &&
 		['co->coś', 'mi->mój', 'ci->ten', 'ktoś->kto'].includes(`${wordString}->${word.word}`)
 	) {
-		throw new Error(`${word.word} is not the dictionary form of ${wordString}`);
+		console.error(`${word.word} is not the dictionary form of ${wordString}`);
+		return;
 	}
 
 	// insert into word_lemma unless it already exists

@@ -3,7 +3,7 @@ import { lucia } from './db/lucia';
 import { DUTCH, FRENCH, KOREAN, POLISH, RUSSIAN, SPANISH } from './constants';
 import { init, captureException } from '@sentry/browser';
 
-const isLoggingEnabled = import.meta.env.RENDER;
+const isLoggingEnabled = import.meta.env.PROD;
 
 if (isLoggingEnabled) {
 	init({

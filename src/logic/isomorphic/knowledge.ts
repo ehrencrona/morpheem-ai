@@ -17,6 +17,12 @@ export function expectedKnowledge(
 ) {
 	const knowledge = exercise == 'read' ? alpha : beta != null ? beta : alpha / 2;
 
+	if (lastTime > 1020981470567) {
+		console.error(new Error(`Last time is Unix timestamp.`));
+
+		lastTime = dateToTime(new Date(lastTime));
+	}
+
 	let age = now - lastTime;
 
 	if (age < 0) {

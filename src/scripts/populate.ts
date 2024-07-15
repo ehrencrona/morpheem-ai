@@ -1,13 +1,13 @@
 import { parallelize } from '$lib/parallelize';
-import { RUSSIAN } from '../constants';
+import { POLISH, RUSSIAN } from '../constants';
 import { getWordsMissingExamples } from '../db/getWordsMissingExamples';
 import { addWord, deleteWord } from '../db/words';
 import { addSentencesForWord } from '../logic/addSentencesForWord';
 
-const language = RUSSIAN;
+const language = POLISH;
 
 export async function addSentencesForMissingWords() {
-	await addWord('дом', { language, type: null });
+	// await addWord('дом', { language, type: null });
 
 	const words = await getWordsMissingExamples({
 		minSentenceCount: 3,
@@ -31,7 +31,7 @@ export async function addSentencesForMissingWords() {
 				}
 			}
 		}),
-		2
+		1
 	);
 }
 

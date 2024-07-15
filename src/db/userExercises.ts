@@ -167,7 +167,7 @@ export async function getUserExercises(
 	language: Language,
 	orderBy?: 'last_time desc',
 	limit?: number
-): Promise<UserExercise[]> {
+): Promise<(UserExercise & { id: number })[]> {
 	let query = db
 		.withSchema(language.code)
 		.selectFrom('user_exercises')

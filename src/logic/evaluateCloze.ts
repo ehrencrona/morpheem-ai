@@ -68,7 +68,7 @@ export async function evaluateCloze(
 			const sentence = cloze.replace(/_+/, answered);
 
 			const words = toWordStrings(sentence, language);
-			const lemmatized = await lemmatizeSentences([sentence], { language, ignoreErrors: true });
+			const lemmatized = await lemmatizeSentences([sentence], { language, onError: 'useword' });
 
 			const wordIndex = words.findIndex((word) => word === answered);
 

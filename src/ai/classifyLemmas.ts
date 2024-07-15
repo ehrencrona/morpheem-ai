@@ -125,7 +125,7 @@ export async function classifyLemmas(
 		],
 		model: 'claude-3-5-sonnet-20240620',
 		temperature: 0.5,
-		logResponse: true
+		logResponse: false
 	});
 
 	const lines = response!.split('\n').map((word) => word.trim());
@@ -231,7 +231,7 @@ function isPlausibleCognate(word: string, translation: string, language: Languag
 		return true;
 	}
 
-	const wordLetters = word.split('');
+	const wordLetters = word.toLowerCase().split('');
 	const translationLetters = translation.split('');
 
 	let commonLetters = 0;

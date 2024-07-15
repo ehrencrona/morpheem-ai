@@ -2,14 +2,57 @@ import { addWordToLemma, getLemmasOfWords } from '../db/lemmas';
 import { addWord, getMultipleWordsByLemmas } from '../db/words';
 import { toWordStrings } from './toWordStrings';
 
+import { filterUndefineds } from '$lib/filterUndefineds';
+import { unzip, zip } from '$lib/zip';
+import { CodedError } from '../CodedError';
 import { classifyLemmas } from '../ai/classifyLemmas';
-import * as sentences from '../db/sentences';
+import * as dbSentences from '../db/sentences';
 import { WordType } from '../db/types';
 import { getLevelForCognate } from './isomorphic/getNext';
-import { Language } from './types';
-import { CodedError } from '../CodedError';
 import { lemmatizeSentences } from './lemmatize';
+import { Language } from './types';
 
+/**
+ * Some sentences might fail to save, in which case they won't be returned.
+ */
+export async function addSentences(
+	sentences: string[],
+	english: string[] | undefined,
+	lemmas: string[][],
+	{
+		userId,
+		language
+	}: {
+		language: Language;
+		userId?: number;
+	}
+) {
+	console.log(
+		`Adding sentences ${sentences.map((s) => `"${s}"`).join(',')} ${userId ? ` by user ${userId}` : ''}...`
+	);
+
+	const words = await getSentencesWords(sentences, lemmas, { language, throwOnError: false });
+
+	return filterUndefineds(
+		await Promise.all(
+			sentences.map(async (sentenceString, i) => {
+				if (words[i].length) {
+					return dbSentences.addSentence(sentenceString, {
+						english: english?.[i],
+						words: words[i],
+						language,
+						userId,
+						level: calculateSentenceLevel(words[i])
+					});
+				}
+			})
+		)
+	);
+}
+
+/**
+ * Will throw if there are any issues with the sentence.
+ */
 export async function addSentence(
 	sentenceString: string,
 	opts: {
@@ -25,9 +68,9 @@ export async function addSentence(
 		`Adding sentence "${sentenceString}" (lemmas: ${lemmas.join(' ')})${userId ? ` by user ${userId}` : ''}...`
 	);
 
-	const words = await getSentenceWords(sentenceString, { lemmas, language });
+	const words = await getSentenceWords(sentenceString, { lemmas, language, throwOnError: true });
 
-	return sentences.addSentence(sentenceString, {
+	return dbSentences.addSentence(sentenceString, {
 		english,
 		words,
 		language,
@@ -49,31 +92,55 @@ export function calculateSentenceLevel(words: { level: number; type: WordType | 
 
 export async function getSentenceWords(
 	sentenceString: string,
-	opts: {
+	{
+		lemmas,
+		language,
+		throwOnError = true
+	}: {
 		lemmas?: string[];
 		language: Language;
-		retriesLeft?: number;
+		throwOnError: boolean;
 	}
 ) {
-	let { lemmas: ls, language, retriesLeft = 1 } = opts;
+	return (
+		await getSentencesWords([sentenceString], lemmas ? [lemmas] : undefined, {
+			language,
+			throwOnError
+		})
+	)[0];
+}
 
-	let lemmas = ls || (await lemmatizeSentences([sentenceString], { language }))[0];
-
-	const wordStrings = toWordStrings(sentenceString, language);
-
-	if (wordStrings.length !== lemmas.length) {
-		throw new Error(
-			`Number of words does not match number of lemmas:\n${sentenceString}\n${lemmas.join(' ')}`
-		);
+/**
+ * If throwOnError=false and an error is encountered, returns zero words for that sentence.
+ */
+export async function getSentencesWords(
+	sentences: string[],
+	lms: string[][] | undefined,
+	{
+		language,
+		throwOnError = true
+	}: {
+		language: Language;
+		throwOnError: boolean;
 	}
+) {
+	const handleError = (message: string) => {
+		message = `Error getting sentence words: ${message}`;
 
-	if (wordStrings.length === 0) {
-		return [];
-	}
+		if (throwOnError) {
+			throw new Error(message);
+		} else {
+			console.warn(message);
+		}
+	};
 
-	let words = await getMultipleWordsByLemmas(lemmas, language);
+	let lemmas = lms || (await lemmatizeSentences(sentences, { language }));
 
-	let missingWords = lemmas.filter((lemma) => !words.some((word) => word.word == lemma));
+	const wordStrings = sentences.map((sentenceString) => toWordStrings(sentenceString, language));
+
+	let words = await getMultipleWordsByLemmas(lemmas.flat(), language);
+
+	let missingWords = lemmas.flat().filter((lemma) => !words.some((word) => word.word == lemma));
 
 	const allLemmas = await getLemmasOfWords(missingWords, language);
 
@@ -83,76 +150,81 @@ export async function getSentenceWords(
 		if (wordLemmas.length > 0) {
 			const rightLemma = wordLemmas[0];
 
-			console.warn(
-				`Wanted to add ${missingWord} as a new word, but it is probably a not a lemma; rather ${wordLemmas.map(({ word }) => word).join(' / ')} is, so using that instead.`
+			console.error(
+				`Wanted to add ${missingWord} as a new word, but it is probably a not a lemma; rather ${wordLemmas.map(({ word }) => word).join(' / ')} is, so using ${wordLemmas[0].word} instead.`
 			);
 
 			words.push(rightLemma);
 
-			lemmas = lemmas.map((lemma) => (lemma === missingWord ? rightLemma.word! : lemma));
+			lemmas = lemmas.map((lemmas) =>
+				lemmas.map((lemma) => (lemma === missingWord ? rightLemma.word! : lemma))
+			);
 		}
 	});
 
-	missingWords = lemmas.filter((lemma) => !words.some((word) => word.word == lemma));
+	missingWords = lemmas.flat().filter((lemma) => !words.some((word) => word.word == lemma));
 
 	if (missingWords.length) {
-		try {
-			const lemmaTypes = await classifyLemmas(missingWords, { language, throwOnInvalid: true });
+		let lemmaTypes = await classifyLemmas(missingWords, { language, throwOnInvalid: false });
 
-			words.push(
-				...(await Promise.all(
-					missingWords.map(
-						async (lemma) =>
-							(await addWord(lemma, {
-								language,
-								type: (lemmaTypes.find(({ lemma: l }) => l === lemma)?.type as WordType) || null
-							}))!
-					)
-				))
-			);
-		} catch (e) {
-			if ((e as CodedError).code == 'notALemma' && retriesLeft > 0) {
-				console.warn(
-					`Got not a lemma when dealing with sentence words of "${sentenceString}" (words: ${words.map(({ word }) => word).join(', ')}): ${(e as CodedError).message}. Retrying...`
-				);
+		words.push(
+			...filterUndefineds(
+				await Promise.all(
+					zip(lemmaTypes, missingWords)
+						.filter(([{ type }, word]) => {
+							if (['inflection', 'wrong'].includes(type || '')) {
+								handleError(`Skipping word ${word} because it is an inflection or wrong`);
 
-				lemmas = (
-					await lemmatizeSentences([sentenceString], {
-						language,
-						ignoreErrors: false,
-						temperature: 0.8
-					})
-				)[0];
+								lemmas = lemmas.map((lemmas) => (lemmas.includes(word) ? [] : lemmas));
 
-				return getSentenceWords(sentenceString, {
-					...opts,
-					lemmas,
-					retriesLeft: retriesLeft - 1
-				});
-			} else {
-				throw e;
-			}
-		}
+								return false;
+							}
+
+							return true;
+						})
+						.map(async ([_, lemma]) => {
+							try {
+								return (await addWord(lemma, {
+									language,
+									type: (lemmaTypes.find(({ lemma: l }) => l === lemma)?.type as WordType) || null
+								}))!;
+							} catch (e) {
+								if (e instanceof CodedError && e.code === 'notALemma') {
+									handleError(`Skipping word ${lemma} because it is not a lemma`);
+
+									lemmas = lemmas.map((lemmas) => (lemmas.includes(lemma) ? [] : lemmas));
+								} else {
+									throw e;
+								}
+							}
+						})
+				)
+			)
+		);
 	}
 
 	await Promise.all(
-		lemmas
-			.map((lemma, i) => [lemma, wordStrings[i]])
-			.map(([lemma, wordString]) =>
-				addWordToLemma(wordString, words.find((word) => word.word === lemma)!, language)
-			)
+		zip(lemmas, wordStrings).map(([lemmas, wordStrings]) => {
+			if (lemmas.length > 0) {
+				zip(lemmas, wordStrings).map(([lemma, wordString]) =>
+					addWordToLemma(wordString, words.find((word) => word.word === lemma)!, language)
+				);
+			}
+		})
 	);
 
-	return lemmas.map((lemma, index) => {
-		const word = words.find((w) => w.word === lemma);
+	return lemmas.map((lemmas) =>
+		lemmas.map((lemma, index) => {
+			const word = words.find((w) => w.word === lemma);
 
-		if (!word) {
-			throw new Error(`Word ${lemma} not found in words`);
-		}
+			if (!word) {
+				throw new Error(`Word ${lemma} not found in words`);
+			}
 
-		return {
-			...word,
-			word_index: index
-		};
-	});
+			return {
+				...word,
+				word_index: index
+			};
+		})
+	);
 }

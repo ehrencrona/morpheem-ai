@@ -9,23 +9,28 @@ export async function lemmatizeSentences(
 	sentences: string[],
 	{
 		language,
-		ignoreErrors,
+		onError,
 		retriesLeft = 1,
 		temperature = 0
-	}: { language: Language; retriesLeft?: number; ignoreErrors?: boolean; temperature?: number }
+	}: {
+		language: Language;
+		retriesLeft?: number;
+		onError?: 'useword' | 'throw' | 'returnempty';
+		temperature?: number;
+	}
 ): Promise<string[][]> {
 	if (sentences.length === 0) {
 		return [];
 	}
 
-	// split up sentences into batches of no more than 150 characters
+	// split up sentences into batches of no more than 500 characters
 	const batches: string[][] = [];
 
 	let currentBatch: string[] = [];
 	let currentBatchLength = 0;
 
 	for (const sentence of sentences) {
-		if (currentBatchLength + sentence.length > 300 && currentBatch.length > 0) {
+		if (currentBatchLength + sentence.length > 500 && currentBatch.length > 0) {
 			batches.push(currentBatch);
 			currentBatch = [];
 			currentBatchLength = 0;
@@ -40,7 +45,7 @@ export async function lemmatizeSentences(
 	return (
 		await Promise.all(
 			batches.map(async (batch) => {
-				return await lemmatizeBatch(batch, { language, ignoreErrors, retriesLeft, temperature });
+				return await lemmatizeBatch(batch, { language, onError, retriesLeft, temperature });
 			})
 		)
 	).reduce<string[][]>((acc, val) => acc.concat(val), []);
@@ -50,10 +55,15 @@ async function lemmatizeBatch(
 	sentences: string[],
 	{
 		language,
-		ignoreErrors,
+		onError,
 		retriesLeft = 1,
 		temperature = 0
-	}: { language: Language; retriesLeft?: number; ignoreErrors?: boolean; temperature?: number }
+	}: {
+		language: Language;
+		retriesLeft?: number;
+		onError?: 'useword' | 'throw' | 'returnempty';
+		temperature?: number;
+	}
 ): Promise<string[][]> {
 	if (sentences.length === 0) {
 		return [];
@@ -70,7 +80,13 @@ async function lemmatizeBatch(
 		
 		becomes
 		
-		niesamowicie (niesamowicie) cię (ty) kocham (kochać)`,
+		niesamowicie (niesamowicie) cię (ty) kocham (kochać)
+		
+		To jest przykład
+		
+		becomes
+		
+		to (ten) jest (być) przykład (przykład)`,
 		fr: `"Y a-t-il des chaises"
 		
 		becomes
@@ -161,8 +177,7 @@ ${examples[language.code]}`
 				.join('\n')
 		}),
 		temperature,
-		max_tokens: 1000,
-		logResponse: true
+		max_tokens: 1000
 	});
 
 	const lines = (response || '').split('\n');
@@ -187,7 +202,11 @@ ${examples[language.code]}`
 
 	let error: string | undefined = undefined;
 
-	const result = await Promise.all(
+	let notFoundInRightPlace: string[] = [];
+
+	const ERROR_TOKEN = '__ERROR__';
+
+	let result = await Promise.all(
 		sentences.map(async (sentence, i) => {
 			let lemmas = lemmasByLine[i] || [];
 
@@ -198,18 +217,12 @@ ${examples[language.code]}`
 					let lemma: { word: string; lemma: string } | undefined = lemmas[i];
 
 					if (!lemma || lemma.word != standardized) {
-						console.warn(
-							`There's a mismatch between the word "${word}" and the lemma "${lemmas[i]?.word}" in sentence "${sentence}". Got ${lemmas.map((l) => l.word).join(', ')}`
-						);
+						notFoundInRightPlace.push(word);
 
 						lemma = lemmas.find((l) => l.word == standardized)!;
 
 						if (!lemma) {
 							lemma = lemmasByLine.flat().find((l) => l.word == standardized);
-
-							if (lemma) {
-								console.warn(`Managed to find the lemma elsewhere.`);
-							}
 						}
 					}
 
@@ -223,7 +236,7 @@ ${examples[language.code]}`
 						} else {
 							error = `No lemma found for "${word}" in sentence "${sentence}", only for ${lemmas.map((l) => l.word).join(', ')}`;
 
-							return standardized;
+							return onError == 'returnempty' ? ERROR_TOKEN : standardized;
 						}
 					}
 				})
@@ -231,15 +244,29 @@ ${examples[language.code]}`
 		})
 	);
 
-	if (error && !ignoreErrors) {
-		if (retriesLeft > 0) {
-			return lemmatizeBatch(sentences, {
-				language,
-				retriesLeft: retriesLeft - 1,
-				ignoreErrors
-			});
-		} else {
-			throw new CodedError(error, 'noLemmaFound');
+	if (notFoundInRightPlace.length > 0) {
+		console.warn(
+			`There following lemmas were not where they were expected: ${notFoundInRightPlace.join(', ')}\n` +
+				`Sentences:\n${sentences.map((s, i) => ` ${i + 1}. ${s}`).join('\n')}\n` +
+				`Lemmas:\n${lemmasByLine.map((l, i) => ` ${i + 1}. ${l.map((l) => `${l.word} (${l.lemma})`).join(' ')}`).join('\n')}`
+		);
+	}
+
+	if (error) {
+		console.error(error);
+
+		if (onError == 'returnempty') {
+			result = result.map((lemmas) => (lemmas.includes(ERROR_TOKEN) ? [] : lemmas));
+		} else if (onError == 'throw') {
+			if (retriesLeft > 0) {
+				return lemmatizeBatch(sentences, {
+					language,
+					retriesLeft: retriesLeft - 1,
+					onError
+				});
+			} else {
+				throw new CodedError(error, 'noLemmaFound');
+			}
 		}
 	}
 

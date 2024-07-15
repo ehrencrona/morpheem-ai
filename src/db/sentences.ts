@@ -59,11 +59,11 @@ export async function addSentence(
 	return { ...sentence, words };
 }
 
-export function getSentences(language: Language) {
+export async function getSentences(language: Language): Promise<Sentence[]> {
 	return db
 		.withSchema(language.schema)
 		.selectFrom('sentences')
-		.select(['id', 'sentence', 'level'])
+		.select(['id', 'sentence', 'english', 'transliteration'])
 		.orderBy('id asc')
 		.execute();
 }

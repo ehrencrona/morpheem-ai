@@ -1,9 +1,8 @@
-import { FRENCH, POLISH } from '../constants';
+import { FRENCH } from '../constants';
 import { db } from '../db/client';
 import { getSentences } from '../db/sentences';
 import { getWordsOfSentence } from '../db/words';
 import { getSentenceWords } from '../logic/addSentence';
-import { lemmatizeSentences } from '../logic/lemmatize';
 import { toWordStrings } from '../logic/toWordStrings';
 
 async function addMissingSentenceWords() {
@@ -17,7 +16,7 @@ async function addMissingSentenceWords() {
 		const wordStrings = toWordStrings(sentence.sentence, language);
 
 		if (currentWords.length != wordStrings.length) {
-			const words = await getSentenceWords(sentence.sentence, { language });
+			const words = await getSentenceWords(sentence.sentence, { language, throwOnError: true });
 
 			const wordSentences = words.map((word, index) => ({
 				word_id: word.id,
