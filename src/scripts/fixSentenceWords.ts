@@ -62,6 +62,8 @@ async function fixSentenceWords() {
 
 	console.log(`Done scanning. ${count} sentences scanned, ${incorrect.length} have issues.`);
 
+	let deleteCount = 0;
+
 	for (const batch of toBatches(incorrect, 10)) {
 		const sentencesWords = await getSentencesWords(
 			batch.map(({ sentence }) => sentence),
@@ -74,6 +76,7 @@ async function fixSentenceWords() {
 				console.error(`Failed to lemmatize sentence ${sentence.id}.`);
 
 				deleteSentence(sentence.id, language);
+				deleteCount++;
 
 				continue;
 			}
@@ -115,6 +118,7 @@ async function fixSentenceWords() {
 					console.error(e);
 
 					deleteSentence(sentence.id, language);
+					deleteCount++;
 				} else if ((e as CodedError).code == 'notALemma') {
 					console.error(`In sentence ${sentence.id}: ${(e as CodedError).message}`);
 				} else {
@@ -126,7 +130,7 @@ async function fixSentenceWords() {
 	}
 
 	console.log(
-		`Done. ${count} sentences processed, ${incorrect.length} had issues, ${fixedCount} fixed.`
+		`Done. ${count} sentences processed, ${incorrect.length} had issues, ${fixedCount} fixed, ${deleteCount} deleted.`
 	);
 }
 
