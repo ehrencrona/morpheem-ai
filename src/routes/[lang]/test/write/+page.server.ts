@@ -20,7 +20,7 @@ export const load: ServerLoad = async ({ url, locals: { language, userId } }) =>
 
 	const level = parseInt(url.searchParams.get('level') || '99') || 99;
 
-	const knowledge = await getAggregateKnowledge(userId, language);
+	const knowledge = await getAggregateKnowledge(userId, { language });
 
 	const sentences = filterUndefineds(
 		await Promise.all(

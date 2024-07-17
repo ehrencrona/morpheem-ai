@@ -51,7 +51,7 @@ export async function calculateTestResult({
 		slope = 0;
 	}
 
-	const words = await getWords('level asc', language);
+	const words = await getWords({ orderBy: 'level asc', language });
 	const knowledge: {
 		alpha: number;
 		beta: number | null;

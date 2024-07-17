@@ -1,6 +1,6 @@
 export function zip<A, B>(a: A[], b: B[]): [A, B][] {
 	if (a.length != b.length) {
-		throw new Error('Arrays must be of the same length');
+		throw new Error(`Cannot zip arrays of different lengths: ${a.length} and ${b.length}`);
 	}
 
 	return a.map((a, i) => [a, b[i]]);

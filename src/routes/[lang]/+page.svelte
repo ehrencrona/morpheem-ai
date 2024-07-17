@@ -44,11 +44,17 @@
 	import ReadSentence from './learn/ReadSentence.svelte';
 	import { trackActivity } from './learn/trackActivity';
 	import WriteSentence from './learn/WriteSentence.svelte';
+	import { sendSettings } from './api/settings/client';
+	import UnitDialog from '../../components/UnitDialog.svelte';
 
 	export let data: PageData;
 
 	$: userExercises = data.userExercises;
 	$: languageCode = data.languageCode;
+	$: unit = data.unit;
+	$: units = data.units;
+
+	let showUnits = false;
 
 	let exerciseFilter: (ex: DB.ScoreableExercise) => boolean;
 
@@ -69,6 +75,7 @@
 	let knowledge: DB.AggKnowledgeForUser[] = [];
 	let wordsKnown: { read: number; write: number };
 
+	let isAtEndOfUnit = false;
 	let current:
 		| ({
 				sentence: DB.Sentence;
@@ -176,7 +183,7 @@
 		}
 
 		if (!exercises.length) {
-			throw new Error('No exercises found');
+			throw new CodedError('No exercises found.', 'noMoreExercises');
 		}
 
 		for (const source of ['studied', 'userExercise', 'unstudied'] as const) {
@@ -190,12 +197,22 @@
 			);
 		}
 
+		if (!exercises.some(({ source }) => source == 'unstudied')) {
+			// We only load a fixed number of unstudied words; if you exhaust those,
+			// we need to load more.
+			console.log(`No unstudied words found; reloading knowledge...`);
+
+			fetchAggregateKnowledge()
+				.then((got) => (knowledge = got))
+				.catch(logError);
+		}
+
 		const isRelevant = (e: { score: number }) => e.score > 0.02;
 
 		if (exercises.some(isRelevant)) {
 			exercises = exercises.filter(isRelevant).slice(0, 6);
 		} else {
-			console.warn(`All exercises had very low score.`);
+			throw new CodedError(`All exercises had very low score.`, 'noMoreExercises');
 		}
 
 		const firstExercise = exercises[0];
@@ -268,7 +285,7 @@
 				nextSentence = getNextSentence(sentences, knowledge, wordId, exercise);
 
 				if (!nextSentence) {
-					logError(`No sentences found for word ${wordId}`);
+					console.warn(`No sentences found for word ${wordId}`);
 
 					return getNextExercise({
 						exercises: exercises.slice(1),
@@ -338,68 +355,91 @@
 	}
 
 	async function showNextSentence() {
-		const next = await (nextPromise ||
-			getNextExercise({
-				excludeSentenceId: current?.sentence.id || undefined,
-				excludeWordId: current && 'wordId' in current ? current.wordId || undefined : undefined
-			}));
+		try {
+			const next = await (nextPromise ||
+				getNextExercise({
+					excludeSentenceId: current?.sentence.id || undefined,
+					excludeWordId: current && 'wordId' in current ? current.wordId || undefined : undefined
+				}));
 
-		const { sentence, getNextPromise: getNext, exercise, source } = next;
+			const { sentence, getNextPromise: getNext, exercise, source } = next;
 
-		nextPromise = getNext();
+			nextPromise = getNext();
 
-		if (exercise != 'write') {
-			markSentenceSeen(sentence.id).catch(logError);
-		}
-
-		const wordId = 'wordId' in next ? next.wordId : null;
-		let word: SentenceWord | undefined;
-
-		if (wordId) {
-			word = sentence.words.find(({ id }) => id == wordId);
-
-			if (!word) {
-				console.warn(
-					`Sentence ${sentence.id} ("${sentence.sentence}") has no word ${word} (${wordId}), only ${sentence.words.map(({ id }) => id).join(', ')}`
-				);
-
-				return showNextSentence();
-			}
-		}
-
-		console.log(`Current exercise: ${exerciseToString(next)}`);
-
-		if (next.exercise == 'write') {
-			current = {
-				...next,
-				wordObject: word!,
-				words: sentence.words,
-				sentence
-			};
-		} else if (next.exercise == 'translate') {
-			current = {
-				...next,
-				words: sentence.words,
-				sentence
-			};
-		} else if (exercise == 'phrase-cloze') {
-			current = {
-				...next,
-				sentence,
-				words: sentence.words
-			};
-		} else {
-			if (!wordId) {
-				throw new Error(`No wordId for exercise ${exerciseToString(next)} from ${source}`);
+			if (exercise != 'write') {
+				markSentenceSeen(sentence.id).catch(logError);
 			}
 
-			current = {
-				...next,
-				wordObject: word!,
-				words: sentence.words,
-				sentence
-			};
+			const wordId = 'wordId' in next ? next.wordId : null;
+			let word: SentenceWord | undefined;
+
+			if (wordId) {
+				word = sentence.words.find(({ id }) => id == wordId);
+
+				if (!word) {
+					console.warn(
+						`Sentence ${sentence.id} ("${sentence.sentence}") has no word ${word} (${wordId}), only ${sentence.words.map(({ id }) => id).join(', ')}`
+					);
+
+					return showNextSentence();
+				}
+			}
+
+			console.log(`Current exercise: ${exerciseToString(next)}`);
+
+			if (next.exercise == 'write') {
+				current = {
+					...next,
+					wordObject: word!,
+					words: sentence.words,
+					sentence
+				};
+			} else if (next.exercise == 'translate') {
+				current = {
+					...next,
+					words: sentence.words,
+					sentence
+				};
+			} else if (exercise == 'phrase-cloze') {
+				current = {
+					...next,
+					sentence,
+					words: sentence.words
+				};
+			} else {
+				if (!wordId) {
+					throw new Error(`No wordId for exercise ${exerciseToString(next)} from ${source}`);
+				}
+
+				current = {
+					...next,
+					wordObject: word!,
+					words: sentence.words,
+					sentence
+				};
+			}
+		} catch (e) {
+			if ((e as CodedError).code == 'noMoreExercises' && !!unit) {
+				isAtEndOfUnit = true;
+				current = undefined;
+			} else {
+				throw e;
+			}
 		}
+	}
+
+	async function goToNextUnit() {
+		setUnit((unit || 0) + 1);
+	}
+
+	async function setUnit(newUnit: number | null) {
+		unit = newUnit;
+
+		await sendSettings({ unit });
+
+		await init();
+
+		showUnits = false;
 	}
 
 	onMount(() => init().catch(logError));
@@ -429,7 +469,7 @@
 	{/if}
 
 	{#if current}
-		<div class="flex mb-6 pb-3 -mx-4 pr-4 bg-[#f9f9f9] lg:bg-white -mt-4 pt-4">
+		<div class="flex mb-4 lg:mb-1 pb-3 -mx-4 pr-4 bg-[#f9f9f9] lg:bg-white -mt-4 pt-4">
 			<div class="flex-1 font-lato text-xs flex items-center">
 				{#if current.source == 'unstudied'}
 					<div class="bg-red text-[#fff] px-1 font-sans text-xxs ml-12 lg:ml-0">NEW WORD</div>
@@ -447,16 +487,44 @@
 					Sentence #{current.sentence.id}
 				</div>
 
-				<a
-					href={`/${languageCode}/sentences/${current?.sentence.id}/delete`}
-					class="text-gray-1 underline"
-				>
-					Delete sentence
-				</a>
+				{#if data.isSuperUser}
+					<a
+						href={`/${languageCode}/sentences/${current?.sentence.id}/delete`}
+						class="text-gray-1 underline"
+					>
+						Delete sentence
+					</a>
+				{/if}
 			</div>
 		</div>
 
-		{#if wordsKnown?.read < 10}
+		{#if units.length > 0}
+			<div class="text-xs flex justify-end text-gray-1 mb-4">
+				<button
+					class="border border-light-gray flex justify-end items-center rounded-md"
+					on:click={() => (showUnits = true)}
+				>
+					<div class="p-1 px-2 bg-light-gray">
+						Level:
+
+						{unit ? units[unit - 1].name : 'Advanced'}
+					</div>
+
+					<div class="border-l border-light-gray p-1 px-2 hover:bg-gray">Change</div>
+				</button>
+			</div>
+		{/if}
+
+		{#if showUnits}
+			<UnitDialog
+				onCancel={() => (showUnits = false)}
+				onSet={setUnit}
+				selectedUnit={unit}
+				{units}
+			/>
+		{/if}
+
+		{#if wordsKnown?.read < 10 && !unit}
 			<p class="bg-blue-1 border border-blue-4 py-2 px-4 rounded-sm inline-block text-sm mb-6">
 				If you don't want to start from a complete beginner level, take the <a
 					href={`${data.languageCode}/test`}
@@ -545,6 +613,12 @@
 
 			<SpinnerButton onClick={onNext}>Next</SpinnerButton>
 		{/if}
+	{:else if isAtEndOfUnit}
+		<div class="text-center">
+			<p class="text-2xl mt-20 mb-8">You've reached the end of the unit!</p>
+
+			<SpinnerButton onClick={goToNextUnit}>Go to next unit</SpinnerButton>
+		</div>
 	{:else}
 		<div class="text-center mt-12">
 			<svg width="1em" height="1em" viewBox="0 0 24 24" class="inline-block">

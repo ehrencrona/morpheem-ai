@@ -70,7 +70,7 @@
 				.replace(/\n/g, '<br>')}
 			<button
 				on:click={() => (answer = undefined) && (question = undefined)}
-				class="ml-1"
+				class="ml-1 mt-2 float-end"
 				type="button"><CloseSvg fill="000" /></button
 			>
 		</div>

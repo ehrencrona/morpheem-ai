@@ -172,11 +172,13 @@ export async function transformAggregateKnowledge(
 export async function getEasiestUnstudiedWords({
 	language,
 	userId,
-	limit
+	limit,
+	upToUnit
 }: {
 	language: Language;
 	userId: number;
 	limit: number;
+	upToUnit?: number;
 }) {
 	const aggregateKnowledgeForUser = db
 		.withSchema(language.schema)
@@ -184,31 +186,43 @@ export async function getEasiestUnstudiedWords({
 		.select(['word_id'])
 		.where('user_id', '=', userId);
 
-	return db
+	let select = db
 		.withSchema(language.schema)
 		.selectFrom('words')
 		.leftJoin(aggregateKnowledgeForUser.as('ak'), 'words.id', 'ak.word_id')
-		.select(['words.id', 'words.word', 'words.level', 'words.type'])
-		.where('ak.word_id', 'is', null)
-		.orderBy('words.level', 'asc')
-		.limit(limit)
-		.execute();
+		.select(['words.id', 'words.word', 'words.level', 'words.type', 'words.unit'])
+		.where('ak.word_id', 'is', null);
+
+	if (upToUnit) {
+		select = select.where('words.unit', '<=', upToUnit);
+	}
+
+	const result = await select.orderBy('words.level', 'asc').limit(limit).execute();
+
+	return result;
 }
 
 export async function getAggregateKnowledgeForUser({
 	userId,
-	language
+	language,
+	upToUnit
 }: {
 	userId: number;
 	language: Language;
+	upToUnit?: number;
 }): Promise<AggKnowledgeForUser[]> {
-	const raw = await db
+	let select = db
 		.withSchema(language.schema)
 		.selectFrom('aggregate_knowledge')
 		.innerJoin('words', 'word_id', 'id')
 		.select(['word_id', 'alpha', 'beta', 'time', 'level', 'word', 'type'])
-		.where('user_id', '=', userId)
-		.execute();
+		.where('user_id', '=', userId);
+
+	if (upToUnit) {
+		select = select.where('unit', '<=', upToUnit);
+	}
+
+	const raw = await select.execute();
 
 	return raw.map(({ word_id: wordId, level, alpha, beta, time, word, type }) => ({
 		wordId,

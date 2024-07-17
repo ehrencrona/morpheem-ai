@@ -1,11 +1,12 @@
 import { redirectToLogin } from '$lib/redirectToLogin';
-import { json, type ServerLoad } from '@sveltejs/kit';
+import { error, json, type ServerLoad } from '@sveltejs/kit';
 import { z } from 'zod';
 import { storeSentenceDone } from '../../../../db/wordsKnown';
 import { getAggregateKnowledge } from '../../../../logic/getAggregateKnowledge';
 import { exerciseKnowledgeSchema, wordKnowledgeSchema } from '../../../../logic/types';
 import { updateKnowledge } from '../../../../logic/updateKnowledge';
 import { updateUserExercises } from '../../../../logic/updateUserExercises';
+import { getUserSettings } from '../../../../db/userSettings';
 
 export const POST: ServerLoad = async ({ url, request, locals: { userId, language } }) => {
 	if (!userId) {
@@ -47,7 +48,16 @@ export const POST: ServerLoad = async ({ url, request, locals: { userId, languag
 };
 
 export const GET: ServerLoad = async ({ locals: { userId, language } }) => {
-	let knowledge = await getAggregateKnowledge(userId!, language);
+	if (!userId) {
+		return error(401, 'Unauthorized');
+	}
+
+	const settings = await getUserSettings(userId, language);
+
+	let knowledge = await getAggregateKnowledge(userId!, {
+		language,
+		upToUnit: settings?.unit || undefined
+	});
 
 	return json(knowledge);
 };

@@ -15,7 +15,7 @@ export async function addEnglishToSentence(
 	if (!sentence.english) {
 		const { translations, transliterations } = await translateSentences([sentence.sentence], {
 			language,
-			literalTranslation: true
+			literalTranslation: false
 		});
 
 		sentence.english = translations[0];

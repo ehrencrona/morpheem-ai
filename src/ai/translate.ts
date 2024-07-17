@@ -73,7 +73,7 @@ export async function translateSentences(
 	let { translations, transliterations } = await askForJson({
 		messages: toMessages({
 			instruction:
-				`Translate the sentences in the JSON from ${language.name} to English.` +
+				`Translate the entries in the JSON from ${language.name} to English.` +
 				(literalTranslation ? ' Prefer a somewhat literal translation.' : '') +
 				(language.isLatin
 					? '\nReturn it as { translations: string[] }.'
@@ -99,7 +99,7 @@ export async function translateSentences(
 	}
 
 	if (translations.length !== sentences.length) {
-		let message = `Number of sentences does not match number of translations: ${sentences.length} vs ${translations.length}`;
+		let message = `Number of sentences does not match number of translations: ${sentences.length} vs ${translations.length}:\nSentences:\n${sentences.join('\n - ')}.\nTranslations:\n${translations.join('\n - ')}`;
 
 		if (retriesLeft > 0) {
 			console.error(message);

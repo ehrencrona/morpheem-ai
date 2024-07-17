@@ -1,3 +1,4 @@
+import { toBatches } from '$lib/batch';
 import { parallelize } from '$lib/parallelize';
 import { findIncorrectSentences } from '../ai/findIncorrectSentences';
 import { FRENCH, RUSSIAN } from '../constants';
@@ -6,7 +7,7 @@ import { deleteSentence, getSentenceIds, getSentencesByIds } from '../db/sentenc
 const language = RUSSIAN;
 
 async function main() {
-	const idBatches = batch(
+	const idBatches = toBatches(
 		(await getSentenceIds(FRENCH)).map(({ id }) => id),
 		10
 	);
@@ -29,16 +30,6 @@ async function main() {
 		}),
 		6
 	);
-}
-
-function batch<T>(arr: T[], size: number): T[][] {
-	const result = [];
-
-	for (let i = 0; i < arr.length; i += size) {
-		result.push(arr.slice(i, i + size));
-	}
-
-	return result;
 }
 
 main();

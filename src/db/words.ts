@@ -153,18 +153,32 @@ export async function getMultipleWordsByIds(
 	).map(toWord);
 }
 
-export async function getWords(
-	orderBy: 'word asc' | 'id asc' | 'level asc',
-	language: Language
-): Promise<DB.Word[]> {
-	return (
-		await db
-			.withSchema(language.schema)
-			.selectFrom('words')
-			.select(['id', 'word', 'type', 'level'])
-			.orderBy(orderBy)
-			.execute()
-	).map(toWord);
+export async function getWords({
+	orderBy = 'id asc',
+	unit,
+	upToUnit,
+	language
+}: {
+	orderBy?: 'word asc' | 'id asc' | 'level asc';
+	language: Language;
+	unit?: number;
+	upToUnit?: number;
+}): Promise<DB.Word[]> {
+	let select = db
+		.withSchema(language.schema)
+		.selectFrom('words')
+		.select(['id', 'word', 'type', 'level'])
+		.orderBy(orderBy);
+
+	if (unit) {
+		select = select.where('unit', '=', unit);
+	}
+
+	if (upToUnit) {
+		select = select.where('unit', '<=', upToUnit);
+	}
+
+	return (await select.execute()).map(toWord);
 }
 
 export async function getWordCount(language: Language) {

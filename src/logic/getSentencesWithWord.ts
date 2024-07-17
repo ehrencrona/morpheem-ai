@@ -9,16 +9,24 @@ export async function getSentencesWithWord(
 	word: DB.Word,
 	{
 		language,
-		userId
+		userId,
+		upToUnit
 	}: {
 		language: Language;
 		userId: number;
+		upToUnit?: number;
 	}
 ): Promise<CandidateSentenceWithWords[]> {
 	const limit = 200;
 
 	return addWordsToSentences(
-		await getSentencesWithWordFromDd(word.id, { language, limit, userId, orderBy: 'level asc' }),
+		await getSentencesWithWordFromDd(word.id, {
+			language,
+			limit,
+			upToUnit,
+			userId,
+			orderBy: 'level asc'
+		}),
 		word,
 		language
 	);

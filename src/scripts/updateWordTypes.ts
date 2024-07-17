@@ -7,7 +7,7 @@ import { getWords } from '../db/words';
 const language = POLISH;
 
 async function updateWordTypes(run: 'dry' | 'real') {
-	let words = await getWords('id asc', language);
+	let words = await getWords({ orderBy: 'id asc', language });
 
 	const slices: string[][] = [];
 

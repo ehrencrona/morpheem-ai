@@ -21,10 +21,12 @@ export async function addSentences(
 	lemmas: string[][],
 	{
 		userId,
-		language
+		language,
+		unit
 	}: {
 		language: Language;
 		userId?: number;
+		unit?: number;
 	}
 ) {
 	console.log(
@@ -42,7 +44,8 @@ export async function addSentences(
 						words: words[i],
 						language,
 						userId,
-						level: calculateSentenceLevel(words[i])
+						level: calculateSentenceLevel(words[i]),
+						unit
 					});
 				}
 			})
@@ -60,9 +63,10 @@ export async function addSentence(
 		lemmas: string[];
 		language: Language;
 		userId?: number;
+		unit?: number;
 	}
 ) {
-	let { english, lemmas, language, userId } = opts;
+	let { english, lemmas, language, userId, unit } = opts;
 
 	console.log(
 		`Adding sentence "${sentenceString}" (lemmas: ${lemmas.join(' ')})${userId ? ` by user ${userId}` : ''}...`
@@ -75,7 +79,8 @@ export async function addSentence(
 		words,
 		language,
 		userId,
-		level: calculateSentenceLevel(words)
+		level: calculateSentenceLevel(words),
+		unit
 	});
 }
 

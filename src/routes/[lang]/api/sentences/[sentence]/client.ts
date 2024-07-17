@@ -1,4 +1,4 @@
-import { CandidateSentenceWithWords } from '../../../../../logic/types';
+import type { CandidateSentenceWithWords } from '../../../../../logic/types';
 import { apiCall } from '../../api-call';
 
 export async function markSentenceSeen(sentenceId: number): Promise<void> {
@@ -12,5 +12,11 @@ export async function fetchCandidateSentence(
 ): Promise<CandidateSentenceWithWords & { english: string }> {
 	return apiCall(`/api/sentences/${sentenceId}`, {
 		method: 'GET'
+	});
+}
+
+export async function callDeleteSentence(sentenceId: number): Promise<void> {
+	return apiCall(`/api/sentences/${sentenceId}`, {
+		method: 'DELETE'
 	});
 }

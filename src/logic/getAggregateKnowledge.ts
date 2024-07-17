@@ -1,13 +1,20 @@
 import { getAggregateKnowledgeForUser, getEasiestUnstudiedWords } from '../db/knowledge';
 import { WordType } from '../db/types';
 import { now, nt } from './isomorphic/knowledge';
-import { getBeginnerKnowledge } from './knowledge';
 import { Language } from './types';
 
-export async function getAggregateKnowledge(userId: number, language: Language) {
-	let knowledge = await getAggregateKnowledgeForUser({ userId, language });
+export async function getAggregateKnowledge(
+	userId: number,
+	{ language, upToUnit }: { language: Language; upToUnit?: number }
+) {
+	let knowledge = await getAggregateKnowledgeForUser({ userId, language, upToUnit });
 
-	const easiestUnstudied = await getEasiestUnstudiedWords({ userId, language, limit: 10 });
+	const easiestUnstudied = await getEasiestUnstudiedWords({
+		userId,
+		language,
+		limit: 10,
+		upToUnit
+	});
 
 	knowledge = knowledge.concat(
 		easiestUnstudied.map(({ id, level, word, type }) => ({
@@ -21,10 +28,6 @@ export async function getAggregateKnowledge(userId: number, language: Language) 
 			source: 'unstudied'
 		}))
 	);
-
-	if (knowledge.length === 0) {
-		knowledge = await getBeginnerKnowledge(language);
-	}
 
 	return knowledge;
 }
