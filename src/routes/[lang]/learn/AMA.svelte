@@ -2,6 +2,7 @@
 	import { slide } from 'svelte/transition';
 	import SpinnerButton from '../../../components/SpinnerButton.svelte';
 	import BottomBar from '../../../components/BottomBar.svelte';
+	import CloseSvg from '../../../components/CloseSvg.svelte';
 
 	export let ask: (question: string) => Promise<string>;
 	export let explanation: string | undefined = undefined;
@@ -10,7 +11,7 @@
 	export let suggestions: string[] = [];
 
 	let question: string | undefined = undefined;
-	let answer: string | undefined = undefined;
+	let answer: string | undefined;
 
 	let isFullScreen = false;
 
@@ -69,8 +70,8 @@
 				.replace(/\n/g, '<br>')}
 			<button
 				on:click={() => (answer = undefined) && (question = undefined)}
-				class="text-red underline ml-1"
-				type="button">Clear</button
+				class="ml-1"
+				type="button"><CloseSvg fill="000" /></button
 			>
 		</div>
 	{/if}

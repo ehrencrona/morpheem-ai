@@ -1,9 +1,8 @@
-<svg
-	fill="#fff"
-	viewBox="0 0 512 512"
-	xml:space="preserve"
-	class="w-[10px] h-[10px]"
->
+<script lang="ts">
+	export let fill: string | undefined = undefined;
+</script>
+
+<svg fill={fill || '#fff'} viewBox="0 0 512 512" xml:space="preserve" class="w-[10px] h-[10px]">
 	<g>
 		<g>
 			<polygon
