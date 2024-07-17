@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { fade } from 'svelte/transition';
 	import { errorStore } from '$lib/logError';
+	import CloseSvg from './CloseSvg.svelte';
 
 	const onClear = () => {
 		errorStore.set(null);
@@ -26,7 +27,7 @@
 	>
 		<div class="flex-1">{toMessage($errorStore)}</div>
 		<div>
-			<button class="underline ml-2" on:click={onClear}>Close</button>
+			<button class="underline ml-2" on:click={onClear}><CloseSvg /></button>
 		</div>
 	</div>
 {/if}
