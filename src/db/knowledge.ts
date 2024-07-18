@@ -87,6 +87,10 @@ export async function setBetaIfNull(
 ) {
 	knowledge = knowledge.filter(({ beta }) => beta !== null);
 
+	if (!knowledge.length) {
+		return;
+	}
+
 	return db.transaction().execute(async (transaction) => {
 		const wordIdToSet = await transaction
 			.withSchema(language.schema)
