@@ -13,15 +13,15 @@ export const load: ServerLoad = async ({ params, locals: { user, language }, url
 		return error(404, 'Language not found');
 	}
 
-	const unit = parseInt(params.unit || '');
+	const unitId = parseInt(params.unit || '');
 
-	if (!unit) {
+	if (!unitId) {
 		return error(404, 'Unit not found');
 	}
 
 	const [sentences, words] = await Promise.all([
-		getSentences(language, unit),
-		getWords({ upToUnit: unit, language })
+		getSentences(language, unitId),
+		getWords({ upToUnit: unitId, language })
 	]);
 
 	const sentenceWords = await getWordsOfSentences(
@@ -30,6 +30,11 @@ export const load: ServerLoad = async ({ params, locals: { user, language }, url
 	);
 
 	const units = await getUnits(language);
+	const unit = units.find(({ id }) => id === unitId);
+
+	if (!unit) {
+		return error(404, 'Unit not found');
+	}
 
 	return {
 		sentences: sentences.map((sentence, i) => ({
@@ -38,6 +43,6 @@ export const load: ServerLoad = async ({ params, locals: { user, language }, url
 			words: sentenceWords[i].map((word) => word.word)
 		})),
 		words,
-		unit: units[unit - 1]
+		unit
 	};
 };

@@ -12,6 +12,7 @@ export interface Word {
 	id: number;
 	level: number;
 	type: WordType | undefined;
+	unit?: number;
 }
 
 export type WordType = 'cognate' | 'name' | 'particle';

@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { getRepetitionTime } from '$lib/settings';
-	import {
-		calculateOptimalTime
-	} from '../../../../logic/isomorphic/knowledge';
+	import { calculateOptimalTime } from '../../../../logic/isomorphic/knowledge';
 	import { getLanguageOnClient } from '../../api/api-call';
+	import { sendWordUnit } from '../../api/word/[id]/unit/client';
 	import type { PageData } from './$types';
+	import WordUnitDialog from './WordUnitDialog.svelte';
 
 	export let data: PageData;
 
@@ -19,6 +19,8 @@
 	}
 
 	const toPercent = (n: number) => `${(n * 100).toFixed(0)}%`;
+
+	let isEditingUnit = false;
 </script>
 
 <main>
@@ -36,7 +38,24 @@
 		<p><b>Level</b>: {data.word.level}%</p>
 		<p><b>Type</b>: {data.word.type}</p>
 		<p><b>Mnemonic</b>: {data.mnemonic || '-'}</p>
+		<p>
+			<b>Unit</b>: {data.word.unit || '-'}
+			<button class="underline text-red" on:click={() => (isEditingUnit = true)}>Edit</button>
+		</p>
 	</div>
+
+	{#if isEditingUnit}
+		<WordUnitDialog
+			onCancel={() => (isEditingUnit = false)}
+			save={async (unit) => {
+				sendWordUnit(unit, data.word.id);
+				data.word.unit = unit || undefined;
+				isEditingUnit = false;
+			}}
+			wordId={data.word.id}
+			unit={data.word.unit || null}
+		/>
+	{/if}
 
 	{#if data.translations.length}
 		<h2 class="font-bold mt-8 mb-2">Translations</h2>

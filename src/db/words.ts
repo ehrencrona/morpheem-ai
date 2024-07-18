@@ -90,7 +90,7 @@ export async function addWord(
 			type,
 			json: undefined
 		})
-		.returning(['id', 'word', 'level', 'type'])
+		.returning(['id', 'word', 'level', 'type', 'unit'])
 		.onConflict((oc) => oc.column('word').doNothing())
 		.executeTakeFirst();
 
@@ -98,7 +98,7 @@ export async function addWord(
 		result = await db
 			.withSchema(language.schema)
 			.selectFrom('words')
-			.select(['id', 'word', 'level', 'type'])
+			.select(['id', 'word', 'level', 'type', 'unit'])
 			.where('word', '=', lemma.toLowerCase())
 			.executeTakeFirst();
 	} else {
@@ -121,7 +121,7 @@ export async function getMultipleWordsByLemmas(
 		await db
 			.withSchema(language.schema)
 			.selectFrom('words')
-			.select(['id', 'word', 'level', 'type'])
+			.select(['id', 'word', 'level', 'type', 'unit'])
 			.where('word', 'in', lemmas)
 			.execute()
 	).map(toWord);
@@ -147,7 +147,7 @@ export async function getMultipleWordsByIds(
 		await db
 			.withSchema(language.schema)
 			.selectFrom('words')
-			.select(['id', 'word', 'type', 'level'])
+			.select(['id', 'word', 'type', 'level', 'unit'])
 			.where('id', 'in', wordIds)
 			.execute()
 	).map(toWord);
@@ -167,7 +167,7 @@ export async function getWords({
 	let select = db
 		.withSchema(language.schema)
 		.selectFrom('words')
-		.select(['id', 'word', 'type', 'level'])
+		.select(['id', 'word', 'type', 'level', 'unit'])
 		.orderBy(orderBy);
 
 	if (unit) {
@@ -206,7 +206,7 @@ export async function getWordsBelowLevel(level: number, language: Language): Pro
 		await db
 			.withSchema(language.schema)
 			.selectFrom('words')
-			.select(['id', 'word', 'type', 'level'])
+			.select(['id', 'word', 'type', 'level', 'unit'])
 			.where('level', '<', level)
 			.orderBy('level asc')
 			.execute()
@@ -217,7 +217,7 @@ export async function getWordByLemma(lemma: string, language: Language): Promise
 	const word = await db
 		.withSchema(language.schema)
 		.selectFrom('words')
-		.select(['id', 'word', 'level', 'type'])
+		.select(['id', 'word', 'level', 'type', 'unit'])
 		.where('word', '=', lemma.toLowerCase())
 		.executeTakeFirst();
 
@@ -232,7 +232,7 @@ export async function getWordById(wordId: number, language: Language): Promise<D
 	const word = await db
 		.withSchema(language.schema)
 		.selectFrom('words')
-		.select(['id', 'word', 'level', 'type'])
+		.select(['id', 'word', 'level', 'type', 'unit'])
 		.where('id', '=', wordId)
 		.executeTakeFirst();
 
@@ -274,6 +274,15 @@ export async function updateLemma(wordId: number, lemma: string, language: Langu
 
 export async function deleteWord(wordId: number, language: Language) {
 	await db.withSchema(language.schema).deleteFrom('words').where('id', '=', wordId).execute();
+}
+
+export async function setWordUnit(unit: number | null, wordId: number, language: Language) {
+	await db
+		.withSchema(language.schema)
+		.updateTable('words')
+		.set({ unit })
+		.where('id', '=', wordId)
+		.execute();
 }
 
 export async function getWordsOfSentence(
@@ -319,14 +328,16 @@ export async function getWordsOfSentences(
 export function toWord(row: {
 	id: number;
 	level: number;
-	type: string | null;
 	word: string;
+	type: string | null;
+	unit: number | null;
 }): DB.Word {
 	return {
 		id: row.id,
 		word: row.word,
 		level: row.level,
-		type: row.type ? (row.type as DB.WordType) : undefined
+		type: row.type ? (row.type as DB.WordType) : undefined,
+		unit: row.unit || undefined
 	};
 }
 

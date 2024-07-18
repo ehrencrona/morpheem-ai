@@ -513,6 +513,8 @@
 					<div class="border-l border-light-gray p-1 px-2 hover:bg-gray">Change</div>
 				</button>
 			</div>
+		{:else}
+			<div class="mb-2" />
 		{/if}
 
 		{#if showUnits}
