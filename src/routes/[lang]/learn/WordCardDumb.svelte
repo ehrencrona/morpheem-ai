@@ -4,7 +4,7 @@
 	import { getLanguageOnClient } from '../api/api-call';
 	import { getShowTransliteration } from '$lib/settings';
 	import CloseSvg from '../../../components/CloseSvg.svelte';
-	import { UnknownWordResponse } from '../api/word/unknown/+server';
+	import type { UnknownWordResponse } from '../api/word/unknown/+server';
 
 	export let word: UnknownWordResponse;
 	export let inflected: string | undefined = undefined;
