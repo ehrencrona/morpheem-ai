@@ -9,6 +9,7 @@
 	import { CodedError } from '../../CodedError';
 	import ErrorMessage from '../../components/ErrorMessage.svelte';
 	import SpinnerButton from '../../components/SpinnerButton.svelte';
+	import UnitDialog from '../../components/UnitDialog.svelte';
 	import type * as DB from '../../db/types';
 	import {
 		calculateSentenceWriteKnowledge,
@@ -39,14 +40,12 @@
 		addSentencesForWord,
 		fetchSentencesWithWord
 	} from './api/sentences/withword/[word]/client';
+	import { sendSettings } from './api/settings/client';
 	import Cloze from './learn/Cloze.svelte';
 	import PhraseCloze from './learn/PhraseCloze.svelte';
 	import ReadSentence from './learn/ReadSentence.svelte';
 	import { trackActivity } from './learn/trackActivity';
 	import WriteSentence from './learn/WriteSentence.svelte';
-	import { sendSettings } from './api/settings/client';
-	import UnitDialog from '../../components/UnitDialog.svelte';
-	import { i } from 'vitest/dist/reporters-yx5ZTtEV.js';
 
 	export let data: PageData;
 
