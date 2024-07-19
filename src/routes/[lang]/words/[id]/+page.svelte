@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { getRepetitionTime } from '$lib/settings';
+	import EditSvg from '../../../../components/EditSvg.svelte';
 	import { calculateOptimalTime } from '../../../../logic/isomorphic/knowledge';
 	import { getLanguageOnClient } from '../../api/api-call';
 	import { sendWordUnit } from '../../api/word/[id]/unit/client';
@@ -40,7 +41,12 @@
 		<p><b>Mnemonic</b>: {data.mnemonic || '-'}</p>
 		<p>
 			<b>Unit</b>: {data.word.unit || '-'}
-			<button class="underline text-red" on:click={() => (isEditingUnit = true)}>Edit</button>
+			<button
+				class="ml-2 w-5 h-5 hover:border-blue-3 border-2 border-white p-[2px] inline-block"
+				on:click={() => (isEditingUnit = true)}
+			>
+				<EditSvg />
+			</button>
 		</p>
 	</div>
 

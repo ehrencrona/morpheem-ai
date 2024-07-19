@@ -5,6 +5,7 @@
 	import { getShowTransliteration } from '$lib/settings';
 	import CloseSvg from '../../../components/CloseSvg.svelte';
 	import type { UnknownWordResponse } from '../api/word/unknown/+server';
+	import EditSvg from '../../../components/EditSvg.svelte';
 
 	export let word: UnknownWordResponse;
 	export let inflected: string | undefined = undefined;
@@ -69,10 +70,10 @@
 				<p class="text-balance leading-4">
 					{mnemonic}
 					<SpinnerButton
-						className="text-xs font-lato underline p-0 ml-1"
+						className="w-5 h-5 hover:border-blue-3 border-2 border-light-gray p-[2px] inline-block"
 						onClick={async () => onEditMnemonic(word, mnemonic)}
 					>
-						Edit
+						<EditSvg />
 					</SpinnerButton>
 				</p>
 			{:else}
