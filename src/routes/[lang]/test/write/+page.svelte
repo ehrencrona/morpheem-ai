@@ -6,6 +6,7 @@
 	import { getLanguageOnClient } from '../../api/api-call';
 	import { sendKnowledge as sendKnowledgeClient } from '../../api/knowledge/client';
 	import Cloze from '../../learn/Cloze.svelte';
+	import { trackActivity } from '../../learn/trackActivity';
 	import type { PageData } from './$types';
 
 	export let data: PageData;
@@ -50,7 +51,7 @@
 		<SpinnerButton onClick={onNext}>Start</SpinnerButton>
 	</div>
 {:else}
-	<h1 class="text-base">Sentence {wordIndex + 1} / {data.words.length}</h1>
+	<h1 class="text-base" use:trackActivity>Sentence {wordIndex + 1} / {data.words.length}</h1>
 
 	<Cloze
 		{sendKnowledge}

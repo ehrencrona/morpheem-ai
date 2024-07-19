@@ -5,6 +5,7 @@
 	import SpinnerButton from '../../../components/SpinnerButton.svelte';
 	import type { PageData } from './$types';
 	import { sendKnowledge } from '../api/knowledge/client';
+	import { trackActivity } from '../learn/trackActivity';
 
 	export let data: PageData;
 
@@ -44,7 +45,7 @@
 		<SpinnerButton onClick={onNext}>Start</SpinnerButton>
 	</div>
 {:else}
-	<h1 class="text-base">Sentence {sentenceIndex + 1} / {data.sentences.length}</h1>
+	<h1 class="text-base" use:trackActivity>Sentence {sentenceIndex + 1} / {data.sentences.length}</h1>
 
 	<ReadSentence
 		{sendKnowledge}

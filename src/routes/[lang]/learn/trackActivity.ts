@@ -12,21 +12,19 @@ export function trackActivity(_node: Node) {
 		lastActivityTime = Date.now();
 	}
 
-	// Function to send fetch request
 	async function sendActivityRequest() {
 		if (userActive) {
 			await sendMinuteSpent();
 
-			// Reset userActive status
 			userActive = false;
 		}
 	}
 
-	// Set interval to check user activity every minute
-	setInterval(sendActivityRequest, 60000);
+	const timer = setInterval(sendActivityRequest, 60000);
 
 	return {
 		destroy() {
+			clearInterval(timer);
 			document.removeEventListener('mousemove', updateUserActivity);
 			document.removeEventListener('keydown', updateUserActivity);
 		}
