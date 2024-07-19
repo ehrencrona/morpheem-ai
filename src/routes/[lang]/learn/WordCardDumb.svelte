@@ -60,10 +60,6 @@
 			</div>
 		{/if}
 
-		{#if expression}
-			<div class="text-xs font-lato mt-2">{expression.expression}: {expression.english}</div>
-		{/if}
-
 		{#if transliteration && getShowTransliteration()}
 			<div class="text-xs font-lato mt-2">{transliteration}</div>
 		{/if}
@@ -92,3 +88,29 @@
 		</div>
 	</div>
 </div>
+
+{#if expression}
+	<div class="bg-light-gray rounded-md w-full border border-gray md:max-w-[500px] mb-4">
+		<div class="font-medium mb-1 flex bg-blue-3 text-[#fff] px-3 py-2 rounded-t-md items-baseline">
+			<span class="text-base flex-1">
+				{expression.expression}
+			</span>
+
+			{#if onRemove}
+				<button
+					type="button"
+					on:click={onRemove}
+					class="flex justify-center items-center p-[4px] mr-[-6px] ml-1"
+				>
+					<CloseSvg />
+				</button>
+			{/if}
+		</div>
+
+		<div class="px-3 pb-4">
+			<div class="text-balance font-lato mt-2">
+				{expression.english}
+			</div>
+		</div>
+	</div>
+{/if}
