@@ -46,6 +46,7 @@
 	import WriteSentence from './learn/WriteSentence.svelte';
 	import { sendSettings } from './api/settings/client';
 	import UnitDialog from '../../components/UnitDialog.svelte';
+	import { i } from 'vitest/dist/reporters-yx5ZTtEV.js';
 
 	export let data: PageData;
 
@@ -528,11 +529,14 @@
 
 		{#if wordsKnown?.read < 10 && !unit}
 			<p class="bg-blue-1 border border-blue-4 py-2 px-4 rounded-sm inline-block text-sm mb-6">
-				If you don't want to start from a complete beginner level, take the <a
+				If you are at an intermediate or advanced level, take the <a
 					href={`${data.languageCode}/test`}
 					class="underline">placement test</a
 				>
-				or use the <a href={`/${data.languageCode}/reader`} class="underline">reader</a> to read a text.
+				to get harder exercises.
+				{#if units.length}
+					If you are a beginner, choose a level to filter out advanced grammar.
+				{/if}
 			</p>
 		{/if}
 
