@@ -4,15 +4,18 @@
 	import { getLanguageOnClient } from '../api/api-call';
 	import { getShowTransliteration } from '$lib/settings';
 	import CloseSvg from '../../../components/CloseSvg.svelte';
+	import { UnknownWordResponse } from '../api/word/unknown/+server';
 
-	export let word: DB.Word;
-	export let form: string | undefined = undefined;
+	export let word: UnknownWordResponse;
 	export let inflected: string | undefined = undefined;
 	export let onRemove: (() => void) | undefined = undefined;
 
 	export let mnemonic: string | undefined = undefined;
 	export let english: string | undefined = undefined;
-	export let transliteration: string | undefined = undefined;
+
+	$: form = word.form;
+	$: transliteration = word.transliteration;
+	$: expression = word.expression;
 
 	export let onEditMnemonic: (word: DB.Word, mnemonic?: string) => Promise<any>;
 
@@ -55,6 +58,10 @@
 				{english}{#if word.type == 'name'}
 					(name){/if}
 			</div>
+		{/if}
+
+		{#if expression}
+			<div class="text-xs font-lato mt-2">{expression.expression}: ${expression.english}</div>
 		{/if}
 
 		{#if transliteration && getShowTransliteration()}

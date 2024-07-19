@@ -52,7 +52,6 @@
 				data.word.unit = unit || undefined;
 				isEditingUnit = false;
 			}}
-			wordId={data.word.id}
 			unit={data.word.unit || null}
 		/>
 	{/if}

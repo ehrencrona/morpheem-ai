@@ -1,7 +1,8 @@
 import { logError } from '$lib/logError';
 import {
 	translateSentences,
-	translateWordInContext as translateWordInContextAi
+	translateWordInContext as translateWordInContextAi,
+	translateWordOutOfContext as translateWordOutOfContextAi
 } from '../ai/translate';
 import { storeEnglish } from '../db/sentences';
 import * as DB from '../db/types';
@@ -30,36 +31,66 @@ export async function addEnglishToSentence(
 }
 
 export async function translateWordInContext(
-	lemma: DB.Word,
+	wordString: string,
 	{
 		sentence,
 		language,
-		wordString
+		word
 	}: {
-		sentence: { id: number; sentence: string; english: string } | undefined;
+		word: DB.Word;
+		sentence: { id: number; sentence: string };
 		language: Language;
 		wordString?: string;
 	}
 ) {
-	let translation: { english: string; form?: string; transliteration?: string } | undefined =
-		await getWordTranslation(lemma.id, sentence?.id || null, language);
+	let translation: Awaited<ReturnType<typeof translateWordInContextAi>> | undefined =
+		await getWordTranslation(word.id, sentence.id, language);
 
 	if (!translation) {
-		translation = await translateWordInContextAi(
-			wordString ? wordString : lemma.word,
-			sentence,
-			language
-		);
+		translation = await translateWordInContextAi(wordString, sentence, language);
 
 		addWordTranslations({
-			wordId: lemma.id,
+			wordId: word.id,
 			sentenceId: sentence?.id,
 			english: translation.english,
 			form: translation.form || undefined,
 			transliteration: translation.transliteration,
 			language
 		}).catch((e) => {
-			e.message = `Error adding word translation for ${lemma.word}, sentence ${sentence?.id} in ${language.name}: ${e.message}`;
+			e.message = `Error adding word translation for ${wordString} (${word.id}), sentence ${sentence?.id} in ${language.name}: ${e.message}`;
+			logError(e);
+		});
+	}
+
+	return translation;
+}
+
+export async function translateWordOutOfContext(
+	wordString: string,
+	{
+		language,
+		word
+	}: {
+		word: DB.Word;
+		language: Language;
+		wordString?: string;
+	}
+) {
+	let translation: { english: string; form?: string; transliteration?: string } | undefined =
+		await getWordTranslation(word.id, null, language);
+
+	if (!translation) {
+		translation = await translateWordOutOfContextAi(wordString, language);
+
+		addWordTranslations({
+			wordId: word.id,
+			sentenceId: undefined,
+			english: translation.english,
+			form: translation.form || undefined,
+			transliteration: translation.transliteration,
+			language
+		}).catch((e) => {
+			e.message = `Error adding word translation for ${wordString} (${word.id}) in ${language.name}: ${e.message}`;
 			logError(e);
 		});
 	}

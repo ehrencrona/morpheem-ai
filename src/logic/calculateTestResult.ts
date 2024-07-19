@@ -37,7 +37,9 @@ export async function calculateTestResult({
 	const predict = (level: number) => slope * level + intercept;
 
 	console.log(
-		`Reading test result for ${userId}: Slope: ${slope}, Intercept: ${intercept}: ${[0, 50, 99]
+		`${isWrite ? 'Writing' : 'Reading'} test result for ${userId}: Slope: ${slope}, Intercept: ${intercept}: ${[
+			0, 50, 99
+		]
 			.map((level) => `level ${level}: ${Math.round(predict(level) * 100)}%`)
 			.join(', ')}`
 	);

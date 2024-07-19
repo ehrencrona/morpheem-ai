@@ -9,10 +9,8 @@
 
 	export let word: UnknownWordResponse;
 	$: inflected = word.inflected;
-	$: form = word.form;
 	$: english = word.english;
 	$: mnemonic = word.mnemonic;
-	$: transliteration = word.transliteration;
 
 	let editMnemonic: string | undefined;
 
@@ -33,12 +31,10 @@
 
 <WordCardDumb
 	{word}
-	{form}
 	{inflected}
 	{onRemove}
 	{mnemonic}
 	{english}
-	{transliteration}
 	onEditMnemonic={async (word, mnemonic) => (editMnemonic = mnemonic || '')}
 />
 

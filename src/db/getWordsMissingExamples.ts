@@ -18,7 +18,7 @@ export async function getWordsMissingExamples({
 			.withSchema(language.schema)
 			.selectFrom('words')
 			.leftJoin('word_sentences', 'word_sentences.word_id', 'words.id')
-			.select(['words.id', 'word', 'level', 'type', sql`COUNT(*)`.as('frequency')])
+			.select(['words.id', 'word', 'level', 'type', 'unit', sql`COUNT(*)`.as('frequency')])
 			.groupBy(['words.id', 'word'])
 			.having(sql`COUNT(word_sentences.sentence_id)`, '<', minSentenceCount)
 			.orderBy('frequency', 'desc')

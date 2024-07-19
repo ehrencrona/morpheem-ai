@@ -3,7 +3,7 @@ import { openai } from './openai-client';
 import { anthropic } from './anthropic-client';
 
 export type Model =
-	| 'gpt-3.5-turbo'
+	| 'gpt-4o-mini'
 	| 'gpt-4o'
 	| 'llama3-8b-8192'
 	| 'llama3-70b-8192'

@@ -97,7 +97,7 @@ export async function getLemmasOfWords(words: string[], language: Language): Pro
 			words.map((word) => word.toLowerCase())
 		)
 		.innerJoin('words', 'word_lemma.lemma_id', 'words.id')
-		.select(['words.id', 'words.word', 'type', 'level', 'word_lemma.word as inflected'])
+		.select(['words.id', 'words.word', 'type', 'level', 'unit', 'word_lemma.word as inflected'])
 		.execute();
 
 	return words

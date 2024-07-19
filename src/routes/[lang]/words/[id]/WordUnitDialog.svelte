@@ -2,7 +2,6 @@
 	import Dialog from '../../../../components/Dialog.svelte';
 	import SpinnerButton from '../../../../components/SpinnerButton.svelte';
 
-	export let wordId: number;
 	export let unit: number | null;
 
 	export let onCancel: () => void;

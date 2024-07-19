@@ -16,25 +16,14 @@ const transliterationInstructions: Record<string, string> = {
 	ko: ` Use dashes for syllable boundaries.`
 };
 
-export async function translateWordInContext(
-	lemma: string,
-	sentence: { sentence: string; english: string } | undefined,
-	language: Language
-) {
-	let isFormWanted = !!sentence || language.code == 'ko';
-
+export async function translateWordOutOfContext(wordString: string, language: Language) {
 	const definition = await ask({
 		messages: [
 			{
 				role: 'user',
 				content:
-					(sentence
-						? `The ${language.name} sentence "${sentence.sentence}" translates to "${sentence.english}". What part(s) of the English sentence corresponds to the word "${lemma}"? Answer only with the fragment of the sentence (i.e. no need to capitalize it).`
-						: `What is the English translation of the ${language.name} word "${lemma}"? Only answer with the definition (as a fragment; no final full stop).`) +
-					` ` +
-					(isFormWanted
-						? `\nOn a second line, provide the form of the word in the sentence e.g. ${formExamples[language.code]}.`
-						: '') +
+					`What is the English translation of the ${language.name} word "${wordString}"? Only answer with the definition (as a fragment; no final full stop).\n` +
+					`On a second line, provide the form of the word in the sentence e.g. ${formExamples[language.code]}.` +
 					(!language.isLatin
 						? `\nOn a new line, provide the transliteration in Latin script.${transliterationInstructions[language.code] || ''}`
 						: '')
@@ -43,15 +32,120 @@ export async function translateWordInContext(
 		temperature: 0.5,
 		max_tokens: 30,
 		logResponse: true,
-		model: 'claude-3-5-sonnet-20240620'
+		model: 'gpt-4o'
 	});
 
 	const lines = definition.split('\n');
 
 	return {
 		english: lines[0].trim(),
-		form: isFormWanted ? lines[1] : undefined,
+		form: lines[1],
 		transliteration: !language.isLatin ? lines[lines.length - 1] : undefined
+	};
+}
+
+export async function translateWordInContext(
+	wordString: string,
+	sentence: { sentence: string },
+	language: Language
+): Promise<{
+	english: string;
+	form?: string;
+	transliteration?: string;
+	expression?: { expression: string; english: string };
+}> {
+	let doTransliterate = !language.isLatin;
+
+	const response = await askForJson({
+		messages: [
+			{
+				role: 'user',
+				content:
+					`In the ${language.name} sentence "${sentence.sentence}", what does "${wordString}" mean? ` +
+					`First give the phrase the word is in. ` +
+					`Then return the single most appropriate meaning of "${wordString}". For names (of people, companies, products), just repeat the name as the definition.\n` +
+					`If "${wordString}" is part of an expression, return the expression in ${language.name} and English.\n` +
+					`Also provide the form of the word in the sentence e.g. ${formExamples[language.code]}. For names, add "name" to the form.\n` +
+					(doTransliterate
+						? `\nAnd the transliteration in Latin script.${transliterationInstructions[language.code] || ''}\n`
+						: '') +
+					`Respond with JSON in the format { phrase: string, definition: string, form:string${doTransliterate ? `, transliteration: string` : ''}, expression?: string }.`
+			}
+		],
+		temperature: 0,
+		logResponse: true,
+		model: 'claude-3-5-sonnet-20240620',
+		schema: z.object({
+			definition: z.string(),
+			form: z.string(),
+			transliteration: z.string().optional(),
+			expression: z.string().nullish()
+		})
+	});
+
+	let expression: { expression: string; english: string } | undefined;
+
+	if (response.expression) {
+		const [targetLanguage, english] = response.expression.split(' - ');
+
+		if (targetLanguage && english) {
+			expression = { expression: targetLanguage, english };
+		} else {
+			console.warn(
+				`Expected expression translation to be preceded by a dash separated by spaces: ${response.expression}`
+			);
+		}
+	}
+
+	return {
+		english: response.definition,
+		form: response.form,
+		transliteration: response.transliteration,
+		expression
+	};
+}
+
+export async function translateWordForCloze(
+	wordString: string,
+	sentence: { sentence: string; english: string },
+	language: Language
+) {
+	let doTransliterate = !language.isLatin;
+
+	const response = await askForJson({
+		messages: [
+			{
+				role: 'user',
+				content:
+					`In the ${language.name} sentence "${sentence.sentence}", what does "${wordString}" mean? ` +
+					`For names (of people, companies, products), just repeat the name and add "name" to the form.\n` +
+					`Also provide the form of the word in the sentence e.g. ${formExamples[language.code]}.\n` +
+					(doTransliterate
+						? `\nAnd the transliteration in Latin script.${transliterationInstructions[language.code] || ''}\n`
+						: '') +
+					`Respond with JSON in the format { definition: string, form:string${doTransliterate ? `, transliteration: string` : ''} }.`
+				// 	: //	`The ${language.name} sentence "${sentence.sentence}" translates to "${sentence.english}". What part(s) of the English sentence corresponds to the word "${lemma}"? Answer only with the fragment of the sentence (i.e. no need to capitalize it).`
+				// 		`What is the English translation of the ${language.name} word "${wordString}"? Only answer with the definition (as a fragment; no final full stop).`) +
+				// `\n` +
+				// `On a third line, provide the form of the word in the sentence e.g. ${formExamples[language.code]}.` +
+			}
+		],
+		temperature: 0.5,
+		logResponse: true,
+		model: 'claude-3-5-sonnet-20240620',
+		schema: z.object({
+			definition: z.string(),
+			form: z.string(),
+			transliteration: z.string().optional()
+		})
+	});
+
+	//	const lines = definition.split('\n');
+
+	return {
+		english: response.definition,
+		form: response.form,
+		transliteration: response.transliteration
 	};
 }
 
@@ -86,7 +180,7 @@ export async function translateSentences(
 			translations: z.array(z.string()),
 			transliterations: z.array(z.string()).optional()
 		}),
-		model: 'gpt-3.5-turbo',
+		model: 'gpt-4o',
 		logResponse: true
 	});
 

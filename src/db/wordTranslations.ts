@@ -10,7 +10,7 @@ export function addWordTranslations({
 	transliteration
 }: {
 	wordId: number;
-	sentenceId?: number;
+	sentenceId: number | undefined;
 	english: string;
 	language: Language;
 	form?: string;

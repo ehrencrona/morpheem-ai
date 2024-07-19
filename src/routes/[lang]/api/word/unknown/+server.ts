@@ -5,7 +5,11 @@ import { getSentence } from '../../../../../db/sentences';
 import * as DB from '../../../../../db/types';
 import { getWordByLemma, getWordsOfSentence } from '../../../../../db/words';
 import { getWordInSentence } from '../../../../../logic/getWordInSentence';
-import { addEnglishToSentence, translateWordInContext } from '../../../../../logic/translate';
+import {
+	addEnglishToSentence,
+	translateWordInContext,
+	translateWordOutOfContext
+} from '../../../../../logic/translate';
 import { logError } from '$lib/logError';
 import { CodedError } from '../../../../../CodedError';
 import { addWord } from '../../../../../logic/addWord';
@@ -23,6 +27,10 @@ export interface UnknownWordResponse extends DB.Word {
 	inflected?: string;
 	form?: string;
 	transliteration?: string;
+	expression?: {
+		expression: string;
+		english: string;
+	};
 }
 
 export const POST: ServerLoad = async ({ request, locals }) => {
@@ -30,15 +38,11 @@ export const POST: ServerLoad = async ({ request, locals }) => {
 	const { language } = locals;
 	let { word: wordString, sentenceId } = postSchema.parse(await request.json());
 
-	let sentence:
-		| (DB.Sentence & {
-				english: string;
-		  })
-		| undefined = undefined;
+	let sentence: DB.Sentence | undefined = undefined;
 	let word: DB.Word | undefined = undefined;
 
 	if (sentenceId) {
-		sentence = await addEnglishToSentence(await getSentence(sentenceId, language), language);
+		sentence = await getSentence(sentenceId, language);
 
 		try {
 			const sentenceWords = await getWordsOfSentence(sentenceId, language);
@@ -61,11 +65,16 @@ export const POST: ServerLoad = async ({ request, locals }) => {
 		}
 	}
 
-	const { english, form, transliteration } = await translateWordInContext(word, {
-		wordString,
-		sentence,
-		language
-	});
+	const { english, form, transliteration, expression } = sentence
+		? await translateWordInContext(wordString, {
+				word,
+				sentence,
+				language
+			})
+		: {
+				...(await translateWordOutOfContext(wordString, { language, word })),
+				expression: undefined
+			};
 
 	const mnemonic = await getMnemonic({ wordId: word.id, userId, language });
 
@@ -77,6 +86,7 @@ export const POST: ServerLoad = async ({ request, locals }) => {
 		inflected: wordString != word.word ? wordString : undefined,
 		form,
 		mnemonic,
-		transliteration
+		transliteration,
+		expression
 	} satisfies UnknownWordResponse);
 };

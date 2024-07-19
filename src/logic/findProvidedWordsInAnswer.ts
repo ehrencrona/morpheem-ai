@@ -6,7 +6,7 @@ import * as DB from '../db/types';
 import { getWordById, getWordByLemma } from '../db/words';
 import { UnknownWordResponse } from '../routes/[lang]/api/word/unknown/+server';
 import { addWords } from './generateExampleSentences';
-import { translateWordInContext } from './translate';
+import { translateWordInContext, translateWordOutOfContext } from './translate';
 import { Language } from './types';
 
 export async function findProvidedWordsInAnswer({
@@ -79,7 +79,10 @@ export function wordsToUnknownWords(
 ): Promise<UnknownWordResponse[]> {
 	return Promise.all(
 		words.map(async (word) => {
-			const { english } = await translateWordInContext(word, { language, sentence: undefined });
+			const { english } = await translateWordOutOfContext(word.word, {
+				word,
+				language
+			});
 
 			const mnemonic = await getMnemonic({ wordId: word.id, userId, language });
 
