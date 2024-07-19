@@ -2,9 +2,11 @@ import { dateToTime } from '../logic/isomorphic/knowledge';
 import type { Language } from '../logic/types';
 import { db } from './client';
 import {
+	isBetaExercise,
 	KNOWLEDGE_TYPE_CLOZE,
 	KNOWLEDGE_TYPE_CLOZE_INFLECTION,
-	KNOWLEDGE_TYPE_READ
+	KNOWLEDGE_TYPE_READ,
+	knowledgeTypeToExercise
 } from './knowledgeTypes';
 import { AggKnowledgeForUser, WordType } from './types';
 
@@ -39,36 +41,6 @@ export function addKnowledge(
 		.execute();
 }
 
-export function addAggregateKnowledgeUnlessExists(
-	knowledge: {
-		alpha: number;
-		beta: number | null;
-		wordId: number;
-	}[],
-	userId: number,
-	language: Language
-) {
-	return db.transaction().execute(async (transaction) => {
-		const time = new Date();
-		const rows = knowledge.map(({ alpha, beta, wordId }) => ({
-			word_id: wordId,
-			user_id: userId,
-			alpha,
-			beta,
-			time
-		}));
-
-		for (const batch of toBatches(rows, 200)) {
-			await transaction
-				.withSchema(language.schema)
-				.insertInto('aggregate_knowledge')
-				.values(batch)
-				.onConflict((oc) => oc.columns(['word_id', 'user_id']).doNothing())
-				.execute();
-		}
-	});
-}
-
 function toBatches<T>(arr: T[], size: number): T[][] {
 	const batches = [];
 	for (let i = 0; i < arr.length; i += size) {
@@ -77,11 +49,17 @@ function toBatches<T>(arr: T[], size: number): T[][] {
 	return batches;
 }
 
-export async function setBetaIfNull(
+/** Set the read or write knowledge in aggregate_knowledge for the test result, but only do it
+ * if the user hasn't studied the word before (if they have, we have real data).
+ * Note that you might be running the test for the second time.
+ */
+export async function storeTestResult(
 	knowledge: {
+		alpha: number;
 		beta: number | null;
 		wordId: number;
 	}[],
+	fieldToSet: 'beta' | 'alpha',
 	userId: number,
 	language: Language
 ) {
@@ -91,31 +69,44 @@ export async function setBetaIfNull(
 		return;
 	}
 
-	return db.transaction().execute(async (transaction) => {
-		const wordIdToSet = await transaction
-			.withSchema(language.schema)
-			.selectFrom('aggregate_knowledge')
-			.select(['word_id'])
-			.where('beta', 'is', null)
-			.where('user_id', '=', userId)
-			.where(
-				'word_id',
-				'in',
-				knowledge.map(({ wordId }) => wordId)
-			)
-			.execute();
+	const existingWordKnowledge = (
+		await getRawKnowledgeForUser({
+			userId,
+			language
+		})
+	).reduce(
+		(acc, { word_id, type }) => {
+			if (!(fieldToSet == 'beta' && !isBetaExercise(knowledgeTypeToExercise(type)))) {
+				acc[word_id] = true;
+			}
 
-		for (const { wordId, beta } of knowledge) {
-			if (wordIdToSet.some(({ word_id }) => word_id === wordId)) {
+			return acc;
+		},
+		{} as Record<number, boolean>
+	);
+
+	const time = new Date();
+
+	return db.transaction().execute(async (transaction) => {
+		for (const { wordId, alpha, beta } of knowledge) {
+			if (!existingWordKnowledge[wordId]) {
 				await transaction
 					.withSchema(language.schema)
-					.updateTable('aggregate_knowledge')
-					.set({
-						beta,
-						time: new Date()
-					})
-					.where('word_id', '=', wordId)
-					.where('user_id', '=', userId)
+					.insertInto('aggregate_knowledge')
+					.values([
+						{
+							user_id: userId,
+							word_id: wordId,
+							alpha,
+							beta,
+							time
+						}
+					])
+					.onConflict((oc) =>
+						oc
+							.columns(['word_id', 'user_id'])
+							.doUpdateSet(fieldToSet == 'alpha' ? { alpha, time } : { beta, time })
+					)
 					.execute();
 			}
 		}

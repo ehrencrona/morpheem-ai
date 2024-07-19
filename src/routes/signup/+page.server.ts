@@ -52,7 +52,7 @@ export const actions: Actions = {
 				id: userId,
 				username: username,
 				password_hash: passwordHash
-			})
+			} as any)
 			.execute();
 
 		console.log(`User ${username} signed up.`);

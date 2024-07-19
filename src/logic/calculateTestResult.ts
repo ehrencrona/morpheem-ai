@@ -1,9 +1,5 @@
 import { linearRegression } from 'simple-statistics';
-import {
-	addAggregateKnowledgeUnlessExists,
-	getRawKnowledgeJoinedWithWordsForUser,
-	setBetaIfNull
-} from '../db/knowledge';
+import { getRawKnowledgeJoinedWithWordsForUser, storeTestResult } from '../db/knowledge';
 import { KNOWLEDGE_TYPE_READ } from '../db/knowledgeTypes';
 import { ExerciseSource } from '../db/types';
 import { getWords } from '../db/words';
@@ -82,13 +78,11 @@ export async function calculateTestResult({
 		}
 	}
 
-	console.log(`Adding ${knowledge.length} words to knowledge of user ${userId}`);
+	console.log(`Adding ${knowledge.length} words to knowledge of user ${userId}...`);
 
-	await addAggregateKnowledgeUnlessExists(knowledge, userId, language);
+	await storeTestResult(knowledge, isWrite ? 'beta' : 'alpha', userId, language);
 
-	if (isWrite) {
-		await setBetaIfNull(knowledge, userId, language);
-	}
+	console.log(`Done adding knowledge for user ${userId}.`);
 
 	return {
 		level: highestLevel,

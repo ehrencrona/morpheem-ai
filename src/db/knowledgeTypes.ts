@@ -37,3 +37,11 @@ export function exerciseToKnowledgeType(exercise: ExerciseType): number {
 
 	return res;
 }
+
+export function isAlphaExercise(exercise: ExerciseType) {
+	return exercise == 'read';
+}
+
+export function isBetaExercise(exercise: ExerciseType) {
+	return !isAlphaExercise(exercise);
+}

@@ -3,6 +3,7 @@ import { AggKnowledgeForUser, ExerciseSource, Scoreable } from '../../db/types';
 import type { CandidateSentenceWithWords, ExerciseType } from '../types';
 import { expectedKnowledge, calculateRepetitionValue, now } from './knowledge';
 import * as DB from '../../db/types';
+import { isAlphaExercise, isBetaExercise } from '../../db/knowledgeTypes';
 
 export function getExerciseForKnowledge(knowledge: AggKnowledgeForUser[]) {
 	return getExercisesForKnowledge(knowledge)[0];
@@ -134,7 +135,8 @@ export function getNextSentence(
 
 			const score = expectedKnowledge(wordKnowledge, {
 				now: now(),
-				exercise: exercise == 'read' || exercise == 'cloze' ? 'read' : 'write'
+				exercise:
+					exercise == 'read' || exercise == 'cloze' || exercise == 'phrase-cloze' ? 'read' : 'write'
 			});
 
 			message += ` (${word.id}, ${Math.round(score * 100)}% known)`;
