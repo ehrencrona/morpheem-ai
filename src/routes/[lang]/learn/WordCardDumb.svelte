@@ -61,7 +61,7 @@
 		{/if}
 
 		{#if expression}
-			<div class="text-xs font-lato mt-2">{expression.expression}: ${expression.english}</div>
+			<div class="text-xs font-lato mt-2">{expression.expression}: {expression.english}</div>
 		{/if}
 
 		{#if transliteration && getShowTransliteration()}
