@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import * as DB from '../db/types';
 
-export type LanguageCode = 'pl' | 'fr' | 'es' | 'ko' | 'nl' | 'ru';
+export type LanguageCode = 'pl' | 'fr' | 'es' | 'ko' | 'nl' | 'ru' | 'sv';
 
 export interface Language {
 	code: LanguageCode;

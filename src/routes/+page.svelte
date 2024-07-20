@@ -1,6 +1,6 @@
 <script>
 	import '../app.css';
-	import { DUTCH, FRENCH, KOREAN, POLISH, RUSSIAN, SPANISH } from '../constants';
+	import { DUTCH, FRENCH, KOREAN, POLISH, RUSSIAN, SPANISH, SWEDISH } from '../constants';
 	import { fade } from 'svelte/transition';
 
 	let isSelectLanguage = false;
@@ -41,7 +41,7 @@
 			>
 				<p class="text-center mb-12">What language do you want to learn?</p>
 				<div class="w-full my-4 grid grid-cols-3 gap-12 gap-y-12 md:gap-20 max-w-[800px] mx-auto">
-					{#each [POLISH, KOREAN, SPANISH, FRENCH, DUTCH, RUSSIAN] as language}
+					{#each [POLISH, KOREAN, SPANISH, FRENCH, DUTCH, RUSSIAN, SWEDISH] as language}
 						<a href="/{language.code}">
 							<img
 								src="/flags/{language.name.toLowerCase()}.svg"
@@ -62,7 +62,7 @@
 
 	<div class="flex flex-col gap-8 items-center justify-center">
 		<div class="flex mt-10 w-[800px] max-w-[90vw]">
-			{#each [POLISH, KOREAN, SPANISH, FRENCH, DUTCH, RUSSIAN] as language}
+			{#each [POLISH, SWEDISH, KOREAN, SPANISH, FRENCH, DUTCH, RUSSIAN] as language}
 				<div class="flex-1 flex justify-center">
 					<a
 						href="/{language.code}"
@@ -79,7 +79,7 @@
 			{/each}
 		</div>
 		<div class="text-sm text-center text-balance">
-			Currently available in Polish, Korean, Spanish, French, Dutch and Russian.
+			Currently available in Polish, Swedish, Korean, Spanish, French, Dutch and Russian.
 			<div class="mt-2">Languages can be added on request.</div>
 		</div>
 	</div>

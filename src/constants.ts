@@ -42,4 +42,11 @@ export const RUSSIAN: Language = {
 	isLatin: false
 };
 
-export const languages = [POLISH, FRENCH, SPANISH, KOREAN, DUTCH, RUSSIAN];
+export const SWEDISH: Language = {
+	code: 'sv',
+	name: 'Swedish',
+	schema: 'sv',
+	isLatin: true
+};
+
+export const languages = [POLISH, FRENCH, SPANISH, KOREAN, DUTCH, RUSSIAN, SWEDISH];

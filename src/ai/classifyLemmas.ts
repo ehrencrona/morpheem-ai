@@ -99,6 +99,12 @@ export async function classifyLemmas(
 		книга: book, other
 		саша: Sasha, name
 		в: in, particle
+		`,
+		sv: `bok: book, cognate
+		bilen: car, inflection
+		erik: Erik, name
+		rom: Rom, name
+		vara: be, other
 		`
 	};
 
@@ -229,6 +235,11 @@ function isPlausibleCognate(word: string, translation: string, language: Languag
 	if (!language.isLatin) {
 		// no idea how to check for non-Latin cognates
 		return true;
+	}
+
+	if (language.code == 'sv') {
+		word = word.replace(/v/g, 'w');
+		word = word.replace(/å/g, 'o');
 	}
 
 	const wordLetters = word.toLowerCase().split('');
