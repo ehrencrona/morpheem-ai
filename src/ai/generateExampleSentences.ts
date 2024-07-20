@@ -9,7 +9,8 @@ const names: Record<LanguageCode, string> = {
 	es: `Juan, María, Pedro, Ana`,
 	ko: `민준, 서연, 서준, 지우`,
 	nl: `Jan, Emma, Willem, Sophie`,
-	ru: `Дима, Катя, Ваня, Лена (or their formal versions)`
+	ru: `Дима, Катя, Ваня, Лена (or their formal versions)`,
+	sv: `Erik, Anna, Lars, Kristina`
 };
 
 export async function generateExampleSentences(

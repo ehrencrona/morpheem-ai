@@ -1,6 +1,6 @@
 import { page } from '$app/stores';
 import { get } from 'svelte/store';
-import { DUTCH, FRENCH, KOREAN, POLISH, RUSSIAN, SPANISH } from '../../../constants';
+import { DUTCH, FRENCH, KOREAN, POLISH, RUSSIAN, SPANISH, SWEDISH } from '../../../constants';
 import type { Language, LanguageCode } from '../../../logic/types';
 
 export async function apiCall(path: string, options: RequestInit) {
@@ -31,7 +31,8 @@ const langs: Record<LanguageCode, Language> = {
 	es: SPANISH,
 	ko: KOREAN,
 	nl: DUTCH,
-	ru: RUSSIAN
+	ru: RUSSIAN,
+	sv: SWEDISH
 };
 
 export function getLanguageOnClient() {

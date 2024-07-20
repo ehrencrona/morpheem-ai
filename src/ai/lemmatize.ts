@@ -131,11 +131,11 @@ async function lemmatizeBatch(
 물 주세요 becomes 물 (물) 주세요 (주다)
 케이크이다 becomes 케이크이다 (케이크)
 서연이네 becomes 서연이네 (서연)`,
-		nl: `Komt anna's man mee
+		nl: `Komt Anna's man mee
 
 becomes
 
-Komt (komen) anna's (anna) man (man) mee (met)
+Komt (komen) Anna's (Anna) man (man) mee (met)
 
 Je bent de ergste
 
@@ -153,7 +153,12 @@ Het (het) zijn (zijn) onze (ons) boekjes (boek)
 
 becomes
 
-Как (как) дела (дело)`
+Как (как) дела (дело)`,
+		sv: `Här bakas bullar
+
+becomes
+
+Här (här) bakas (baka) bullar (bulle)`
 	};
 
 	const response = await ask({

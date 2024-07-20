@@ -9,7 +9,8 @@ const examples: Record<LanguageCode, string> = {
 	pl: `{ cloze: "Nie wiem ___.", englishMisisngPart: "what to say", rightAnswer: "co powiedzieć", correctness: "The sentence is grammatically correct and sensible and tests using irrogative pronouns.", isCorrect: true }`,
 	ru: `{ cloze: "Я не знаю ___.", englishMisisngPart: "what to say", rightAnswer: "что сказать", correctness: "The sentence is grammatically correct and sensible and tests using irrogative pronouns.", isCorrect: true }`,
 	nl: `{ cloze: "Ik weet niet ___.", englishMisisngPart: "what to say", rightAnswer: "wat te zeggen", correctness: "The sentence is grammatically correct and sensible and tests using irrogative pronouns.", isCorrect: true }`,
-	fr: `{ cloze: "Je ne sais pas ___.", englishMisisngPart: "what to say", rightAnswer: "quoi dire", correctness: "The sentence is grammatically correct and sensible and tests using irrogative pronouns.", isCorrect: true }`
+	fr: `{ cloze: "Je ne sais pas ___.", englishMisisngPart: "what to say", rightAnswer: "quoi dire", correctness: "The sentence is grammatically correct and sensible and tests using irrogative pronouns.", isCorrect: true }`,
+	sv: `{ cloze: "Jag vet inte ___.", englishMisisngPart: "what to say", rightAnswer: "vad jag ska säga", correctness: "The sentence is grammatically correct and sensible and tests using irrogative pronouns.", isCorrect: true }`
 };
 
 export function generateCloze(

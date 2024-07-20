@@ -152,7 +152,9 @@ export async function getSentencesWords(
 	missingWords.forEach((missingWord, i) => {
 		const wordLemmas = allLemmas[i];
 
-		if (wordLemmas.length > 0) {
+		// in Swedish the lemmatization is reliable enough (and there are enough homonyms) that this just causes false postives
+		// maybe also the case for other languages with claude?
+		if (wordLemmas.length > 0 && language.code != 'sv') {
 			const rightLemma = wordLemmas[0];
 
 			console.error(
