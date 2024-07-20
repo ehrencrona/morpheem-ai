@@ -74,6 +74,15 @@ export async function addSentence(
 	return { ...sentence, words };
 }
 
+export async function setSentenceUnit(unit: number | null, sentenceId: number, language: Language) {
+	await db
+		.withSchema(language.schema)
+		.updateTable('sentences')
+		.set({ unit })
+		.where('id', '=', sentenceId)
+		.execute();
+}
+
 export async function getSentences(language: Language, unit?: number): Promise<Sentence[]> {
 	let select = db
 		.withSchema(language.schema)

@@ -18,21 +18,22 @@ export async function addSentencesForWord(
 	{
 		userId,
 		language,
+		level,
 		retriesLeft = 1
-	}: { userId?: number; language: Language; retriesLeft?: number }
+	}: { userId?: number; language: Language; retriesLeft?: number; level?: number }
 ): ReturnType<typeof getSentencesWithWord> {
 	async function getSentences() {
 		return userId
 			? (
 					await generatePersonalizedExampleSentences(word.word, {
-						level: word.level,
+						level: level || word.level,
 						userId,
 						language
 					})
 				).map(({ sentence }) => sentence)
 			: await generateExampleSentences(word.word, {
 					language,
-					level: word.level < 99 ? word.level : undefined
+					level: (level || word.level) < 99 ? level || word.level : undefined
 				});
 	}
 

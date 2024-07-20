@@ -1,5 +1,8 @@
 <script lang="ts">
+	import SpinnerButton from '../../../../components/SpinnerButton.svelte';
 	import { callDeleteSentence } from '../../api/sentences/[sentence]/client';
+	import { sendSentenceUnit } from '../../api/sentences/[sentence]/unit/client';
+	import { sendWordUnit } from '../../api/word/[id]/unit/client';
 	import type { PageData } from './$types';
 
 	export let data: PageData;
@@ -61,15 +64,21 @@
 
 	let filterWord: string | undefined = undefined;
 
-	function deleteSentence(id: number) {
+	async function deleteSentence(id: number) {
+		await callDeleteSentence(id);
 		data.sentences = data.sentences.filter((s) => s.id !== id);
+	}
 
-		callDeleteSentence(id);
+	async function removeFromUnit(id: number) {
+		await sendSentenceUnit(null, id);
+		data.sentences = data.sentences.filter((s) => s.id !== id);
 	}
 
 	function sortWordEntries(words: Record<string, number>) {
 		return Object.entries(words).sort((a, b) => a[0].localeCompare(b[0]));
 	}
+
+	let isShowAllEarlier = false;
 </script>
 
 <h1 class="text-lg font-sans font-bold mt-8 mb-8">{data.unit.name}</h1>
@@ -92,7 +101,7 @@
 <h2>Earlier units</h2>
 
 <div class="flex flex-wrap gap-2 mb-8">
-	{#each sortWordEntries(wordCountsEarlier) as [word, count]}
+	{#each sortWordEntries(wordCountsEarlier).slice(0, isShowAllEarlier ? undefined : 20) as [word, count]}
 		<button
 			class="whitespace-nowrap text-white px-2 py-1 rounded-md {word == filterWord
 				? 'bg-blue-4'
@@ -102,6 +111,15 @@
 			{word}: {count}
 		</button>
 	{/each}
+
+	{#if Object.keys(wordCountsEarlier).length > 20}
+		<button
+			on:click={() => (isShowAllEarlier = !isShowAllEarlier)}
+			class="whitespace-nowrap text-blue-3 px-2 py-1"
+		>
+			{isShowAllEarlier ? 'Show less' : 'Show more'}
+		</button>
+	{/if}
 </div>
 
 {#if Object.entries(wordCountsWrong).length}
@@ -129,10 +147,18 @@
 			<span class="text-xxs">
 				#{sentence.id}
 			</span>
-			<button
-				class="ml-2 border rounded-sm px-2 text-xs text-blue-3"
-				on:click={() => deleteSentence(sentence.id)}>Delete</button
+			<SpinnerButton
+				className="ml-2 border rounded-sm px-2 text-xs text-blue-3"
+				onClick={() => deleteSentence(sentence.id)}
 			>
+				Delete
+			</SpinnerButton>
+			<SpinnerButton
+				className="ml-2 border rounded-sm px-2 text-xs text-blue-3"
+				onClick={() => removeFromUnit(sentence.id)}
+			>
+				Remove
+			</SpinnerButton>
 		</li>
 	{/each}
 </ul>
