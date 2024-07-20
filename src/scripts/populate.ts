@@ -5,6 +5,7 @@ import { addWord, deleteWord } from '../db/words';
 import { addSentencesForWord } from '../logic/addSentencesForWord';
 
 const language = SWEDISH;
+const level = 10;
 
 export async function addSentencesForMissingWords() {
 	await addWord('hus', { language, type: null });
@@ -18,7 +19,7 @@ export async function addSentencesForMissingWords() {
 	await parallelize(
 		words.map((word) => async () => {
 			try {
-				return await addSentencesForWord(word, { language });
+				return await addSentencesForWord(word, { language, level });
 			} catch (e: any) {
 				if (e.code == 'wrongLemma') {
 					console.error(e.message);
