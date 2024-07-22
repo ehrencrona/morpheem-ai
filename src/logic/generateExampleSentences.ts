@@ -14,6 +14,7 @@ import { expectedKnowledge, now } from './isomorphic/knowledge';
 import { toWordStrings } from './toWordStrings';
 import { Language } from './types';
 import { unzip, zip } from '$lib/zip';
+import { dedup } from '$lib/dedup';
 
 export async function generateExampleSentences(
 	lemma: string,
@@ -268,8 +269,4 @@ export async function addWords(wordStrings: string[], language: Language) {
 			})
 		)
 	);
-}
-
-function dedup(array: string[]) {
-	return [...new Set(array)];
 }

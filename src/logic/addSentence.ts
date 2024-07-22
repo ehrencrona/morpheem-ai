@@ -11,6 +11,7 @@ import { WordType } from '../db/types';
 import { getLevelForCognate } from './isomorphic/getNext';
 import { lemmatizeSentences } from './lemmatize';
 import { Language } from './types';
+import { dedup } from '$lib/dedup';
 
 /**
  * Some sentences might fail to save, in which case they won't be returned.
@@ -169,7 +170,7 @@ export async function getSentencesWords(
 		}
 	});
 
-	missingWords = lemmas.flat().filter((lemma) => !words.some((word) => word.word == lemma));
+	missingWords = dedup(lemmas.flat().filter((lemma) => !words.some((word) => word.word == lemma)));
 
 	if (missingWords.length) {
 		let lemmaTypes = await classifyLemmas(missingWords, { language, throwOnInvalid: false });
