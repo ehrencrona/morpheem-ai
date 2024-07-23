@@ -159,12 +159,14 @@ export async function getWords({
 	orderBy = 'id asc',
 	unit,
 	upToUnit,
-	language
+	language,
+	limit
 }: {
 	orderBy?: 'word asc' | 'id asc' | 'level asc';
 	language: Language;
 	unit?: number;
 	upToUnit?: number;
+	limit?: number;
 }): Promise<DB.Word[]> {
 	let select = db
 		.withSchema(language.schema)
@@ -178,6 +180,10 @@ export async function getWords({
 
 	if (upToUnit) {
 		select = select.where('unit', '<=', upToUnit);
+	}
+
+	if (limit) {
+		select = select.limit(limit);
 	}
 
 	return (await select.execute()).map(toWord);
@@ -296,7 +302,7 @@ export async function getWordsOfSentence(
 			.withSchema(language.schema)
 			.selectFrom('word_sentences')
 			.innerJoin('words', 'word_id', 'id')
-			.select(['word', 'word_index', 'id', 'level', 'type'])
+			.select(['word', 'word_index', 'id', 'level', 'type', 'unit'])
 			.where('sentence_id', '=', sentenceId)
 			.orderBy('word_index')
 			.$narrowType<{ word: NotNull }>()
@@ -316,7 +322,7 @@ export async function getWordsOfSentences(
 		.withSchema(language.schema)
 		.selectFrom('word_sentences')
 		.innerJoin('words', 'word_id', 'id')
-		.select(['word', 'word_index', 'id', 'level', 'type', 'sentence_id'])
+		.select(['word', 'word_index', 'id', 'level', 'type', 'sentence_id', 'unit'])
 		.where('sentence_id', 'in', sentenceIds)
 		.orderBy(['sentence_id', 'word_index'])
 		.$narrowType<{ word: NotNull }>()
@@ -349,12 +355,14 @@ function toSentenceWord(row: {
 	id: number;
 	level: number;
 	type: string | null;
+	unit: number | null;
 }): SentenceWord {
 	return {
 		id: row.id,
 		word: row.word,
 		level: row.level,
 		type: row.type ? (row.type as DB.WordType) : undefined,
-		word_index: row.word_index
+		word_index: row.word_index,
+		unit: row.unit || undefined
 	};
 }

@@ -1,4 +1,3 @@
-import { redirectToLogin } from '$lib/redirectToLogin';
 import { error, redirect, type ServerLoad } from '@sveltejs/kit';
 import {
 	getAggregateKnowledgeForUserWords,
@@ -23,11 +22,7 @@ import {
 } from '../../../../logic/isomorphic/knowledge';
 import { AlphaBeta } from '../../../../logic/types';
 
-export const load: ServerLoad = async ({ params, url, locals: { language, userId } }) => {
-	if (!userId) {
-		return redirectToLogin(url);
-	}
-
+export const load: ServerLoad = async ({ params, locals: { language, userId, isAdmin } }) => {
 	const wordId = parseInt(params.id!);
 
 	if (isNaN(wordId)) {
@@ -46,18 +41,20 @@ export const load: ServerLoad = async ({ params, url, locals: { language, userId
 	const word = await getWordById(wordId, language);
 
 	const sentences = await getSentencesWithWord(wordId, {
-		userId,
+		userId: userId || undefined,
 		language,
 		limit: 30
 	});
 
 	const forms = await getForms(wordId, language);
 
-	const knowledge = await getAggregateKnowledgeForUserWords({
-		userId: userId!,
-		wordIds: [wordId],
-		language
-	});
+	const knowledge = userId
+		? await getAggregateKnowledgeForUserWords({
+				userId,
+				wordIds: [wordId],
+				language
+			})
+		: [];
 
 	const readKnowledge = knowledge.length
 		? expectedKnowledge(knowledge[0], { now: now(), exercise: 'read' })
@@ -130,6 +127,7 @@ export const load: ServerLoad = async ({ params, url, locals: { language, userId
 		knowledgeLength: rawKnowledge.length,
 		mnemonic,
 		translations,
-		languageCode: language.code
+		languageCode: language.code,
+		isAdmin
 	};
 };

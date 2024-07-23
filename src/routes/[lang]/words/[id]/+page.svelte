@@ -1,13 +1,18 @@
 <script lang="ts">
 	import { getRepetitionTime } from '$lib/settings';
 	import EditSvg from '../../../../components/EditSvg.svelte';
+	import SpinnerButton from '../../../../components/SpinnerButton.svelte';
 	import { calculateOptimalTime } from '../../../../logic/isomorphic/knowledge';
 	import { getLanguageOnClient } from '../../api/api-call';
+	import { callDeleteSentence } from '../../api/sentences/[sentence]/client';
 	import { sendWordUnit } from '../../api/word/[id]/unit/client';
 	import type { PageData } from './$types';
 	import WordUnitDialog from './WordUnitDialog.svelte';
 
 	export let data: PageData;
+
+	$: isAdmin = data.isAdmin;
+	$: word = data.word;
 
 	function formatDateTime(date: Date) {
 		// e.g. May 1st, 12:30
@@ -19,6 +24,11 @@
 		});
 	}
 
+	async function deleteSentence(id: number) {
+		await callDeleteSentence(id);
+		data.sentences = data.sentences.filter((s) => s.id !== id);
+	}
+
 	const toPercent = (n: number) => `${(n * 100).toFixed(0)}%`;
 
 	let isEditingUnit = false;
@@ -26,21 +36,23 @@
 
 <main>
 	&lt; <a href="." class="underline text-sm">All words</a>
-	<h1 class="text-xl font-bold my-4">{data.word?.word}</h1>
+	<h1 class="text-xl font-bold my-4">{word.word}</h1>
 
-	<a
-		href={`/${getLanguageOnClient().code}/words/${data.word.id}/delete`}
-		class="block mb-4 text-sm text-red absolute right-0 top-0 px-3 py-1 border border-red rounded m-2"
-	>
-		Delete
-	</a>
+	{#if data.isAdmin}
+		<a
+			href={`/${getLanguageOnClient().code}/words/${word.id}/delete`}
+			class="block mb-4 text-sm text-red absolute right-0 top-0 px-3 py-1 border border-red rounded m-2"
+		>
+			Delete
+		</a>
+	{/if}
 
 	<div class="my-4">
-		<p><b>Level</b>: {data.word.level}%</p>
-		<p><b>Type</b>: {data.word.type}</p>
+		<p><b>Level</b>: {word.level}%</p>
+		<p><b>Type</b>: {word.type || '-'}</p>
 		<p><b>Mnemonic</b>: {data.mnemonic || '-'}</p>
 		<p>
-			<b>Unit</b>: {data.word.unit || '-'}
+			<b>Unit</b>: {#if word.unit}<a href="../units/{word.unit}" class="underline">#{word.unit}</a>{:else}-{/if}
 			<button
 				class="ml-2 w-5 h-5 hover:border-blue-3 border-2 border-white p-[2px] inline-block"
 				on:click={() => (isEditingUnit = true)}
@@ -54,11 +66,11 @@
 		<WordUnitDialog
 			onCancel={() => (isEditingUnit = false)}
 			save={async (unit) => {
-				sendWordUnit(unit, data.word.id);
-				data.word.unit = unit || undefined;
+				sendWordUnit(unit, word.id);
+				word.unit = unit || undefined;
 				isEditingUnit = false;
 			}}
-			unit={data.word.unit || null}
+			unit={word.unit || null}
 		/>
 	{/if}
 
@@ -76,11 +88,28 @@
 
 	<h2 class="font-bold mt-8 mb-2">Sentences</h2>
 
-	{#each data.sentences as sentence}
-		<p class="my-1">
-			<a href={`/${data.languageCode}/sentences/${sentence.id}`}>{sentence.sentence}</a>
-		</p>
-	{/each}
+	<div class="grid grid-cols-[auto_1fr_auto] items-baseline gap-x-2 gap-y-1">
+		{#each data.sentences as sentence}
+			<span class="text-xxs">
+				#{sentence.id}
+			</span>
+
+			<a href="../sentences/{sentence.id}" class="pb-1 border-b-[1px] border-gray">
+				{sentence.sentence}
+			</a>
+
+			<div>
+				{#if isAdmin}
+					<SpinnerButton
+						className="ml-2 border rounded-sm px-2 text-xs text-blue-3"
+						onClick={() => deleteSentence(sentence.id)}
+					>
+						Delete
+					</SpinnerButton>
+				{/if}
+			</div>
+		{/each}
+	</div>
 
 	{#if data.forms.length}
 		<h2 class="font-bold mt-8 mb-2">Forms</h2>
@@ -89,10 +118,12 @@
 			{#each data.forms as form}
 				<li class="bg-blue-1 border-blue-1 rounded-lg px-5 py-1">
 					{form.word}
-					<a
-						href={`/${getLanguageOnClient().code}/words/${data.word.id}/delete/lemma/${form.word}`}
-						class="underline text-xs font-lato text-red ml-2">Delete</a
-					>
+					{#if data.isAdmin}
+						<a
+							href={`/${getLanguageOnClient().code}/words/${word.id}/delete/lemma/${form.word}`}
+							class="underline text-xs font-lato text-red ml-2">Delete</a
+						>
+					{/if}
 				</li>
 			{/each}
 		</ul>

@@ -2,10 +2,11 @@
 	import SpinnerButton from '../../../../components/SpinnerButton.svelte';
 	import { callDeleteSentence } from '../../api/sentences/[sentence]/client';
 	import { sendSentenceUnit } from '../../api/sentences/[sentence]/unit/client';
-	import { sendWordUnit } from '../../api/word/[id]/unit/client';
-	import type { PageData } from '../../unit/[unit]/$types';
+	import type { PageData } from './$types';
 
 	export let data: PageData;
+
+	$: isAdmin = data.isAdmin;
 
 	$: wordCountsThis = data.sentences.reduce(
 		(acc, sentence) => {
@@ -77,7 +78,7 @@
 	{/each}
 </div>
 
-{#if Object.entries(wordCountsExcessive).length}
+{#if Object.entries(wordCountsExcessive).length && isAdmin}
 	<h2 class="mb-2 text-sm font-bold">Not in vocabulary</h2>
 
 	<div class="flex flex-wrap gap-2 mb-8">
@@ -116,18 +117,20 @@
 		</a>
 
 		<div>
-			<SpinnerButton
-				className="ml-2 border rounded-sm px-2 text-xs text-blue-3"
-				onClick={() => deleteSentence(sentence.id)}
-			>
-				Delete
-			</SpinnerButton>
-			<SpinnerButton
-				className="ml-2 border rounded-sm px-2 text-xs text-blue-3"
-				onClick={() => removeFromUnit(sentence.id)}
-			>
-				Remove
-			</SpinnerButton>
+			{#if isAdmin}
+				<SpinnerButton
+					className="ml-2 border rounded-sm px-2 text-xs text-blue-3"
+					onClick={() => deleteSentence(sentence.id)}
+				>
+					Delete
+				</SpinnerButton>
+				<SpinnerButton
+					className="ml-2 border rounded-sm px-2 text-xs text-blue-3"
+					onClick={() => removeFromUnit(sentence.id)}
+				>
+					Remove
+				</SpinnerButton>
+			{/if}
 		</div>
 	{/each}
 </div>

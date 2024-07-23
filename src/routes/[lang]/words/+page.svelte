@@ -1,6 +1,9 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { fetchWordsByPrefix } from '../api/word/prefix/[prefix]/client';
+	import type { PageData } from './$types';
+
+	export let data: PageData;
 
 	let searchString: string;
 
@@ -31,7 +34,7 @@
 	</div>
 
 	<div class="flex gap-2 flex-wrap mt-4">
-		{#each words as word}
+		{#each (words.length ? words : data.words) as word}
 			<div class="bg-blue-1 border-blue-1 rounded-lg px-5 py-1 whitespace-nowrap">
 				<a href={`words/${word}`}>{word}</a>
 			</div>

@@ -8,6 +8,7 @@ declare global {
 		// interface Error {}
 		interface Locals {
 			user: User | null;
+			isAdmin: boolean;
 			session: Session | null;
 			language: Language;
 			userId: number | null;

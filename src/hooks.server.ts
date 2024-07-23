@@ -18,6 +18,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 	if (!sessionId) {
 		event.locals.user = null;
 		event.locals.session = null;
+		event.locals.isAdmin = false;
 	}
 
 	let { session, user } = sessionId
@@ -56,6 +57,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 	event.locals.user = user;
 	event.locals.userId = user?.num || null;
 	event.locals.session = session;
+	event.locals.isAdmin = user?.num == 4711;
 
 	const languageCode = event.url.pathname.split('/')[1];
 

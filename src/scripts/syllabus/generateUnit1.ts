@@ -1,7 +1,9 @@
 import { z } from 'zod';
 import { askForJson } from '../../ai/askForJson';
-import { units } from './syllabus';
 import { readFileSync, writeFileSync } from 'fs';
+import { getUnits } from '../../db/units';
+import { POLISH } from '../../constants';
+import { getWords } from '../../db/words';
 
 async function askForUnit() {
 	const res = await askForJson({
@@ -17,7 +19,7 @@ async function askForUnit() {
       
       Vocabulary:
       
-      ${units[0].words.join(', ')}
+      ${(await getWords({ upToUnit: 1, language: POLISH })).map((w) => w.word).join(', ')}
       
       Return JSON with first the sentence, then double check that the sentence only uses nominative singular and then double check that the sentence makes sense and is grammatically correct e.g.
       
