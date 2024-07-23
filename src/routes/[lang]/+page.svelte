@@ -470,11 +470,11 @@
 
 	{#if current}
 		<div class="flex mb-4 lg:mb-1 pb-3 bg-[#f9f9f9] lg:bg-white -mt-4 pt-4 h-12">
-			{#if current.source == 'unstudied'}
-				<div class="flex-1 font-lato text-xs flex items-center">
+			<div class="flex-1 font-lato text-xs flex items-center">
+				{#if current.source == 'unstudied'}
 					<div class="bg-red text-[#fff] px-1 font-sans text-xxs ml-12 lg:ml-0">NEW WORD</div>
-				</div>
-			{/if}
+				{/if}
+			</div>
 
 			<div class="font-lato text-xxs flex gap-3 justify-end text-gray-1">
 				{#if current.id != null}
