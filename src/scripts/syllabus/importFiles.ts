@@ -42,12 +42,16 @@ for (let unitNumber = 1; unitNumber < units.length + 1; unitNumber++) {
 
 				const unknownWords = lemmas.filter((lemma) => !allVocab.has(lemma));
 
-				if (unknownWords.length > 0) {
+				if (unknownWords.length > 1) {
 					console.error(
-						`Sentence "${sentence}" contains words not in the vocabulary: ${unknownWords.join(', ')}`
+						`Sentence "${sentence}" contains too many words not in the vocabulary: ${unknownWords.join(', ')}`
 					);
 
 					return false;
+				} else if (unknownWords.length == 1) {
+					console.error(
+						`Sentence "${sentence}" contains word not in the vocabulary: ${unknownWords[0]}`
+					);
 				}
 
 				return true;

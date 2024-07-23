@@ -1,14 +1,14 @@
 import { sql } from 'kysely';
 import { db } from '../db/client';
 import { getUnits } from '../db/units';
-import { POLISH } from '../constants';
+import { SWEDISH } from '../constants';
 import { parallelize } from '$lib/parallelize';
 
 const LEVELS_FOR_UNITS = 15;
 const MAX_LEVEL = 100;
 
 async function updateWordLevels() {
-	const units = await getUnits(POLISH);
+	const units = await getUnits(SWEDISH);
 
 	const frequencies = await sql<{
 		word: string;
@@ -17,8 +17,8 @@ async function updateWordLevels() {
 		frequency: number;
 	}>`
     SELECT word_id, unit, word, COUNT(*) AS frequency
-      FROM pl.word_sentences
-      JOIN pl.words ON word_id = id
+      FROM sv.word_sentences
+      JOIN sv.words ON word_id = id
       GROUP BY word_id, unit, word
       ORDER BY frequency DESC`.execute(db);
 
@@ -39,7 +39,7 @@ async function updateWordLevels() {
 			console.log(`${word}\t${unit || '-'}\t${level}`);
 
 			await db
-				.withSchema('pl')
+				.withSchema('sv')
 				.updateTable('words')
 				.set({ level })
 				.where('id', '=', word_id)

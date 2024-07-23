@@ -3,30 +3,9 @@
 	import { callDeleteSentence } from '../../api/sentences/[sentence]/client';
 	import { sendSentenceUnit } from '../../api/sentences/[sentence]/unit/client';
 	import { sendWordUnit } from '../../api/word/[id]/unit/client';
-	import type { PageData } from './$types';
+	import type { PageData } from '../../unit/[unit]/$types';
 
 	export let data: PageData;
-
-	$: wordCountsEarlier = data.sentences.reduce(
-		(acc, sentence) => {
-			sentence.words.forEach((word) => {
-				if (word in acc) {
-					acc[word] = acc[word] ? acc[word] + 1 : 1;
-				}
-			});
-
-			return acc;
-		},
-		data.words
-			.filter((w) => w.unit != null && w.unit < data.unit.id)
-			.reduce(
-				(acc, word) => {
-					acc[word.word] = 0;
-					return acc;
-				},
-				{} as Record<string, number>
-			)
-	);
 
 	$: wordCountsThis = data.sentences.reduce(
 		(acc, sentence) => {
@@ -49,7 +28,7 @@
 			)
 	);
 
-	$: wordCountsWrong = data.sentences.reduce(
+	$: wordCountsExcessive = data.sentences.reduce(
 		(acc, sentence) => {
 			sentence.words.forEach((word) => {
 				if (!data.words.find((w) => w.word == word)) {
@@ -78,12 +57,12 @@
 		return Object.entries(words).sort((a, b) => a[0].localeCompare(b[0]));
 	}
 
-	let isShowAllEarlier = false;
+	let isShowAllExcessive = false;
 </script>
 
 <h1 class="text-lg font-sans font-bold mt-8 mb-8">{data.unit.name}</h1>
 
-<h2>This unit</h2>
+<h2 class="mb-2 text-sm font-bold">New vocabulary</h2>
 
 <div class="flex flex-wrap gap-2 mb-8">
 	{#each sortWordEntries(wordCountsThis) as [word, count]}
@@ -98,35 +77,13 @@
 	{/each}
 </div>
 
-<h2>Earlier units</h2>
-
-<div class="flex flex-wrap gap-2 mb-8">
-	{#each sortWordEntries(wordCountsEarlier).slice(0, isShowAllEarlier ? undefined : 20) as [word, count]}
-		<button
-			class="whitespace-nowrap text-white px-2 py-1 rounded-md {word == filterWord
-				? 'bg-blue-4'
-				: 'bg-blue-3'}"
-			on:click={() => (filterWord = filterWord === word ? undefined : word)}
-		>
-			{word}: {count}
-		</button>
-	{/each}
-
-	{#if Object.keys(wordCountsEarlier).length > 20}
-		<button
-			on:click={() => (isShowAllEarlier = !isShowAllEarlier)}
-			class="whitespace-nowrap text-blue-3 px-2 py-1"
-		>
-			{isShowAllEarlier ? 'Show less' : 'Show more'}
-		</button>
-	{/if}
-</div>
-
-{#if Object.entries(wordCountsWrong).length}
-	<h2>Excessive</h2>
+{#if Object.entries(wordCountsExcessive).length}
+	<h2 class="mb-2 text-sm font-bold">Not in vocabulary</h2>
 
 	<div class="flex flex-wrap gap-2 mb-8">
-		{#each sortWordEntries(wordCountsWrong) as [word, count]}
+		{#each sortWordEntries(wordCountsExcessive)
+			.sort((a, b) => b[1] - a[1])
+			.slice(0, isShowAllExcessive ? undefined : 20) as [word, count]}
 			<button
 				class="whitespace-nowrap text-white px-2 py-1 rounded-md {word == filterWord
 					? 'bg-morpheem-darkred'
@@ -136,17 +93,29 @@
 				{word}: {count}
 			</button>
 		{/each}
+
+		{#if Object.keys(wordCountsExcessive).length > 20}
+			<button
+				on:click={() => (isShowAllExcessive = !isShowAllExcessive)}
+				class="whitespace-nowrap text-blue-3 px-2 py-1"
+			>
+				{isShowAllExcessive ? 'Show less' : 'Show more'}
+			</button>
+		{/if}
 	</div>
 {/if}
 
-<ul>
+<div class="grid grid-cols-[auto_1fr_auto] items-baseline gap-x-2 gap-y-1">
 	{#each data.sentences.filter((s) => filterWord == undefined || s.words.includes(filterWord)) as sentence}
-		<li>
-			{sentence.sentence}
+		<span class="text-xxs">
+			#{sentence.id}
+		</span>
 
-			<span class="text-xxs">
-				#{sentence.id}
-			</span>
+		<a href="../sentences/{sentence.id}" class="pb-1 border-b-[1px] border-gray">
+			{sentence.sentence}
+		</a>
+
+		<div>
 			<SpinnerButton
 				className="ml-2 border rounded-sm px-2 text-xs text-blue-3"
 				onClick={() => deleteSentence(sentence.id)}
@@ -159,6 +128,6 @@
 			>
 				Remove
 			</SpinnerButton>
-		</li>
+		</div>
 	{/each}
-</ul>
+</div>

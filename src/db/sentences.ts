@@ -40,14 +40,12 @@ export async function addSentence(
 				.where('sentence', '=', sentenceString)
 				.executeTakeFirstOrThrow();
 
-			if (unit != undefined) {
+			if (unit != undefined && (result.unit == null || result.unit > unit)) {
 				await trx
 					.withSchema(language.schema)
 					.updateTable('sentences')
 					.set({ unit })
 					.where('id', '=', result.id)
-					// TODO: remove
-					.where('unit', 'is', null)
 					.execute();
 			}
 
