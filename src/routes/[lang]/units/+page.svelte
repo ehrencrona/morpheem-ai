@@ -13,6 +13,6 @@
 		>
 			{unit.id}
 		</div>
-		<div class="ml-2 hover:underline">{unit.name}</div>
+		<div class="ml-2 underline">{unit.name}</div>
 	</a>
 {/each}
