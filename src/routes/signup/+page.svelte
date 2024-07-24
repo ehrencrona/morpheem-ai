@@ -12,8 +12,13 @@
 
 		<p class="text-sm mb-6 text-balance">
 			Just choose a username and password and you'll immediately be up and running.
-			<br />No verification required. Morpheem is completely free.
 		</p>
+
+		<p class="text-sm mb-6 text-balance">
+			No verification required. No e-mail, no phone number, no spam.
+		</p>
+
+		<p class="text-sm mb-6 text-balance">Morpheem is completely free.</p>
 
 		{#if form?.message}
 			<p class="text-red text-sm mb-6">
@@ -50,4 +55,3 @@
 		</form>
 	</div>
 </div>
-
