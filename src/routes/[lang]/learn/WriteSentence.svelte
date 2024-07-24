@@ -137,7 +137,8 @@
 				? {
 						exercise,
 						entered,
-						word: word!.word
+						word: word!.word,
+						english: lookedUpWord!.english
 					}
 				: {
 						exercise,

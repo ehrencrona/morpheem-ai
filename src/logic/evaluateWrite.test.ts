@@ -18,7 +18,8 @@ describe('evaluateWrite', async () => {
 			{
 				exercise: 'write',
 				entered: `Trzeba myć ząb każdego dnia.`,
-				word: `ząb`
+				word: `ząb`,
+				english: 'tooth'
 			},
 			{ language: POLISH }
 		);
@@ -38,7 +39,8 @@ describe('evaluateWrite', async () => {
 			{
 				exercise: 'write',
 				entered: `Oni znaleźli swoje dzietsi.`,
-				word: 'oni'
+				word: 'oni',
+				english: 'they'
 			},
 			{ language: POLISH }
 		);
@@ -46,7 +48,7 @@ describe('evaluateWrite', async () => {
 		expect(feedback.userExercises).toMatchObject([]);
 	});
 
-	test('handles two non-typo correctionsa', async () => {
+	test('handles two non-typo corrections', async () => {
 		const fromAi = {
 			correctedParts: [
 				{
@@ -76,7 +78,8 @@ describe('evaluateWrite', async () => {
 			opts: {
 				exercise: 'write',
 				entered: `Oni znaleźli swoje dzieci, aby nie wiedzieli, gdzie swoj przyjaciele.`,
-				word: 'oni'
+				word: 'oni',
+				english: 'they'
 			},
 			...fromAi,
 			language: POLISH
@@ -130,7 +133,8 @@ describe('evaluateWrite', async () => {
 			opts: {
 				exercise: 'write',
 				entered: `Oni znaleźli swoje dzieci, aby nie wiedzieli, gdzie swoj przyjaciele.`,
-				word: 'oni'
+				word: 'oni',
+				english: 'they'
 			},
 			...fromAi,
 			language: POLISH

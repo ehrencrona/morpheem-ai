@@ -1,8 +1,8 @@
 import { expect, test } from 'vitest';
-import { POLISH } from '../constants';
+import { POLISH, SWEDISH } from '../constants';
 import { evaluateWrite } from './evaluateWrite';
 
-test('evaluateWrite', async ({}) => {
+test('evaluate translate', async ({}) => {
 	const result = await evaluateWrite(
 		{
 			exercise: 'translate',
@@ -23,7 +23,7 @@ test('evaluateWrite', async ({}) => {
 	]);
 });
 
-test.only('evaluateWrite', async ({}) => {
+test('evaluate translate', async ({}) => {
 	const result = await evaluateWrite(
 		{
 			exercise: 'translate',
@@ -32,6 +32,20 @@ test.only('evaluateWrite', async ({}) => {
 			correct: 'W święto odwiedzamy rodzinę.'
 		},
 		POLISH
+	);
+
+	console.log(result);
+});
+
+test('evaluate write', async ({}) => {
+	const result = await evaluateWrite(
+		{
+			exercise: 'write',
+			entered: `Jag försöker sova.`,
+			word: 'prova',
+			english: 'to try'
+		},
+		SWEDISH
 	);
 
 	console.log(result);

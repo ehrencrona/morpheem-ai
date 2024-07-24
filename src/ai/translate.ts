@@ -9,7 +9,8 @@ const formExamples: Record<LanguageCode, string> = {
 	es: `"feminine", "plural", or "past participle"`,
 	ko: `"subject", "topic" or "imperative, polite"`,
 	ru: `"genitive plural, feminine", "2nd person plural, past, imperfective" or "past participle"`,
-	nl: `"plural, het", "past participle" or "de"`
+	nl: `"plural, het", "past participle" or "de"`,
+	sv: `"plural, ett", or "past participle"`
 };
 
 const transliterationInstructions: Record<string, string> = {

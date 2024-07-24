@@ -49,6 +49,12 @@ breaks down to
 breaks down to
 
 [˝["Он сказал", "He said"], ["что", "that"], ["завтра", "tomorrow"], ["будет дождь", "will be rain"]]
+`,
+	sv: `"Ny lagstiftning trädde i kraft den 1 januari."
+
+breaks down to
+
+[["Ny", "New"], ["lagstiftning", "legislation"], ["trädde i kraft", "came into force"], ["den 1 januari", "on January 1st"]]
 `
 };
 

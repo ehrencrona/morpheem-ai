@@ -24,7 +24,8 @@ export const writeEvaluationOptsSchema = z
 	.object({
 		exercise: z.literal('write'),
 		entered: z.string(),
-		word: z.string()
+		word: z.string(),
+		english: z.string()
 	})
 	.or(
 		z.object({

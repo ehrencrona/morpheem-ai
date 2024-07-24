@@ -20,7 +20,7 @@ export type CorrectedPart = z.infer<typeof correctedPartSchema>;
 export async function evaluateWrite(
 	exercise: (
 		| { exercise: 'translate'; english: string; correct: string }
-		| { exercise: 'write'; word: string }
+		| { exercise: 'write'; word: string; english: string }
 		| { exercise: 'writer' }
 	) & {
 		entered: string;
@@ -35,7 +35,7 @@ export async function evaluateWrite(
 				content:
 					`The user is learning ${language.name} and ` +
 					(exercise.exercise == 'write'
-						? `is doing an exercise to write a sentence using "${exercise.word}". `
+						? `is doing an exercise to write a sentence using the ${language.name} word for "${exercise.english}". The word we wanted to see was "${exercise.word}", but using another word matching "${exercise.english}" is fine (but point out that "${exercise.word}" was intended). `
 						: exercise.exercise == 'writer'
 							? `is doing a writing exercise. `
 							: `has been asked to translate a sentence as an exercise. The expected answer is "${exercise.correct}" `) +
