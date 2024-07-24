@@ -1,15 +1,18 @@
+import { unzip, zip } from '$lib/zip';
 import { z } from 'zod';
+import { findInvalidSentences } from '../../ai/findInvalidSentences';
 import { ask } from '../../ai/ask';
 import { askForJson } from '../../ai/askForJson';
-import { POLISH } from '../../constants';
-import { getWords } from '../../db/words';
-import { lemmatizeSentences } from '../../logic/lemmatize';
-import { unzip, zip } from '$lib/zip';
+import { SWEDISH } from '../../constants';
+import { getWordByLemma, getWords } from '../../db/words';
 import { addSentences } from '../../logic/addSentence';
+import { lemmatizeSentences } from '../../logic/lemmatize';
+import { getSentences, getSentencesWithWord } from '../../db/sentences';
 
-const UNIT = 16;
-const FOCUS = 'instrumental plural';
+const UNIT = 1;
+const FOCUS = 'present tense';
 const SENTENCE_COUNT = 15;
+const language = SWEDISH;
 
 function memoize<T>(fn: () => Promise<T>) {
 	let promise: Promise<T> | undefined;
@@ -24,14 +27,14 @@ function memoize<T>(fn: () => Promise<T>) {
 }
 
 const organizeVocab = memoize(async () => {
-	const words = await getWords({ upToUnit: UNIT, language: POLISH });
+	const words = await getWords({ upToUnit: UNIT, language });
 
 	return ask({
 		messages: [
 			{
 				role: 'user',
 				content:
-					`Please organize these Polish words by word type and write them separated by commas on a line for each word type, e.g. \nnouns: samochód, telefon\n\n\verbs: ...\n\n` +
+					`Please organize these ${language.name} words by word type and write them separated by commas on a line for each word type, e.g. \nnouns: bil, telefon\n\n\verbs: ...\n\n` +
 					`Words: ${words.map((w) => w.word).join(', ')}`
 			}
 		],
@@ -41,58 +44,28 @@ const organizeVocab = memoize(async () => {
 	});
 });
 
-async function getInvalid(sentences: string[]) {
-	const res = await ask({
-		messages: [
-			{
-				role: 'user',
-				content:
-					`Go through these Polish sentences, one per line, and evaluate if it is grammatically correct and makes logical sense (in the sense of: could you actually use this sentence in real life).\n` +
-					`Repeat the sentence back to me, and then add " -- correct" on the same line if it is correct, or " -- incorrect" if it is incorrect. Do not write anything else\n\n` +
-					`Sentences:\n` +
-					`${sentences.map((s) => ` - ${s}`).join('\n')}`
-			}
-		],
-		model: 'gpt-4o',
-		temperature: 0.3
-	});
-
-	return res
-		.split('\n')
-		.filter((m) => m.match(/ -- incorrect$/))
-		.map((m) => m.replace(/^ +- /, ''))
-		.map((m) => m.split(' -- incorrect')[0])
-		.map((invalid) => {
-			if (!sentences.includes(invalid)) {
-				console.error(`Invalid sentence "${invalid}" not in original sentences`);
-			}
-
-			return invalid;
-		});
-}
-
 async function generateSentences(lemma: string) {
 	const res = await askForJson({
 		messages: [
 			{
 				role: 'user',
-				content: `We are looking to generate Polish sentences for language learners as examples how to use vocabulary. The sentences should only contain the following vocabulary:
+				content: `We are looking to generate ${language.name} sentences for language learners as examples how to use vocabulary. The sentences should only contain the following vocabulary:
 
 ${await organizeVocab()}
 
-We are looking for ${SENTENCE_COUNT} Polish sentences using the word "${lemma}" (in some form) and ideally using the ${FOCUS}. Use only the vocabulary above.
+We are looking for ${SENTENCE_COUNT} ${language.name} sentences using the word "${lemma}" (in some form) and ideally using the ${FOCUS}. Use only the vocabulary above.
 We want as much variety in the form of the sentences as possible (different subjects/word order/formality level/questions/past/present). 
 It is very important that you use only the provided vocabulary and no other words.
 
-When writing with a limited vocabulary there are certain sentences that can be generated with pretty much every word. Here some examples for the word e-mail:
-- Ja lubię ten e-mail. 
-- Ewa dostał e-mail. 
-- Czy masz ten e-mail?
+When writing with a limited vocabulary there are certain sentences that can be generated with pretty much every word. Here some examples for the word telefon:
+- Jag gillar den här telefonen. 
+- Telefonen är stor. 
+- Har du en telefon?
 
 We do NOT want these monotonous sentences. We are trying to write sentences that tell more of a story, that have some sort of logic to them, for example:
-- Czy twój e-mail o spotkaniu jest już gotowy?
-- Kiedy dostajesz e-mail, zawsze szybko odpowiadasz?
-- Muszę używać komputera, żeby pisać e-mail.
+- Jag glömde min telefon. Jag kan inte ringa.
+- Brukar du läsa nyheter på telefonen eller på datorn?
+- Sluta titta på telefonen och se på mig istället.
 
 We will proceed step by step to generate the sentences.
 
@@ -112,35 +85,25 @@ Return JSON in the format { brainstorms: ["sentence 1", "sentence 2", ...], fina
 	return res.finalSentences;
 }
 
-const allVocab = new Set(
-	(await getWords({ language: POLISH, upToUnit: UNIT })).map(({ word }) => word)
-);
+const allVocab = new Set((await getWords({ language, upToUnit: UNIT })).map(({ word }) => word));
 
-for (const word of [
-	'aktor',
-	'dokument',
-	'idea',
-	'inżynier',
-	'lekarz',
-	'patrzeć',
-	'podróż',
-	'ptak',
-	'rano',
-	'ryba',
-	'sprawiać',
-	'sprawić',
-	'teraz',
-	'uczucie',
-	'wielki',
-	'wymagać'
-]) {
+for (const word of allVocab) {
+	const wordObj = await getWordByLemma(word, language);
+	const existingSentences = await getSentencesWithWord(wordObj.id, { language, unit: UNIT });
+
+	if (existingSentences.length >= 5) {
+		console.log(`Already have enough sentences for ${word}, skipping`);
+
+		continue;
+	}
+
 	let sentences = await generateSentences(word);
 
-	const invalid = await getInvalid(sentences);
+	const invalid = await findInvalidSentences(sentences, language);
 
 	sentences = sentences.filter((s) => !invalid.includes(s));
 
-	let lemmas = await lemmatizeSentences(sentences, { language: POLISH, onError: 'returnempty' });
+	let lemmas = await lemmatizeSentences(sentences, { language, onError: 'returnempty' });
 
 	[sentences, lemmas] = unzip(
 		zip(sentences, lemmas).filter(([sentence, lemmas]) => {
@@ -169,7 +132,7 @@ for (const word of [
 	);
 
 	await addSentences(sentences, undefined, lemmas, {
-		language: POLISH,
+		language,
 		unit: UNIT
 	});
 }

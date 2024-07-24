@@ -1,10 +1,35 @@
-import { toWordStrings } from '../logic/toWordStrings';
 import { Language } from '../logic/types';
 import { db } from './client';
 import type * as DB from './types';
 import { toWord } from './words';
 
 export async function addWordToLemma(wordString: string, word: DB.Word, language: Language) {
+	if (language.code == 'sv' && word.word == 'sig' && wordString != 'sig') {
+		console.error(`sig is not the dictionary form of ${wordString}`);
+		return;
+	}
+
+	if (
+		language.code == 'sv' &&
+		[
+			'era->er',
+			'en->ett',
+			'den->det',
+			'de->den',
+			'vi->jag',
+			'i->jag',
+			'framme->fram',
+			'ska->skola',
+			'allt->all',
+			'alla->all',
+			'någon->något',
+			'något->någon'
+		].includes(`${wordString}->${word.word}`)
+	) {
+		console.error(`${word.word} is not the dictionary form of ${wordString}`);
+		return;
+	}
+
 	if (
 		language.code == 'fr' &&
 		['ils->il', 'elle->il', 'ce->ça'].includes(`${wordString}->${word.word}`)

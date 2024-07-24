@@ -5,6 +5,23 @@ import { toWordStrings } from '../logic/toWordStrings';
 import type { Language, LanguageCode } from '../logic/types';
 import { Message, ask } from './ask';
 
+const forcedLemmas: Record<LanguageCode, Record<string, string>> = {
+	sv: {
+		// wordString -> lemma
+		ett: 'en',
+		detta: 'denna'
+	},
+	ko: {},
+	pl: {
+		go: 'on',
+		mu: 'on'
+	},
+	nl: {},
+	ru: {},
+	es: {},
+	fr: {}
+};
+
 export async function lemmatizeSentences(
 	sentences: string[],
 	{
@@ -154,11 +171,31 @@ Het (het) zijn (zijn) onze (ons) boekjes (boek)
 becomes
 
 Как (как) дела (дело)`,
-		sv: `Här bakas bullar
+		sv: `Use modern Swedish, not verbs like "skola" or "bliva" (use "ska", "bli"). Use "en" as the dictionary form of "ett".
+
+Ge mig hellre det
 
 becomes
 
-Här (här) bakas (baka) bullar (bulle)`
+Ge (ge) mig (jag) hellre (gärna) det (det)
+
+Det är ett snabbt brev
+
+becomes
+
+Det (det) är (vara) ett (en) snabbt (snabbt) brev (brev)
+
+Små grodorna
+
+becomes
+
+Små (liten) grodorna (groda)
+
+Vi skulle ta oss tid
+
+becomes
+
+Vi (vi) skulle (ska) ta (ta) oss (vi) tid (tid)`
 	};
 
 	const response = await ask({
@@ -218,6 +255,10 @@ ${examples[language.code]}`
 			return Promise.all(
 				toWordStrings(sentence, language).map(async (word, i) => {
 					const standardized = standardize(word);
+
+					if (forcedLemmas[language.code][standardized]) {
+						return forcedLemmas[language.code][standardized];
+					}
 
 					let lemma: { word: string; lemma: string } | undefined = lemmas[i];
 

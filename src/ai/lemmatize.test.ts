@@ -1,5 +1,5 @@
 import { expect, it } from 'vitest';
-import { DUTCH, FRENCH, KOREAN, POLISH, RUSSIAN, SPANISH } from '../constants';
+import { DUTCH, FRENCH, KOREAN, POLISH, RUSSIAN, SPANISH, SWEDISH } from '../constants';
 import { lemmatizeSentences } from './lemmatize';
 
 it('handles ambiguous words in Spanish', async () => {
@@ -55,6 +55,20 @@ it('handles Russian', async () => {
 			'в',
 			'коми'
 		]
+	]);
+});
+
+it('handles Swedish', async () => {
+	const lemmas = await lemmatizeSentences(
+		[`En en stod i skogen på ett hygge.`, 'Och det var det'],
+		{
+			language: SWEDISH
+		}
+	);
+
+	expect(lemmas).toEqual([
+		['en', 'en', 'stå', 'i', 'skog', 'på', 'en', 'hygge'],
+		['och', 'det', 'vara', 'det']
 	]);
 });
 

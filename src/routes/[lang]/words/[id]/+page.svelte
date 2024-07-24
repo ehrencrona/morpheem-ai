@@ -1,10 +1,12 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
 	import { getRepetitionTime } from '$lib/settings';
 	import EditSvg from '../../../../components/EditSvg.svelte';
 	import SpinnerButton from '../../../../components/SpinnerButton.svelte';
 	import { calculateOptimalTime } from '../../../../logic/isomorphic/knowledge';
 	import { getLanguageOnClient } from '../../api/api-call';
 	import { callDeleteSentence } from '../../api/sentences/[sentence]/client';
+	import { storeMergeWordWith } from '../../api/word/[id]/merge/client';
 	import { sendWordUnit } from '../../api/word/[id]/unit/client';
 	import type { PageData } from './$types';
 	import WordUnitDialog from './WordUnitDialog.svelte';
@@ -32,6 +34,8 @@
 	const toPercent = (n: number) => `${(n * 100).toFixed(0)}%`;
 
 	let isEditingUnit = false;
+
+	let mergeWith: string;
 </script>
 
 <main>
@@ -52,7 +56,8 @@
 		<p><b>Type</b>: {word.type || '-'}</p>
 		<p><b>Mnemonic</b>: {data.mnemonic || '-'}</p>
 		<p>
-			<b>Unit</b>: {#if word.unit}<a href="../units/{word.unit}" class="underline">#{word.unit}</a>{:else}-{/if}
+			<b>Unit</b>: {#if word.unit}<a href="../units/{word.unit}" class="underline">#{word.unit}</a
+				>{:else}-{/if}
 			<button
 				class="ml-2 w-5 h-5 hover:border-blue-3 border-2 border-white p-[2px] inline-block"
 				on:click={() => (isEditingUnit = true)}
@@ -60,6 +65,22 @@
 				<EditSvg />
 			</button>
 		</p>
+		{#if isAdmin}
+			<div class="flex items-baseline gap-2">
+				<div>Merge with</div>
+				<input type="text" width="10" class="bg-blue-1 text-lg p-1" bind:value={mergeWith} />
+
+				<SpinnerButton
+					onClick={async () => {
+						const res = await storeMergeWordWith(word.id, mergeWith.trim());
+
+						mergeWith = '';
+
+						goto(`/${getLanguageOnClient().code}/words/${res.toWordId}`);
+					}}>Merge</SpinnerButton
+				>
+			</div>
+		{/if}
 	</div>
 
 	{#if isEditingUnit}

@@ -8,7 +8,7 @@ import { filterUndefineds } from '$lib/filterUndefineds';
 
 export async function addWord(
 	lemma: string,
-	{ language, type }: { language: Language; type: DB.WordType | null }
+	{ language, type, unit }: { language: Language; type: DB.WordType | null; unit?: number }
 ): Promise<DB.Word> {
 	if (!lemma) {
 		throw new Error('Lemma cannot be empty');
@@ -16,6 +16,25 @@ export async function addWord(
 
 	if (['an', 'the', 'they', 'this', 'big'].includes(lemma)) {
 		throw new CodedError(`"${lemma}" is English`, 'notALemma');
+	}
+
+	if (
+		language.code == 'sv' &&
+		[
+			'kan',
+			'oss',
+			'mig',
+			'små',
+			'era',
+			'mycken',
+			'dig',
+			'mig',
+			/* we use "en" as the dictionary form */ 'ett',
+			/* use "denna" */
+			'detta'
+		].includes(lemma)
+	) {
+		throw new CodedError(`"${lemma}" is not the dictionary form`, 'notALemma');
 	}
 
 	if (
@@ -90,6 +109,7 @@ export async function addWord(
 		.values({
 			word: lemma.toLowerCase(),
 			type,
+			unit,
 			json: undefined
 		})
 		.returning(['id', 'word', 'level', 'type', 'unit'])
@@ -365,4 +385,19 @@ function toSentenceWord(row: {
 		word_index: row.word_index,
 		unit: row.unit || undefined
 	};
+}
+
+export async function mergeWordWith(fromWordId: number, toWordId: number, language: Language) {
+	if (fromWordId == toWordId) {
+		throw new Error('Cannot merge word with itself');
+	}
+
+	await db
+		.withSchema(language.schema)
+		.updateTable('word_sentences')
+		.set({ word_id: toWordId })
+		.where('word_id', '=', fromWordId)
+		.execute();
+
+	await deleteWord(fromWordId, language);
 }
