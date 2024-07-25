@@ -197,7 +197,7 @@
 	>
 		<div class="text-lg mb-4 mt-2 font-medium flex flex-col gap-4">
 			{#each page as paragraph, index}
-				<div class={paragraph.style == 'h' ? 'font-bold' : ''}>
+				<div class={paragraph.style == 'h' ? 'font-bold font-sans' : ''}>
 					<ParagraphComponent text={paragraph.text} {language} {unknown} {onClickedWord} />
 
 					{#if translatedParagraphs?.[index].transliteration && showTransliteration}
