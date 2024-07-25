@@ -1,13 +1,13 @@
 import { sql } from 'kysely';
 import { db } from '../db/client';
 import { getUnits } from '../db/units';
-import { POLISH, SWEDISH } from '../constants';
+import { POLISH, SPANISH, SWEDISH } from '../constants';
 import { parallelize } from '$lib/parallelize';
 
-const LEVELS_FOR_UNITS = 15;
+const LEVELS_FOR_UNITS = 0;
 const MAX_LEVEL = 100;
 
-const language = POLISH;
+const language = SWEDISH;
 
 async function updateWordLevels() {
 	const units = await getUnits(language);
@@ -32,7 +32,7 @@ async function updateWordLevels() {
 
 			if (units.length) {
 				if (unit != null) {
-					level = Math.round((unit / units.length) * LEVELS_FOR_UNITS);
+					level = Math.round(((unit + level / MAX_LEVEL) * LEVELS_FOR_UNITS) / units.length);
 				} else {
 					level = LEVELS_FOR_UNITS + Math.round(level * (1 - LEVELS_FOR_UNITS / MAX_LEVEL));
 				}

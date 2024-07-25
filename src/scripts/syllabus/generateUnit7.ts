@@ -9,8 +9,8 @@ import { getWordByLemma, getWords } from '../../db/words';
 import { addSentences } from '../../logic/addSentence';
 import { lemmatizeSentences } from '../../logic/lemmatize';
 
-const UNIT = 4;
-const FOCUS = 'future';
+const UNIT = 5;
+const FOCUS = 'subjunctive';
 const SENTENCE_COUNT = 10;
 const language = SPANISH;
 
