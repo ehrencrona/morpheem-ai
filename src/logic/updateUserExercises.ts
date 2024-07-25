@@ -196,8 +196,8 @@ async function handleSentenceExercises(
 				: didNotKnowFirst(exercise.exercise);
 		}
 
-		if (knowledge.beta && knowledge.beta >= 0.95) {
-			console.log(`Done studying user exercise ${exercise.id} (${toString(exercise)}).`);
+		if (knowledge.beta == 1) {
+			console.log(`Done studying user exercise ${toString(exercise)}.`);
 
 			if (exercise.id) {
 				toDelete.add(exercise.id!);
@@ -214,7 +214,7 @@ async function handleSentenceExercises(
 	}
 
 	await Promise.all(
-		new Array(...toDelete)
+		[...toDelete]
 			.map((id) => deleteUserExercise(id, userId, language))
 			.concat(upsert.map((e) => upsertUserExercise(e, userId, language)))
 	);
