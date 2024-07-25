@@ -18,7 +18,9 @@ const forcedLemmas: Record<LanguageCode, Record<string, string>> = {
 	},
 	nl: {},
 	ru: {},
-	es: {},
+	es: {
+		los: 'el'
+	},
 	fr: {}
 };
 

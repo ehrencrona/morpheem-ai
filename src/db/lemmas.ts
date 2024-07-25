@@ -40,7 +40,9 @@ export async function addWordToLemma(wordString: string, word: DB.Word, language
 
 	if (
 		language.code == 'es' &&
-		['se->ser', 'al->el', 'me->yo', 'me->mí', 'esta->estar'].includes(`${wordString}->${word.word}`)
+		['se->ser', 'al->el', 'me->yo', 'me->mí', 'esta->estar', 'él->el', 'que->qué'].includes(
+			`${wordString}->${word.word}`
+		)
 	) {
 		console.error(`${word.word} is not the dictionary form of ${wordString}`);
 		return;

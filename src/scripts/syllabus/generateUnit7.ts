@@ -1,18 +1,18 @@
 import { unzip, zip } from '$lib/zip';
 import { z } from 'zod';
-import { findInvalidSentences } from '../../ai/findInvalidSentences';
 import { ask } from '../../ai/ask';
 import { askForJson } from '../../ai/askForJson';
-import { SWEDISH } from '../../constants';
+import { findInvalidSentences } from '../../ai/findInvalidSentences';
+import { SPANISH } from '../../constants';
+import { getSentencesWithWord } from '../../db/sentences';
 import { getWordByLemma, getWords } from '../../db/words';
 import { addSentences } from '../../logic/addSentence';
 import { lemmatizeSentences } from '../../logic/lemmatize';
-import { getSentences, getSentencesWithWord } from '../../db/sentences';
 
-const UNIT = 1;
-const FOCUS = 'present tense';
-const SENTENCE_COUNT = 15;
-const language = SWEDISH;
+const UNIT = 4;
+const FOCUS = 'future';
+const SENTENCE_COUNT = 10;
+const language = SPANISH;
 
 function memoize<T>(fn: () => Promise<T>) {
 	let promise: Promise<T> | undefined;
@@ -34,7 +34,7 @@ const organizeVocab = memoize(async () => {
 			{
 				role: 'user',
 				content:
-					`Please organize these ${language.name} words by word type and write them separated by commas on a line for each word type, e.g. \nnouns: bil, telefon\n\n\verbs: ...\n\n` +
+					`Please organize these ${language.name} words by word type and write them separated by commas on a line for each word type, e.g. \nnouns: carro, cellular\n\n\verbs: ...\n\n` +
 					`Words: ${words.map((w) => w.word).join(', ')}`
 			}
 		],
@@ -57,15 +57,15 @@ We are looking for ${SENTENCE_COUNT} ${language.name} sentences using the word "
 We want as much variety in the form of the sentences as possible (different subjects/word order/formality level/questions/past/present). 
 It is very important that you use only the provided vocabulary and no other words.
 
-When writing with a limited vocabulary there are certain sentences that can be generated with pretty much every word. Here some examples for the word telefon:
-- Jag gillar den här telefonen. 
-- Telefonen är stor. 
-- Har du en telefon?
+When writing with a limited vocabulary there are certain sentences that can be generated with pretty much every word. Here some examples for the word cellular:
+- Me gusta el celular.
+- El celular es grande.
+- ¿Tienes un celular?
 
 We do NOT want these monotonous sentences. We are trying to write sentences that tell more of a story, that have some sort of logic to them, for example:
-- Jag glömde min telefon. Jag kan inte ringa.
-- Brukar du läsa nyheter på telefonen eller på datorn?
-- Sluta titta på telefonen och se på mig istället.
+- Olvidé mi celular en el taxi. ¿Puedes llamarlo por favor?
+- ¿Qué haces si pierdes tu celular?
+- Deja el celular en casa y disfruta de la naturaleza.
 
 We will proceed step by step to generate the sentences.
 
@@ -86,12 +86,13 @@ Return JSON in the format { brainstorms: ["sentence 1", "sentence 2", ...], fina
 }
 
 const allVocab = new Set((await getWords({ language, upToUnit: UNIT })).map(({ word }) => word));
+const thisVocab = new Set((await getWords({ language, unit: UNIT })).map(({ word }) => word));
 
-for (const word of allVocab) {
+for (const word of thisVocab) {
 	const wordObj = await getWordByLemma(word, language);
 	const existingSentences = await getSentencesWithWord(wordObj.id, { language, unit: UNIT });
 
-	if (existingSentences.length >= 5) {
+	if (existingSentences.length >= SENTENCE_COUNT / 2) {
 		console.log(`Already have enough sentences for ${word}, skipping`);
 
 		continue;

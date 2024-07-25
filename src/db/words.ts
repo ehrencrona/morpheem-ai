@@ -313,6 +313,15 @@ export async function setWordUnit(unit: number | null, wordId: number, language:
 		.execute();
 }
 
+export async function setWordLevel(level: number, wordId: number, language: Language) {
+	await db
+		.withSchema(language.schema)
+		.updateTable('words')
+		.set({ level })
+		.where('id', '=', wordId)
+		.execute();
+}
+
 export async function getWordsOfSentence(
 	sentenceId: number,
 	language: Language
