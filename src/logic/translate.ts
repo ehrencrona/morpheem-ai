@@ -38,28 +38,31 @@ export async function translateWordInContext(
 		word
 	}: {
 		word: DB.Word;
-		sentence: { id: number; sentence: string };
+		sentence: { id: number | undefined; sentence: string };
 		language: Language;
 		wordString?: string;
 	}
 ) {
-	let translation: Awaited<ReturnType<typeof translateWordInContextAi>> | undefined =
-		await getWordTranslation(word.id, sentence.id, language);
+	let translation: Awaited<ReturnType<typeof translateWordInContextAi>> | undefined = sentence.id
+		? await getWordTranslation(word.id, sentence.id, language)
+		: undefined;
 
 	if (!translation) {
 		translation = await translateWordInContextAi(wordString, sentence, language);
 
-		addWordTranslations({
-			wordId: word.id,
-			sentenceId: sentence?.id,
-			english: translation.english,
-			form: translation.form || undefined,
-			transliteration: translation.transliteration,
-			language
-		}).catch((e) => {
-			e.message = `Error adding word translation for ${wordString} (${word.id}), sentence ${sentence?.id} in ${language.name}: ${e.message}`;
-			logError(e);
-		});
+		if (sentence.id) {
+			addWordTranslations({
+				wordId: word.id,
+				sentenceId: sentence.id,
+				english: translation.english,
+				form: translation.form || undefined,
+				transliteration: translation.transliteration,
+				language
+			}).catch((e) => {
+				e.message = `Error adding word translation for ${wordString} (${word.id}), sentence ${sentence?.id} in ${language.name}: ${e.message}`;
+				logError(e);
+			});
+		}
 	}
 
 	return translation;

@@ -18,7 +18,8 @@ export type PostSchema = z.infer<typeof postSchema>;
 
 const postSchema = z.object({
 	word: z.string(),
-	sentenceId: z.number().optional()
+	sentenceId: z.number().optional(),
+	sentence: z.string().optional()
 });
 
 export interface UnknownWordResponse extends DB.Word {
@@ -36,9 +37,13 @@ export interface UnknownWordResponse extends DB.Word {
 export const POST: ServerLoad = async ({ request, locals }) => {
 	const userId = locals.user!.num;
 	const { language } = locals;
-	let { word: wordString, sentenceId } = postSchema.parse(await request.json());
+	let {
+		word: wordString,
+		sentenceId,
+		sentence: sentenceString
+	} = postSchema.parse(await request.json());
 
-	let sentence: DB.Sentence | undefined = undefined;
+	let sentence: { id: number | undefined; sentence: string } | undefined = undefined;
 	let word: DB.Word | undefined = undefined;
 
 	if (sentenceId) {
@@ -51,6 +56,11 @@ export const POST: ServerLoad = async ({ request, locals }) => {
 		} catch (e) {
 			logError(e);
 		}
+	} else if (sentenceString) {
+		sentence = {
+			id: undefined,
+			sentence: sentenceString
+		};
 	}
 
 	if (!word) {

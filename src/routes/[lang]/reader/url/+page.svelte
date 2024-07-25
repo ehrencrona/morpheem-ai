@@ -102,11 +102,11 @@
 		goto(`/${language.code}/reader`);
 	}
 
-	async function onClickedWord(word: string) {
+	async function onClickedWord(word: string, text: string) {
 		try {
 			isLookingUpUnknown = true;
 
-			const unknownWord = await lookupUnknownWord(word, undefined);
+			const unknownWord = await lookupUnknownWord(word, { sentence: text });
 
 			unknown = dedupUnknown([...unknown, unknownWord]);
 		} catch (e) {

@@ -92,7 +92,7 @@
 		revealedClauses = [];
 
 		if (exercise == 'write') {
-			lookupUnknownWord(word!.word, undefined)
+			lookupUnknownWord(word!.word)
 				.then((word) => (lookedUpWord = word))
 				.catch(logError);
 

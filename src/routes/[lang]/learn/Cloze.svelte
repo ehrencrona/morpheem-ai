@@ -47,7 +47,7 @@
 	}
 
 	async function onUnknown(word: string) {
-		const unknownWord = await lookupUnknownWord(word, sentence.id);
+		const unknownWord = await lookupUnknownWord(word, { sentenceId: sentence.id });
 
 		unknown = dedupUnknown([...unknown, unknownWord]);
 	}
@@ -76,7 +76,7 @@
 	$: if (sentenceWord) {
 		let wordWas = word;
 
-		lookupUnknownWord(sentenceWord.conjugatedWord, sentence.id)
+		lookupUnknownWord(sentenceWord.conjugatedWord, { sentenceId: sentence.id })
 			.then((got) => {
 				if (word.word == got.word && word.id == wordWas.id) {
 					unknownWord = got;

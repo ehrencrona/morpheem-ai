@@ -54,7 +54,7 @@
 	}
 
 	async function onUnknown(word: string) {
-		const unknownWord = await lookupUnknownWord(word, sentence.id);
+		const unknownWord = await lookupUnknownWord(word, { sentenceId: sentence.id });
 
 		unknown = dedupUnknown([...unknown, unknownWord]);
 	}

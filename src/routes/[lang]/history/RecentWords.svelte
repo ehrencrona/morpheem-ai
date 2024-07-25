@@ -13,7 +13,7 @@
 	let showAll = false;
 
 	async function onUnknown(word: AggKnowledgeForUser) {
-		const unknownWord = await lookupUnknownWord(word.word, undefined);
+		const unknownWord = await lookupUnknownWord(word.word);
 
 		unknown = dedupUnknown([...unknown, unknownWord]);
 	}
