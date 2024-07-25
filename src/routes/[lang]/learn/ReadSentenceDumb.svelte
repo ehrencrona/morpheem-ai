@@ -136,8 +136,8 @@
 	wordId={sentence.id}
 	suggestions={[
 		'Can I express this differently?',
-		'Why is it "this" and not "that"?',
-		'Break down this sentence',
+		`What does "${wordsWithSeparators.filter((w) => !isSeparator(w))?.[1]}" mean here?`,
+		'Break down this sentence for me',
 		'How do you conjugate "to do"?',
 		`How do you say "ice cream" in ${language.name}?`,
 		...(unknown.length

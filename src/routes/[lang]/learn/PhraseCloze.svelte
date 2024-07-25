@@ -208,6 +208,7 @@
 			unknown
 		})}
 	suggestions={[
+		'Break down this sentence for me',
 		'Can I express this differently?',
 		`How do you say 'banana' in ${language.name}?`,
 		...(unknown.length
