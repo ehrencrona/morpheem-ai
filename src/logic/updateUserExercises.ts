@@ -196,7 +196,7 @@ async function handleSentenceExercises(
 				: didNotKnowFirst(exercise.exercise);
 		}
 
-		if (knowledge.beta == 1) {
+		if (knowledge.beta && knowledge.beta >= 0.95) {
 			console.log(`Done studying user exercise ${exercise.id} (${toString(exercise)}).`);
 
 			if (exercise.id) {
