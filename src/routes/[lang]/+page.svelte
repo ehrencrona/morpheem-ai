@@ -257,11 +257,9 @@
 			);
 			let nextSentence = getNextSentence(sentences, knowledge, wordId, exercise);
 
-			if (
-				!nextSentence ||
-				(knowledge.length > 0 &&
-					(knowledge.length < 50 ? nextSentence.score < 0.75 : nextSentence.score < 0.91))
-			) {
+			const startup = Math.min(knowledge.length, 100) / 100;
+
+			if (!nextSentence || nextSentence.score < (1 - startup) * 0.3 + startup * 0.91) {
 				if (nextSentence) {
 					console.log(
 						`Best sentence #${nextSentence.sentence.id} with word #${wordId} has low score ${toPercent(nextSentence.score)}. Finding more...`
