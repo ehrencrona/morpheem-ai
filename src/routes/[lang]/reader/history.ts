@@ -1,7 +1,13 @@
+import { getLanguageOnClient } from '../api/api-call';
+
 export interface Article {
 	title: string;
 	url: string;
 	date: string;
+}
+
+function getKey(): string {
+	return 'readerHistory.' + getLanguageOnClient().code;
 }
 
 export function getReaderHistory(): Article[] {
@@ -9,7 +15,7 @@ export function getReaderHistory(): Article[] {
 		return [];
 	}
 
-	const str = localStorage.getItem('readerHistory');
+	const str = localStorage.getItem(getKey());
 
 	return str == null ? [] : JSON.parse(str);
 }
@@ -27,7 +33,7 @@ export function addToReaderHistory(article: Article) {
 
 	history = history.slice(0, 10);
 
-	localStorage.setItem('readerHistory', JSON.stringify(history));
+	localStorage.setItem(getKey(), JSON.stringify(history));
 }
 
 function dedup(history: Article[]): Article[] {
