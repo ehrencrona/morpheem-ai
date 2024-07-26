@@ -92,7 +92,7 @@
 						Contact
 					</a>
 
-					<div class="flex gap-2">
+					<div class="flex flex-wrap gap-2">
 						{#each languages as language}
 							<a
 								href={`/${language.code}`}
