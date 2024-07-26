@@ -4,7 +4,7 @@ export default {
 	theme: {
 		extend: {},
 		fontFamily: {
-			sans: ['Radio Canada Big'],
+			sans: ['Noto Sans Display'],
 			lato: ['Lato']
 		},
 		fontSize: {
