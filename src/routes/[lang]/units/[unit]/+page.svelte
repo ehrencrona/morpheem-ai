@@ -1,12 +1,16 @@
 <script lang="ts">
 	import SpinnerButton from '../../../../components/SpinnerButton.svelte';
+	import type { Word } from '../../../../db/types';
 	import { callDeleteSentence } from '../../api/sentences/[sentence]/client';
 	import { sendSentenceUnit } from '../../api/sentences/[sentence]/unit/client';
+	import { sendWordUnit } from '../../api/word/[id]/unit/client';
 	import type { PageData } from './$types';
 
 	export let data: PageData;
 
 	$: isAdmin = data.isAdmin;
+
+	$: allWordsByWord = data.allWordsByWord;
 
 	$: wordCountsThis = data.sentences.reduce(
 		(acc, sentence) => {
@@ -42,7 +46,11 @@
 		{} as Record<string, number>
 	);
 
-	let filterWord: string | undefined = undefined;
+	function findWord(wordString: string) {
+		return allWordsByWord[wordString];
+	}
+
+	let filterWord: Word | undefined = undefined;
 
 	async function deleteSentence(id: number) {
 		await callDeleteSentence(id);
@@ -58,6 +66,14 @@
 		return Object.entries(words).sort((a, b) => a[0].localeCompare(b[0]));
 	}
 
+	function toggleFilter(wordString: string) {
+		if (filterWord?.word === wordString) {
+			filterWord = undefined;
+		} else {
+			filterWord = findWord(wordString);
+		}
+	}
+
 	let isShowAllExcessive = false;
 </script>
 
@@ -68,10 +84,10 @@
 <div class="flex flex-wrap gap-2 mb-8">
 	{#each sortWordEntries(wordCountsThis) as [word, count]}
 		<button
-			class="whitespace-nowrap bg-blue-3 text-white px-2 py-1 rounded-md {word == filterWord
+			class="whitespace-nowrap bg-blue-3 text-white px-2 py-1 rounded-md {word == filterWord?.word
 				? 'bg-blue-4'
 				: 'bg-blue-3'} {count < 5 ? 'opacity-50' : ''}"
-			on:click={() => (filterWord = filterWord === word ? undefined : word)}
+			on:click={() => toggleFilter(word)}
 		>
 			{word}: {count}
 		</button>
@@ -86,10 +102,10 @@
 			.sort((a, b) => b[1] - a[1])
 			.slice(0, isShowAllExcessive ? undefined : 20) as [word, count]}
 			<button
-				class="whitespace-nowrap text-white px-2 py-1 rounded-md {word == filterWord
+				class="whitespace-nowrap text-white px-2 py-1 rounded-md {word == filterWord?.word
 					? 'bg-morpheem-darkred'
 					: 'bg-red'}"
-				on:click={() => (filterWord = filterWord === word ? undefined : word)}
+				on:click={() => toggleFilter(word)}
 			>
 				{word}: {count}
 			</button>
@@ -106,8 +122,43 @@
 	</div>
 {/if}
 
+{#if filterWord}
+	<h2 class="text-lg mb-4">
+		<a href="../words/{filterWord.id}">
+			{filterWord.word}
+		</a>
+
+		{#if isAdmin}
+			<SpinnerButton
+				className="ml-2 text-white bg-red rounded-md py-1 px-4 m-2 text-xs whitespace-nowrap"
+				onClick={async () => {
+					if (filterWord) {
+						if (filterWord.unit == data.unit.id) {
+							await sendWordUnit(null, filterWord.id);
+
+							data.words = data.words.filter(({ id }) => id !== filterWord?.id);
+
+							filterWord = undefined;
+						} else {
+							await sendWordUnit(data.unit.id, filterWord.id);
+
+							data.words = data.words.concat(filterWord);
+						}
+					}
+				}}
+			>
+				{#if filterWord.unit == data.unit.id}
+					Remove from unit
+				{:else}
+					Add to unit
+				{/if}
+			</SpinnerButton>
+		{/if}
+	</h2>
+{/if}
+
 <div class="grid grid-cols-[auto_1fr_auto] items-baseline gap-x-2 gap-y-1">
-	{#each data.sentences.filter((s) => filterWord == undefined || s.words.includes(filterWord)) as sentence}
+	{#each data.sentences.filter((s) => filterWord == undefined || s.words.includes(filterWord.word)) as sentence}
 		<span class="text-xxs">
 			#{sentence.id}
 		</span>

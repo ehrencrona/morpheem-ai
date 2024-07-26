@@ -2,10 +2,10 @@ import { z } from 'zod';
 import { askForJson } from '../../ai/askForJson';
 import { readFileSync, writeFileSync } from 'fs';
 import { getUnits } from '../../db/units';
-import { SWEDISH } from '../../constants';
+import { RUSSIAN, SWEDISH } from '../../constants';
 import { getWords } from '../../db/words';
 
-const language = SWEDISH;
+const language = RUSSIAN;
 
 const words = await getWords({
 	upToUnit: 3,
@@ -18,8 +18,8 @@ async function askForUnit() {
 			{
 				role: 'user',
 				content: `
-      We are generating sentences for complete beginners for a Polish course.
-      Write sixty sentences (or multi-sentence texts), focusing on the accusative case (singular) and
+      We are generating sentences for complete beginners for a ${language.name} course.
+      Write thirty sentences (or multi-sentence texts), focusing on the words взять, голова and касса and
 			limiting yourself strictly to the following vocabulary and using ONLY the nominative case singular and the accusative case singular,
       but displaying as much diversity as possible within these limitations.
       Try to have the sentences make logical sense. A text can have multiple sentences, e.g. a very short dialog.
@@ -31,9 +31,9 @@ async function askForUnit() {
       Return JSON with first the sentence, then double check that the sentence only uses nominative singular and then double check that the sentence makes sense and is grammatically correct e.g.
       
       { "sentences": [
-        { "sentence": "Ona ogląda serial.", "onlyNominativeAndAccusative": true, "correctAndMakesSense": true },
-        { "sentence": "On pomaga brat.", "onlyNominativeAndAccusative": true, "correctAndMakesSense": false },
-        { "sentence": "On stoi szybko.", "onlyNominativeAndAccusative": false, "correctAndMakesSense": true }
+        { "sentence": "Я читаю книгу.", "onlyNominativeAndAccusative": true, "correctAndMakesSense": true },
+        { "sentence": "Я читаю телевидение.", "onlyNominativeAndAccusative": true, "correctAndMakesSense": false },
+        { "sentence": "Мой новый дом в городе.", "onlyNominativeAndAccusative": false, "correctAndMakesSense": true }
       ]}`
 			}
 		],
@@ -59,7 +59,7 @@ let sentences: string[] = [];
 
 sentences = readFileSync(`./unit3.txt`, 'utf-8').split('\n');
 
-for (let i = 0; i < 3; i++) {
+for (let i = 0; i < 1; i++) {
 	const newSentences = await askForUnit();
 
 	console.log(newSentences.join('\n'));

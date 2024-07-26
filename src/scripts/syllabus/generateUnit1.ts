@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { askForJson } from '../../ai/askForJson';
 import { readFileSync, writeFileSync } from 'fs';
 import { getUnits } from '../../db/units';
-import { POLISH } from '../../constants';
+import { POLISH, RUSSIAN } from '../../constants';
 import { getWords } from '../../db/words';
 
 async function askForUnit() {
@@ -11,23 +11,23 @@ async function askForUnit() {
 			{
 				role: 'user',
 				content: `
-      We are generating sentences for complete beginners for a Polish course.
+      We are generating sentences for complete beginners for a Russian course.
       Write sixty sentences (or multi-sentence texts), limiting yourself strictly to the following vocabulary and using ONLY the nominative case,
       but displaying as much diversity as possible within these limitations. 
-      For example, use as subject that is a name (Ewa, Marek), a pronoun or another noun (mama, kot). Do not always use the same word order.
-      Try to have the sentences make logical sense. A text can have multiple sentences, e.g. "Ewa? Ona tu jest." 
+      For example, use as subject that is a name (Дима, Катя), a pronoun or another noun (брат, кот). Do not always use the same word order.
+      Try to have the sentences make logical sense. A text can have multiple sentences, e.g. "Дима? он там." 
       
       Vocabulary:
       
-      ${(await getWords({ upToUnit: 1, language: POLISH })).map((w) => w.word).join(', ')}
+      ${(await getWords({ upToUnit: 1, language: RUSSIAN })).map((w) => w.word).join(', ')}
       
       Return JSON with first the sentence, then double check that the sentence only uses nominative singular and then double check that the sentence makes sense and is grammatically correct e.g.
       
       { "sentences": [
-        { "sentence": "To polski człowiek", "onlyNominative": true, "makesSense": true },
-        { "sentence": "Marek to on", "onlyNominative": true, "makesSense": true },
-        { "sentence": "To mały Marek", "onlyNominative": true, "makesSense": false },
-        { "sentence": "Ona jest Ewą", "onlyNominative": false, "makesSense": true }
+        { "sentence": "Где Катя? Она тут.", "onlyNominative": true, "makesSense": true },
+        { "sentence": "То Дима.", "onlyNominative": true, "makesSense": true },
+        { "sentence": "То маленкаяа Катя.", "onlyNominative": true, "makesSense": false },
+        { "sentence": "кошка на стуле.", "onlyNominative": false, "makesSense": false }
       ]}`
 			}
 		],

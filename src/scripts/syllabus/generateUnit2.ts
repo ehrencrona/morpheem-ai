@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { askForJson } from '../../ai/askForJson';
 import { readFileSync, writeFileSync } from 'fs';
-import { POLISH } from '../../constants';
+import { POLISH, RUSSIAN } from '../../constants';
 import { getWords } from '../../db/words';
 
 async function askForUnit() {
@@ -10,22 +10,22 @@ async function askForUnit() {
 			{
 				role: 'user',
 				content: `
-      We are generating sentences for complete beginners for a Polish course.
-      Write sixty sentences (or multi-sentence texts), focusing on different inflections of verbs in the present and
+      We are generating sentences for complete beginners for a Russian course.
+      Write thirty sentences (or multi-sentence texts), using the word не and
 			limiting yourself strictly to the following vocabulary and using ONLY the nominative case singular,
       but displaying as much diversity as possible within these limitations.
-      Try to have the sentences make logical sense. A text can have multiple sentences, e.g. "Co to jest? To jest samochód." 
+      Try to have the sentences make logical sense. A text can have multiple sentences, e.g. "Что это? Это машина." 
       
       Vocabulary:
       
-      ${(await getWords({ upToUnit: 2, language: POLISH })).map((w) => w.word).join(', ')}
+      ${(await getWords({ upToUnit: 2, language: RUSSIAN })).map((w) => w.word).join(', ')}
       
       Return JSON with first the sentence, then double check that the sentence only uses nominative singular and then double check that the sentence makes sense and is grammatically correct e.g.
       
       { "sentences": [
-        { "sentence": "Ona śpi długo.", "onlyNominative": true, "makesSense": true },
-        { "sentence": "On pomaga brat.", "onlyNominative": true, "makesSense": false },
-        { "sentence": "Ona jest Ewą", "onlyNominative": false, "makesSense": true }
+        { "sentence": "Она долго спит.", "onlyNominative": true, "makesSense": true },
+        { "sentence": "Он помогает брату.", "onlyNominative": false, "makesSense": true },
+        { "sentence": "кошка стул.", "onlyNominative": true, "makesSense": false }
       ]}`
 			}
 		],
@@ -49,7 +49,7 @@ let sentences: string[] = [];
 
 sentences = readFileSync(`./unit2.txt`, 'utf-8').split('\n');
 
-for (let i = 0; i < 3; i++) {
+for (let i = 0; i < 1; i++) {
 	const newSentences = await askForUnit();
 
 	console.log(newSentences.join('\n'));

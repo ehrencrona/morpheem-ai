@@ -2,6 +2,7 @@ import { error, type ServerLoad } from '@sveltejs/kit';
 import { getSentences } from '../../../../db/sentences';
 import { getUnits } from '../../../../db/units';
 import { getWords, getWordsOfSentences } from '../../../../db/words';
+import { Word } from '../../../../db/types';
 
 export const load: ServerLoad = async ({ params, locals: { user, language, isAdmin }, url }) => {
 	if (!language) {
@@ -39,6 +40,13 @@ export const load: ServerLoad = async ({ params, locals: { user, language, isAdm
 		})),
 		isAdmin,
 		words,
+		allWordsByWord: words.concat(sentenceWords.flatMap((words) => words)).reduce(
+			(acc, word) => {
+				acc[word.word] = word;
+				return acc;
+			},
+			{} as Record<string, Word>
+		),
 		unit
 	};
 };

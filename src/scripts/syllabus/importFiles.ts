@@ -2,16 +2,17 @@ import { toBatches } from '$lib/batch';
 import { unzip, zip } from '$lib/zip';
 import { existsSync, readFileSync } from 'fs';
 import { shuffle } from 'simple-statistics';
-import { POLISH } from '../../constants';
+import { POLISH, RUSSIAN } from '../../constants';
 import { getUnits } from '../../db/units';
 import { getWords } from '../../db/words';
 import { addSentences } from '../../logic/addSentence';
 import { lemmatizeSentences } from '../../logic/lemmatize';
+import { findInvalidSentences } from '../../ai/findInvalidSentences';
 
 let allVocab = new Set<string>();
 let previousSentences = new Set<string>();
 
-const language = POLISH;
+const language = RUSSIAN;
 
 const units = await getUnits(language);
 
@@ -30,6 +31,10 @@ for (let unitNumber = 1; unitNumber < units.length + 1; unitNumber++) {
 
 	for (let batch of toBatches(allSentences, 30)) {
 		batch = batch.filter((sentence) => !previousSentences.has(sentence));
+
+		const invalid = await findInvalidSentences(batch, language);
+
+		batch = batch.filter((s) => !invalid.includes(s));
 
 		let lemmas = await lemmatizeSentences(batch, { language, onError: 'returnempty' });
 
