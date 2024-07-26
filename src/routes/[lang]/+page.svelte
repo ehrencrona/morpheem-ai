@@ -259,7 +259,11 @@
 
 			const startup = Math.min(knowledge.length, 100) / 100;
 
-			if (!nextSentence || nextSentence.score < (1 - startup) * 0.3 + startup * 0.91) {
+			if (
+				!nextSentence ||
+				(nextSentence.score < (1 - startup) * 0.3 + startup * 0.91 &&
+					document.location.hostname != 'localhost')
+			) {
 				if (nextSentence) {
 					console.log(
 						`Best sentence #${nextSentence.sentence.id} with word #${wordId} has low score ${toPercent(nextSentence.score)}. Finding more...`
@@ -467,7 +471,7 @@
 	{/if}
 
 	{#if current}
-		<div class="flex mb-4 lg:mb-1 pb-3 bg-[#f9f9f9] lg:bg-white -mt-4 pt-4 h-12">
+		<div class="flex pb-3 bg-[#f9f9f9] lg:bg-white -m-4 px-4 mb-4 lg:mb-1 pt-4 h-12">
 			<div class="flex-1 font-lato text-xs flex items-center">
 				{#if current.source == 'unstudied'}
 					<div class="bg-red text-[#fff] px-1 font-sans text-xxs ml-12 lg:ml-0">NEW WORD</div>
