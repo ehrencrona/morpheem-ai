@@ -5,6 +5,7 @@ export interface Sentence {
 	id: number;
 	english: string | null;
 	transliteration: string | null;
+	unit?: number;
 }
 
 export interface Word {

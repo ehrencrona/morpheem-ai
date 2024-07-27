@@ -1,15 +1,46 @@
 <script lang="ts">
+	import AdminUnitDialog from '../../../../components/AdminUnitDialog.svelte';
+	import EditSvg from '../../../../components/EditSvg.svelte';
+	import { sendSentenceUnit } from '../../api/sentences/[sentence]/unit/client';
 	import type { PageData } from './$types';
 
 	export let data: PageData;
 
 	$: sentence = data.sentence;
+
+	let isEditingUnit = false;
 </script>
 
 <main>
 	<div class="text-sm">#{sentence.id}</div>
 
+	<div class="my-4">
+		<p>
+			<b>Unit</b>: {#if sentence.unit}<a href="../units/{sentence.unit}" class="underline"
+					>#{sentence.unit}</a
+				>{:else}-{/if}
+			<button
+				class="ml-2 w-5 h-5 hover:border-blue-3 border-2 border-white p-[2px] inline-block"
+				on:click={() => (isEditingUnit = true)}
+			>
+				<EditSvg />
+			</button>
+		</p>
+	</div>
+
 	<h1 class="text-2xl my-2">{sentence.sentence}</h1>
+
+	{#if isEditingUnit}
+		<AdminUnitDialog
+			onCancel={() => (isEditingUnit = false)}
+			save={async (unit) => {
+				sendSentenceUnit(unit, sentence.id);
+				sentence.unit = unit || undefined;
+				isEditingUnit = false;
+			}}
+			unit={sentence.unit || null}
+		/>
+	{/if}
 
 	{#if sentence.english}
 		<p><i>{sentence.english}</i></p>

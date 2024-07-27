@@ -3,6 +3,22 @@ import { Language, SentenceWord } from '../logic/types';
 import { db } from './client';
 import type { Sentence } from './types';
 
+export function toSentence(row: {
+	id: number;
+	sentence: string;
+	transliteration: string | null;
+	english: string | null;
+	unit: number | null;
+}): Sentence {
+	return {
+		id: row.id,
+		sentence: row.sentence,
+		transliteration: row.transliteration || null,
+		english: row.english || null,
+		unit: row.unit || undefined
+	};
+}
+
 export async function addSentence(
 	sentenceString: string,
 	{
@@ -85,14 +101,14 @@ export async function getSentences(language: Language, unit?: number): Promise<S
 	let select = db
 		.withSchema(language.schema)
 		.selectFrom('sentences')
-		.select(['id', 'sentence', 'english', 'transliteration'])
+		.select(['id', 'sentence', 'english', 'transliteration', 'unit'])
 		.orderBy('id asc');
 
 	if (unit) {
 		select = select.where('unit', '=', unit);
 	}
 
-	return select.execute();
+	return (await select.execute()).map(toSentence);
 }
 
 export function getSentenceIds(language: Language) {
@@ -104,19 +120,21 @@ export async function getSentencesByIds(ids: number[], language: Language) {
 		return [];
 	}
 
-	return db
-		.withSchema(language.schema)
-		.selectFrom('sentences')
-		.select(['id', 'sentence', 'english', 'transliteration'])
-		.where('id', 'in', ids)
-		.execute();
+	return (
+		await db
+			.withSchema(language.schema)
+			.selectFrom('sentences')
+			.select(['id', 'sentence', 'english', 'transliteration', 'unit'])
+			.where('id', 'in', ids)
+			.execute()
+	).map(toSentence);
 }
 
 export async function getSentence(id: number, language: Language) {
 	const sentence = await db
 		.withSchema(language.schema)
 		.selectFrom('sentences')
-		.select(['id', 'sentence', 'english', 'transliteration'])
+		.select(['id', 'sentence', 'english', 'transliteration', 'unit'])
 		.where('id', '=', id)
 		.executeTakeFirst();
 
@@ -124,7 +142,7 @@ export async function getSentence(id: number, language: Language) {
 		return error(404, 'Sentence not found');
 	}
 
-	return sentence;
+	return toSentence(sentence);
 }
 
 export async function getSentencesWithWord(
@@ -149,7 +167,7 @@ export async function getSentencesWithWord(
 		.withSchema(language.schema)
 		.selectFrom('word_sentences')
 		.innerJoin('sentences', 'sentence_id', 'id')
-		.select(['id', 'sentence', 'english', 'transliteration'])
+		.select(['id', 'sentence', 'english', 'transliteration', 'unit'])
 		.where('word_id', '=', wordId);
 
 	if (userId) {
@@ -174,7 +192,7 @@ export async function getSentencesWithWord(
 		select = select.limit(limit);
 	}
 
-	return select.execute();
+	return (await select.execute()).map(toSentence);
 }
 
 export async function deleteSentence(sentenceId: number, language: Language) {

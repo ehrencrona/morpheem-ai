@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { getRepetitionTime } from '$lib/settings';
+	import AdminUnitDialog from '../../../../components/AdminUnitDialog.svelte';
 	import EditSvg from '../../../../components/EditSvg.svelte';
 	import SpinnerButton from '../../../../components/SpinnerButton.svelte';
 	import { calculateOptimalTime } from '../../../../logic/isomorphic/knowledge';
@@ -9,7 +10,6 @@
 	import { storeMergeWordWith } from '../../api/word/[id]/merge/client';
 	import { sendWordUnit } from '../../api/word/[id]/unit/client';
 	import type { PageData } from './$types';
-	import WordUnitDialog from './WordUnitDialog.svelte';
 
 	export let data: PageData;
 
@@ -84,7 +84,7 @@
 	</div>
 
 	{#if isEditingUnit}
-		<WordUnitDialog
+		<AdminUnitDialog
 			onCancel={() => (isEditingUnit = false)}
 			save={async (unit) => {
 				sendWordUnit(unit, word.id);
