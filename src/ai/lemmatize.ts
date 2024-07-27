@@ -17,7 +17,13 @@ const forcedLemmas: Record<LanguageCode, Record<string, string>> = {
 		mu: 'on'
 	},
 	nl: {},
-	ru: {},
+	ru: {
+		его: 'он',
+		её: 'она',
+		их: 'они',
+		дети: 'ребёнок',
+		мне: 'я'
+	},
 	es: {
 		los: 'el',
 		esta: 'este',

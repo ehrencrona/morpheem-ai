@@ -28,15 +28,17 @@ function memoize<T>(fn: () => Promise<T>) {
 const units = await getUnits(language);
 
 for (const unit of units) {
-	if (unit.id < 7) {
+	if (unit.id < 11) {
 		continue;
 	}
 
-	const UNIT = unit.id;
+	console.log(`\n\n***** UNIT ${unit.id} *****\n\n`);
+
+	const unitId = unit.id;
 	const FOCUS = unit.name;
 
 	const organizeVocab = memoize(async () => {
-		const words = await getWords({ upToUnit: UNIT, language });
+		const words = await getWords({ upToUnit: unitId, language });
 
 		return ask({
 			messages: [
@@ -104,12 +106,14 @@ for (const unit of units) {
 		}
 	}
 
-	const allVocab = new Set((await getWords({ language, upToUnit: UNIT })).map(({ word }) => word));
-	const thisVocab = new Set((await getWords({ language, unit: UNIT })).map(({ word }) => word));
+	const allVocab = new Set(
+		(await getWords({ language, upToUnit: unitId })).map(({ word }) => word)
+	);
+	const thisVocab = new Set((await getWords({ language, unit: unitId })).map(({ word }) => word));
 
 	for (const word of thisVocab) {
 		const wordObj = await getWordByLemma(word, language);
-		const existingSentences = await getSentencesWithWord(wordObj.id, { language, unit: UNIT });
+		const existingSentences = await getSentencesWithWord(wordObj.id, { language, unit: unitId });
 
 		if (existingSentences.length >= SENTENCE_COUNT / 2) {
 			console.log(`Already have enough sentences for ${word}, skipping`);
@@ -133,11 +137,17 @@ for (const unit of units) {
 					return false;
 				}
 
+				if (!allVocab.has(word)) {
+					throw new Error(
+						`Word "${word}" not in vocabulary for unit ${unitId}, only ${Array.from(allVocab).join(', ')}`
+					);
+				}
+
 				const unknownWords = lemmas.filter((lemma) => !allVocab.has(lemma));
 
 				if (unknownWords.length > 1) {
 					console.error(
-						`Sentence "${sentence}" contains too many words not in the vocabulary for unit ${UNIT}: ${unknownWords.join(', ')}`
+						`Sentence "${sentence}" contains too many words not in the vocabulary for unit ${unitId}: ${unknownWords.join(', ')}`
 					);
 
 					return false;
@@ -145,6 +155,8 @@ for (const unit of units) {
 					console.warn(
 						`Sentence "${sentence}" contains word not in the vocabulary: ${unknownWords[0]}`
 					);
+				} else {
+					console.log(`Added sentence "${sentence}" for word "${word}" to unit ${unitId}`);
 				}
 
 				return true;
@@ -153,7 +165,7 @@ for (const unit of units) {
 
 		await addSentences(sentences, undefined, lemmas, {
 			language,
-			unit: UNIT
+			unit: unitId
 		});
 	}
 }

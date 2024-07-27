@@ -18,6 +18,10 @@ export async function addWord(
 		throw new CodedError(`"${lemma}" is English`, 'notALemma');
 	}
 
+	if (language.code == 'ru' && ['её', 'его', 'их', 'мне', 'ребенок'].includes(lemma)) {
+		throw new CodedError(`"${lemma}" is not the dictionary form`, 'notALemma');
+	}
+
 	if (
 		language.code == 'sv' &&
 		[
@@ -200,9 +204,7 @@ export async function getWords({
 
 	if (unit) {
 		select = select.where('unit', '=', unit);
-	}
-
-	if (upToUnit) {
+	} else if (upToUnit) {
 		select = select.where('unit', '<=', upToUnit);
 	}
 

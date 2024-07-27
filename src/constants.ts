@@ -39,7 +39,8 @@ export const RUSSIAN: Language = {
 	code: 'ru',
 	name: 'Russian',
 	schema: 'ru',
-	isLatin: false
+	// unnecessary to transliterate
+	isLatin: true
 };
 
 export const SWEDISH: Language = {

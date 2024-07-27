@@ -1,13 +1,13 @@
 import { sql } from 'kysely';
 import { db } from '../db/client';
 import { getUnits } from '../db/units';
-import { POLISH, SPANISH, SWEDISH } from '../constants';
+import { POLISH, RUSSIAN, SPANISH, SWEDISH } from '../constants';
 import { parallelize } from '$lib/parallelize';
 
-const LEVELS_FOR_UNITS = 0;
+const LEVELS_FOR_UNITS = 20;
 const MAX_LEVEL = 100;
 
-const language = SWEDISH;
+const language = RUSSIAN;
 
 async function updateWordLevels() {
 	const units = await getUnits(language);
@@ -19,8 +19,8 @@ async function updateWordLevels() {
 		frequency: number;
 	}>`
     SELECT word_id, unit, word, COUNT(*) AS frequency
-      FROM sv.word_sentences
-      JOIN sv.words ON word_id = id
+      FROM ru.word_sentences
+      JOIN ru.words ON word_id = id
       GROUP BY word_id, unit, word
       ORDER BY frequency DESC`.execute(db);
 
