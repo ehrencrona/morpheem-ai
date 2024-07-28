@@ -354,7 +354,7 @@
 				type="text"
 				bind:value={entered}
 				bind:this={input}
-				class="bg-blue-1 rounded-sm block w-full p-2 text-lg mb-6"
+				class="bg-blue-1 rounded-sm block w-full p-2 text-sans text-lg mb-6"
 				lang={getLanguageOnClient().code}
 			/>
 
@@ -377,7 +377,7 @@
 				</div>
 			{/if}
 			{#if enteredParts}
-				<div class="text-xl font-bold mb-6 text-balance {feedback.isCorrect ? 'text-green' : ''}">
+				<div class="text-xl font-sans font-bold mb-6 text-balance {feedback.isCorrect ? 'text-green' : ''}">
 					{#each enteredParts as part}
 						{#if part.isCorrected}
 							<span class="line-through text-red">{part.part}</span>
