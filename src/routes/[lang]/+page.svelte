@@ -144,7 +144,7 @@
 			.catch(logError);
 	}
 
-	let nextPromise: ReturnType<typeof getNextExercise>;
+	let nextPromise: ReturnType<typeof getNextExercise> | undefined;
 
 	async function getNextExercise({
 		exercises = [],
@@ -442,6 +442,7 @@
 		await init();
 
 		showUnits = false;
+		nextPromise = undefined;
 	}
 
 	onMount(() => init().catch(logError));
