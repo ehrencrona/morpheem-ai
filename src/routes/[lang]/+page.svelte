@@ -436,13 +436,13 @@
 
 	async function setUnit(newUnit: number | null) {
 		unit = newUnit;
+		nextPromise = undefined;
 
 		await sendSettings({ unit });
 
 		await init();
 
 		showUnits = false;
-		nextPromise = undefined;
 	}
 
 	onMount(() => init().catch(logError));
