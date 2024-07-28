@@ -28,11 +28,11 @@
 		<a
 			href="https://en.wiktionary.org/wiki/{word.word}#{getLanguageOnClient().name}"
 			target="_blank"
-			class={`text-base ${showLemma ? '' : 'flex-1'}`}
+			class={`text-base ${showLemma ? '' : 'flex-1'} font-sans`}
 			>{inflected || word.word}
 		</a>
 		{#if showLemma}
-			<span class="text-xs font-lato flex-1 ml-2">
+			<span class="text-xs font-sans flex-1 ml-2">
 				{#if word.word != inflected}{word.word}{/if}{#if form}
 					<span
 						>{#if word.word != inflected},
@@ -93,7 +93,7 @@
 {#if expression}
 	<div class="bg-light-gray rounded-md w-full border border-gray md:max-w-[500px] mb-4">
 		<div class="font-medium mb-1 flex bg-blue-3 text-[#fff] px-3 py-2 rounded-t-md items-baseline">
-			<span class="text-base flex-1">
+			<span class="text-base flex-1 font-sans">
 				{expression.expression}
 			</span>
 
