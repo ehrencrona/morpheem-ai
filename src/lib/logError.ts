@@ -1,12 +1,28 @@
 import { captureException } from '@sentry/browser';
 import { writable } from 'svelte/store';
+import { z } from 'zod';
 
 export const errorStore = writable<any>(null);
 
 let lastThrottleTime = 0;
 let logCount = 0;
 
-export function logError(error: any) {
+export function cloneError(e: any, message: string) {
+	const clonedError = new Error(message);
+
+	Object.assign(clonedError, e);
+
+	// Copy the stack property, which is non-enumerable by default
+	clonedError.stack = e.stack;
+
+	return clonedError;
+}
+
+export function logError(error: any, context: string) {
+	if (context) {
+		error = cloneError(error, `${context}: ${error.message}`);
+	}
+
 	console.error(error);
 
 	logCount++;

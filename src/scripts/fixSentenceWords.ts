@@ -122,8 +122,7 @@ async function fixSentenceWords() {
 				} else if ((e as CodedError).code == 'notALemma') {
 					console.error(`In sentence ${sentence.id}: ${(e as CodedError).message}`);
 				} else {
-					(e as Error).message = `Error in sentence ${sentence.id}: ${(e as Error).message}`;
-					logError(e);
+					logError(e, `Error in sentence ${sentence.id}`);
 				}
 			}
 		}

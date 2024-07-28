@@ -2,6 +2,7 @@ import { HandleServerError, json, type Handle } from '@sveltejs/kit';
 import { lucia } from './db/lucia';
 import { DUTCH, FRENCH, KOREAN, POLISH, RUSSIAN, SPANISH, SWEDISH } from './constants';
 import { init, captureException } from '@sentry/browser';
+import { cloneError } from '$lib/logError';
 
 const isLoggingEnabled = import.meta.env.PROD;
 
@@ -98,7 +99,7 @@ export const handleError: HandleServerError = async ({ error, event, status, mes
 			extra: { event, errorId, status }
 		});
 
-		(error as Error).message = `${message} (error ID: ${errorId})`;
+		error = cloneError(error, `${message} (error ID: ${errorId})`);
 	}
 
 	console.error(error);

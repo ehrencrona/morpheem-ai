@@ -59,8 +59,10 @@ export async function translateWordInContext(
 				transliteration: translation.transliteration,
 				language
 			}).catch((e) => {
-				e.message = `Error adding word translation for ${wordString} (${word.id}), sentence ${sentence?.id} in ${language.name}: ${e.message}`;
-				logError(e);
+				logError(
+					e,
+					`Error adding word translation for ${wordString} (${word.id}), sentence ${sentence?.id} in ${language.name}`
+				);
 			});
 		}
 	}
@@ -93,8 +95,10 @@ export async function translateWordOutOfContext(
 			transliteration: translation.transliteration,
 			language
 		}).catch((e) => {
-			e.message = `Error adding word translation for ${wordString} (${word.id}) in ${language.name}: ${e.message}`;
-			logError(e);
+			logError(
+				e,
+				`Error adding word translation for ${wordString} (${word.id}) in ${language.name}`
+			);
 		});
 	}
 
