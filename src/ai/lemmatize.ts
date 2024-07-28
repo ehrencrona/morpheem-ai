@@ -5,6 +5,7 @@ import { toWordStrings } from '../logic/toWordStrings';
 import type { Language, LanguageCode } from '../logic/types';
 import { Message, ask } from './ask';
 
+// these words don't even go to the llm
 const forcedLemmas: Record<LanguageCode, Record<string, string>> = {
 	sv: {
 		// wordString -> lemma
@@ -29,6 +30,19 @@ const forcedLemmas: Record<LanguageCode, Record<string, string>> = {
 		esta: 'este',
 		esa: 'ese'
 	},
+	fr: {}
+};
+
+// renames the output of the llm
+const renamedLemmas: Record<LanguageCode, Record<string, string>> = {
+	ru: {
+		все: 'всё'
+	},
+	sv: {},
+	ko: {},
+	pl: {},
+	nl: {},
+	es: {},
 	fr: {}
 };
 
@@ -283,7 +297,13 @@ ${examples[language.code]}`
 					}
 
 					if (lemma) {
-						return lemma.lemma;
+						const result = lemma.lemma;
+
+						if (renamedLemmas[language.code][result]) {
+							return renamedLemmas[language.code][result];
+						} else {
+							return result;
+						}
 					} else {
 						const lemmas = await getLemmasOfWord(standardized, language);
 

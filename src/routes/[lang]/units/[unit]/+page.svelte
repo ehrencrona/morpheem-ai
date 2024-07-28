@@ -9,10 +9,12 @@
 	export let data: PageData;
 
 	$: isAdmin = data.isAdmin;
+	$: words = data.words;
+	$: sentences = data.sentences;
 
 	$: allWordsByWord = data.allWordsByWord;
 
-	$: wordCountsThis = data.sentences.reduce(
+	$: wordCountsThis = sentences.reduce(
 		(acc, sentence) => {
 			sentence.words.forEach((word) => {
 				if (word in acc) {
@@ -22,7 +24,7 @@
 
 			return acc;
 		},
-		data.words
+		words
 			.filter((w) => w.unit == data.unit.id)
 			.reduce(
 				(acc, word) => {
@@ -33,10 +35,10 @@
 			)
 	);
 
-	$: wordCountsExcessive = data.sentences.reduce(
+	$: wordCountsExcessive = sentences.reduce(
 		(acc, sentence) => {
 			sentence.words.forEach((word) => {
-				if (!data.words.find((w) => w.word == word)) {
+				if (!words.find((w) => w.word == word)) {
 					acc[word] = acc[word] ? acc[word] + 1 : 1;
 				}
 			});
@@ -54,12 +56,12 @@
 
 	async function deleteSentence(id: number) {
 		await callDeleteSentence(id);
-		data.sentences = data.sentences.filter((s) => s.id !== id);
+		sentences = sentences.filter((s) => s.id !== id);
 	}
 
 	async function removeFromUnit(id: number) {
 		await sendSentenceUnit(null, id);
-		data.sentences = data.sentences.filter((s) => s.id !== id);
+		sentences = sentences.filter((s) => s.id !== id);
 	}
 
 	function sortWordEntries(words: Record<string, number>) {
@@ -136,13 +138,13 @@
 						if (filterWord.unit == data.unit.id) {
 							await sendWordUnit(null, filterWord.id);
 
-							data.words = data.words.filter(({ id }) => id !== filterWord?.id);
+							words = words.filter(({ id }) => id !== filterWord?.id);
 
 							filterWord = undefined;
 						} else {
 							await sendWordUnit(data.unit.id, filterWord.id);
 
-							data.words = data.words.concat(filterWord);
+							words = words.concat(filterWord);
 						}
 					}
 				}}
@@ -158,7 +160,7 @@
 {/if}
 
 <div class="grid grid-cols-[auto_1fr_auto] items-baseline gap-x-2 gap-y-1">
-	{#each data.sentences.filter((s) => filterWord == undefined || s.words.includes(filterWord.word)) as sentence}
+	{#each sentences.filter((s) => filterWord == undefined || s.words.includes(filterWord.word)) as sentence}
 		<span class="text-xxs">
 			#{sentence.id}
 		</span>

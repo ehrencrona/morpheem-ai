@@ -33,7 +33,7 @@
 		<select bind:value={editedNumber} class="bg-blue-1 rounded-sm block p-2 text-lg mb-6">
 			<option value={null} selected={unit == null}>None</option>
 			{#each units as u}
-				<option value={u.id} selected={u.id == unit}>{u.name}</option>
+				<option value={u.id} selected={u.id == unit}>{u.id}. {u.name}</option>
 			{/each}
 		</select>
 

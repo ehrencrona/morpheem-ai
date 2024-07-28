@@ -2,7 +2,7 @@ import { toBatches } from '$lib/batch';
 import { findCases } from '../../ai/findCases';
 import { findTenses } from '../../ai/findTenses';
 import { RUSSIAN, SPANISH } from '../../constants';
-import { getSentences, setSentenceUnit } from '../../db/sentences';
+import { getSentence, getSentences, setSentenceUnit } from '../../db/sentences';
 import { getUnits } from '../../db/units';
 import { writeFileSync, existsSync, readFileSync } from 'fs';
 
@@ -35,46 +35,58 @@ if (existsSync('sentence-tenses.json')) {
 	Object.assign(bySentence, JSON.parse(data));
 }
 
-for (const u of units.slice(0, units.length - 1)) {
-	const unit = u.id;
+for (const e of Object.entries(bySentence)) {
+	if (e[1].cases.includes('dative plural')) {
+		console.log(`Moving sentence ${e[0]} to unit 13`);
 
-	const sentences = await getSentences(language, unit);
+		const s = await getSentence(+e[0], language);
 
-	for (const batch of toBatches(sentences, 30) {
-		const tenses = (await findTenses(batch, language)).tenses;
-		const cases = (await findCases(batch, language)).cases;
-
-		for (let s = 0; s < batch.length; s++) {
-			let minUnit = unit;
-			let reason = '';
-
-			bySentence[batch[s].id] = { tenses: tenses[s].tenses, cases: cases[s].cases };
-
-			for (const tense of tenses[s].tenses) {
-				if (tense in unitByTense) {
-					if (unitByTense[tense] > minUnit) {
-						minUnit = unitByTense[tense];
-						reason = tense;
-					}
-				}
-			}
-
-			for (const c of cases[s].cases) {
-				if (c in unitByCase) {
-					if (unitByCase[c] > minUnit) {
-						minUnit = unitByCase[c];
-						reason = c;
-					}
-				}
-			}
-
-			if (minUnit > unit) {
-				console.log(`Moving sentence "${batch[s].sentence}" from unit ${unit} to ${minUnit}`);
-
-				await setSentenceUnit(minUnit, batch[s].id, language);
-			}
+		if (s.unit && s.unit < 13) {
+			await setSentenceUnit(13, +e[0], language);
 		}
-
-		writeFileSync('sentence-tenses.json', JSON.stringify(bySentence, null, 2));
 	}
 }
+
+// for (const u of units.slice(0, units.length - 1)) {
+// 	const unit = u.id;
+
+// 	const sentences = await getSentences(language, unit);
+
+// 	for (const batch of toBatches(sentences, 30) {
+// 		const tenses = (await findTenses(batch, language)).tenses;
+// 		const cases = (await findCases(batch, language)).cases;
+
+// 		for (let s = 0; s < batch.length; s++) {
+// 			let minUnit = unit;
+// 			let reason = '';
+
+// 			bySentence[batch[s].id] = { tenses: tenses[s].tenses, cases: cases[s].cases };
+
+// 			for (const tense of tenses[s].tenses) {
+// 				if (tense in unitByTense) {
+// 					if (unitByTense[tense] > minUnit) {
+// 						minUnit = unitByTense[tense];
+// 						reason = tense;
+// 					}
+// 				}
+// 			}
+
+// 			for (const c of cases[s].cases) {
+// 				if (c in unitByCase) {
+// 					if (unitByCase[c] > minUnit) {
+// 						minUnit = unitByCase[c];
+// 						reason = c;
+// 					}
+// 				}
+// 			}
+
+// 			if (minUnit > unit) {
+// 				console.log(`Moving sentence "${batch[s].sentence}" from unit ${unit} to ${minUnit}`);
+
+// 				await setSentenceUnit(minUnit, batch[s].id, language);
+// 			}
+// 		}
+
+// 		writeFileSync('sentence-tenses.json', JSON.stringify(bySentence, null, 2));
+// 	}
+// }
