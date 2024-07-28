@@ -18,7 +18,7 @@ export function cloneError(e: any, message: string) {
 	return clonedError;
 }
 
-export function logError(error: any, context: string) {
+export function logError(error: any, context?: string) {
 	if (context) {
 		error = cloneError(error, `${context}: ${error.message}`);
 	}
