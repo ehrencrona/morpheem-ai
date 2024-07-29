@@ -136,7 +136,7 @@
 	wordId={sentence.id}
 	suggestions={[
 		'Can I express this differently?',
-		`What does "${wordsWithSeparators.filter((w) => !isSeparator(w))?.[1]}" mean here?`,
+		`What is the etymology of "${wordsWithSeparators.filter((w) => !isSeparator(w))?.[1]}"?`,
 		'Break down this sentence for me',
 		'How do you conjugate "to do"?',
 		`How do you say "ice cream" in ${language.name}?`,

@@ -95,7 +95,7 @@ export async function askMeAnythingRead({
 						[
 							{
 								role: 'user',
-								content: `What does "${word}" mean?`
+								content: `What is the etymology of "${word}"?`
 							},
 							{
 								role: 'assistant',
