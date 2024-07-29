@@ -73,7 +73,6 @@ export async function evaluateWriteFromAiOutput({
 	const isCorrect = correctedParts.length == 0;
 
 	correctedParts = correctedParts
-		.filter(({ severity }) => severity > 0)
 		// validate that the clauses exist in the sentence
 		.filter(({ correction }) => {
 			const isIncluded = correctedSentence.toLowerCase().includes(correction.toLowerCase());
@@ -94,6 +93,8 @@ export async function evaluateWriteFromAiOutput({
 		});
 
 	const originalCorrectedParts = correctedParts;
+
+	correctedParts = correctedParts.filter(({ severity }) => severity > 0);
 
 	const isSevere = ({ severity }: { severity: number }) => severity > 1;
 	const isMinor = ({ severity }: { severity: number }) => severity == 1;
