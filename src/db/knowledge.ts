@@ -1,3 +1,4 @@
+import { logError } from '$lib/logError';
 import { dateToTime } from '../logic/isomorphic/knowledge';
 import type { Language } from '../logic/types';
 import { db } from './client';
@@ -134,16 +135,20 @@ export async function transformAggregateKnowledge(
 		if (!aggregateKnowledge) {
 			const values = transform(undefined);
 
-			await transaction
-				.withSchema(language.schema)
-				.insertInto('aggregate_knowledge')
-				.values({
-					word_id: wordId,
-					user_id: userId,
-					...values,
-					time: new Date()
-				})
-				.execute();
+			try {
+				await transaction
+					.withSchema(language.schema)
+					.insertInto('aggregate_knowledge')
+					.values({
+						word_id: wordId,
+						user_id: userId,
+						...values,
+						time: new Date()
+					})
+					.execute();
+			} catch (e) {
+				logError(e, `Failed to insert aggregate knowledge for word ${wordId}, user ${userId}`);
+			}
 		} else {
 			const { alpha, beta, time: date } = aggregateKnowledge;
 
