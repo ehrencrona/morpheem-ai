@@ -22,6 +22,7 @@
 				name="username"
 				id="username"
 				autocomplete="username"
+				autocapitalize="false"
 				class="bg-blue-1 rounded-sm block max-w-80 p-2 text-lg mb-2"
 				value={form?.username ?? ''}
 			/>
@@ -33,6 +34,7 @@
 				name="password"
 				id="password"
 				autocomplete="current-password"
+				autocapitalize="false"
 				class="bg-blue-1 rounded-sm block p-2 text-lg mb-2 max-w-80"
 			/>
 
