@@ -232,7 +232,7 @@ export async function classifyLemmas(
 }
 
 function isPlausibleCognate(word: string, translation: string, language: Language) {
-	if (!language.isLatin) {
+	if (!language.isLatin || language.code == 'ru') {
 		// no idea how to check for non-Latin cognates
 		return true;
 	}
