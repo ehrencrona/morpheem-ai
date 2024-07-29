@@ -96,7 +96,7 @@
 							<span class="whitespace-nowrap">
 								<input
 									type="text"
-									class="border-b-4 border-b-red bg-blue-1 relative px-1"
+									class="border-b-4 border-b-red bg-blue-1 relative px-1 max-w-[90vw]"
 									size={phrase.length}
 									bind:value={answered}
 									autocapitalize="off"
