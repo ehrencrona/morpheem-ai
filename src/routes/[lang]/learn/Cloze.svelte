@@ -269,7 +269,7 @@
 			throw new Error(`Invalid state, sentenceWord is undefined`);
 		}
 
-		answered = standardize(answered);
+		answered = standardize(answered.trim());
 
 		const { conjugatedWord } = sentenceWord;
 
