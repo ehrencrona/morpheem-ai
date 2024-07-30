@@ -4,7 +4,7 @@ import { getUnits } from '../../db/units';
 import { getUserExercises } from '../../db/userExercises';
 import { getUserSettings } from '../../db/userSettings';
 
-export const load: ServerLoad = async ({ locals: { user, language }, url }) => {
+export const load: ServerLoad = async ({ locals: { user, language, isAdmin }, url }) => {
 	if (!user) {
 		return redirectToLogin(url);
 	}
@@ -21,7 +21,7 @@ export const load: ServerLoad = async ({ locals: { user, language }, url }) => {
 	return {
 		languageCode: language.code,
 		userExercises: await getUserExercises(user.num, language),
-		isSuperUser: user.num == 4711,
+		isAdmin,
 		units,
 		unit
 	};

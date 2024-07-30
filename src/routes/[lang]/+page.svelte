@@ -46,8 +46,12 @@
 	import ReadSentence from './learn/ReadSentence.svelte';
 	import { trackActivity } from './learn/trackActivity';
 	import WriteSentence from './learn/WriteSentence.svelte';
+	import FlagSvg from '../../components/FlagSvg.svelte';
+	import ReportDialog from '../../components/ReportDialog.svelte';
 
 	export let data: PageData;
+
+	let isReportOpen = true;
 
 	$: userExercises = data.userExercises;
 	$: languageCode = data.languageCode;
@@ -490,7 +494,7 @@
 					Sentence #{current.sentence.id}
 				</div>
 
-				{#if data.isSuperUser}
+				{#if data.isAdmin}
 					<a
 						href={`/${languageCode}/sentences/${current?.sentence.id}/delete`}
 						class="text-gray-1 underline"
@@ -498,8 +502,20 @@
 						Delete sentence
 					</a>
 				{/if}
+
+				<button class="w-3 h-3" on:click={() => (isReportOpen = true)}>
+					<FlagSvg />
+				</button>
 			</div>
 		</div>
+
+		{#if isReportOpen}
+			<ReportDialog
+				sentence={current.sentence}
+				exercise={current}
+				onCancel={async () => (isReportOpen = false)}
+			/>
+		{/if}
 
 		{#if units.length > 0}
 			<div class="text-xs flex justify-end text-gray-1 mb-4">
