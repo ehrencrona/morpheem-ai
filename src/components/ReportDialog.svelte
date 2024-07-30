@@ -17,7 +17,7 @@
 		email = localStorage.getItem('email') || '';
 	});
 
-	export let onCancel: () => Promise<void>;
+	export let onCancel: () => Promise<any>;
 
 	async function onSubmit() {
 		if (email) {

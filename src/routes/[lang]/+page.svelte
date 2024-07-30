@@ -51,7 +51,7 @@
 
 	export let data: PageData;
 
-	let isReportOpen = true;
+	let isReportOpen = false;
 
 	$: userExercises = data.userExercises;
 	$: languageCode = data.languageCode;
@@ -483,7 +483,7 @@
 				{/if}
 			</div>
 
-			<div class="font-lato text-xxs flex gap-3 justify-end text-gray-1">
+			<div class="font-lato text-xxs flex gap-3 justify-end items-center text-gray-1">
 				{#if current.id != null}
 					<div>
 						Exercise #{current.id}
@@ -503,7 +503,7 @@
 					</a>
 				{/if}
 
-				<button class="w-3 h-3" on:click={() => (isReportOpen = true)}>
+				<button class="w-5 h-5 p-1" on:click={() => (isReportOpen = true)}>
 					<FlagSvg />
 				</button>
 			</div>
