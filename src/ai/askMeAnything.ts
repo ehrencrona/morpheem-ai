@@ -32,7 +32,7 @@ export async function askMeAnythingWrite({
 				content: `${
 					exercise == 'translate'
 						? `I am studying ${language.name} and translating the sentence "${sentence}" as an exercise.`
-						: `I am practicing writing in ${language.name} and writing a sentence or fragment containing "${word}" as an exercise`
+						: `I am practicing writing in ${language.name} and writing a sentence or fragment${word ? ` containing "${word}"` : ''} as an exercise`
 				}.
 
 				${sentenceEntered?.trim() ? `So far I've come up with "${sentenceEntered}"` : ''}`

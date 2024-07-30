@@ -1,5 +1,5 @@
 import { ServerLoad, json } from '@sveltejs/kit';
-import { unknown, z } from 'zod';
+import { z } from 'zod';
 import { askMeAnythingRead, askMeAnythingWrite } from '../../../../../ai/askMeAnything';
 
 export type PostSchema = z.infer<typeof postSchema>;
