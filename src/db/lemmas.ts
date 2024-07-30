@@ -71,6 +71,11 @@ export async function addWordToLemma(wordString: string, word: DB.Word, language
 		return;
 	}
 
+	if (language.code == 'ru' && ['оно->он', 'они->он'].includes(`${wordString}->${word.word}`)) {
+		console.error(`${word.word} is not the dictionary form of ${wordString}`);
+		return;
+	}
+
 	// insert into word_lemma unless it already exists
 	const result = await db
 		.withSchema(language.schema)
