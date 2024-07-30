@@ -65,12 +65,12 @@ export async function translateWordInContext(
 					`In the ${language.name} sentence "${sentence.sentence}", what does "${wordString}" mean? ` +
 					`First give the phrase the word is in. ` +
 					`Then return the single most appropriate meaning of "${wordString}". For non-semantic names (people, companies, places...), just repeat the name as the definition.\n` +
-					`If "${wordString}" is part of a set phrase, return the set phrase in ${language.name} and English.\n` +
+					`If "${wordString}" is part of an idiom, return the idiom in ${language.name} and English (if not, do not return it).\n` +
 					`Also provide the form of the word in the sentence e.g. ${formExamples[language.code]}. For names, add "name" to the form.\n` +
 					(doTransliterate
 						? `\nAnd the transliteration in Latin script.${transliterationInstructions[language.code] || ''}\n`
 						: '') +
-					`Respond with JSON in the format { phrase: string, definition: string, form:string${doTransliterate ? `, transliteration: string` : ''}, expression?: string }.`
+					`Respond with JSON in the format { phrase: string, definition: string, form:string${doTransliterate ? `, transliteration: string` : ''}, idiom?: string }.`
 			}
 		],
 		temperature: 0,
@@ -80,20 +80,20 @@ export async function translateWordInContext(
 			definition: z.string(),
 			form: z.string(),
 			transliteration: z.string().optional(),
-			expression: z.string().nullish()
+			idiom: z.string().nullish()
 		})
 	});
 
 	let expression: { expression: string; english: string } | undefined;
 
-	if (response.expression) {
-		const [targetLanguage, english] = response.expression.split(' - ');
+	if (response.idiom) {
+		const [targetLanguage, english] = response.idiom.split(' - ');
 
 		if (targetLanguage && english) {
 			expression = { expression: targetLanguage, english };
 		} else {
 			console.warn(
-				`Expected expression translation to be preceded by a dash separated by spaces: ${response.expression}`
+				`Expected expression translation to be preceded by a dash separated by spaces: ${response.idiom}`
 			);
 		}
 	}
