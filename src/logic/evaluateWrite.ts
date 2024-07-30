@@ -111,13 +111,15 @@ export async function evaluateWriteFromAiOutput({
 		correctedParts = correctedParts.filter(isSevere);
 	}
 
-	correctedParts = correctedParts.filter(({ correction, userWrote }) => {
-		if (!userWrote && !isSeparator(correction)) {
-			console.log(`"${correction}" seems to be a missing word. Won't make an exercise.`);
-		}
+	// not sure anymore why i added this. seems to make it skip important exercises
 
-		return !!userWrote;
-	});
+	// correctedParts = correctedParts.filter(({ correction, userWrote }) => {
+	// 	if (!userWrote && !isSeparator(correction)) {
+	// 		console.log(`"${correction}" seems to be a missing word. Won't make an exercise.`);
+	// 	}
+
+	// 	return !!userWrote;
+	// });
 
 	let userExercises: (ExerciseKnowledge & { severity: number; phrase?: string })[] =
 		opts.exercise == 'translate'
