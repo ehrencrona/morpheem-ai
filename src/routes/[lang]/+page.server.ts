@@ -3,6 +3,8 @@ import { error, type ServerLoad } from '@sveltejs/kit';
 import { getUnits } from '../../db/units';
 import { getUserExercises } from '../../db/userExercises';
 import { getUserSettings } from '../../db/userSettings';
+import { cullUserExercises } from '../../logic/cullUserExercises';
+import { logError } from '$lib/logError';
 
 export const load: ServerLoad = async ({ locals: { user, language, isAdmin }, url }) => {
 	if (!user) {
@@ -18,9 +20,14 @@ export const load: ServerLoad = async ({ locals: { user, language, isAdmin }, ur
 		getUserSettings(user.num, language).then((res) => res?.unit || null)
 	]);
 
+	const userExercises = await getUserExercises(user.num, language);
+
+	// intentionally async
+	cullUserExercises(userExercises, { userId: user.num, language }).catch(logError);
+
 	return {
 		languageCode: language.code,
-		userExercises: await getUserExercises(user.num, language),
+		userExercises,
 		isAdmin,
 		units,
 		unit

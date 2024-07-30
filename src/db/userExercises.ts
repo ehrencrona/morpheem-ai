@@ -244,3 +244,18 @@ export async function deleteUserExercise(id: number, userId: number, language: L
 		.where('user_id', '=', userId)
 		.execute();
 }
+
+
+export async function deleteUserExercises(ids: number[], userId: number, language: Language) {
+	if (ids.length === 0) {
+		return;
+	}
+
+	await db
+		.withSchema(language.code)
+		.deleteFrom('user_exercises')
+		.where('id', 'in', ids)
+		.where('user_id', '=', userId)
+		.execute();
+}
+
