@@ -91,7 +91,11 @@ let logCount = 0;
 export const handleError: HandleServerError = async ({ error, event, status, message }) => {
 	const errorId = /* random string */ Math.random().toString(36).substring(7);
 
-	if (isLoggingEnabled && (logCount < 4 || Date.now() - lastThrottleTime > 60000)) {
+	if (
+		isLoggingEnabled &&
+		(error as any).status != 404 &&
+		(logCount < 4 || Date.now() - lastThrottleTime > 60000)
+	) {
 		lastThrottleTime = Date.now();
 		logCount = 0;
 
