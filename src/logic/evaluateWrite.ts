@@ -6,7 +6,7 @@ import { getAggregateKnowledgeForUserWords } from '../db/knowledge';
 import { getInflections, getLemmasOfWord } from '../db/lemmas';
 import * as DB from '../db/types';
 import { expectedKnowledge, now } from './isomorphic/knowledge';
-import { toWordStrings } from './toWordStrings';
+import { isSeparator, toWordStrings } from './toWordStrings';
 import { ExerciseKnowledge, Language } from './types';
 import { exerciseToString } from '$lib/exerciseToString';
 
@@ -112,7 +112,7 @@ export async function evaluateWriteFromAiOutput({
 	}
 
 	correctedParts = correctedParts.filter(({ correction, userWrote }) => {
-		if (!userWrote) {
+		if (!userWrote && !isSeparator(correction)) {
 			console.log(`"${correction}" seems to be a missing word. Won't make an exercise.`);
 		}
 
