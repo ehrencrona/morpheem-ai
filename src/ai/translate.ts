@@ -64,7 +64,7 @@ export async function translateWordInContext(
 				content:
 					`In the ${language.name} sentence "${sentence.sentence}", what does "${wordString}" mean? ` +
 					`First give the phrase the word is in. ` +
-					`Then return the single most appropriate meaning of "${wordString}". For names (of people, companies, products), just repeat the name as the definition.\n` +
+					`Then return the single most appropriate meaning of "${wordString}". For non-semantic names (people, companies, places...), just repeat the name as the definition.\n` +
 					`If "${wordString}" is part of a set phrase, return the set phrase in ${language.name} and English.\n` +
 					`Also provide the form of the word in the sentence e.g. ${formExamples[language.code]}. For names, add "name" to the form.\n` +
 					(doTransliterate
