@@ -57,6 +57,7 @@ export async function translateWordInContext(
 				english: translation.english,
 				form: translation.form || undefined,
 				transliteration: translation.transliteration,
+				expression: translation.expression,
 				language
 			}).catch((e) => {
 				logError(

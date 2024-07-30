@@ -7,7 +7,8 @@ export function addWordTranslations({
 	english,
 	language,
 	form,
-	transliteration
+	transliteration,
+	expression
 }: {
 	wordId: number;
 	sentenceId: number | undefined;
@@ -15,6 +16,7 @@ export function addWordTranslations({
 	language: Language;
 	form?: string;
 	transliteration?: string;
+	expression?: { expression: string; english: string };
 }) {
 	return db
 		.withSchema(language.schema)
@@ -24,7 +26,9 @@ export function addWordTranslations({
 			sentence_id: sentenceId,
 			english,
 			form,
-			transliteration
+			transliteration,
+			expression: expression?.expression,
+			expression_english: expression?.english
 		})
 		.execute();
 }
@@ -38,7 +42,11 @@ export function getAllWordTranslations(wordId: number, language: Language) {
 		.execute();
 }
 
-export function getWordTranslation(wordId: number, sentenceId: number | null, language: Language) {
+export async function getWordTranslation(
+	wordId: number,
+	sentenceId: number | null,
+	language: Language
+) {
 	let select = db
 		.withSchema(language.schema)
 		.selectFrom('word_translations')
@@ -51,11 +59,19 @@ export function getWordTranslation(wordId: number, sentenceId: number | null, la
 		select = select.where('sentence_id', 'is', null);
 	}
 
-	return select
-		.executeTakeFirst()
-		.then((res) =>
-			res
-				? { ...res, form: res.form || undefined, transliteration: res.transliteration || undefined }
+	const res = await select.executeTakeFirst();
+
+	if (res) {
+		return {
+			...res,
+			form: res.form || undefined,
+			transliteration: res.transliteration || undefined,
+			expression: res.expression
+				? {
+						expression: res.expression,
+						english: res.expression_english || ''
+					}
 				: undefined
-		);
+		};
+	}
 }
