@@ -2,6 +2,7 @@ import { page } from '$app/stores';
 import { get } from 'svelte/store';
 import { DUTCH, FRENCH, KOREAN, POLISH, RUSSIAN, SPANISH, SWEDISH } from '../../../constants';
 import type { Language, LanguageCode } from '../../../logic/types';
+import { error } from '@sveltejs/kit';
 
 export async function apiCall(path: string, options: RequestInit) {
 	const lang = getLanguageOnClient().code;
@@ -41,7 +42,7 @@ export function getLanguageOnClient() {
 	const lang = langs[code as LanguageCode];
 
 	if (!lang) {
-		throw new Error(`Unsupported language: ${code}`);
+		throw error(404, `Unsupported language: ${code}`);
 	}
 
 	return lang;
