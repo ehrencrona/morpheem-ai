@@ -466,7 +466,7 @@
 	{#if wordsKnown}
 		<a
 			href="{languageCode}/progress"
-			class="bg-blue-3 text-center text-blue-1 p-2 rounded-md top-2 right-2 absolute hidden lg:block"
+			class="bg-blue-3 text-center text-blue-1 p-2 rounded-md top-6 right-2 absolute hidden lg:block"
 		>
 			<b class="font-sans text-3xl font-bold">{wordsKnown.read}</b>
 			<div class="text-xs font-lato">passive vocabulary</div>
@@ -476,7 +476,7 @@
 	{/if}
 
 	{#if current}
-		<div class="flex pb-3 bg-[#f9f9f9] lg:bg-white -m-4 px-4 mb-4 lg:mb-1 pt-4 h-12">
+		<div class="flex bg-[#f9f9f9] lg:bg-white -m-4 px-4 mb-4 lg:m-0 lg:mb-1 pb-3 pt-4 lg:px-0 lg:pt-2 h-12">
 			<div class="flex-1 font-lato text-xs flex items-center">
 				{#if current.source == 'unstudied'}
 					<div class="bg-red text-[#fff] px-1 font-sans text-xxs ml-12 lg:ml-0">NEW WORD</div>

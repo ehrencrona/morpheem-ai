@@ -108,7 +108,7 @@
 	{/if}
 
 	<nav class="absolute hidden lg:block w-[calc(50vw-400px)] max-w-[200px] font-lato">
-		<ul class="mt-8 xl:ml-4">
+		<ul class="mt-6 xl:ml-4">
 			{#each links as link}
 				<li class="px-2 mb-2 text-base">
 					<a
