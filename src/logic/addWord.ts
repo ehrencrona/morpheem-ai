@@ -13,10 +13,13 @@ export async function addWord(
 	{
 		language,
 		retriesLeft = 1,
-		temperature
-	}: { language: Language; retriesLeft?: number; temperature?: number }
+		temperature,
+		lemma
+	}: { language: Language; retriesLeft?: number; temperature?: number; lemma?: string }
 ) {
-	const [[lemma]] = await lemmatizeSentences([wordString], { language, temperature });
+	if (!lemma) {
+		[[lemma]] = await lemmatizeSentences([wordString], { language, temperature });
+	}
 
 	wordString = standardize(wordString);
 

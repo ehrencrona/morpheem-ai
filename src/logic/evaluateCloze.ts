@@ -2,6 +2,7 @@ import { evaluateCloze as evaluateClozeAi } from '../ai/evaluateCloze';
 import { getLemmasOfWord } from '../db/lemmas';
 import * as DB from '../db/types';
 import { getWordByLemma } from '../db/words';
+import { addWord } from './addWord';
 import { standardize } from './isomorphic/standardize';
 import { lemmatizeSentences } from './lemmatize';
 import { toWordStrings } from './toWordStrings';
@@ -73,11 +74,11 @@ export async function evaluateCloze(
 			const wordIndex = words.findIndex((word) => word === answered);
 
 			if (wordIndex >= 0) {
-				const differentWordString = lemmatized[0][wordIndex];
+				const lemma = lemmatized[0][wordIndex];
 
 				try {
 					alternateWord = {
-						...(await getWordByLemma(differentWordString, language)),
+						...(await getWordByLemma(lemma, language)),
 						conjugated: answered
 					};
 
@@ -85,12 +86,17 @@ export async function evaluateCloze(
 						`User answer "${answered}" is lemma "${alternateWord.word}" (${alternateWord.id}).`
 					);
 				} catch (e) {
-					// add the word?
+					console.log(`User answer "${answered}" is a valid alternative, unknown word. Adding it.`);
 
-					console.error(
-						`Error getting different "${differentWordString}" word by lemma "${lemmatized[0][wordIndex]}":`,
-						e
-					);
+					try {
+						await addWord(answered, {
+							language,
+							lemma,
+							retriesLeft: 0
+						});
+					} catch (e) {
+						console.error(`Error adding different "${answered}" word by lemma "${lemma}":`, e);
+					}
 				}
 			} else {
 				console.error(
