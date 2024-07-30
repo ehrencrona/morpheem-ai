@@ -18,7 +18,10 @@ export async function addWord(
 		throw new CodedError(`"${lemma}" is English`, 'notALemma');
 	}
 
-	if (language.code == 'ru' && ['все', 'её', 'его', 'их', 'мне', 'ребенок'].includes(lemma)) {
+	if (
+		language.code == 'ru' &&
+		['все', 'её', 'его', 'их', 'мне', 'ребенок', 'они', 'оно'].includes(lemma)
+	) {
 		throw new CodedError(`"${lemma}" is not the dictionary form`, 'notALemma');
 	}
 
