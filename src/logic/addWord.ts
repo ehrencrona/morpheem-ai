@@ -19,6 +19,10 @@ export async function addWord(
 ) {
 	if (!lemma) {
 		[[lemma]] = await lemmatizeSentences([wordString], { language, temperature });
+
+		if (!lemma) {
+			throw new Error(`Could not lemmatize word to be added "${wordString}"`);
+		}
 	}
 
 	wordString = standardize(wordString);
