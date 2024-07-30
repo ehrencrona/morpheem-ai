@@ -49,7 +49,8 @@
 		<label class="mb-4 block">
 			<div class="mt-2 mb-1 font-bold">Describe the problem</div>
 
-			<textarea class="w-full h-32 bg-blue-1 text-lg p-2" bind:value={description}></textarea>
+			<textarea class="w-full h-32 bg-blue-1 text-lg p-2" maxlength="200" bind:value={description}></textarea>
+			</textarea>
 		</label>
 
 		<label class="block">
