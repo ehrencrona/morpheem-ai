@@ -129,6 +129,10 @@ export async function ask<T>({
 		if (retriesLeft > 0) {
 			console.error(message + ' Retrying...');
 
+			if (message.includes('529')) {
+				await new Promise((resolve) => setTimeout(resolve, 2000));
+			}
+
 			return ask({
 				model,
 				messages,
