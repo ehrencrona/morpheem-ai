@@ -115,7 +115,7 @@
 				),
 				answered,
 				correctAnswer: phrase,
-				hint: hint
+				hint
 			}).finally(() => (isFetchingEvaluation = false));
 
 			if (phrase === phraseWas) {

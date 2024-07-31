@@ -1,5 +1,7 @@
 <script lang="ts">
 	import type { SendKnowledge } from '$lib/SendKnowledge';
+	import { exerciseToString } from '$lib/exerciseToString';
+	import { filterUndefineds } from '$lib/filterUndefineds';
 	import { logError } from '$lib/logError';
 	import { onMount } from 'svelte';
 	import { slide } from 'svelte/transition';
@@ -22,14 +24,11 @@
 	import type { UnknownWordResponse } from '../api/word/unknown/+server';
 	import { lookupUnknownWord } from '../api/word/unknown/client';
 	import { fetchAskMeAnything } from '../api/write/ama/client';
-	import { fetchProvidedWordsInAnswer } from '../api/write/ama/provided/client';
 	import { sendWrittenSentence } from '../api/write/client';
 	import { fetchWriteEvaluation } from '../api/write/evaluate/client';
 	import AMA from './AMA.svelte';
 	import ClauseCardDumb from './ClauseCardDumb.svelte';
 	import WordCard from './WordCard.svelte';
-	import { exerciseToString } from '$lib/exerciseToString';
-	import { filterUndefineds } from '$lib/filterUndefineds';
 	import { getCorrectedParts } from './getCorrectedParts';
 
 	export let word: { id: number; word: string; level: number } | undefined;
@@ -287,12 +286,6 @@
 			sentenceCorrected: exercise == 'write' ? feedback?.correctedSentence || undefined : undefined,
 			correctTranslation: exercise == 'translate' ? correctSentence : undefined
 		});
-
-		if (!feedback) {
-			fetchProvidedWordsInAnswer({ question, answer })
-				.then((words) => (unknownWords = dedup([...unknownWords, ...words])))
-				.catch(logError);
-		}
 
 		return answer;
 	};
