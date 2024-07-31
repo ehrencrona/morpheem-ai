@@ -51,10 +51,10 @@
 		<div>
 			<button
 				type="button"
-				class="text-red border p-[0px_3px] text-xs"
+				class="text-red border p-[0px_3px] text-xs rounded-sm"
 				on:click={() => deleteExercise(exercise.id)}
 			>
-				delete
+				Delete
 			</button>
 		</div>
 	{/each}

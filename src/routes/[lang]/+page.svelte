@@ -518,9 +518,9 @@
 		{/if}
 
 		{#if units.length > 0}
-			<div class="text-xs flex justify-end text-gray-1 mb-4">
+			<div class="flex justify-end text-gray-1 mb-4">
 				<button
-					class="border border-light-gray flex justify-end items-center rounded-md"
+					class="border border-light-gray flex justify-end items-center rounded-md text-xs "
 					on:click={() => (showUnits = true)}
 				>
 					<div class="p-1 px-2 bg-light-gray">

@@ -119,9 +119,9 @@
 <div>
 	<form class="border-blue-3 border-4 p-4 rounded-lg">
 		{#if !feedback}
-			<p class="mb-4 mt-2 text-sm font-lato">
-				Write anything you want in {getLanguageOnClient().name}. You can leave parts in English if
-				you can't find a word.
+			<p class="mb-4 mt-2 text-base font-lato">
+				Write anything you want in {getLanguageOnClient().name}. Leave parts in English if you can't
+				find a word.
 			</p>
 
 			<input
@@ -174,9 +174,5 @@
 		</div>
 	</form>
 
-	<Ama
-		suggestions={[`Can I express this better?`]}
-		ask={askMeAnything}
-		wordId={0}
-	/>
+	<Ama suggestions={[`Can I express this better?`]} ask={askMeAnything} wordId={0} />
 </div>

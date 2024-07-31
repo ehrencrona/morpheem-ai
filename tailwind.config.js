@@ -9,9 +9,9 @@ export default {
 		},
 		fontSize: {
 			xxs: '0.6rem',
-			xs: '0.8rem',
-			sm: '0.875rem',
-			base: '1rem',
+			xs: '0.9rem',
+			sm: '1rem',
+			base: '1.1rem',
 			lg: '1.25rem',
 			xl: '1.5rem',
 			'2xl': '1.75rem',

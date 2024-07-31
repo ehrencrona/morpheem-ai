@@ -189,7 +189,7 @@
 		{/if}
 
 		<div class="mt-8">
-			<div class="text-xs font-lato mb-4">
+			<div class="text-xs font-lato mb-4 text-gray-1">
 				{#if !prefix}
 					Find the missing word. Click any words you don't know.
 				{:else if prefix && suggestedWords.words.length == 0 && !isLoadingSuggestions}

@@ -36,8 +36,10 @@
 
 <ul class="mt-8">
 	{#each sentences as sentence, i (sentence.id)}
-		<li class="mb-4 text-balance border-l-4 border-blue-3 pl-3" transition:slide>
-			{sentence.sentence}
+		<li class="mb-4 text-balance border-l-4 border-blue-3 pl-3 text-base" transition:slide>
+			<span class="font-sans">
+				{sentence.sentence}
+			</span>
 
 			{#if i < 3}
 				<button
@@ -49,7 +51,7 @@
 				</button>
 			{/if}
 
-			<div class="text-xs text-gray-1 mt-[2px]">
+			<div class="text-xs text-darker-gray mt-[2px]">
 				{formatMinutes((Date.now() - sentence.time.getTime()) / 60000)} ago
 			</div>
 		</li>
