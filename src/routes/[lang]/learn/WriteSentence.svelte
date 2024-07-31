@@ -377,7 +377,11 @@
 				</div>
 			{/if}
 			{#if enteredParts}
-				<div class="text-xl font-sans font-bold mb-6 text-balance {feedback.isCorrect ? 'text-green' : ''}">
+				<div
+					class="text-xl font-sans font-bold mb-6 text-balance {feedback.isCorrect
+						? 'text-green'
+						: ''}"
+				>
 					{#each enteredParts as part}
 						{#if part.isCorrected}
 							<span class="line-through text-red">{part.part}</span>
@@ -441,9 +445,16 @@
 
 				<SpinnerButton onClick={onSubmit} isSubmit={true}>Submit</SpinnerButton>
 			{:else}
-				<SpinnerButton onClick={async () => (feedback = undefined)} type="secondary">
-					Try again
-				</SpinnerButton>
+				{#if exercise == 'write'}
+					<!-- 
+					 When writing unconstrained there's a risk it misunderstands what you're trying to say; then you want to be able to reformulate.
+					 With translate that won't happen.
+					-->
+
+					<SpinnerButton onClick={async () => (feedback = undefined)} type="secondary">
+						Reformulate
+					</SpinnerButton>
+				{/if}
 
 				<SpinnerButton onClick={clickedContinue} grabFocus={true}>Continue</SpinnerButton>
 			{/if}
