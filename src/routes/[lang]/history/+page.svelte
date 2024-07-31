@@ -7,18 +7,20 @@
 	export let data: PageData;
 </script>
 
-<h3 class="text-lg font-sans font-bold mb-4 mt-8">Sentences read</h3>
+<div class="max-w-[1200px]">
+	<h3 class="text-lg font-sans font-bold mb-4 mt-8">Sentences read</h3>
 
-<RecentSentences sentences={data.readSentences} />
+	<RecentSentences sentences={data.readSentences} />
 
-<h3 class="text-lg font-sans font-bold mb-4 mt-8">Sentences written</h3>
+	<h3 class="text-lg font-sans font-bold mb-4 mt-8">Sentences written</h3>
 
-<RecentSentences sentences={data.writtenSentences} />
+	<RecentSentences sentences={data.writtenSentences} />
 
-<h3 class="text-lg font-sans font-bold mb-4 mt-8">Queued Exercises</h3>
+	<h3 class="text-lg font-sans font-bold mb-4 mt-8">Queued Exercises</h3>
 
-<UserExercises exercises={data.exercises} />
+	<UserExercises exercises={data.exercises} />
 
-<h3 class="text-lg font-sans font-bold mb-4 mt-8">Recent words</h3>
+	<h3 class="text-lg font-sans font-bold mb-4 mt-8">Recent words</h3>
 
-<RecentWords knowledge={data.knowledge} />
+	<RecentWords knowledge={data.knowledge} />
+</div>

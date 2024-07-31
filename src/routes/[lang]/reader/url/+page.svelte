@@ -147,7 +147,7 @@
 	}
 </script>
 
-<main use:trackActivity>
+<main use:trackActivity class={translatedParagraphs || translatedTitle ? 'max-w-[1200px]' : `max-w-[900px]`}>
 	<h3 class="mt-8 mb-2">
 		<a
 			href={data.articleUrl}

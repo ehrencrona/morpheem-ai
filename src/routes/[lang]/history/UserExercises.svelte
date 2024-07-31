@@ -37,7 +37,7 @@
 	{#each showAll ? exercises : exercises.slice(0, 6) as exercise}
 		<div
 			on:click={() => toggleExercise(exercise.id)}
-			class="cursor-pointer bg-light-gray rounded-md px-4 py-3"
+			class="cursor-pointer bg-light-gray rounded-md px-4 py-3 font-sans"
 		>
 			{#if exercise.exercise == 'phrase-cloze'}
 				{openExercises.includes(exercise.id)

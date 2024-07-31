@@ -3,13 +3,15 @@
 	import Menu from '../../components/Menu.svelte';
 	import { page } from '$app/stores';
 
-	$: isWide = $page.url.pathname.includes('/reader') || $page.url.pathname.includes('/history');
+	$: isWide = $page.url.pathname.includes('/reader/url') || $page.url.pathname.includes('/history');
 </script>
 
-<Menu></Menu>
+<div class="flex font-lato">
+	<Menu></Menu>
 
-<div class="flex align-center justify-center p-4 pb-[170px] font-lato">
-	<div class="w-full {isWide ? `lg:w-[900px]` : `lg:w-[800px]`}">
-		<slot />
+	<div class="flex flex-1 align-center justify-center p-4 pb-[170px]">
+		<div class="{isWide ? `` : `lg:max-w-[800px]`}">
+			<slot />
+		</div>
 	</div>
 </div>

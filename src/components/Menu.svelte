@@ -57,7 +57,7 @@
 </script>
 
 {#if language}
-	<button type="button" class="p-4 absolute lg:hidden" on:click={() => (isMobileOpen = true)}>
+	<button type="button" class="p-4 absolute lg:hidden z-10" on:click={() => (isMobileOpen = true)}>
 		<Hamburger />
 	</button>
 
@@ -94,10 +94,7 @@
 
 					<div class="flex flex-wrap gap-2">
 						{#each languages as language}
-							<a
-								href={`/${language.code}`}
-								class="text-xs p-[3px] rounded bg-gray-1 text-white"
-							>
+							<a href={`/${language.code}`} class="text-xs p-[3px] rounded bg-gray-1 text-white">
 								{language.code.toUpperCase()}
 							</a>
 						{/each}
@@ -107,7 +104,7 @@
 		</div>
 	{/if}
 
-	<nav class="absolute hidden lg:block w-[calc(50vw-400px)] max-w-[200px] font-lato">
+	<nav class="hidden lg:block w-[200px]">
 		<ul class="mt-6 xl:ml-4">
 			{#each links as link}
 				<li class="px-2 mb-2 text-base">

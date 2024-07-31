@@ -41,7 +41,7 @@
 				type="button"
 			>
 				<div class="text-base flex items-center w-full">
-					<span class="flex-1">{word.knowledge.word}</span>
+					<span class="flex-1 font-sans">{word.knowledge.word}</span>
 					<span class="text-xxs font-lato ml-1">
 						{toPercent(
 							expectedKnowledge(word.knowledge, {
