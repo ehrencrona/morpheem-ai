@@ -30,6 +30,7 @@
 	import ClauseCardDumb from './ClauseCardDumb.svelte';
 	import WordCard from './WordCard.svelte';
 	import { getCorrectedParts } from './getCorrectedParts';
+	import { isSeparator, toWordsWithSeparators } from '../../../logic/toWordStrings';
 
 	export let word: { id: number; word: string; level: number } | undefined;
 	export let onNext: () => Promise<any>;
@@ -58,6 +59,7 @@
 
 	let showChars: number = 0;
 	let unknownWords: UnknownWordResponse[] = [];
+	let isLoadingUnknown = false;
 
 	let lookedUpWord: UnknownWordResponse | undefined;
 
@@ -105,6 +107,18 @@
 					fragments = translationToFragments(translation.english, gotClauses.clauses);
 				})
 				.catch(logError);
+		}
+	}
+
+	async function onLookup(wordString: string) {
+		isLoadingUnknown = true;
+
+		try {
+			const word = await lookupUnknownWord(wordString);
+
+			unknownWords = dedup([...unknownWords, word]);
+		} finally {
+			isLoadingUnknown = false;
 		}
 	}
 
@@ -393,7 +407,17 @@
 				<div class="text-xl font-bold mb-6 text-balance">
 					{#each correctParts as part}
 						{#if part.isCorrected}
-							<span class="text-green">{part.part}</span>
+							<span class="text-green">
+								{#each toWordsWithSeparators(part.part, language) as word, index}{#if isSeparator(word)}{word}{:else}<span
+											style="cursor: pointer"
+											role="button"
+											tabindex={index}
+											class={unknownWords.find((r) => (r.inflected || r.word) == word)
+												? 'border-b-2 border-green border-dotted'
+												: 'hover:underline decoration-green'}
+											on:click|preventDefault={() => onLookup(word)}>{word}</span
+										>{/if}{/each}
+							</span>
 						{:else}
 							{part.part}
 						{/if}
@@ -413,7 +437,7 @@
 			</div>
 		{/if}
 
-		{#if unknownWords.length > 0}
+		{#if unknownWords.length > 0 || isLoadingUnknown}
 			<div class="grid grid-cols-1 md:grid-cols-2 w-full gap-x-4 mt-8" transition:slide>
 				{#each unknownWords as word}
 					<WordCard
@@ -421,6 +445,11 @@
 						onRemove={() => (unknownWords = unknownWords.filter(({ id }) => id != word.id))}
 					/>
 				{/each}
+				{#if isLoadingUnknown}
+					<div class="flex justify-center items-center">
+						<Spinner />
+					</div>
+				{/if}
 			</div>
 		{/if}
 
