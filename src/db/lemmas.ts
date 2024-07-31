@@ -23,7 +23,8 @@ export async function addWordToLemma(wordString: string, word: DB.Word, language
 			'allt->all',
 			'alla->all',
 			'någon->något',
-			'något->någon'
+			'något->någon',
+			'vi->vara'
 		].includes(`${wordString}->${word.word}`)
 	) {
 		console.error(`${word.word} is not the dictionary form of ${wordString}`);
@@ -32,7 +33,7 @@ export async function addWordToLemma(wordString: string, word: DB.Word, language
 
 	if (
 		language.code == 'fr' &&
-		['ils->il', 'elle->il', 'ce->ça'].includes(`${wordString}->${word.word}`)
+		['ils->il', 'elle->il', 'ça->ce', 'ce->ça'].includes(`${wordString}->${word.word}`)
 	) {
 		console.error(`${word.word} is not the dictionary form of ${wordString}`);
 		return;
@@ -65,7 +66,9 @@ export async function addWordToLemma(wordString: string, word: DB.Word, language
 
 	if (
 		language.code == 'pl' &&
-		['co->coś', 'mi->mój', 'ci->ten', 'ktoś->kto'].includes(`${wordString}->${word.word}`)
+		['co->coś', 'mi->mój', 'my->ja', 'ci->ten', 'my->mój', 'ktoś->kto'].includes(
+			`${wordString}->${word.word}`
+		)
 	) {
 		console.error(`${word.word} is not the dictionary form of ${wordString}`);
 		return;

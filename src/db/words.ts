@@ -35,7 +35,6 @@ export async function addWord(
 			'era',
 			'mycken',
 			'dig',
-			'mig',
 			/* we use "en" as the dictionary form */ 'ett',
 			/* use "denna" */
 			'detta'
@@ -98,7 +97,10 @@ export async function addWord(
 		throw new CodedError(`"${lemma}" is not the dictionary form`, 'notALemma');
 	}
 
-	if (language.code == 'fr' && ['la', 'nos', 'les', 'ses', 'nos', 'une'].includes(lemma)) {
+	if (
+		language.code == 'fr' &&
+		['la', 'nos', 'les', 'ses', 'nos', 'une', 's', 'd', 'c', 'ça'].includes(lemma)
+	) {
 		throw new CodedError(`"${lemma}" is not the dictionary form`, 'notALemma');
 	}
 

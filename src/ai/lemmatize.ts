@@ -10,7 +10,8 @@ const forcedLemmas: Record<LanguageCode, Record<string, string>> = {
 	sv: {
 		// wordString -> lemma
 		ett: 'en',
-		detta: 'denna'
+		detta: 'denna',
+		mig: 'jag'
 	},
 	ko: {},
 	pl: {
@@ -30,7 +31,9 @@ const forcedLemmas: Record<LanguageCode, Record<string, string>> = {
 		них: 'они',
 		ними: 'они',
 		со: 'с',
-		нужно: 'нужный'
+		нужно: 'нужный',
+		лучший: 'лучший',
+		лучшие: 'лучший'
 	},
 	es: {
 		los: 'el',
@@ -38,6 +41,7 @@ const forcedLemmas: Record<LanguageCode, Record<string, string>> = {
 		esa: 'ese'
 	},
 	fr: {
+		ça: 'cela',
 		vacances: 'vacances'
 	}
 };
