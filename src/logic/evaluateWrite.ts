@@ -183,7 +183,7 @@ export async function evaluateWriteFromAiOutput({
 			}
 
 			// if we couldn't find a word to study, study the whole clause
-			if (english) {
+			if (correction && english) {
 				userExercises.push({
 					id: null,
 					sentenceId: -1,
@@ -195,7 +195,7 @@ export async function evaluateWriteFromAiOutput({
 					isKnown: false,
 					severity: 2
 				});
-			} else {
+			} else if (correction) {
 				console.warn(
 					`No English translation for clause "${correction}"; cannot generate exercise.`
 				);
