@@ -63,14 +63,13 @@ export async function translateWordInContext(
 				role: 'user',
 				content:
 					`In the ${language.name} sentence "${sentence.sentence}", what does "${wordString}" mean? ` +
-					`First give the phrase the word is in. ` +
-					`Then return the single most appropriate meaning of "${wordString}". For non-semantic names (people, companies, places...), just repeat the name as the definition.\n` +
-					`If "${wordString}" is part of an idiom, return the idiom in ${language.name} and English (if not, do not return it).\n` +
+					`Give the meaning of "${wordString}" by itself. For non-semantic names, just repeat the name as the definition.\n` +
+					`If "${wordString}" is part of an idiom that modifies its meaning, return the idiom in ${language.name} and English (if not, do not return it).\n` +
 					`Also provide the form of the word in the sentence e.g. ${formExamples[language.code]}. For names, add "name" to the form.\n` +
 					(doTransliterate
-						? `\nAnd the transliteration in Latin script.${transliterationInstructions[language.code] || ''}\n`
+						? `\nAlso give the transliteration in Latin script.${transliterationInstructions[language.code] || ''}\n`
 						: '') +
-					`Respond with JSON in the format { phrase: string, definition: string, form:string${doTransliterate ? `, transliteration: string` : ''}, idiom?: string }.`
+					`Respond with JSON in the format { definition: string, form:string${doTransliterate ? `, transliteration: string` : ''}, idiom?: string }.`
 			}
 		],
 		temperature: 0,

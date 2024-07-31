@@ -16,6 +16,11 @@ it('translates sentences', async () => {
 	).toEqual(['What were you doing last night?', 'I really like this movie.']);
 });
 
+// starting collection of tests:
+
+// W miejscu pracy stosuj odpowiednie środki ochrony.
+// "apply" or "use"
+
 it('handles expressions', async () => {
 	const res = await translateWordInContext(
 		'wrażenie',
