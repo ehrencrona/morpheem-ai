@@ -22,7 +22,13 @@ export function toWordStrings(
 		tokens.forEach((token) => {
 			if (token.includes("'") && token.length > 1) {
 				let index = token.indexOf("'");
-				splitTokens.push(token.slice(0, index + 1), token.slice(index + 1));
+
+				if (index <= 2) {
+					splitTokens.push(token.slice(0, index + 1), token.slice(index + 1));
+				} else {
+					// aujourd'hui, quelqu'un
+					splitTokens.push(token);
+				}
 			} else {
 				splitTokens.push(token);
 			}

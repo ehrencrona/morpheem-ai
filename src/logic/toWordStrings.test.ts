@@ -81,6 +81,17 @@ describe('toWordStrings', (it) => {
 			`ça`
 		]);
 
+		expect(toWordStrings(`C'est un beau jour aujourd'hui.`, FRENCH)).toEqual([
+			`c'`,
+			`est`,
+			`un`,
+			`beau`,
+			`jour`,
+			`aujourd'hui`
+		]);
+
+		expect(toWordStrings(`Quelqu'un m'a dit`, FRENCH)).toEqual([`quelqu'un`, `m'`, `a`, `dit`]);
+
 		expect(toWordStrings(`J'ai dit: "Tais-toi!" Et il m'a répondu: 'Saloppe!'`, FRENCH)).toEqual([
 			`j'`,
 			`ai`,

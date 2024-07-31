@@ -1,3 +1,4 @@
+import { exerciseToString } from '$lib/exerciseToString';
 import { logError } from '$lib/logError';
 import { z } from 'zod';
 import { CorrectedPart, evaluateWrite as evaluateWriteAi } from '../ai/evaluateWrite';
@@ -6,9 +7,8 @@ import { getAggregateKnowledgeForUserWords } from '../db/knowledge';
 import { getInflections, getLemmasOfWord } from '../db/lemmas';
 import * as DB from '../db/types';
 import { expectedKnowledge, now } from './isomorphic/knowledge';
-import { isSeparator, toWordStrings } from './toWordStrings';
+import { toWordStrings } from './toWordStrings';
 import { ExerciseKnowledge, Language } from './types';
-import { exerciseToString } from '$lib/exerciseToString';
 
 export type WriteEvaluationOpts = z.infer<typeof writeEvaluationOptsSchema>;
 
@@ -174,9 +174,11 @@ export async function evaluateWriteFromAiOutput({
 						return;
 					} else {
 						console.log(
-							`User wrote "${userWrote}". Cannot figure out the lemma (might be: ${
-								possibleWords.map((w) => w.word).join(', ') || '[not a known word]'
-							}); treating it as a phrase.`
+							`User wrote "${userWrote}"; corrected to "${correction}". Cannot figure out the lemma${
+								possibleWords.length
+									? ` (might be: ${possibleWords.map((w) => w.word).join(', ')})`
+									: ''
+							}; treating it as a phrase.`
 						);
 					}
 				}

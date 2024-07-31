@@ -37,7 +37,9 @@ const forcedLemmas: Record<LanguageCode, Record<string, string>> = {
 		esta: 'este',
 		esa: 'ese'
 	},
-	fr: {}
+	fr: {
+		vacances: 'vacances'
+	}
 };
 
 // renames the output of the llm

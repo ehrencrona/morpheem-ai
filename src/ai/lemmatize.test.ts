@@ -166,6 +166,12 @@ it('should return lemmas for French sentences', async () => {
 	).toEqual([['elle', 'vouloir', 'célébrer', 'le', 'réussite', 'avec', 'son', 'ami']]);
 });
 
+it("handles aujourd'hui", async () => {
+	expect(
+		await lemmatizeSentences([`C'est un beau jour aujourd'hui.`], { language: FRENCH })
+	).toEqual([['ce', 'être', 'un', 'beau', 'jour', "aujourd'hui"]]);
+});
+
 it('handles broken sentences', async () => {
 	const lemmas = await lemmatizeSentences(['mi planirujem excursija na jezero'], {
 		language: POLISH
