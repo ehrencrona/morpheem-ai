@@ -114,7 +114,7 @@
 		isLoadingUnknown = true;
 
 		try {
-			const word = await lookupUnknownWord(wordString);
+			const word = await lookupUnknownWord(wordString, { sentence: feedback?.correctedSentence });
 
 			unknownWords = dedup([...unknownWords, word]);
 		} finally {
@@ -404,7 +404,7 @@
 			</div>
 
 			{#if correctParts}
-				<div class="text-xl font-bold mb-6 text-balance">
+				<div class="text-xl font-sans font-bold mb-6 text-balance">
 					{#each correctParts as part}
 						{#if part.isCorrected}
 							<span class="text-green">
