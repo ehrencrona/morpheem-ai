@@ -87,9 +87,11 @@
 				{#if index == phraseBoundary.from}
 					{#if evaluation}
 						<span
-							class={['correct', 'alternate', 'typo'].includes(evaluation.outcome)
+							class={['correct', 'alternate'].includes(evaluation.outcome)
 								? 'text-green'
-								: 'text-red'}>{evaluation.correctedAlternate || phrase}</span
+								: evaluation.outcome == 'typo'
+									? 'text-orange'
+									: 'text-red'}>{evaluation.correctedAlternate || phrase}</span
 						>
 					{:else}
 						<div class="inline-flex flex-col -mb-1">

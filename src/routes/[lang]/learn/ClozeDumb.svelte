@@ -127,9 +127,11 @@
 		{#each wordsWithSeparators as wordString, index}{#if !isSeparator(wordString)}{#if standardize(wordString) == standardize(word.conjugatedWord)}
 					{#if evaluation}
 						<span
-							class={['correct', 'alternate', 'typo'].includes(evaluation.outcome)
+							class={['correct', 'alternate'].includes(evaluation.outcome)
 								? 'text-green'
-								: 'text-red'}>{evaluation.alternateWord?.conjugated || wordString}</span
+								: evaluation.outcome == 'typo'
+									? 'text-orange'
+									: 'text-red'}>{evaluation.alternateWord?.conjugated || wordString}</span
 						>{:else}
 						<div class="inline-flex flex-col -mb-1">
 							<span class="whitespace-nowrap">
