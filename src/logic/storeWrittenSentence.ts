@@ -77,9 +77,11 @@ export async function storeWrittenSentence({
 			userId
 		}));
 
-	console.log(
-		`The following words were in the correction but not in the original sentence: ${nonEntered.join(', ')}`
-	);
+	if (nonEntered.length > 0) {
+		console.log(
+			`The following words were in the correction but not in the original sentence: ${nonEntered.join(', ')}`
+		);
+	}
 
 	return { sentence, lemmatized, knowledge };
 }
