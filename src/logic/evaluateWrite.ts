@@ -239,7 +239,7 @@ export async function evaluateWriteFromAiOutput({
 
 	if (userExercises.length > 2) {
 		console.log(
-			`Too many user exercises left. Arbitrarily dropping ${userExercises.slice(2).map(exerciseToString).join(', ')} exercises.`
+			`Too many user exercises left. Arbitrarily dropping ${userExercises.slice(2).map(exerciseToString).join(', ')} exercise(s).`
 		);
 
 		userExercises = userExercises.slice(0, 2);
