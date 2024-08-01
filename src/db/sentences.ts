@@ -111,6 +111,17 @@ export async function getSentences(language: Language, unit?: number): Promise<S
 	return (await select.execute()).map(toSentence);
 }
 
+export async function getSentencesByText(sentences: string[], language: Language) {
+	return (
+		await db
+			.withSchema(language.schema)
+			.selectFrom('sentences')
+			.select(['id', 'sentence', 'english', 'transliteration', 'unit'])
+			.where('sentence', 'in', sentences)
+			.execute()
+	).map(toSentence);
+}
+
 export function getSentenceIds(language: Language) {
 	return db.withSchema(language.schema).selectFrom('sentences').select(['id']).execute();
 }

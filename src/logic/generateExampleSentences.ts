@@ -1,20 +1,20 @@
+import { dedup } from '$lib/dedup';
 import { filterUndefineds } from '$lib/filterUndefineds';
+import { unzip, zip } from '$lib/zip';
 import { classifyLemmas } from '../ai/classifyLemmas';
-import { findIncorrectSentences } from '../ai/findIncorrectSentences';
 import {
 	generateExampleSentences as generateExampleSentencesAi,
 	simplifySentences
 } from '../ai/generateExampleSentences';
 import { getAggregateKnowledgeForUserWords } from '../db/knowledge';
 import { getLemmasOfWords } from '../db/lemmas';
+import { getSentencesByText } from '../db/sentences';
 import * as DB from '../db/types';
 import { addWord, getMultipleWordsByLemmas } from '../db/words';
 import { lemmatizeSentences } from '../logic/lemmatize';
 import { expectedKnowledge, now } from './isomorphic/knowledge';
 import { toWordStrings } from './toWordStrings';
 import { Language } from './types';
-import { unzip, zip } from '$lib/zip';
-import { dedup } from '$lib/dedup';
 
 export async function generateExampleSentences(
 	lemma: string,
@@ -26,10 +26,13 @@ export async function generateExampleSentences(
 		level?: number;
 	}
 ) {
-	return generateExampleSentencesAi(
-		lemma,
-		level < 20 ? 'beginner' : level < 40 ? 'easy' : 'normal',
-		8,
+	return eliminateDuplicates(
+		await generateExampleSentencesAi(
+			lemma,
+			level < 20 ? 'beginner' : level < 40 ? 'easy' : 'normal',
+			8,
+			language
+		),
 		language
 	);
 }
@@ -52,10 +55,13 @@ export async function generatePersonalizedExampleSentences(
 		language: Language;
 	}
 ) {
-	let sentences = await generateExampleSentencesAi(
-		lemma,
-		level < 20 ? 'beginner' : level < 40 ? 'easy' : 'normal',
-		count,
+	let sentences = await eliminateDuplicates(
+		await generateExampleSentencesAi(
+			lemma,
+			level < 20 ? 'beginner' : level < 40 ? 'easy' : 'normal',
+			count,
+			language
+		),
 		language
 	);
 
@@ -268,5 +274,18 @@ export async function addWords(wordStrings: string[], language: Language) {
 				}
 			})
 		)
+	);
+}
+
+async function eliminateDuplicates(sentences: string[], language: Language) {
+	const existingSentences = await getSentencesByText(sentences, language);
+
+	if (!!existingSentences.length) {
+		console.log(`Generated ${existingSentences.length} sentence duplicates. Discarding.`);
+	}
+
+	return sentences.filter(
+		(sentence) =>
+			!existingSentences.some((existingSentence) => existingSentence.sentence == sentence)
 	);
 }
