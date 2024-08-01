@@ -98,8 +98,6 @@
 		const timer = setTimeout(() => (isLoadingUnknown = true), 100);
 
 		try {
-			await new Promise((resolve) => setTimeout(resolve, 1000));
-
 			await onUnknown(wordString);
 		} catch (e) {
 			logError(e);
