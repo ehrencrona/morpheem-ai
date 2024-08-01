@@ -7,7 +7,6 @@
 	import * as DB from '../../../db/types';
 	import type { Language, SentenceWord } from '../../../logic/types';
 	import { fetchTranslation } from '../api/sentences/[sentence]/english/client';
-	import { fetchHint } from '../api/sentences/[sentence]/hint/client';
 	import type { UnknownWordResponse } from '../api/word/unknown/+server';
 	import { lookupUnknownWord } from '../api/word/unknown/client';
 
@@ -27,7 +26,6 @@
 		unknown = [];
 	}
 
-	const getHint = () => fetchHint(sentence.id);
 	const getTranslation = () => fetchTranslation(sentence.id);
 
 	async function onUnknown(word: string) {
@@ -68,7 +66,6 @@
 	{word}
 	{sentence}
 	unknown={unknown}
-	{getHint}
 	{onUnknown}
 	{onRemoveUnknown}
 	{getTranslation}

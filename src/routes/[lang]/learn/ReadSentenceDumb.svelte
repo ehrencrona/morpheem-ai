@@ -23,17 +23,14 @@
 	export let onRemoveUnknown: (word: string) => Promise<any>;
 	export let onNext: () => Promise<any>;
 
-	let hint: string | undefined;
 	let translation: Translation | undefined;
 	let isLoadingUnknown = false;
 
-	export let getHint: () => Promise<string>;
 	export let getTranslation: () => Promise<Translation>;
 
 	$: wordsWithSeparators = toWordsWithSeparators(sentence.sentence, language);
 
 	function clear() {
-		hint = undefined;
 		translation = undefined;
 	}
 
@@ -75,7 +72,7 @@
 			>{:else}{word}{/if}{/each}
 </div>
 
-{#if translation || hint}
+{#if translation}
 	<div class="text-sm mb-6" in:slide>
 		<div class="text-xs font-lato">
 			{#if translation}
@@ -84,7 +81,7 @@
 				How the text might continue:
 			{/if}
 		</div>
-		<div class="text-xl">"{translation?.english || hint}"</div>
+		<div class="text-xl">"{translation.english}"</div>
 		{#if translation?.transliteration && showTransliteration}
 			<div class="text-xs font-lato">
 				{translation.transliteration}
@@ -105,12 +102,6 @@
 </div>
 
 <div class="flex flex-wrap gap-2 mt-4">
-	{#if !hint && !translation}
-		<SpinnerButton type="secondary" onClick={() => getHint().then((got) => (hint = got))}>
-			Hint
-		</SpinnerButton>
-	{/if}
-
 	{#if !translation}
 		<SpinnerButton
 			type="secondary"

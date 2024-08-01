@@ -35,6 +35,7 @@ export async function addWord(
 			'era',
 			'mycken',
 			'dig',
+			'var',
 			/* we use "en" as the dictionary form */ 'ett',
 			/* use "denna" */
 			'detta'
