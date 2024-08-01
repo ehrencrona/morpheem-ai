@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { SendKnowledge } from '$lib/SendKnowledge';
-	import { dedupUnknown } from '$lib/dedupUnknown';
+	import { addUnknown } from '$lib/addUnknown';
 	import { filterUndefineds } from '$lib/filterUndefineds';
 	import { logError } from '$lib/logError';
 	import { toPercent } from '$lib/toPercent';
@@ -47,9 +47,14 @@
 	}
 
 	async function onUnknown(word: string) {
-		const unknownWord = await lookupUnknownWord(word, { sentenceId: sentence.id });
+		const unknownWord = await lookupUnknownWord(word, {
+			sentenceId: sentence.id,
+			onQuickAndDirtyTranslation: (word) => {
+				unknown = addUnknown(word, unknown);
+			}
+		});
 
-		unknown = dedupUnknown([...unknown, unknownWord]);
+		unknown = addUnknown(unknownWord, unknown);
 	}
 
 	async function onRemoveUnknown(word: string) {

@@ -1,13 +1,22 @@
 import { logError } from '$lib/logError';
 import {
+	TranslatedWord,
 	translateSentences,
 	translateWordInContext as translateWordInContextAi,
 	translateWordOutOfContext as translateWordOutOfContextAi
 } from '../ai/translate';
 import { storeEnglish } from '../db/sentences';
 import * as DB from '../db/types';
-import { addWordTranslations, getWordTranslation } from '../db/wordTranslations';
+import {
+	addWordTranslation,
+	getAllWordTranslations,
+	getWordTranslation
+} from '../db/wordTranslations';
 import { Language } from './types';
+
+export interface QuicklyTranslatedWord extends TranslatedWord {
+	isQuickAndDirty?: boolean;
+}
 
 export async function addEnglishToSentence(
 	sentence: DB.Sentence,
@@ -35,25 +44,32 @@ export async function translateWordInContext(
 	{
 		sentence,
 		language,
-		word
+		word,
+		isQuickAndDirty
 	}: {
 		word: DB.Word;
 		sentence: { id: number | undefined; sentence: string };
 		language: Language;
 		wordString?: string;
+		isQuickAndDirty?: boolean;
 	}
-) {
-	let translation: Awaited<ReturnType<typeof translateWordInContextAi>> | undefined = sentence.id
+): Promise<QuicklyTranslatedWord> {
+	let translation: QuicklyTranslatedWord | undefined = sentence.id
 		? await getWordTranslation(word.id, sentence.id, language)
 		: undefined;
+
+	if (!translation && isQuickAndDirty && sentence.id) {
+		translation = await getQuickAndDirtyTranslation(word, language, wordString);
+	}
 
 	if (!translation) {
 		translation = await translateWordInContextAi(wordString, sentence, language);
 
 		if (sentence.id) {
-			addWordTranslations({
+			addWordTranslation({
 				wordId: word.id,
 				sentenceId: sentence.id,
+				inflected: wordString,
 				english: translation.english,
 				form: translation.form || undefined,
 				transliteration: translation.transliteration,
@@ -65,6 +81,36 @@ export async function translateWordInContext(
 					`Error adding word translation for ${wordString} (${word.id}), sentence ${sentence?.id} in ${language.name}`
 				);
 			});
+		}
+	}
+
+	return translation;
+}
+
+async function getQuickAndDirtyTranslation(word: DB.Word, language: Language, wordString: string) {
+	const translations = await getAllWordTranslations({
+		wordId: word.id,
+		language,
+		inflected: wordString
+	});
+
+	let translation: QuicklyTranslatedWord | undefined;
+
+	if (translations.length) {
+		const translationCounts = translations.reduce((acc, { english }) => {
+			acc.set(english, (acc.get(english) || 0) + 1);
+			return acc;
+		}, new Map<string, number>());
+
+		const mostCommonTranslation = [...translationCounts.entries()].reduce((a, b) =>
+			a[1] > b[1] ? a : b
+		)[0];
+
+		translation = translations.find(({ english }) => english == mostCommonTranslation)!;
+
+		if (translation) {
+			translation.expression = undefined;
+			translation.isQuickAndDirty = true;
 		}
 	}
 
@@ -88,9 +134,10 @@ export async function translateWordOutOfContext(
 	if (!translation) {
 		translation = await translateWordOutOfContextAi(wordString, language);
 
-		addWordTranslations({
+		addWordTranslation({
 			wordId: word.id,
 			sentenceId: undefined,
+			inflected: wordString,
 			english: translation.english,
 			form: translation.form || undefined,
 			transliteration: translation.transliteration,

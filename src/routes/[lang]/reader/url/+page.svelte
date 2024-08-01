@@ -1,7 +1,9 @@
 <script lang="ts">
-	import { dedupUnknown } from '$lib/dedupUnknown';
+	import { goto } from '$app/navigation';
+	import { addUnknown } from '$lib/addUnknown';
 	import { logError } from '$lib/logError';
 	import { getShowTransliteration } from '$lib/settings';
+	import { onMount } from 'svelte';
 	import { slide } from 'svelte/transition';
 	import Spinner from '../../../../components/Spinner.svelte';
 	import SpinnerButton from '../../../../components/SpinnerButton.svelte';
@@ -16,11 +18,9 @@
 	import Ama from '../../learn/AMA.svelte';
 	import WordCard from '../../learn/WordCard.svelte';
 	import { trackActivity } from '../../learn/trackActivity';
+	import { addToReaderHistory } from '../history';
 	import type { PageData } from './$types';
 	import ParagraphComponent from './Paragraph.svelte';
-	import { onMount } from 'svelte';
-	import { addToReaderHistory } from '../history';
-	import { goto } from '$app/navigation';
 
 	export let data: PageData;
 
@@ -106,9 +106,12 @@
 		try {
 			isLookingUpUnknown = true;
 
-			const unknownWord = await lookupUnknownWord(word, { sentence: text });
+			const unknownWord = await lookupUnknownWord(word, {
+				sentence: text,
+				onQuickAndDirtyTranslation: (word) => (unknown = addUnknown(word, unknown))
+			});
 
-			unknown = dedupUnknown([...unknown, unknownWord]);
+			unknown = addUnknown(unknownWord, unknown);
 		} catch (e) {
 			logError(e);
 		} finally {
@@ -147,7 +150,10 @@
 	}
 </script>
 
-<main use:trackActivity class={translatedParagraphs || translatedTitle ? 'max-w-[1200px]' : `max-w-[900px]`}>
+<main
+	use:trackActivity
+	class={translatedParagraphs || translatedTitle ? 'max-w-[1200px]' : `max-w-[900px]`}
+>
 	<h3 class="mt-8 mb-2">
 		<a
 			href={data.articleUrl}

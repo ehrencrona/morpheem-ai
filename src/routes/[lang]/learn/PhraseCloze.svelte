@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { SendKnowledge } from '$lib/SendKnowledge';
-	import { dedupUnknown } from '$lib/dedupUnknown';
+	import { addUnknown } from '$lib/addUnknown';
 	import { filterUndefineds } from '$lib/filterUndefineds';
 	import { findPhraseIndex } from '$lib/findPhraseIndex';
 	import type { PhraseEvaluation } from '../../../ai/evaluatePhraseCloze';
@@ -54,9 +54,14 @@
 	}
 
 	async function onUnknown(word: string) {
-		const unknownWord = await lookupUnknownWord(word, { sentenceId: sentence.id });
+		const unknownWord = await lookupUnknownWord(word, {
+			sentenceId: sentence.id,
+			onQuickAndDirtyTranslation: (word) => {
+				unknown = addUnknown(word, unknown);
+			}
+		});
 
-		unknown = dedupUnknown([...unknown, unknownWord]);
+		unknown = addUnknown(unknownWord, unknown);
 	}
 
 	async function onRemoveUnknown(word: string) {

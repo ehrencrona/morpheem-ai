@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { SendKnowledge } from '$lib/SendKnowledge';
-	import { dedupUnknown } from '$lib/dedupUnknown';
+	import { addUnknown } from '$lib/addUnknown';
 	import Speak from '../../../components/Speak.svelte';
 	import Tutorial from '../../../components/Tutorial.svelte';
 	import { KNOWLEDGE_TYPE_READ } from '../../../db/knowledgeTypes';
@@ -31,11 +31,15 @@
 	const getTranslation = () => fetchTranslation(sentence.id);
 
 	async function onUnknown(word: string) {
-		const unknownWord = await lookupUnknownWord(word, { sentenceId: sentence.id });
+		const unknownWord = await lookupUnknownWord(word, {
+			sentenceId: sentence.id,
+			onQuickAndDirtyTranslation: (word) => {
+				unknown = addUnknown(word, unknown);
+			}
+		});
 
-		unknown = dedupUnknown([...unknown, unknownWord]);
+		unknown = addUnknown(unknownWord, unknown);
 	}
-
 	async function onRemoveUnknown(word: string) {
 		unknown = unknown.filter((r) => r.word !== word);
 	}

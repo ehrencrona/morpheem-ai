@@ -111,9 +111,9 @@ export const load: ServerLoad = async ({ params, locals: { language, userId, isA
 
 	const mnemonic = await getMnemonic({ wordId, userId: userId!, language });
 
-	const translations = (await getAllWordTranslations(wordId, language)).map(
-		({ english }) => english
-	);
+	const translations = (
+		await getAllWordTranslations({ wordId, language, inflected: undefined })
+	).map(({ english }) => english);
 
 	return {
 		sentences,

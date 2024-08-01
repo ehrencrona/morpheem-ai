@@ -1,11 +1,11 @@
 <script lang="ts">
-	import { dedupUnknown } from '$lib/dedupUnknown';
+	import { addUnknown } from '$lib/addUnknown';
+	import SpinnerButton from '../../../components/SpinnerButton.svelte';
+	import type { AggKnowledgeForUser } from '../../../db/types';
 	import { expectedKnowledge, now } from '../../../logic/isomorphic/knowledge';
 	import type { UnknownWordResponse } from '../api/word/unknown/+server';
 	import { lookupUnknownWord } from '../api/word/unknown/client';
-	import SpinnerButton from '../../../components/SpinnerButton.svelte';
 	import WordCard from '../learn/WordCard.svelte';
-	import type { AggKnowledgeForUser } from '../../../db/types';
 
 	export let knowledge: AggKnowledgeForUser[];
 
@@ -15,7 +15,7 @@
 	async function onUnknown(word: AggKnowledgeForUser) {
 		const unknownWord = await lookupUnknownWord(word.word);
 
-		unknown = dedupUnknown([...unknown, unknownWord]);
+		unknown = addUnknown(unknownWord, unknown);
 	}
 
 	$: words = knowledge.map((wordKnowledge) => {

@@ -419,5 +419,12 @@ export async function mergeWordWith(fromWordId: number, toWordId: number, langua
 		.where('word_id', '=', fromWordId)
 		.execute();
 
+	await db
+		.withSchema(language.schema)
+		.updateTable('word_translations')
+		.set({ word_id: toWordId })
+		.where('word_id', '=', fromWordId)
+		.execute();
+
 	await deleteWord(fromWordId, language);
 }

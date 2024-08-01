@@ -1,18 +1,19 @@
 import { json, type ServerLoad } from '@sveltejs/kit';
 import { z } from 'zod';
+import { TranslatedWord } from '../../../../../ai/translate';
+import { CodedError } from '../../../../../CodedError';
 import { getMnemonic } from '../../../../../db/mnemonics';
 import { getSentence } from '../../../../../db/sentences';
 import * as DB from '../../../../../db/types';
 import { getWordByLemma, getWordsOfSentence } from '../../../../../db/words';
+import { addWord } from '../../../../../logic/addWord';
 import { getWordInSentence } from '../../../../../logic/getWordInSentence';
 import {
-	addEnglishToSentence,
+	QuicklyTranslatedWord,
 	translateWordInContext,
 	translateWordOutOfContext
 } from '../../../../../logic/translate';
-import { logError } from '$lib/logError';
-import { CodedError } from '../../../../../CodedError';
-import { addWord } from '../../../../../logic/addWord';
+import { SentenceWord } from '../../../../../logic/types';
 
 export type PostSchema = z.infer<typeof postSchema>;
 
@@ -22,19 +23,12 @@ const postSchema = z.object({
 	sentence: z.string().optional()
 });
 
-export interface UnknownWordResponse extends DB.Word {
-	english: string;
+export interface UnknownWordResponse extends DB.Word, TranslatedWord {
 	mnemonic?: string;
 	inflected?: string;
-	form?: string;
-	transliteration?: string;
-	expression?: {
-		expression: string;
-		english: string;
-	};
 }
 
-export const POST: ServerLoad = async ({ request, locals }) => {
+export const POST: ServerLoad = async ({ request, url, locals }) => {
 	const userId = locals.user!.num;
 	const { language } = locals;
 	let {
@@ -43,19 +37,20 @@ export const POST: ServerLoad = async ({ request, locals }) => {
 		sentence: sentenceString
 	} = postSchema.parse(await request.json());
 
+	const useQuickAndDirty = url.searchParams.has('quick');
+
 	let sentence: { id: number | undefined; sentence: string } | undefined = undefined;
 	let word: DB.Word | undefined = undefined;
 
 	if (sentenceId) {
-		sentence = await getSentence(sentenceId, language);
+		let sentenceWords: SentenceWord[];
 
-		try {
-			const sentenceWords = await getWordsOfSentence(sentenceId, language);
+		[sentence, sentenceWords] = await Promise.all([
+			getSentence(sentenceId, language),
+			getWordsOfSentence(sentenceId, language)
+		]);
 
-			word = await getWordInSentence(wordString, sentenceId, sentenceWords, language);
-		} catch (e) {
-			logError(e);
-		}
+		word = await getWordInSentence(wordString, sentenceId, sentenceWords, language);
 	} else if (sentenceString) {
 		sentence = {
 			id: undefined,
@@ -75,11 +70,18 @@ export const POST: ServerLoad = async ({ request, locals }) => {
 		}
 	}
 
-	const { english, form, transliteration, expression } = sentence
+	const {
+		english,
+		form,
+		transliteration,
+		expression,
+		isQuickAndDirty = false
+	} = sentence
 		? await translateWordInContext(wordString, {
 				word,
 				sentence,
-				language
+				language,
+				isQuickAndDirty: useQuickAndDirty
 			})
 		: {
 				...(await translateWordOutOfContext(wordString, { language, word })),
@@ -88,7 +90,9 @@ export const POST: ServerLoad = async ({ request, locals }) => {
 
 	const mnemonic = await getMnemonic({ wordId: word.id, userId, language });
 
-	console.log(`Unknown: ${wordString} (${word.word}) -> ${english}`);
+	console.log(
+		`Unknown word: ${wordString} (${word.word}) -> ${english}${isQuickAndDirty ? ' (quick and dirty)' : ''}`
+	);
 
 	return json({
 		...word,
@@ -97,6 +101,7 @@ export const POST: ServerLoad = async ({ request, locals }) => {
 		form,
 		mnemonic,
 		transliteration,
-		expression
-	} satisfies UnknownWordResponse);
+		expression,
+		isQuickAndDirty
+	} satisfies UnknownWordResponse & QuicklyTranslatedWord);
 };

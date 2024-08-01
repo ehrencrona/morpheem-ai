@@ -1,9 +1,11 @@
+import { TranslatedWord } from '../ai/translate';
 import { Language } from '../logic/types';
 import { db } from './client';
 
-export function addWordTranslations({
+export function addWordTranslation({
 	wordId,
 	sentenceId,
+	inflected,
 	english,
 	language,
 	form,
@@ -12,6 +14,7 @@ export function addWordTranslations({
 }: {
 	wordId: number;
 	sentenceId: number | undefined;
+	inflected: string;
 	english: string;
 	language: Language;
 	form?: string;
@@ -24,6 +27,7 @@ export function addWordTranslations({
 		.values({
 			word_id: wordId,
 			sentence_id: sentenceId,
+			inflected,
 			english,
 			form,
 			transliteration,
@@ -33,20 +37,32 @@ export function addWordTranslations({
 		.execute();
 }
 
-export function getAllWordTranslations(wordId: number, language: Language) {
-	return db
+export async function getAllWordTranslations({
+	wordId,
+	language,
+	inflected
+}: {
+	wordId: number;
+	inflected: string | undefined;
+	language: Language;
+}): Promise<TranslatedWord[]> {
+	let query = db
 		.withSchema(language.schema)
 		.selectFrom('word_translations')
-		.where('word_id', '=', wordId)
-		.selectAll()
-		.execute();
+		.where('word_id', '=', wordId);
+
+	if (inflected) {
+		query = query.where('inflected', '=', inflected);
+	}
+
+	return (await query.selectAll().execute()).map(toTranslatedWord);
 }
 
 export async function getWordTranslation(
 	wordId: number,
 	sentenceId: number | null,
 	language: Language
-) {
+): Promise<TranslatedWord | undefined> {
 	let select = db
 		.withSchema(language.schema)
 		.selectFrom('word_translations')
@@ -62,16 +78,29 @@ export async function getWordTranslation(
 	const res = await select.executeTakeFirst();
 
 	if (res) {
-		return {
-			...res,
-			form: res.form || undefined,
-			transliteration: res.transliteration || undefined,
-			expression: res.expression
-				? {
-						expression: res.expression,
-						english: res.expression_english || ''
-					}
-				: undefined
-		};
+		return toTranslatedWord(res);
 	}
+}
+
+function toTranslatedWord(res: {
+	word_id: number;
+	sentence_id: number | null;
+	inflected: string | null;
+	english: string;
+	form: string | null;
+	transliteration: string | null;
+	expression: string | null;
+	expression_english: string | null;
+}) {
+	return {
+		...res,
+		form: res.form || undefined,
+		transliteration: res.transliteration || undefined,
+		expression: res.expression
+			? {
+					expression: res.expression,
+					english: res.expression_english || ''
+				}
+			: undefined
+	};
 }

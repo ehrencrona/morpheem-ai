@@ -1,7 +1,17 @@
 import { z } from 'zod';
 import type { Language, LanguageCode } from '../logic/types';
-import { Message, ask, toMessages } from './ask';
+import { ask, toMessages } from './ask';
 import { askForJson } from './askForJson';
+
+export interface TranslatedWord {
+	english: string;
+	form?: string;
+	transliteration?: string;
+	expression?: {
+		expression: string;
+		english: string;
+	};
+}
 
 const formExamples: Record<LanguageCode, string> = {
 	pl: `"genitive plural, feminine", "2nd person plural, past, imperfective" or "past participle"`,
@@ -49,12 +59,7 @@ export async function translateWordInContext(
 	wordString: string,
 	sentence: { sentence: string },
 	language: Language
-): Promise<{
-	english: string;
-	form?: string;
-	transliteration?: string;
-	expression?: { expression: string; english: string };
-}> {
+): Promise<TranslatedWord> {
 	let doTransliterate = !language.isLatin;
 
 	const response = await askForJson({
