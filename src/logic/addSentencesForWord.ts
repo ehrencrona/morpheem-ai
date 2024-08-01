@@ -62,12 +62,17 @@ export async function addSentencesForWord(
 		const [[lemma]] = await lemmatizeSentences([word.word], { language });
 
 		if (lemma != word.word) {
-			await deleteWord(word.id, language);
+			const existingSentences = await getSentencesWithWord(word, { language, userId });
 
-			throw new CodedError(
-				`No valid example sentences found for ${word.word} (${word.id}), probably because the lemma is actually ${lemma}. Deleting the word`,
-				'wrongLemma'
-			);
+			const message = `No valid example sentences found for ${word.word} (${word.id}), probably because the lemma is actually ${lemma}.`;
+
+			if (existingSentences.length < 3) {
+				await deleteWord(word.id, language);
+
+				throw new CodedError(`${message} Deleting the word`, 'wrongLemma');
+			} else {
+				throw new CodedError(message, 'wrongLemma');
+			}
 		}
 
 		const message = `No valid example sentences found for ${word.word} (${word.id})`;

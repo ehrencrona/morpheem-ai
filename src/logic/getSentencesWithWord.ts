@@ -13,7 +13,7 @@ export async function getSentencesWithWord(
 		upToUnit
 	}: {
 		language: Language;
-		userId: number;
+		userId?: number;
 		upToUnit?: number;
 	}
 ): Promise<CandidateSentenceWithWords[]> {

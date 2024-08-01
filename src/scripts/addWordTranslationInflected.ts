@@ -19,6 +19,7 @@ for (const language of languages) {
 			'word_translations.sentence_id',
 			'word_sentences.word_index'
 		])
+		.where('inflected', 'is', null)
 		.execute();
 
 	let count = 0;
