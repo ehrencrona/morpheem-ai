@@ -39,7 +39,8 @@ const forcedLemmas: Record<LanguageCode, Record<string, string>> = {
 		los: 'el',
 		esta: 'este',
 		esa: 'ese',
-		al: 'a'
+		al: 'a',
+		te: 'tú'
 	},
 	fr: {
 		ça: 'cela',
