@@ -2,7 +2,7 @@ import { logError } from '$lib/logError';
 import { parallelize } from '$lib/parallelize';
 import { zip } from '$lib/zip';
 import { CodedError } from '../CodedError';
-import { RUSSIAN } from '../constants';
+import { RUSSIAN, SPANISH } from '../constants';
 import { db } from '../db/client';
 import { getLemmasOfWords } from '../db/lemmas';
 import { deleteSentence, getSentences } from '../db/sentences';
@@ -12,7 +12,7 @@ import { getSentencesWords } from '../logic/addSentence';
 import { toWordStrings } from '../logic/toWordStrings';
 import { SentenceWord } from '../logic/types';
 
-const language = RUSSIAN;
+const language = SPANISH;
 
 async function fixSentenceWords() {
 	const sentences = await getSentences(language);
@@ -117,7 +117,7 @@ async function fixSentenceWords() {
 				if ((e as CodedError).code == 'noLemmaFound') {
 					console.error(e);
 
-					deleteSentence(sentence.id, language);
+					//					deleteSentence(sentence.id, language);
 					deleteCount++;
 				} else if ((e as CodedError).code == 'notALemma') {
 					console.error(`In sentence ${sentence.id}: ${(e as CodedError).message}`);

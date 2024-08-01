@@ -109,7 +109,7 @@ export async function addWord(
 		throw new CodedError(`"${lemma}" is not the dictionary form`, 'notALemma');
 	}
 
-	if (language.code == 'es' && ['esta', 'esa', 'a el', /* -> a */ 'al', 'te'].includes(lemma)) {
+	if (language.code == 'es' && ['esta', 'esa', 'a el', /* -> a */ 'al', 'los'].includes(lemma)) {
 		throw new CodedError(`"${lemma}" is not the dictionary form`, 'notALemma');
 	}
 

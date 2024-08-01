@@ -46,13 +46,24 @@ export async function addWordToLemma(wordString: string, word: DB.Word, language
 			'al->el',
 			'me->yo',
 			'me->mí',
-			'esta->estar',
-			'él->el',
-			'el->él',
+			'mi->yo',
+			'mí->yo',
+			'mí->me',
+			'le->me',
 			'tu->tú',
 			'tú->tu',
+			'ti->tú',
+			'te->tú',
+			'él->el',
+			'el->él',
+			'la->ella',
+			'le->él',
+			'les->le',
+			'lo->el',
+			'esta->estar',
 			'que->qué',
-			'qué->que'
+			'qué->que',
+			'su->el'
 		].includes(`${wordString}->${word.word}`)
 	) {
 		console.error(`${word.word} is not the dictionary form of ${wordString}`);

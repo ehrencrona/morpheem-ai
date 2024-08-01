@@ -36,11 +36,25 @@ const forcedLemmas: Record<LanguageCode, Record<string, string>> = {
 		лучшие: 'лучший'
 	},
 	es: {
-		los: 'el',
+		// note that la and las are either an article or a pronoun
 		esta: 'este',
 		esa: 'ese',
 		al: 'a',
-		te: 'tú'
+		del: 'de',
+		un: 'uno',
+		una: 'uno',
+		// indirect object pronoun
+		mí: 'mí',
+		ti: 'ti',
+		sí: 'sí',
+		// direct object pronoun
+		me: 'me',
+		te: 'te',
+		le: 'le',
+		nos: 'nos',
+		os: 'os',
+		les: 'les',
+		los: 'los'
 	},
 	fr: {
 		ça: 'cela',
@@ -178,7 +192,7 @@ async function lemmatizeBatch(
 
 		Irse (ir) al (a) parque (parque)
 		
-		(treat un/una as "uno", la as "el", al as "a", del as "de", me as "me")`,
+		(treat un/una as "uno", all articles - la, las, los - as "el")`,
 		ko: `우리는 결과를 예상했습니다 becomes 우리는 (우리) 결과를 (결과) 예상했습니다 (예상하다)
 서연아 비 때문에 늦었어요 becomes 서연아 (서연) 비 (비) 때문에 (때문에) 늦었어요 (늦다)
 언제부터 공부했어요 becomes 언제부터 (언제부터) 공부했어요 (공부하다)
