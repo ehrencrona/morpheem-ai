@@ -23,8 +23,6 @@ export async function cullUserExercises(
 			`Culling ${exercises.length - toDeleteIndex} exercises for user ${userId} in language ${language.code}.`
 		);
 
-		console.log(exercises.slice(toDeleteIndex).map(({ lastTime }) => timeToDate(lastTime)));
-
 		await deleteUserExercises(
 			exercises.slice(toDeleteIndex).map(({ id }) => id),
 			userId,
