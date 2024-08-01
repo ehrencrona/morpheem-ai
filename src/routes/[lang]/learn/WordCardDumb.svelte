@@ -10,9 +10,12 @@
 	export let word: UnknownWordResponse;
 	export let inflected: string | undefined = undefined;
 	export let onRemove: (() => void) | undefined = undefined;
+	export let getWordRelations: (word: DB.Word) => Promise<string[]>;
 
 	export let mnemonic: string | undefined = undefined;
 	export let english: string | undefined = undefined;
+
+	let related: string[] | undefined = undefined;
 
 	$: form = word.form;
 	$: transliteration = word.transliteration;
@@ -53,7 +56,7 @@
 		{/if}
 	</div>
 
-	<div class="px-3 pb-4">
+	<div class="px-3 pb-3">
 		{#if english}
 			<div class="text-balance font-lato mt-2">
 				{english}{#if word.type == 'name'}
@@ -66,6 +69,13 @@
 		{/if}
 
 		<div class="text-xs font-lato mt-2">
+			{#if related}
+				{#if related.length}
+					<p>Similar: {related.join(', ')}</p>
+				{:else}
+					<p>No similar words</p>
+				{/if}
+			{/if}
 			{#if mnemonic}
 				<p class="text-balance leading-4">
 					{mnemonic}
@@ -79,11 +89,19 @@
 			{:else}
 				<div class="flex justify-end mt-1">
 					<SpinnerButton
-						className="underline pt-1 pl-5"
+						className="border rounded-sm px-1 py-[1px] ml-5 hover:bg-gray"
 						onClick={async () => onEditMnemonic(word, mnemonic)}
 					>
 						Mnemonic
 					</SpinnerButton>
+					{#if !related}
+						<SpinnerButton
+							className="border rounded-sm px-1 py-[1px] ml-5 hover:bg-gray"
+							onClick={async () => (related = await getWordRelations(word))}
+						>
+							Similar
+						</SpinnerButton>
+					{/if}
 				</div>
 			{/if}
 		</div>
@@ -108,7 +126,7 @@
 			{/if}
 		</div>
 
-		<div class="px-3 pb-4">
+		<div class="px-3 pb-3">
 			<div class="text-balance font-lato mt-2">
 				{expression.english}
 			</div>

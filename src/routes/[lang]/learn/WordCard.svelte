@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type * as DB from '../../../db/types';
 	import { fetchMnemonic, storeMnemonic } from '../api/word/[id]/mnemonic/client';
+	import { fetchRelatedWords } from '../api/word/[id]/related/client';
 	import type { UnknownWordResponse } from '../api/word/unknown/+server';
 	import EditMnemonic from './EditMnemonic.svelte';
 	import WordCardDumb from './WordCardDumb.svelte';
@@ -36,6 +37,7 @@
 	{mnemonic}
 	{english}
 	onEditMnemonic={async (word, mnemonic) => (editMnemonic = mnemonic || '')}
+	getWordRelations={(word) => fetchRelatedWords(word.id).then((res) => res.map(({ word }) => word))}
 />
 
 {#if editMnemonic != undefined}
