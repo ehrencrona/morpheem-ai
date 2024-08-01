@@ -56,7 +56,7 @@ export async function generateExampleSentences(
 		examples = examples.filter((sentence) => !isEnglish(sentence));
 	}
 
-	return examples;
+	return examples.map((s) => s.replaceAll('\n', ' '));
 }
 
 export async function simplifySentences(
