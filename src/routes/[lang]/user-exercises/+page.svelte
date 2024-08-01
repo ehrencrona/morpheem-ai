@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { toPercent } from '$lib/toPercent';
+	import CloseSvg from '../../../components/CloseSvg.svelte';
 	import { deleteUserExercise } from '../api/user-exercises/[id]/client';
 	import type { PageData } from './$types';
 
@@ -15,13 +16,11 @@
 <main>
 	<h1 class="text-xl mt-12 mb-4">Exercises</h1>
 
-	<div class="grid gap-3 items-baseline grid-cols-[auto_1fr_auto_auto] md:grid-cols-[auto_auto_1fr_auto_auto] text-sm md:text-base">
+	<div
+		class="grid gap-3 items-baseline grid-cols-[auto_1fr_auto_auto_auto] md:grid-cols-[auto_1fr_auto_auto_auto] text-sm md:text-base"
+	>
 		{#each data.exercises as exercise}
 			<div class="text-xs font-lato">#{exercise.id}<br />{toPercent(exercise.level / 100)}</div>
-
-			<div class="hidden md:block">
-				<span class="bg-blue-3 text-white p-1 text-xs">{exercise.exercise}</span>
-			</div>
 
 			<div>
 				{#if exercise.exercise == 'cloze' || exercise.exercise == 'cloze-inflection' || exercise.exercise == 'write'}
@@ -32,7 +31,7 @@
 					<div>"{exercise.phrase}"</div>
 				{/if}
 
-				<div class="block md:hidden">
+				<div>
 					<span class="bg-blue-3 text-white p-1 text-xxs">{exercise.exercise}</span>
 				</div>
 			</div>
@@ -46,17 +45,20 @@
 				>
 			</div>
 
-			<div class="text-right">
+			<div class="text-right text-xs">
 				{exercise.timeAgo}
 
-				<div class="text-xs font-lato">
+				<div>
 					{toPercent(exercise.alpha)} / {toPercent(exercise.beta)}
 				</div>
-
-				<button type="button" class="text-red" on:click={() => deleteExercise(exercise.id)}>
-					delete
-				</button>
 			</div>
+			<button
+				type="button"
+				class="bg-red p-1"
+				on:click={() => deleteExercise(exercise.id)}
+			>
+				<CloseSvg />
+			</button>
 		{/each}
 	</div>
 </main>

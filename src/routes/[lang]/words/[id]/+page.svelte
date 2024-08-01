@@ -2,6 +2,7 @@
 	import { goto } from '$app/navigation';
 	import { getRepetitionTime } from '$lib/settings';
 	import AdminUnitDialog from '../../../../components/AdminUnitDialog.svelte';
+	import CloseSvg from '../../../../components/CloseSvg.svelte';
 	import EditSvg from '../../../../components/EditSvg.svelte';
 	import SpinnerButton from '../../../../components/SpinnerButton.svelte';
 	import { calculateOptimalTime } from '../../../../logic/isomorphic/knowledge';
@@ -121,11 +122,8 @@
 
 			<div>
 				{#if isAdmin}
-					<SpinnerButton
-						className="ml-2 border rounded-sm px-2 text-xs text-blue-3"
-						onClick={() => deleteSentence(sentence.id)}
-					>
-						Delete
+					<SpinnerButton className="ml-2 bg-red p-1" onClick={() => deleteSentence(sentence.id)}>
+						<CloseSvg />
 					</SpinnerButton>
 				{/if}
 			</div>
@@ -142,8 +140,10 @@
 					{#if data.isAdmin}
 						<a
 							href={`/${getLanguageOnClient().code}/words/${word.id}/delete/lemma/${form.word}`}
-							class="underline text-xs font-lato text-red ml-2">Delete</a
+							class="bg-red inline-block p-1 ml-1 relative top-[3px]"
 						>
+							<CloseSvg />
+						</a>
 					{/if}
 				</li>
 			{/each}
