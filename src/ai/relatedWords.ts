@@ -30,7 +30,7 @@ There might be none. If in doubt, exclude the word. Output only the list of word
 			temperature: 0.5,
 			logResponse: true
 		})
-	).words;
+	).words.filter((word) => word !== lemma);
 }
 
 export async function findRelatedWordsForMany(lemmas: string[], language: Language) {
