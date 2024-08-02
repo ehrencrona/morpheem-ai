@@ -10,23 +10,30 @@ export function toWordStrings(
 	}
 
 	if (language.code == 'fr') {
-		// Define regex pattern for tokenization including Unicode characters
 		const pattern = /[\p{L}]+(?:-[\p{L}]+)?(?:'[\p{L}]+)?/gu;
 
-		// Find all matches in the sentence
 		let tokens = sentence.match(pattern) || [];
-
-		// Further split tokens with apostrophes
 		let splitTokens: string[] = [];
 
 		tokens.forEach((token) => {
 			if (token.includes("'") && token.length > 1) {
 				let index = token.indexOf("'");
 
-				if (index <= 2) {
+				let first = token.slice(0, index);
+
+				if (index <= 2 || ['lorsqu', 'jusqu'].includes(first)) {
 					splitTokens.push(token.slice(0, index + 1), token.slice(index + 1));
 				} else {
-					// aujourd'hui, quelqu'un
+					// aujourd'hui, quelqu'un, main-d'œuvre
+					// not working: lorsqu'elle, lorsqu'on, jusqu'à
+					splitTokens.push(token);
+				}
+			} else if (token.includes('-') && token.length > 1) {
+				const [first, second] = token.split('-');
+
+				if (['là', 'ci'].includes(second)) {
+					splitTokens.push(first, second);
+				} else {
 					splitTokens.push(token);
 				}
 			} else {

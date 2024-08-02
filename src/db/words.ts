@@ -14,6 +14,10 @@ export async function addWord(
 		throw new Error('Lemma cannot be empty');
 	}
 
+	if (lemma.includes(' ')) {
+		throw new Error(`Lemma cannot contain spaces ("${lemma}")`);
+	}
+
 	if (['an', 'the', 'they', 'this', 'big'].includes(lemma)) {
 		throw new CodedError(`"${lemma}" is English`, 'notALemma');
 	}
@@ -100,7 +104,9 @@ export async function addWord(
 
 	if (
 		language.code == 'fr' &&
-		['la', 'nos', 'les', 'ses', 'nos', 'une', 's', 'd', 'c', 'ça'].includes(lemma)
+		['la', 'nos', 'les', 'ses', 'nos', 'une', 's', 'd', 'c', 'ça', 'à le', `aujourd'`].includes(
+			lemma
+		)
 	) {
 		throw new CodedError(`"${lemma}" is not the dictionary form`, 'notALemma');
 	}
@@ -109,7 +115,7 @@ export async function addWord(
 		throw new CodedError(`"${lemma}" is not the dictionary form`, 'notALemma');
 	}
 
-	if (language.code == 'es' && ['esta', 'esa', 'a el', /* -> a */ 'al', 'los'].includes(lemma)) {
+	if (language.code == 'es' && ['esta', 'esa', 'a el', /* -> a */ 'al'].includes(lemma)) {
 		throw new CodedError(`"${lemma}" is not the dictionary form`, 'notALemma');
 	}
 

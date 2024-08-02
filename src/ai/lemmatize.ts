@@ -36,6 +36,7 @@ const forcedLemmas: Record<LanguageCode, Record<string, string>> = {
 		лучшие: 'лучший'
 	},
 	es: {
+		buen: 'bueno',
 		// note that la and las are either an article or a pronoun
 		esta: 'este',
 		esa: 'ese',
@@ -53,10 +54,10 @@ const forcedLemmas: Record<LanguageCode, Record<string, string>> = {
 		le: 'le',
 		nos: 'nos',
 		os: 'os',
-		les: 'les',
-		los: 'los'
+		les: 'les'
 	},
 	fr: {
+		ci: 'ci',
 		ça: 'cela',
 		vacances: 'vacances'
 	}
@@ -339,7 +340,7 @@ ${examples[language.code]}`
 						if (lemmas.length == 1) {
 							return lemmas[0].word;
 						} else {
-							error = `No lemma found for "${word}" in sentence "${sentence}", only for ${lemmas.map((l) => l.word).join(', ')}`;
+							error = `No lemma found for "${standardized}" in sentence "${sentence}", only for ${lemmas.map((l) => l.word).join(', ')}`;
 
 							return onError == 'returnempty' ? ERROR_TOKEN : standardized;
 						}

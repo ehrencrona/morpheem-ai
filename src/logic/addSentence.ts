@@ -140,7 +140,13 @@ export async function getSentencesWords(
 		}
 	};
 
-	let lemmas = lms || (await lemmatizeSentences(sentences, { language }));
+	let lemmas =
+		lms ||
+		(await lemmatizeSentences(sentences, {
+			language,
+			// would be better if we could use returnempty
+			onError: throwOnError ? 'throw' : 'useword'
+		}));
 
 	const wordStrings = sentences.map((sentenceString) => toWordStrings(sentenceString, language));
 
