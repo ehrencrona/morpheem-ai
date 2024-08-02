@@ -33,7 +33,7 @@ export async function translateWordOutOfContext(wordString: string, language: La
 			{
 				role: 'user',
 				content:
-					`What is the English translation of the ${language.name} word "${wordString}"? Only answer with the definition (as a fragment; no final full stop).\n` +
+					`What is the most relevant English translation of the ${language.name} word "${wordString}"? Only answer with the definition (as a fragment; no final full stop).\n` +
 					`On a second line, provide the form of the word in the sentence e.g. ${formExamples[language.code]}.` +
 					(!language.isLatin
 						? `\nOn a new line, provide the transliteration in Latin script.${transliterationInstructions[language.code] || ''}`

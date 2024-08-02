@@ -20,7 +20,7 @@ export async function getAggregateKnowledge(
 		upToUnit
 	});
 
-	knowledge = addRelatedKnowledge(knowledge, allRelated, userId);
+	knowledge = addRelatedKnowledge(knowledge, allRelated, userId, upToUnit);
 
 	const lastTime = now() - 5;
 
@@ -43,7 +43,8 @@ export async function getAggregateKnowledge(
 function addRelatedKnowledge(
 	knowledge: AggKnowledgeForUser[],
 	allRelated: Map<number, Word[]>,
-	userId: number
+	userId: number,
+	upToUnit?: number
 ) {
 	const lastTime = now() - 5;
 	const allKnownWordIds = new Map<number, number>(knowledge.map((k) => [k.wordId, k.alpha]));
@@ -54,8 +55,8 @@ function addRelatedKnowledge(
 		const relateds = allRelated.get(wordId);
 
 		if (relateds) {
-			for (const { id: wordId, level, type: wordType, word } of relateds) {
-				if (!allKnownWordIds.has(wordId)) {
+			for (const { id: wordId, level, type: wordType, word, unit } of relateds) {
+				if (!allKnownWordIds.has(wordId) && (upToUnit == null || (unit && unit <= upToUnit))) {
 					const wordKnowledge: AggKnowledgeForUser = {
 						alpha: 0.5 * alpha,
 						beta: 0.25 * alpha,
