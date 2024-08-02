@@ -155,6 +155,12 @@
 		</p>
 	</div>
 
+	<div class="text-center mt-12 text-xs">
+		Morpheem has been reviewed by <a href="https://www.alllanguageresources.com/morpheem/" class="underline">
+			All Language Resources
+		</a>
+	</div>
+
 	<div class="flex justify-center mt-12">
 		<img src="/morpheem-logo-square.png" class="w-12 h-12" alt="Logo" />
 	</div>
