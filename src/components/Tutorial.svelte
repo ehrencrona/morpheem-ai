@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import CloseSvg from './CloseSvg.svelte';
 
 	export let paragraphs: string[];
 	export let id: string;
@@ -18,7 +19,7 @@
 
 {#if show}
 	<div
-		class="bg-blue-1 border border-blue-4 py-2 px-4 rounded-sm inline-block text-sm font-lato mb-6 text-balance mt-8"
+		class="bg-blue-1 border border-blue-4 py-2 px-4 rounded-sm inline-block text-sm font-lato mb-6 text-balance mt-8 relative"
 	>
 		{#each paragraphs as text}
 			<p class="my-1">

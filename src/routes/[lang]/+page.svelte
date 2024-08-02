@@ -48,6 +48,7 @@
 	import WriteSentence from './learn/WriteSentence.svelte';
 	import FlagSvg from '../../components/FlagSvg.svelte';
 	import ReportDialog from '../../components/ReportDialog.svelte';
+	import Tutorial from '../../components/Tutorial.svelte';
 
 	export let data: PageData;
 
@@ -476,7 +477,9 @@
 	{/if}
 
 	{#if current}
-		<div class="flex absolute left-0 right-0 top-0 lg:relative bg-[#f9f9f9] lg:bg-white mb-1 px-4 pb-3 pt-4 lg:px-0 lg:pt-2 h-12">
+		<div
+			class="flex absolute left-0 right-0 top-0 lg:relative bg-[#f9f9f9] lg:bg-white mb-1 px-4 pb-3 pt-4 lg:px-0 lg:pt-2 h-12"
+		>
 			<div class="flex-1 font-lato text-xs flex items-center">
 				{#if current.source == 'unstudied'}
 					<div class="bg-red text-[#fff] px-1 font-sans text-xxs ml-12 lg:ml-0">NEW WORD</div>
@@ -520,7 +523,7 @@
 		{#if units.length > 0}
 			<div class="flex justify-end text-gray-1 mb-4">
 				<button
-					class="border border-light-gray flex justify-end items-center rounded-md text-xs "
+					class="border border-light-gray flex justify-end items-center rounded-md text-xs"
 					on:click={() => (showUnits = true)}
 				>
 					<div class="p-1 px-2 bg-light-gray">
@@ -661,6 +664,13 @@
 			</svg>
 		</div>
 	{/if}
+
+	<Tutorial
+		paragraphs={[
+			`On Aug 2nd, vocabulary estimates increased due to words closely related to those you know also being counted.`
+		]}
+		id="related-words"
+	/>
 
 	<ErrorMessage />
 </main>
