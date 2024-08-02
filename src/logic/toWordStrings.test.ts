@@ -1,6 +1,6 @@
 import { describe, expect } from 'vitest';
 import { toWordStrings, toWordsWithSeparators } from './toWordStrings';
-import { DUTCH, FRENCH, KOREAN, POLISH, RUSSIAN } from '../constants';
+import { DUTCH, FRENCH, KOREAN, POLISH, RUSSIAN, SPANISH } from '../constants';
 
 describe('toWordStrings', (it) => {
 	it('should split a sentence into words', () => {
@@ -68,6 +68,29 @@ describe('toWordStrings', (it) => {
 			'татар-информ',
 			'и',
 			'коммерсант'
+		]);
+	});
+
+	it('should split a Spanish sentence into words', () => {
+		// expect(toWordStrings(`El límite de velocidad es de 80 km/h.`, SPANISH)).toEqual([
+		// 	`el`,
+		// 	`límite`,
+		// 	`de`,
+		// 	`velocidad`,
+		// 	`es`,
+		// 	`de`,
+		// 	`80`,
+		// 	`km/h`
+		// ]);
+
+		expect(toWordStrings(`Pedro y Ana celebrarán su 10º aniversario.`, SPANISH)).toEqual([
+			`pedro`,
+			`y`,
+			`ana`,
+			`celebrarán`,
+			`su`,
+			`º`,
+			`aniversario`
 		]);
 	});
 

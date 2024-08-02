@@ -125,8 +125,10 @@ export function toWordsWithSeparators(sentence: string, language: { code: Langua
 
 export function isSeparator(word: string) {
 	return (
-		word.match(/[^\p{L}'-]+/u) ||
-		/* apostrophe is part of words in french */
-		word == "'"
+		(word.match(/[^\p{L}'-]+/u) ||
+			/* apostrophe is part of words in french */
+			word == "'") &&
+		// e.g. 10º aniversario
+		word != `º`
 	);
 }
