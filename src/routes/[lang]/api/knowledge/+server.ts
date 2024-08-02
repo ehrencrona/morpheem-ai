@@ -1,13 +1,12 @@
 import { redirectToLogin } from '$lib/redirectToLogin';
 import { error, json, type ServerLoad } from '@sveltejs/kit';
 import { z } from 'zod';
+import { getUserSettings } from '../../../../db/userSettings';
 import { storeSentenceDone } from '../../../../db/wordsKnown';
 import { getAggregateKnowledge } from '../../../../logic/getAggregateKnowledge';
 import { exerciseKnowledgeSchema, wordKnowledgeSchema } from '../../../../logic/types';
 import { updateKnowledge } from '../../../../logic/updateKnowledge';
 import { updateUserExercises } from '../../../../logic/updateUserExercises';
-import { getUserSettings } from '../../../../db/userSettings';
-import { getAllRelated } from '../../../../db/wordRelations';
 
 export const POST: ServerLoad = async ({ url, request, locals: { userId, language } }) => {
 	if (!userId) {
@@ -60,5 +59,9 @@ export const GET: ServerLoad = async ({ locals: { userId, language } }) => {
 		upToUnit: settings?.unit || undefined
 	});
 
-	return json(knowledge);
+	return json(knowledge, {
+		headers: {
+			'cache-control': 'no-cache'
+		}
+	});
 };

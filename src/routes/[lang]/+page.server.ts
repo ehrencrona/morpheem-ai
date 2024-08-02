@@ -6,7 +6,11 @@ import { getUserSettings } from '../../db/userSettings';
 import { cullUserExercises } from '../../logic/cullUserExercises';
 import { logError } from '$lib/logError';
 
-export const load: ServerLoad = async ({ locals: { user, language, isAdmin }, url }) => {
+export const load: ServerLoad = async ({
+	setHeaders,
+	locals: { user, language, isAdmin },
+	url
+}) => {
 	if (!user) {
 		return redirectToLogin(url);
 	}
@@ -24,6 +28,10 @@ export const load: ServerLoad = async ({ locals: { user, language, isAdmin }, ur
 
 	// intentionally async
 	cullUserExercises(userExercises, { userId: user.num, language }).catch(logError);
+
+	setHeaders({
+		'cache-control': 'no-cache'
+	});
 
 	return {
 		languageCode: language.code,
