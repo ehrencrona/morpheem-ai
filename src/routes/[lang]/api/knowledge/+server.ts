@@ -7,6 +7,7 @@ import { exerciseKnowledgeSchema, wordKnowledgeSchema } from '../../../../logic/
 import { updateKnowledge } from '../../../../logic/updateKnowledge';
 import { updateUserExercises } from '../../../../logic/updateUserExercises';
 import { getUserSettings } from '../../../../db/userSettings';
+import { getAllRelated } from '../../../../db/wordRelations';
 
 export const POST: ServerLoad = async ({ url, request, locals: { userId, language } }) => {
 	if (!userId) {

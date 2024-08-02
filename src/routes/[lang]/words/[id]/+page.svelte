@@ -9,6 +9,7 @@
 	import { getLanguageOnClient } from '../../api/api-call';
 	import { callDeleteSentence } from '../../api/sentences/[sentence]/client';
 	import { storeMergeWordWith } from '../../api/word/[id]/merge/client';
+	import { fetchRelatedWords } from '../../api/word/[id]/related/client';
 	import { sendWordUnit } from '../../api/word/[id]/unit/client';
 	import type { PageData } from './$types';
 
@@ -30,6 +31,12 @@
 	async function deleteSentence(id: number) {
 		await callDeleteSentence(id);
 		data.sentences = data.sentences.filter((s) => s.id !== id);
+	}
+
+	async function loadRelated() {
+		const res = await fetchRelatedWords(word.id);
+
+		data.related = res;
 	}
 
 	const toPercent = (n: number) => `${(n * 100).toFixed(0)}%`;
@@ -116,7 +123,7 @@
 				#{sentence.id}
 			</span>
 
-			<a href="../sentences/{sentence.id}" class="pb-1 border-b-[1px] border-gray">
+			<a href="../sentences/{sentence.id}" class="pb-1 border-b-[1px] border-gray font-sans">
 				{sentence.sentence}
 			</a>
 
@@ -148,6 +155,24 @@
 				</li>
 			{/each}
 		</ul>
+	{/if}
+
+	<h2 class="font-bold mt-8 mb-2">Related</h2>
+
+	{#if data.related != undefined}
+		{#if data.related.length}
+			<ul class="flex flex-wrap gap-2">
+				{#each data.related as related}
+					<a href={related.id + ''} class="bg-blue-1 border-blue-1 rounded-lg px-5 py-1">
+						{related.word}
+					</a>
+				{/each}
+			</ul>
+		{:else}
+			<p>No related words.</p>
+		{/if}
+	{:else}
+		<SpinnerButton onClick={loadRelated} className="underline">Load related</SpinnerButton>
 	{/if}
 
 	<h2 class="font-bold mt-8 mb-2">Knowledge history</h2>

@@ -14,6 +14,7 @@ import {
 	translateWordOutOfContext
 } from '../../../../../logic/translate';
 import { SentenceWord } from '../../../../../logic/types';
+import { getWordRelations } from '../../../../../db/wordRelations';
 
 export type PostSchema = z.infer<typeof postSchema>;
 
@@ -26,6 +27,7 @@ const postSchema = z.object({
 export interface UnknownWordResponse extends DB.Word, TranslatedWord {
 	mnemonic?: string;
 	inflected?: string;
+	related?: string[];
 }
 
 export const POST: ServerLoad = async ({ request, url, locals }) => {
@@ -88,7 +90,11 @@ export const POST: ServerLoad = async ({ request, url, locals }) => {
 				expression: undefined
 			};
 
-	const mnemonic = await getMnemonic({ wordId: word.id, userId, language });
+	const [mnemonic, related] = await Promise.all([
+		getMnemonic({ wordId: word.id, userId, language }),
+		// don't trigger generation related words; just fetch them if available
+		getWordRelations(word.id, language)
+	]);
 
 	console.log(
 		`Unknown word: ${wordString} (${word.word}) -> ${english}${isQuickAndDirty ? ' (quick and dirty)' : ''}`
@@ -102,6 +108,7 @@ export const POST: ServerLoad = async ({ request, url, locals }) => {
 		mnemonic,
 		transliteration,
 		expression,
-		isQuickAndDirty
+		isQuickAndDirty,
+		related: related?.map((r) => r.word)
 	} satisfies UnknownWordResponse & QuicklyTranslatedWord);
 };

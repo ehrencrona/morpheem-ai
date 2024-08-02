@@ -23,7 +23,7 @@
 	}
 </script>
 
-<main class="w-[800px] max-w-[95vw]">
+<main>
 	<div class="flex items-center">
 		<div class="mr-2">Word search:</div>
 		<input

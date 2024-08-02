@@ -1,12 +1,18 @@
 <script lang="ts">
 	import AdminUnitDialog from '../../../../components/AdminUnitDialog.svelte';
 	import EditSvg from '../../../../components/EditSvg.svelte';
+	import SpinnerButton from '../../../../components/SpinnerButton.svelte';
+	import { fetchTranslation } from '../../api/sentences/[sentence]/english/client';
 	import { sendSentenceUnit } from '../../api/sentences/[sentence]/unit/client';
 	import type { PageData } from './$types';
 
 	export let data: PageData;
 
 	$: sentence = data.sentence;
+
+	async function translate() {
+		sentence.english = (await fetchTranslation(sentence.id)).english;
+	}
 
 	let isEditingUnit = false;
 </script>
@@ -28,7 +34,7 @@
 		</p>
 	</div>
 
-	<h1 class="text-2xl my-2">{sentence.sentence}</h1>
+	<h1 class="text-2xl mt-6 font-sans leading-snug">{sentence.sentence}</h1>
 
 	{#if isEditingUnit}
 		<AdminUnitDialog
@@ -43,7 +49,9 @@
 	{/if}
 
 	{#if sentence.english}
-		<p><i>{sentence.english}</i></p>
+		<p class="mt-6"><i>{sentence.english}</i></p>
+	{:else}
+		<SpinnerButton onClick={translate} type="secondary" className="underline">Translate</SpinnerButton>
 	{/if}
 
 	<ul class="flex gap-2 mt-8">

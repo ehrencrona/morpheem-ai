@@ -1,3 +1,3 @@
-export function dedup(array: string[]) {
+export function dedup<T>(array: T[]) {
 	return [...new Set(array)];
 }

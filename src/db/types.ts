@@ -60,7 +60,7 @@ export type Exercise = z.infer<typeof exerciseSchema>;
 
 export type UserExercise = Exercise & Scoreable;
 
-export type ExerciseSource = 'unstudied' | 'studied' | 'userExercise';
+export type ExerciseSource = 'unstudied' | 'studied' | 'userExercise' | 'related';
 
 export type ScoreableExercise = Exercise &
 	Scoreable & {

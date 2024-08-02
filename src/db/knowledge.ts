@@ -116,7 +116,6 @@ export async function storeTestResult(
 
 export async function transformAggregateKnowledge(
 	{ wordId, userId }: { wordId: number; userId: number },
-
 	transform: (opts: { alpha: number; beta: number | null; lastTime: number } | undefined) => {
 		alpha: number;
 		beta: number | null;

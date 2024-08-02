@@ -462,7 +462,7 @@
 	}
 </script>
 
-<main class="w-[800px] max-w-[95vw]" use:trackActivity>
+<main use:trackActivity>
 	{#if wordsKnown}
 		<a
 			href="{languageCode}/progress"

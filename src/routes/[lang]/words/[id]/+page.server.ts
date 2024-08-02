@@ -21,6 +21,8 @@ import {
 	now
 } from '../../../../logic/isomorphic/knowledge';
 import { AlphaBeta } from '../../../../logic/types';
+import { findRelatedWords } from '../../../../logic/relatedWords';
+import { getWordRelations } from '../../../../db/wordRelations';
 
 export const load: ServerLoad = async ({ params, locals: { language, userId, isAdmin } }) => {
 	const wordId = parseInt(params.id!);
@@ -109,11 +111,13 @@ export const load: ServerLoad = async ({ params, locals: { language, userId, isA
 			})
 		: 0;
 
-	const mnemonic = await getMnemonic({ wordId, userId: userId!, language });
-
-	const translations = (
-		await getAllWordTranslations({ wordId, language, inflected: undefined })
-	).map(({ english }) => english);
+	const [mnemonic, translations, related] = await Promise.all([
+		getMnemonic({ wordId, userId: userId!, language }),
+		getAllWordTranslations({ wordId, language, inflected: undefined }).then((res) =>
+			res.map(({ english }) => english)
+		),
+		getWordRelations(wordId, language)
+	]);
 
 	return {
 		sentences,
@@ -127,6 +131,7 @@ export const load: ServerLoad = async ({ params, locals: { language, userId, isA
 		knowledgeLength: rawKnowledge.length,
 		mnemonic,
 		translations,
+		related,
 		languageCode: language.code,
 		isAdmin
 	};
