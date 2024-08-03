@@ -20,6 +20,8 @@ export async function storeWrittenSentence({
 	userId: number;
 	language: Language;
 }) {
+	console.log(`Storing sentence "${entered}" by user ${userId}.`);
+
 	const wordStrings = toWordStrings(sentenceString, language);
 	const [lemmatized] = await lemmatizeSentences([sentenceString], { language });
 
