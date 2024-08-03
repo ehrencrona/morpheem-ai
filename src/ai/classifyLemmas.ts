@@ -123,7 +123,7 @@ export async function classifyLemmas(
 					` - if the word is an inflection different from the dictionary form, print "inflection".\n` +
 					` - if the word is a name, print "name".\n` +
 					` - if the word cannot be translated to English because it is a purely grammatical feature, print "particle".\n` +
-					` - if it is not a correct word or a swear word or a typo, print "wrong".\n` +
+					` - if it is not a correct word or strong profanity or a typo, print "wrong".\n` +
 					` - otherwise, if the ${language.name} word would look instantly familiar to an ${cognateTo} speaker, print "cognate". ` +
 					`Otherwise, print "other". Do not print anything more. E.g. \n${examples[language.code]}`
 			},
