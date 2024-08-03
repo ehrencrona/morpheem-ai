@@ -40,6 +40,10 @@
 		{
 			name: 'Settings',
 			href: '/settings'
+		},
+		{
+			name: 'Community',
+			href: '/community'
 		}
 	];
 
@@ -88,10 +92,6 @@
 					</ul>
 				</div>
 				<div class="p-4">
-					<a href="mailto:andreas.ehrencrona@velik.it" class="block mb-4 underline text-xs">
-						Contact
-					</a>
-
 					<div class="flex flex-wrap gap-2">
 						{#each languages as language}
 							<a href={`/${language.code}`} class="text-xs p-[3px] rounded bg-gray-1 text-white">
