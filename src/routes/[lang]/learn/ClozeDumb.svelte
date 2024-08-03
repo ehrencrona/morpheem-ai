@@ -67,12 +67,12 @@
 
 	let showTransliteration = getShowTransliteration();
 
-	$: answer = word.conjugatedWord.slice(0, showChars) + (prefix?.trim() || '');
+	$: answer = word.conjugatedWord.slice(0, showChars) + (entered?.trim() || '');
 
-	let prefix: string | null;
+	let entered: string | null;
 
 	function clear() {
-		prefix = null;
+		entered = null;
 	}
 
 	$: if (sentence.id) {
@@ -84,7 +84,7 @@
 		input.focus();
 	});
 
-	$: if (prefix != null || showChars > 0) {
+	$: if (entered != null || showChars > 0) {
 		onType(answer);
 	}
 
@@ -114,7 +114,7 @@
 
 		setTimeout(() => {
 			if (showChars > oldShowChars) {
-				prefix = prefix?.slice(showChars - oldShowChars) || null;
+				entered = entered?.slice(showChars - oldShowChars) || null;
 			}
 		});
 	}
@@ -137,7 +137,7 @@
 									type="text"
 									class="border-b-4 border-b-red bg-blue-1 relative px-1"
 									size={wordString.length - showChars}
-									bind:value={prefix}
+									bind:value={entered}
 									autocapitalize="off"
 									bind:this={input}
 									lang={getLanguageOnClient().code}
@@ -190,9 +190,9 @@
 
 		<div class="mt-8">
 			<div class="text-xs font-lato mb-4 text-gray-1">
-				{#if !prefix}
+				{#if !entered}
 					Find the missing word. Click any words you don't know.
-				{:else if prefix && suggestedWords.words.length == 0 && !isLoadingSuggestions}
+				{:else if entered && suggestedWords.words.length == 0 && !isLoadingSuggestions}
 					Press Submit to check your answer.
 				{:else if isPickingInflection}
 					{#if exercise === 'cloze-inflection'}
@@ -235,8 +235,8 @@
 
 			<SpinnerButton onClick={onTranslate} type="secondary">Translate</SpinnerButton>
 
-			{#if prefix}
-				<SpinnerButton onClick={() => onAnswer(prefix || '')}>Submit</SpinnerButton>
+			{#if entered}
+				<SpinnerButton onClick={() => onAnswer(answer)}>Submit</SpinnerButton>
 			{:else}
 				<SpinnerButton onClick={onReveal}>Reveal</SpinnerButton>
 			{/if}
