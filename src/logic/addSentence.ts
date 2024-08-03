@@ -69,13 +69,9 @@ export async function addSentence(
 ) {
 	let { english, lemmas, language, userId, unit } = opts;
 
-	console.log(
-		`Adding sentence "${sentenceString}" (lemmas: ${lemmas.join(' ')})${userId ? ` by user ${userId}` : ''}...`
-	);
-
 	const words = await getSentenceWords(sentenceString, { lemmas, language, throwOnError: true });
 
-	return dbSentences.addSentence(sentenceString, {
+	const sentence = await dbSentences.addSentence(sentenceString, {
 		english,
 		words,
 		language,
@@ -83,6 +79,12 @@ export async function addSentence(
 		level: calculateSentenceLevel(words),
 		unit
 	});
+
+	console.log(
+		`Adding sentence "${sentenceString}" (ID: ${sentence.id}, lemmas: ${lemmas.join(' ')}${userId ? `, user: ${userId}` : ''})...`
+	);
+
+	return sentence;
 }
 
 export function calculateSentenceLevel(words: { level: number; type: WordType | undefined }[]) {
