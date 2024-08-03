@@ -260,7 +260,7 @@ Vi (vi) skulle (ska) ta (ta) oss (vi) tid (tid)`
 					role: 'system',
 					content: `For every ${language.name} word entered, print it followed by the dictionary form. For any words that are not ${language.name}${
 						language.code == 'ko' ? ' or that are particles' : ''
-					}, just print the word itself. Print nothing else.
+					}, just print the word itself in parenthesis. Print nothing else.
 					Example:
 
 ${examples[language.code]}`
