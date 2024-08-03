@@ -5,7 +5,6 @@ import { Language } from './types';
 export async function generateMnemonic(
 	word: { id: number; word: string },
 	userId: number,
-	languagesSpoken: string,
 	language: Language,
 	forceRegenerate: boolean = false
 ) {
@@ -14,7 +13,7 @@ export async function generateMnemonic(
 		: await getMnemonic({ wordId: word.id, userId, language });
 
 	if (!mnemonic) {
-		mnemonic = await generateMnemonicAi(word.word, languagesSpoken, language);
+		mnemonic = await generateMnemonicAi(word.word, language);
 
 		await setMnemonic({ wordId: word.id, userId, mnemonic, language });
 	}

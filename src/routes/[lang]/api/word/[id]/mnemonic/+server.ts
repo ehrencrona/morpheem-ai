@@ -19,7 +19,7 @@ export const POST: ServerLoad = async ({ params, url, locals }) => {
 
 	return json(
 		generate
-			? await generateMnemonic(word, userId, locals.user!.languages, language, true)
+			? await generateMnemonic(word, userId, language, true)
 			: (await getMnemonic({ wordId, userId, language })) || ''
 	);
 };
