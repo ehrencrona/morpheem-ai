@@ -58,6 +58,7 @@
 	$: languageCode = data.languageCode;
 	$: unit = data.unit;
 	$: units = data.units;
+	$: isAdmin = data.isAdmin;
 
 	let showUnits = false;
 
@@ -281,7 +282,9 @@
 				try {
 					newSentences = await addSentencesForWord(wordId);
 				} catch (e) {
-					logError(`While adding sentences for ${wordId}: ${e}`);
+					if (isAdmin) {
+						logError(`While adding sentences for ${wordId}: ${e}`);
+					}
 				}
 
 				console.log(
@@ -502,7 +505,7 @@
 					Sentence #{current.sentence.id}
 				</div>
 
-				{#if data.isAdmin}
+				{#if isAdmin}
 					<a
 						href={`/${languageCode}/sentences/${current?.sentence.id}/delete`}
 						class="text-gray-1 underline"
