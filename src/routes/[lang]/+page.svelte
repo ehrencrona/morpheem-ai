@@ -182,7 +182,8 @@
 						wordType: undefined,
 						source: 'userExercise' as DB.ExerciseSource
 					}))
-				);
+				)
+				.filter(exerciseFilter);
 
 			exercises = scoreExercises(unscored).filter(filter);
 		}
@@ -303,7 +304,7 @@
 
 			const { sentence } = nextSentence;
 
-			if (exercise == 'write') {
+			if (exercise == 'write' && exerciseFilter({ ...(firstExercise as any), exercise: 'cloze' })) {
 				const wordKnowledge = expectedKnowledge(exercises[0], { now: now(), exercise: 'write' });
 				const sentenceWriteKnowledge = calculateSentenceWriteKnowledge(sentence, knowledge);
 
@@ -328,7 +329,11 @@
 
 			const clozeThreshold = [1, 0.7, 0.4, 0.3, 0.2][getClozePreference() + 2];
 
-			if ((exercise == 'write' || exercise == 'translate') && Math.random() > clozeThreshold) {
+			if (
+				(exercise == 'write' || exercise == 'translate') &&
+				Math.random() > clozeThreshold &&
+				exerciseFilter({ ...(firstExercise as any), exercise: 'cloze' })
+			) {
 				console.log(
 					`Cloze threshold of ${toPercent(clozeThreshold)} exceeded for word ${wordId}, turning into cloze.`
 				);
@@ -521,7 +526,7 @@
 		{/if}
 
 		{#if units.length > 0}
-			<div class="flex justify-end text-gray-1 mb-4">
+			<div class="flex justify-end text-gray-1 mb-4 mt-12 lg:mt-0">
 				<button
 					class="border border-light-gray flex justify-end items-center rounded-md text-xs"
 					on:click={() => (showUnits = true)}
