@@ -137,7 +137,7 @@
 	const onSubmit = async () => {
 		entered = entered.trim();
 
-		if (!entered) {
+		if (!entered || entered.length < 4) {
 			throw new CodedError('Please enter a sentence', 'sentenceMissing');
 		}
 
