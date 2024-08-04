@@ -81,7 +81,7 @@ export async function askMeAnythingRead({
 				? ([
 						{
 							role: 'user',
-							content: `What does the sentence mean?`
+							content: `What is the English translation of the sentence?`
 						},
 						{
 							role: 'assistant',
@@ -95,7 +95,7 @@ export async function askMeAnythingRead({
 						[
 							{
 								role: 'user',
-								content: `What is the etymology of "${word}"?`
+								content: `What does "${word}" mean in the sentence?`
 							},
 							{
 								role: 'assistant',
