@@ -3,11 +3,13 @@
 	import { fetchMnemonic, storeMnemonic } from '../api/word/[id]/mnemonic/client';
 	import type { UnknownWordResponse } from '../api/word/unknown/+server';
 	import EditMnemonic from './EditMnemonic.svelte';
+	import WordCardDialog from './WordCardDialog.svelte';
 	import WordCardDumb from './WordCardDumb.svelte';
 
 	export let onRemove: (() => void) | undefined = undefined;
 
 	export let word: UnknownWordResponse;
+
 	$: inflected = word.inflected;
 	$: english = word.english;
 	$: mnemonic = word.mnemonic;
@@ -28,6 +30,8 @@
 
 		editMnemonic = undefined;
 	}
+
+	let openWordCardDialog: string | undefined;
 </script>
 
 <WordCardDumb
@@ -38,7 +42,15 @@
 	{related}
 	{english}
 	onEditMnemonic={async (word, mnemonic) => (editMnemonic = mnemonic || '')}
+	onSelectRelated={(wordString) => (openWordCardDialog = wordString)}
 />
+
+{#if openWordCardDialog}
+	<WordCardDialog
+		wordString={openWordCardDialog}
+		onClose={async () => (openWordCardDialog = undefined)}
+	/>
+{/if}
 
 {#if editMnemonic != undefined}
 	<EditMnemonic

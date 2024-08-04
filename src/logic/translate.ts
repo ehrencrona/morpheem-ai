@@ -96,7 +96,9 @@ async function getQuickAndDirtyTranslation(word: DB.Word, language: Language, wo
 
 	let translation: QuicklyTranslatedWord | undefined;
 
-	if (translations.length) {
+	translation = translations.find(({ sentence_id }) => sentence_id == null);
+
+	if (!translation && translations.length) {
 		const translationCounts = translations.reduce((acc, { english }) => {
 			acc.set(english, (acc.get(english) || 0) + 1);
 			return acc;
@@ -107,11 +109,11 @@ async function getQuickAndDirtyTranslation(word: DB.Word, language: Language, wo
 		)[0];
 
 		translation = translations.find(({ english }) => english == mostCommonTranslation)!;
+	}
 
-		if (translation) {
-			translation.expression = undefined;
-			translation.isQuickAndDirty = true;
-		}
+	if (translation) {
+		translation.expression = undefined;
+		translation.isQuickAndDirty = true;
 	}
 
 	return translation;

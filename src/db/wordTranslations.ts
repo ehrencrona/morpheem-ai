@@ -45,7 +45,7 @@ export async function getAllWordTranslations({
 	wordId: number;
 	inflected: string | undefined;
 	language: Language;
-}): Promise<TranslatedWord[]> {
+}) {
 	let query = db
 		.withSchema(language.schema)
 		.selectFrom('word_translations')
@@ -96,6 +96,7 @@ function toTranslatedWord(res: {
 		...res,
 		form: res.form || undefined,
 		transliteration: res.transliteration || undefined,
+		inflected: res.inflected || undefined,
 		expression: res.expression
 			? {
 					expression: res.expression,

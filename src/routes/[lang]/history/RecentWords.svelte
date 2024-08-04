@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { addUnknown } from '$lib/addUnknown';
+	import { toPercent } from '$lib/toPercent';
 	import SpinnerButton from '../../../components/SpinnerButton.svelte';
 	import type { AggKnowledgeForUser } from '../../../db/types';
 	import { expectedKnowledge, now } from '../../../logic/isomorphic/knowledge';
@@ -26,8 +27,6 @@
 			knowledge: wordKnowledge
 		};
 	});
-
-	const toPercent = (n: number) => `${(n * 100).toFixed(0)}%`;
 </script>
 
 <div class="grid grid-cols-1 md:grid-cols-2 w-full gap-x-4">

@@ -113,9 +113,7 @@ export const load: ServerLoad = async ({ params, locals: { language, userId, isA
 
 	const [mnemonic, translations, related] = await Promise.all([
 		getMnemonic({ wordId, userId: userId!, language }),
-		getAllWordTranslations({ wordId, language, inflected: undefined }).then((res) =>
-			res.map(({ english }) => english)
-		),
+		getAllWordTranslations({ wordId, language, inflected: undefined }),
 		getWordRelations(wordId, language)
 	]);
 

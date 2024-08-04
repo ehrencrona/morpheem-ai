@@ -106,13 +106,16 @@
 	{#if data.translations.length}
 		<h2 class="font-bold mt-8 mb-2">Translations</h2>
 
-		<ul>
-			{#each data.translations as translation}
-				<li class="my-1">
-					{translation}
-				</li>
+		<div class="grid grid-cols-[auto_1fr] gap-y-1 gap-x-4">
+			{#each data.translations as { inflected, english }}
+				<div>
+					{inflected}
+				</div>
+				<div>
+					{english}
+				</div>
 			{/each}
-		</ul>
+		</div>
 	{/if}
 
 	<h2 class="font-bold mt-8 mb-2">Sentences</h2>
