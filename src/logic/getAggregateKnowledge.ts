@@ -59,7 +59,7 @@ function addRelatedKnowledge(
 				if (!allKnownWordIds.has(wordId) && (upToUnit == null || (unit && unit <= upToUnit))) {
 					const wordKnowledge: AggKnowledgeForUser = {
 						alpha: 0.5 * alpha,
-						beta: 0.25 * alpha,
+						beta: null,
 						wordId,
 						level,
 						wordType,
