@@ -5,11 +5,15 @@ export function exerciseToString(e: DB.Exercise | DB.UserExercise) {
 	const n = now();
 
 	return (
-		`${e.exercise}${e.id != null ? ` (${e.id})` : ''}${'word' in e ? ` ${e.word} (${e.wordId})` : ''}${e.sentenceId != -1 ? `, sentence ${e.sentenceId}` : ''}${'score' in e ? `, score ${Math.round((e.score as number) * 100)}%` : ''}` +
+		`${e.exercise}${e.id != null ? ` (${e.id})` : ''}${
+			'word' in e ? ` ${e.word} (${e.wordId})` : ''
+		}${e.sentenceId != -1 ? `, sentence ${e.sentenceId}` : ''}${
+			'score' in e ? `, score ${Math.round((e.score as number) * 100)}%` : ''
+		}${'wordType' in e && e.wordType ? `, word type ${e.wordType}` : ''}` +
 		(isUserExercise(e)
 			? `, age ${n - e.lastTime}, knowledge ${Math.round(
 					100 * expectedKnowledge(e, { now: n, exercise: e.exercise })
-				)}% level ${e.level})`
+				)}% level ${e.level}`
 			: '')
 	);
 }

@@ -1,9 +1,8 @@
 import { getPastDue, getReadPreference, getRepetitionTime } from '$lib/settings';
+import * as DB from '../../db/types';
 import { AggKnowledgeForUser, ExerciseSource, Scoreable } from '../../db/types';
 import type { CandidateSentenceWithWords, ExerciseType } from '../types';
-import { expectedKnowledge, calculateRepetitionValue, now } from './knowledge';
-import * as DB from '../../db/types';
-import { isAlphaExercise, isBetaExercise } from '../../db/knowledgeTypes';
+import { calculateRepetitionValue, expectedKnowledge, now } from './knowledge';
 
 export function getExerciseForKnowledge(knowledge: AggKnowledgeForUser[]) {
 	return getExercisesForKnowledge(knowledge)[0];

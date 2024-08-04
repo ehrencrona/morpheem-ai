@@ -199,19 +199,9 @@
 					exercises
 						.filter((s) => s.source == source)
 						.slice(0, 6)
-						.map((e, j) => `${j + 1}. ${exerciseToString(e)})`)
+						.map((e, j) => `${j + 1}. ${exerciseToString(e)}`)
 						.join(`\n`)
 			);
-		}
-
-		if (!exercises.some(({ source }) => source == 'unstudied')) {
-			// We only load a fixed number of unstudied words; if you exhaust those,
-			// we need to load more.
-			console.log(`No unstudied words found; reloading knowledge...`);
-
-			fetchAggregateKnowledge()
-				.then((got) => (knowledge = got))
-				.catch(logError);
 		}
 
 		const isRelevant = (e: { score: number }) => e.score > 0.02;
@@ -371,6 +361,18 @@
 
 	async function showNextSentence() {
 		try {
+			if (!knowledge.some(({ source }) => source == 'unstudied')) {
+				// We only load a fixed number of unstudied words; if you exhaust those,
+				// we need to load more.
+				console.log(`No unstudied words found; reloading knowledge...`);
+
+				console.log(new Error().stack);
+
+				fetchAggregateKnowledge()
+					.then((got) => (knowledge = got))
+					.catch(logError);
+			}
+
 			const next = await (nextPromise ||
 				getNextExercise({
 					excludeSentenceId: current?.sentence.id || undefined,

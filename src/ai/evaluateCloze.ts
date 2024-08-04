@@ -35,7 +35,10 @@ export async function evaluateCloze(
 						: `First consider if the answer given is grammatically correct and fits the hint. ` +
 							(language.code == 'ko'
 								? `I might have used a different formality level than expected; that is fine if it still works in the context. `
-								: '') +
+								: ['es', 'ru', 'pl'].includes(language.code)
+									? // this is for cloze with a verb where the pronoun is missing in the hint
+										'I might for example have assumed a different subject when filling in a verb.'
+									: '') +
 							`If my answer is incorrect, determine if the problem is grammatical agreement, spelling or wrong meaning. ` +
 							`If it is grammatical agreement, explain which form I chose, the correct form and why the correct one should be preferred. Use grammatical terminology. ` +
 							`If it is wrong meaning, explain the meaning of the word I chose. Return the explanation in "evaluation".

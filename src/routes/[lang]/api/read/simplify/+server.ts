@@ -9,6 +9,7 @@ import { expectedKnowledge, now } from '../../../../../logic/isomorphic/knowledg
 import { toWordStrings } from '../../../../../logic/toWordStrings';
 import { Language } from '../../../../../logic/types';
 import { toSentences } from '../../../../../logic/toSentences';
+import { dedup, dedupWords } from '$lib/dedup';
 
 const postSchema = z.object({
 	text: z.string()
@@ -38,7 +39,7 @@ async function getHardWordsInSentences(
 ) {
 	let hardWords: string[] = [];
 
-	const words = dedup(
+	const words = dedupWords(
 		(
 			await Promise.all(
 				sentences.map(async (sentence) => {
@@ -73,37 +74,9 @@ async function getHardWordsInSentences(
 		}
 	});
 
-	return dedupStrings(hardWords);
+	return dedup(hardWords);
 }
 
 function isCapitalized(word: string) {
 	return word[0] == word[0].toUpperCase();
-}
-
-function dedup(words: DB.Word[]) {
-	const wordIds = new Set<number>();
-
-	return words.filter((word) => {
-		if (wordIds.has(word.id)) {
-			return false;
-		}
-
-		wordIds.add(word.id);
-
-		return true;
-	});
-}
-
-function dedupStrings(words: string[]) {
-	const wordIds = new Set<string>();
-
-	return words.filter((word) => {
-		if (wordIds.has(word)) {
-			return false;
-		}
-
-		wordIds.add(word);
-
-		return true;
-	});
 }

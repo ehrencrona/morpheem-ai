@@ -1,4 +1,4 @@
-import { dedup } from '$lib/dedup';
+import { dedup, dedupWords } from '$lib/dedup';
 import { filterUndefineds } from '$lib/filterUndefineds';
 import { Language } from '../logic/types';
 import { db } from './client';
@@ -8,10 +8,11 @@ import { toWord } from './words';
 /** undefined means "not set". empty array means set but empty. */
 export async function getWordRelations(
 	wordId: number,
-	language: Language
+	language: Language,
+	includeReverse = false
 ): Promise<Word[] | undefined> {
-	const words = (
-		await db
+	const [words, reverseWords] = await Promise.all([
+		db
 			.withSchema(language.code)
 			.selectFrom('word_relations')
 			// preserve null values
@@ -19,13 +20,36 @@ export async function getWordRelations(
 			.select(['word', 'id', 'level', 'type', 'unit'])
 			.where('word_id', '=', wordId)
 			.execute()
-	).map(({ id, level, word, type, unit }) =>
-		id != null && level != null && word != null
-			? toWord({ id, level, word, type, unit })
+			.then((res) =>
+				res.map(({ id, level, word, type, unit }) =>
+					id != null && level != null && word != null
+						? toWord({ id, level, word, type, unit })
+						: undefined
+				)
+			),
+		includeReverse
+			? db
+					.withSchema(language.code)
+					.selectFrom('word_relations')
+					.innerJoin('words', 'word_id', 'id')
+					.select(['word', 'id', 'level', 'type', 'unit'])
+					.where('related_word_id', '=', wordId)
+					.execute()
+					.then((res) =>
+						res.map(({ id, level, word, type, unit }) =>
+							id != null && level != null && word != null
+								? toWord({ id, level, word, type, unit })
+								: undefined
+						)
+					)
 			: undefined
-	);
+	]);
 
-	const realWords = filterUndefineds(words);
+	let realWords = filterUndefineds(words);
+
+	if (includeReverse && reverseWords) {
+		realWords = dedupWords([...realWords, ...filterUndefineds(reverseWords)]);
+	}
 
 	if (realWords.length == 0) {
 		// a single null value indicates that the word has no relations

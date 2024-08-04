@@ -1,11 +1,11 @@
 <script lang="ts">
-	import type * as DB from '../../../db/types';
-	import SpinnerButton from '../../../components/SpinnerButton.svelte';
-	import { getLanguageOnClient } from '../api/api-call';
 	import { getShowTransliteration } from '$lib/settings';
 	import CloseSvg from '../../../components/CloseSvg.svelte';
-	import type { UnknownWordResponse } from '../api/word/unknown/+server';
 	import EditSvg from '../../../components/EditSvg.svelte';
+	import SpinnerButton from '../../../components/SpinnerButton.svelte';
+	import type * as DB from '../../../db/types';
+	import { getLanguageOnClient } from '../api/api-call';
+	import type { UnknownWordResponse } from '../api/word/unknown/+server';
 
 	export let word: UnknownWordResponse;
 	export let inflected: string | undefined = undefined;
@@ -78,7 +78,7 @@
 			<div class="text-xs font-lato mt-2">
 				{#if related?.length}
 					<div class="font-sans mb-2">
-						{#each related as wordString, i}
+						{#each related.slice(0, 6) as wordString, i}
 							{#if i > 0},{/if}
 							{#if onSelectRelated}
 								<button class="inline-block underline" on:click={() => onSelectRelated(wordString)}>
@@ -88,6 +88,10 @@
 								{wordString}
 							{/if}
 						{/each}
+
+						{#if related.length>6}
+						...
+						{/if}
 					</div>
 				{/if}
 

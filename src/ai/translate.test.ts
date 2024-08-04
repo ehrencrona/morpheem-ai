@@ -21,6 +21,9 @@ it('translates sentences', async () => {
 // W miejscu pracy stosuj odpowiednie środki ochrony.
 // "apply" or "use"
 
+// Para que lo sepas, no voy a ir a la fiesta.
+// para should probably be "so"
+
 it('handles expressions', async () => {
 	const res = await translateWordInContext(
 		'wrażenie',

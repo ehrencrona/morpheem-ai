@@ -93,7 +93,7 @@ export const POST: ServerLoad = async ({ request, url, locals }) => {
 	const [mnemonic, related] = await Promise.all([
 		getMnemonic({ wordId: word.id, userId, language }),
 		// don't trigger generation related words; just fetch them if available
-		getWordRelations(word.id, language)
+		getWordRelations(word.id, language, true)
 	]);
 
 	console.log(
