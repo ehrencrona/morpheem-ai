@@ -9,8 +9,8 @@
 <div class="flex font-lato">
 	<Menu></Menu>
 
-	<div class="flex flex-1 align-center justify-center p-4 pb-[170px]">
-		<div class="{isWide ? `` : `w-full lg:w-[800px] max-w-[100vw] lg:max-w-[95vw]`}">
+	<div class="flex flex-1 align-center justify-center pb-[170px] max-w-[100vw]">
+		<div class="{isWide ? `` : `w-full lg:w-[800px] p-4`}">
 			<slot />
 		</div>
 	</div>
