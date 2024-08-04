@@ -66,7 +66,8 @@ const forcedLemmas: Record<LanguageCode, Record<string, string>> = {
 // renames the output of the llm
 const renamedLemmas: Record<LanguageCode, Record<string, string>> = {
 	ru: {
-		все: 'всё'
+		все: 'всё',
+		ребенок: 'ребёнок'
 	},
 	sv: {},
 	ko: {},
