@@ -39,7 +39,7 @@ export async function evaluateWrite(
 						: exercise.exercise == 'writer'
 							? `is doing a writing exercise. `
 							: `has been asked to translate a sentence as an exercise. The expected answer is "${exercise.correct}" `) +
-					`Correct the user's answer so that it grammatically correct, idiomatic and conveys the intended meaning.
+					`Correct the user's answer so that it grammatically correct and conveys the intended meaning.
 					Also replace any proper nouns (e.g. iPhone, McDonalds) with generic terms.
 					${
 						exercise.exercise == 'translate'
