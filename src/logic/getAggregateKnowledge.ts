@@ -56,7 +56,13 @@ function addRelatedKnowledge(
 
 		if (relateds) {
 			for (const { id: wordId, level, type: wordType, word, unit } of relateds) {
-				if (!allKnownWordIds.has(wordId) && (upToUnit == null || (unit && unit <= upToUnit))) {
+				// have a limit for alpha so that we don't deluge the user with similar words all at once;
+				// wait until the first form is learned before adding confusion
+				if (
+					alpha > 0.7 &&
+					!allKnownWordIds.has(wordId) &&
+					(upToUnit == null || (unit && unit <= upToUnit))
+				) {
 					const wordKnowledge: AggKnowledgeForUser = {
 						alpha: 0.5 * alpha,
 						beta: null,
