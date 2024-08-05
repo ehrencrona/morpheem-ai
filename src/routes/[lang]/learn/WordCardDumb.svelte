@@ -24,7 +24,6 @@
 	$: expression = word.expression;
 
 	export let onEditMnemonic: ((word: DB.Word, mnemonic?: string) => Promise<any>) | undefined;
-	export let onMarkAsKnown: ((word:DB.Word) => void) | undefined;
 
 	$: showLemma = inflected && (word.word !== inflected || form);
 </script>
