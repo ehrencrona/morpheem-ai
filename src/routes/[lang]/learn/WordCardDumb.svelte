@@ -81,7 +81,7 @@
 						{#each related.slice(0, 6) as wordString, i}
 							{#if i > 0},{/if}
 							{#if onSelectRelated}
-								<button class="inline-block underline" on:click={() => onSelectRelated(wordString)}>
+								<button type="button" class="inline-block underline" on:click={() => onSelectRelated(wordString)}>
 									{wordString}
 								</button>
 							{:else}
