@@ -1,11 +1,11 @@
 import { toBatches } from '$lib/batch';
 import { findRelatedWordsForMany } from '../ai/relatedWords';
-import { POLISH } from '../constants';
+import { POLISH, SPANISH, SWEDISH } from '../constants';
 import { db } from '../db/client';
 import { addWordRelations } from '../db/wordRelations';
 import { getMultipleWordsByLemmas } from '../db/words';
 
-const language = POLISH;
+const language = SPANISH;
 
 const words = await db
 	.withSchema(language.schema)
@@ -17,7 +17,7 @@ const words = await db
 	.groupBy('words.id')
 	.execute();
 
-for (const batch of toBatches(words, 20).slice(29)) {
+for (const batch of toBatches(words, 20)) {
 	const related = await findRelatedWordsForMany(
 		batch.map((w) => w.word),
 		language

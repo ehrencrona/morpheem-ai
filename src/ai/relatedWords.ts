@@ -18,7 +18,7 @@ export async function findRelatedWords(lemma: string, language: Language) {
 			messages: [
 				{
 					role: 'user',
-					content: `Give me other ${language.name} dictionary words that have (only) the same root as "${lemma}". Example: ${examples[language.code]} Only dictionary terms, no inflections.
+					content: `Give me other ${language.name} dictionary words that have (only) the same root as "${lemma}" and also have a similar meaning. Example: ${examples[language.code]} Only dictionary terms, no inflections.
 
 There might be none. If in doubt, exclude the word. Output only the list of words as a JSON in the form { words: string[] }.`
 				}
@@ -39,7 +39,7 @@ export async function findRelatedWordsForMany(lemmas: string[], language: Langua
 			messages: [
 				{
 					role: 'user',
-					content: `Give me other ${language.name} dictionary words that have (only) the same root as the following words. Example: ${examples[language.code]} Only dictionary terms, no inflections.
+					content: `Give me other ${language.name} dictionary words that have (only) the same root as the following words and also have a similar meaning. Example: ${examples[language.code]} Only dictionary terms, no inflections.
 
 There might be none. If in doubt, exclude the word. Output only the list of words as a JSON in the form { words: { word: string, sameRoot: string[] }[] }.
 
