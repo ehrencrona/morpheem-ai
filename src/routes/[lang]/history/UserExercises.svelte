@@ -1,8 +1,7 @@
 <script lang="ts">
-	import { number } from 'zod';
+	import CloseSvg from '../../../components/CloseSvg.svelte';
 	import SpinnerButton from '../../../components/SpinnerButton.svelte';
 	import type { Sentence, UserExercise } from '../../../db/types';
-	import { getLanguageOnClient } from '../api/api-call';
 	import { deleteUserExercise } from '../api/user-exercises/[id]/client';
 
 	export let exercises: (UserExercise & { sentence: Sentence; timeAgo: string; id: number })[];
@@ -31,9 +30,7 @@
 	most recently created ones.
 </p>
 
-<div
-	class="grid gap-3 items-baseline grid-cols-[auto_1fr_auto] md:grid-cols-[1fr_auto] text-base mb-4"
->
+<div class="grid gap-3 items-center grid-cols-[1fr_auto] md:grid-cols-[1fr_auto] text-base mb-4">
 	{#each showAll ? exercises : exercises.slice(0, 6) as exercise}
 		<div
 			on:click={() => toggleExercise(exercise.id)}
@@ -49,12 +46,8 @@
 		</div>
 
 		<div>
-			<button
-				type="button"
-				class="text-red border p-[0px_3px] text-xs rounded-sm"
-				on:click={() => deleteExercise(exercise.id)}
-			>
-				Delete
+			<button type="button" class="bg-red p-1" on:click={() => deleteExercise(exercise.id)}>
+				<CloseSvg />
 			</button>
 		</div>
 	{/each}
