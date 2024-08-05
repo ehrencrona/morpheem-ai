@@ -1,8 +1,18 @@
-import { ServerLoad, json } from '@sveltejs/kit';
+import { ServerLoad, error, json } from '@sveltejs/kit';
 import { z } from 'zod';
 import { askMeAnythingRead, askMeAnythingWrite } from '../../../../../ai/askMeAnything';
+import { languages } from '../../../../../constants';
+import { logError } from '$lib/logError';
 
 export type PostSchema = z.infer<typeof postSchema>;
+
+let requestsByUser: Record<
+	number,
+	{
+		since: number;
+		count: number;
+	}
+> = {};
 
 const postSchema = z
 	.object({
@@ -26,22 +36,43 @@ const postSchema = z
 		})
 	);
 
-export const POST: ServerLoad = async ({ request, locals }) => {
+export const POST: ServerLoad = async ({ request, locals: { language, userId } }) => {
 	const params = postSchema.parse(await request.json());
 	const { exercise } = params;
+
+	if (!userId) {
+		return error(401, 'Unauthorized');
+	}
+
+	let count = requestsByUser[userId];
+
+	if (!count || count.since < Date.now() - 5 * 60 * 1000) {
+		count = { since: Date.now(), count: 1 };
+		requestsByUser[userId] = count;
+	} else {
+		count.count++;
+
+		if (count.count > 30) {
+			await new Promise((resolve) => setTimeout(resolve, 1000 + Math.random() * 2000));
+
+			logError(`User ${userId} hit AMA rate limit.`);
+
+			return `Server overloaded, please try again later`;
+		}
+	}
 
 	if (exercise === 'write' || exercise === 'translate') {
 		return json(
 			await askMeAnythingWrite({
 				...params,
-				language: locals.language
+				language
 			})
 		);
 	} else if (exercise === 'read' || exercise === 'cloze') {
 		return json(
 			await askMeAnythingRead({
 				...params,
-				language: locals.language
+				language
 			})
 		);
 	} else {
