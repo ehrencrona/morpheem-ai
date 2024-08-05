@@ -44,6 +44,7 @@ const forcedLemmas: Record<LanguageCode, Record<string, string>> = {
 		del: 'de',
 		un: 'uno',
 		una: 'uno',
+		la: 'el',
 		// indirect object pronoun
 		mí: 'mí',
 		ti: 'ti',
