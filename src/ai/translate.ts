@@ -33,7 +33,7 @@ export async function translateWordOutOfContext(wordString: string, language: La
 			{
 				role: 'user',
 				content:
-					`Print the English dictionary definition of the ${language.name} word "${wordString}"? Print only the definition itself. No initial capital, no final period.\n` +
+					`Print the English translation of the ${language.name} "${wordString}" in the style of bilingual dictionary entry. Print only the entry itself; no introduction. No initial capital, no final period, do not repeat the word itself.\n` +
 					`On a second line, provide the form of the word in the sentence e.g. ${formExamples[language.code]}.` +
 					(!language.isLatin
 						? `\nOn a second line, provide the transliteration in Latin script.${transliterationInstructions[language.code] || ''}`
