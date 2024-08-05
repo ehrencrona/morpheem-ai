@@ -222,11 +222,13 @@ becomes
 
 Het (het) zijn (zijn) onze (ons) boekjes (boek)
 		`,
-		ru: `Как дела?
+		ru:
+			/* including a perfective verb, a past participle and an adverb (sometimes get seen as a form of adjectives)  */
+			`Он быстро попил воды из купленного им стакана
 
 becomes
 
-Как (как) дела (дело)`,
+Он (он) быстро (быстро) попил (попить) воды (вода) из (из) купленного (купить) им (он) стакана (стакан)`,
 		sv: `Use modern Swedish, not verbs like "skola" or "bliva" (use "ska", "bli"). Use "en" as the dictionary form of "ett".
 
 Ge mig hellre det
