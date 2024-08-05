@@ -7,22 +7,19 @@ export function getCorrectedParts(sentence: string, corrected: string[]) {
 		for (let i = parts.length - 1; i >= 0; i--) {
 			const part = parts[i];
 
-			let index = part.part.match(
+			let match = part.part.match(
 				new RegExp(
 					// match on word boundary
-					`\\b${correctedString.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')}\\b`
+					`(?:^|[\\s\\p{P}])${correctedString.replace(/[\/\\^$*+?.()|[\]{}]/g, '\\$&')}(?:[\\s\\p{P}]|$)`,
+					'u'
 				)
-			)?.index;
+			);
 
-			if (index == undefined) {
-				index = part.part.indexOf(correctedString);
+			if (!part.isCorrected && match != undefined) {
+				let j = match[0].indexOf(correctedString);
 
-				if (index < 0) {
-					index = undefined;
-				}
-			}
+				const index = match.index! + j;
 
-			if (!part.isCorrected && index != undefined) {
 				parts.splice(
 					i,
 					1,
