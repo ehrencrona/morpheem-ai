@@ -1,7 +1,7 @@
 import type { ServerLoad } from '@sveltejs/kit';
 import { getWords } from '../../../db/words';
 
-export const load = (async ({ locals: { language } }) => {
+export const load: ServerLoad = async ({ locals: { language, isAdmin } }) => {
 	return {
 		languageCode: language.code,
 		words: (
@@ -10,6 +10,7 @@ export const load = (async ({ locals: { language } }) => {
 				language,
 				limit: 200
 			})
-		).map((w) => w.word)
+		).map((w) => w.word),
+		isAdmin
 	};
-}) satisfies ServerLoad;
+};

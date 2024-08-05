@@ -255,6 +255,8 @@ export async function addWords(wordStrings: string[], language: Language) {
 		throw new Error('No words to add');
 	}
 
+	wordStrings = wordStrings.map((w) => w.trim()).filter((w) => !!w);
+
 	const lemmaTypes = await classifyLemmas(wordStrings, { language, throwOnInvalid: false });
 
 	return filterUndefineds(

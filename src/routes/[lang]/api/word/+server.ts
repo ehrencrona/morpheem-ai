@@ -1,9 +1,29 @@
-import { json, type ServerLoad } from '@sveltejs/kit';
+import { error, json, type ServerLoad } from '@sveltejs/kit';
 import { z } from 'zod';
-import { getMultipleWordsByIds } from '../../../../db/words';
+import { Word } from '../../../../db/types';
+import { getMultipleWordsByLemmas } from '../../../../db/words';
+import { addWords } from '../../../../logic/generateExampleSentences';
 
-export const POST: ServerLoad = async ({ request, locals: { userId, language } }) => {
-	let wordIds = z.array(z.number()).parse(await request.json());
+const postSchema = z.array(z.string());
 
-	return json(await getMultipleWordsByIds(wordIds, language));
+export type PostSchema = z.infer<typeof postSchema>;
+
+export type ResultSchema = Word[];
+
+export const POST: ServerLoad = async ({ request, locals: { userId, language, isAdmin } }) => {
+	if (!isAdmin) {
+		return error(403, 'Forbidden');
+	}
+
+	let wordStrings = postSchema.parse(await request.json());
+
+	const existingWords = await getMultipleWordsByLemmas(wordStrings, language);
+
+	wordStrings = wordStrings.filter(
+		(wordString) => !existingWords.some((word) => word.word == wordString)
+	);
+
+	const res = await addWords(wordStrings, language);
+
+	return json(res satisfies ResultSchema);
 };

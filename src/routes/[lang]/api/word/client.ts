@@ -1,9 +1,9 @@
 import { apiCall } from '../api-call';
-import * as DB from '../../../../db/types';
+import { PostSchema, ResultSchema } from './+server';
 
-export async function fetchMultipleWordsByIds(wordIds: number[]): Promise<DB.Word[]> {
+export async function sendWords(lemmas: string[]): Promise<ResultSchema> {
 	return apiCall(`/api/word`, {
 		method: 'POST',
-		body: JSON.stringify(wordIds)
+		body: JSON.stringify(lemmas satisfies PostSchema)
 	});
 }

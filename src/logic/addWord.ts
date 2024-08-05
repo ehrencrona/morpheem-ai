@@ -1,18 +1,17 @@
 import { CodedError } from '../CodedError';
 import { classifyLemmas } from '../ai/classifyLemmas';
+import { addWordToLemma } from '../db/lemmas';
+import { WordType } from '../db/types';
+import * as words from '../db/words';
 import { getWordByLemma } from '../db/words';
+import { standardize } from './isomorphic/standardize';
 import { lemmatizeSentences } from './lemmatize';
 import { Language } from './types';
-import * as words from '../db/words';
-import { WordType } from '../db/types';
-import { addWordToLemma } from '../db/lemmas';
-import { standardize } from './isomorphic/standardize';
 
 export async function addWord(
 	wordString: string,
 	{
 		language,
-		retriesLeft = 1,
 		temperature,
 		lemma
 	}: { language: Language; retriesLeft?: number; temperature?: number; lemma?: string }
@@ -38,15 +37,7 @@ export async function addWord(
 			const { type } = (await classifyLemmas([lemma], { language, throwOnInvalid: false }))[0];
 
 			if (type == 'inflection' || type == 'wrong') {
-				console.log(
-					`Lemma "${lemma}" of word "${wordString}" is classified as "${type}".` +
-						(retriesLeft ? ' Retrying...' : '')
-				);
-
-				if (retriesLeft) {
-					return addWord(wordString, { language, retriesLeft: retriesLeft - 1, temperature: 1 });
-				} else {
-				}
+				console.log(`Lemma "${lemma}" of word "${wordString}" is classified as "${type}".`);
 			}
 
 			const word = await words.addWord(lemma, {

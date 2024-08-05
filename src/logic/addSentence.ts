@@ -189,7 +189,7 @@ export async function getSentencesWords(
 					zip(lemmaTypes, missingWords)
 						.filter(([{ type }, word]) => {
 							if (['inflection', 'wrong'].includes(type || '')) {
-								handleError(`Skipping word ${word} because it is an inflection or wrong`);
+								handleError(`Skipping ${language.name} word "${word}" because it is ${type}`);
 
 								lemmas = lemmas.map((lemmas) => (lemmas.includes(word) ? [] : lemmas));
 
