@@ -24,15 +24,12 @@
 	$: expression = word.expression;
 
 	export let onEditMnemonic: ((word: DB.Word, mnemonic?: string) => Promise<any>) | undefined;
+	export let onMarkAsKnown: ((word:DB.Word) => void) | undefined;
 
 	$: showLemma = inflected && (word.word !== inflected || form);
 </script>
 
-<div
-	class="bg-light-gray rounded-md w-full border border-gray md:max-w-[500px] {addBottomMargin
-		? 'mb-4'
-		: ''}"
->
+<div class="w-full md:max-w-[600px] {addBottomMargin ? 'mb-4' : ''}">
 	<div class="font-medium flex bg-blue-3 text-[#fff] px-3 py-2 rounded-t-md items-baseline">
 		<a
 			href="https://en.wiktionary.org/wiki/{word.word}#{getLanguageOnClient().name}"
@@ -62,7 +59,7 @@
 		{/if}
 	</div>
 
-	<div class="px-3 pt-1 pb-3">
+	<div class="bg-light-gray rounded-b-md px-3 pt-1 pb-3">
 		{#if english}
 			<div class="text-balance font-lato mt-2">
 				{english}{#if word.type == 'name'}
@@ -81,7 +78,11 @@
 						{#each related.slice(0, 6) as wordString, i}
 							{#if i > 0},{/if}
 							{#if onSelectRelated}
-								<button type="button" class="inline-block underline" on:click={() => onSelectRelated(wordString)}>
+								<button
+									type="button"
+									class="inline-block underline"
+									on:click={() => onSelectRelated(wordString)}
+								>
 									{wordString}
 								</button>
 							{:else}
@@ -89,8 +90,8 @@
 							{/if}
 						{/each}
 
-						{#if related.length>6}
-						...
+						{#if related.length > 6}
+							...
 						{/if}
 					</div>
 				{/if}
@@ -123,7 +124,7 @@
 </div>
 
 {#if expression}
-	<div class="bg-light-gray rounded-md w-full border border-gray md:max-w-[500px] mb-4">
+	<div class="w-full md:max-w-[600px] mb-4">
 		<div class="font-medium mb-1 flex bg-blue-3 text-[#fff] px-3 py-2 rounded-t-md items-baseline">
 			<span class="text-base flex-1 font-sans">
 				{expression.expression}
@@ -140,7 +141,7 @@
 			{/if}
 		</div>
 
-		<div class="px-3 pb-3">
+		<div class="bg-light-gray rounded-b-md px-3 pb-3">
 			<div class="text-balance font-lato mt-2">
 				{expression.english}
 			</div>
