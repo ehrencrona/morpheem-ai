@@ -24,13 +24,6 @@ export async function generateCloze(
 	const res = await generateClozeAi(skill, { numberOfExercises: noOfExercises, language });
 
 	const clozes = res.exercises.filter((exercise) => {
-		if (!exercise.isCorrect) {
-			// TODO: if this never happens we can remove the check
-			console.warn(`Found an incorrect exercise: ${exercise.cloze}`);
-
-			return false;
-		}
-
 		if (!exercise.cloze.match(/\b_+\b/g)) {
 			logError(`Cloze does not contain a placeholder: ${exercise.cloze}`);
 
