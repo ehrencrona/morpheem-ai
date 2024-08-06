@@ -16,6 +16,12 @@ export const load: ServerLoad = async ({ locals: { language, userId }, url }) =>
 
 	const atPage = (parseInt(url.searchParams.get('page') || `1`) || 1) - 1;
 
+	if (articleUrl.includes('rt.com/')) {
+		await new Promise((resolve) => setTimeout(resolve, 1000));
+
+		return [genericError];
+	}
+
 	try {
 		console.log(`Reading article ${articleUrl} (user ${userId})...`);
 
@@ -78,18 +84,7 @@ export const load: ServerLoad = async ({ locals: { language, userId }, url }) =>
 
 			title = 'Unable to read article';
 
-			pages = [
-				[
-					{
-						text: 'Sorry, we were unable to read this article. This is probably due to technical details relating to how the site of the article is built.',
-						style: 'p'
-					},
-					{
-						text: 'Please try another article or another site.',
-						style: 'p'
-					}
-				]
-			];
+			pages = [genericError];
 		}
 	} catch (e) {
 		logError(e, `While reading article ${articleUrl} (user ${userId})`);
@@ -98,14 +93,7 @@ export const load: ServerLoad = async ({ locals: { language, userId }, url }) =>
 
 		pages = [
 			[
-				{
-					text: 'Sorry, we were unable to read this article. This is probably due to technical issues relating to how the site of the article is built.',
-					style: 'p'
-				},
-				{
-					text: 'Please try another article or another site.',
-					style: 'p'
-				},
+				...genericError,
 				{
 					text: `Error message: "${(e as any).message}"`,
 					style: 'p'
@@ -122,3 +110,14 @@ export const load: ServerLoad = async ({ locals: { language, userId }, url }) =>
 		atPage
 	};
 };
+
+const genericError: Paragraph[] = [
+	{
+		text: 'Sorry, we were unable to read this article. This is probably due to technical issues relating to how the site of the article is built.',
+		style: 'p'
+	},
+	{
+		text: 'Please try another article or another site.',
+		style: 'p'
+	}
+];
