@@ -8,6 +8,8 @@
 	import { onMount } from 'svelte';
 	import { CodedError } from '../../CodedError';
 	import ErrorMessage from '../../components/ErrorMessage.svelte';
+	import FlagSvg from '../../components/FlagSvg.svelte';
+	import ReportDialog from '../../components/ReportDialog.svelte';
 	import SpinnerButton from '../../components/SpinnerButton.svelte';
 	import UnitDialog from '../../components/UnitDialog.svelte';
 	import type * as DB from '../../db/types';
@@ -46,15 +48,12 @@
 	import ReadSentence from './learn/ReadSentence.svelte';
 	import { trackActivity } from './learn/trackActivity';
 	import WriteSentence from './learn/WriteSentence.svelte';
-	import FlagSvg from '../../components/FlagSvg.svelte';
-	import ReportDialog from '../../components/ReportDialog.svelte';
-	import Tutorial from '../../components/Tutorial.svelte';
 
 	export let data: PageData;
 
 	let isReportOpen = false;
 
-	$: userExercises = data.userExercises;
+	$: userExercises = data.userExercises as DB.UserExercise[];
 	$: languageCode = data.languageCode;
 	$: unit = data.unit;
 	$: units = data.units;
