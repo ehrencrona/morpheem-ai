@@ -28,7 +28,7 @@ breaks down to
 
 breaks down to
 
-[["mañana", "Tomorrow"], ["vamos a intentar", "we're going to try"], ["resolver ese problema", "to solve that problem"]]
+[["mañana", "Tomorrow"], ["vamos a intentar", "we're going to try"], ["resolver", "to solve"], ["ese problema", "that problem"]]
   `,
 	ko: `"오래된 사진첩을 보면서 추억에 잠겼다."
 "I got lost in memories while looking at an old photo album."
@@ -45,10 +45,11 @@ breaks down to
 [["Ik heb", "I have"], ["het boek", "the book"], ["dat je me gaf", "you gave me"], ["nog steeds niet gelezen", "still haven't read"]]
 `,
 	ru: `"Он сказал, что завтра будет дождь."
+"He said that there will be rain tomorrow."
 
 breaks down to
 
-[˝["Он сказал", "He said"], ["что", "that"], ["завтра", "tomorrow"], ["будет дождь", "will be rain"]]
+[˝["Он сказал", "He said"], ["что", "that"], ["завтра", "tomorrow"], ["будет дождь", "there will be rain"]]
 `,
 	sv: `"Ny lagstiftning trädde i kraft den 1 januari."
 

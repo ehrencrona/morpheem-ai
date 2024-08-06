@@ -675,12 +675,5 @@
 		</div>
 	{/if}
 
-	<Tutorial
-		paragraphs={[
-			`On Aug 2nd, vocabulary estimates increased due to words closely related to those you know also being counted.`
-		]}
-		id="related-words"
-	/>
-
 	<ErrorMessage />
 </main>
