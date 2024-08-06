@@ -68,8 +68,6 @@
 		const timer = setTimeout(() => (isLoadingUnknown = true), 100);
 
 		try {
-			await new Promise((resolve) => setTimeout(resolve, 1000));
-
 			await onUnknown(wordString);
 		} catch (e) {
 			logError(e);
@@ -91,7 +89,16 @@
 								? 'text-green'
 								: evaluation.outcome == 'typo'
 									? 'text-orange'
-									: 'text-red'}>{evaluation.correctedAlternate || phrase}</span
+									: 'text-red'}
+							>{#each toWordsWithSeparators(evaluation.correctedAlternate || phrase, language) as word, index}{#if isSeparator(word)}{word}{:else}<span
+										style="cursor: pointer"
+										role="button"
+										tabindex={index}
+										class={unknown.find((r) => (r.inflected || r.word) == word)
+											? 'border-b-2 border-green border-dotted'
+											: 'hover:underline decoration-green'}
+										on:click|preventDefault={() => onClickedWord(word)}>{word}</span
+									>{/if}{/each}</span
 						>
 					{:else}
 						<div class="inline-flex flex-col -mb-1">
@@ -138,30 +145,7 @@
 		</div>
 	{/if}
 
-	{#if !evaluation}
-		{#if unknown.length > 0 || isLoadingUnknown}
-			<div class="grid grid-cols-1 md:grid-cols-2 w-full gap-x-4 mt-8">
-				{#each unknown as word (word.id)}
-					<WordCard {word} onRemove={() => onRemoveUnknown(word.word)} />
-				{/each}
-				{#if isLoadingUnknown}
-					<div class="flex justify-center items-center">
-						<Spinner />
-					</div>
-				{/if}
-			</div>
-		{/if}
-
-		<div class="mt-4 mb-4">
-			<SpinnerButton onClick={onTranslate} type="secondary">Translate</SpinnerButton>
-
-			{#if answered}
-				<SpinnerButton onClick={() => onAnswer(answered || '')}>Submit</SpinnerButton>
-			{:else}
-				<SpinnerButton onClick={onReveal}>Reveal</SpinnerButton>
-			{/if}
-		</div>
-	{:else}
+	{#if evaluation}
 		{#if ['correct', 'typo'].includes(evaluation.outcome)}
 			<div class="mb-4">Correct!</div>
 		{:else}
@@ -181,13 +165,32 @@
 		{#if evaluation.outcome == 'typo'}
 			<div class="mb-4">However, it is not spelled "{evaluation.answered}".</div>
 		{/if}
+	{/if}
 
-		<div class="grid grid-cols-1 md:grid-cols-2 w-full gap-x-4 mt-8">
+	{#if unknown.length > 0 || isLoadingUnknown}
+		<div class="grid grid-cols-1 md:grid-cols-2 w-full gap-x-4 mt-8 items-stretch">
 			{#each unknown as word (word.id)}
 				<WordCard {word} onRemove={() => onRemoveUnknown(word.word)} />
 			{/each}
+			{#if isLoadingUnknown}
+				<div class="flex justify-center items-center">
+					<Spinner />
+				</div>
+			{/if}
 		</div>
+	{/if}
 
+	{#if !evaluation}
+		<div class="mt-4 mb-4">
+			<SpinnerButton onClick={onTranslate} type="secondary">Translate</SpinnerButton>
+
+			{#if answered}
+				<SpinnerButton onClick={() => onAnswer(answered || '')}>Submit</SpinnerButton>
+			{:else}
+				<SpinnerButton onClick={onReveal}>Reveal</SpinnerButton>
+			{/if}
+		</div>
+	{:else}
 		<div class="mt-4">
 			<SpinnerButton onClick={onTranslate} type="secondary">Translate</SpinnerButton>
 

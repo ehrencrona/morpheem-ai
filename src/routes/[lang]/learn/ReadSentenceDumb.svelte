@@ -90,7 +90,7 @@
 	</div>
 {/if}
 
-<div class="grid grid-cols-1 md:grid-cols-2 w-full gap-x-4">
+<div class="grid grid-cols-1 md:grid-cols-2 w-full gap-x-4 items-stretch">
 	{#each unknown as word (word.id)}
 		<WordCard {word} onRemove={() => onRemoveUnknown(word.word)} />
 	{/each}

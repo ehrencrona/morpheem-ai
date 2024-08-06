@@ -29,7 +29,7 @@
 	});
 </script>
 
-<div class="grid grid-cols-1 md:grid-cols-2 w-full gap-x-4">
+<div class="grid grid-cols-1 md:grid-cols-2 w-full gap-x-4 items-stretch">
 	{#each showAll ? words : words.slice(0, 8) as word (word.knowledge.wordId)}
 		{#if word.word}
 			<WordCard word={word.word} />

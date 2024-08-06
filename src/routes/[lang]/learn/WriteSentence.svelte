@@ -437,7 +437,7 @@
 		{/if}
 
 		{#if unknownWords.length > 0 || isLoadingUnknown}
-			<div class="grid grid-cols-1 md:grid-cols-2 w-full gap-x-4 mt-8" transition:slide>
+			<div class="grid grid-cols-1 md:grid-cols-2 w-full gap-x-4 mt-8 items-stretch" transition:slide>
 				{#each unknownWords as word}
 					<WordCard
 						{word}

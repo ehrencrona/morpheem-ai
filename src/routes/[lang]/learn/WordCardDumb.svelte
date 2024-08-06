@@ -28,7 +28,7 @@
 	$: showLemma = inflected && (word.word !== inflected || form);
 </script>
 
-<div class="w-full md:max-w-[600px] {addBottomMargin ? 'mb-4' : ''}">
+<div class="w-full md:max-w-[600px] flex flex-col {addBottomMargin ? 'mb-4' : ''}">
 	<div class="font-medium flex bg-blue-3 text-[#fff] px-3 py-2 rounded-t-md items-baseline">
 		<a
 			href="https://en.wiktionary.org/wiki/{word.word}#{getLanguageOnClient().name}"
@@ -58,9 +58,9 @@
 		{/if}
 	</div>
 
-	<div class="bg-light-gray rounded-b-md px-3 pt-1 pb-3">
+	<div class="bg-light-gray rounded-b-md px-3 pt-1 pb-3 flex-1 flex flex-col">
 		{#if english}
-			<div class="text-balance font-lato mt-2">
+			<div class="text-balance font-lato mt-2 flex-1">
 				{english}{#if word.type == 'name'}
 					(name){/if}
 			</div>
