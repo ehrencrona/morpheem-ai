@@ -121,8 +121,8 @@ export async function classifyLemmas(
 				content:
 					// `I want to find which  words have ${cognateTo} cognates. ` +
 					(lemmas.length == 1
-						? `For the entered ${language.name} word, first print the most similar sounding ${cognateTo} translation.`
-						: `For each entered ${language.name} word, print it and the most similar sounding ${cognateTo} translation.`) +
+						? `For the entered ${language.name} word, first print the most similar sounding ${cognateTo} translation. `
+						: `For each entered ${language.name} word, print it and the most similar sounding ${cognateTo} translation. `) +
 					`Then, classify the word:\n` +
 					` - if the word is not in its dictionary form, print "inflection"${
 						language.code == 'ru'
@@ -132,7 +132,7 @@ export async function classifyLemmas(
 					}.\n` +
 					` - if the word is a name, print "name".\n` +
 					` - if the word cannot be translated to English because it is a purely grammatical feature, print "particle".\n` +
-					` - if it is not a correct word or strong profanity or a typo, print "wrong".\n` +
+					` - if it is incorrect, not in ${language.name}, strong profanity or a typo, print "wrong".\n` +
 					` - otherwise, if the ${language.name} word would look instantly familiar to an ${cognateTo} speaker, print "cognate". ` +
 					`Otherwise, print "other". Do not print anything more. E.g. \n${examples[language.code]}`
 			},
