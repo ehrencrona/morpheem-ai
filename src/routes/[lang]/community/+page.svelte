@@ -1,4 +1,4 @@
-<h1 class="text-2xl font-sans font-bold mt-12 lg:mt-4">Discord community</h1>
+<h1 class="text-2xl font-sans font-bold lg:mt-12">Discord community</h1>
 
 <a
 	href="https://discord.gg/YWBAmqdfmB"

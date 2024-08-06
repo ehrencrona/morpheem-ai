@@ -47,7 +47,7 @@
 
 <ErrorMessage />
 
-<h1 class="text-2xl font-sans font-bold mb-8 mt-8">Settings</h1>
+<h1 class="text-2xl font-sans font-bold mb-8 lg:mt-8">Settings</h1>
 
 {#if data.units.length > 0}
 	<label class="flex">

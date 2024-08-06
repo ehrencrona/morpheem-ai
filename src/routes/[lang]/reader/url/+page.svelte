@@ -152,9 +152,9 @@
 
 <main
 	use:trackActivity
-	class={translatedParagraphs || translatedTitle ? 'max-w-[1200px]' : `max-w-[900px]`}
+	class="px-4 {translatedParagraphs || translatedTitle ? 'max-w-[1200px]' : `max-w-[900px]`}"
 >
-	<h3 class="mt-8 mb-2">
+	<h3 class="lg:mt-8 mb-2">
 		<a
 			href={data.articleUrl}
 			class="text-blue-3 underline text-xs"

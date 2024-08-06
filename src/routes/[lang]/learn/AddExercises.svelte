@@ -61,7 +61,7 @@
 	};
 </script>
 
-<h1 class="text-2xl font-sans font-bold mb-4 mt-12">Add Exercises</h1>
+<h1 class="text-2xl font-sans font-bold mb-4 lg:mt-8">Add Exercises</h1>
 
 <AddExercisesDumb
 	{clozes}

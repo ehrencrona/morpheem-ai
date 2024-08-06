@@ -20,7 +20,7 @@
 	}
 </script>
 
-<h1 class="text-2xl font-sans font-bold mb-6 mt-8">Writer</h1>
+<h1 class="text-2xl font-sans font-bold mb-6 lg:mt-8">Writer</h1>
 
 <p class="mb-2 text-sm font-lato">
 	Practise writing whatever you want. Any mistakes you made will be corrected and feed into your

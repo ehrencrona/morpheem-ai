@@ -7,7 +7,7 @@
 	export let data: PageData;
 </script>
 
-<div class="max-w-[1200px] px-4 md:px-12 mt-12 lg:mt-6">
+<div class="max-w-[1200px] px-4 md:px-12 lg:mt-8">
 	<h3 class="text-lg font-sans font-bold mb-6 mt-4">Sentences read</h3>
 
 	<RecentSentences sentences={data.readSentences} />

@@ -13,7 +13,7 @@
 	const history = getReaderHistory();
 </script>
 
-<h1 class="text-2xl font-sans font-bold mb-6 mt-8">Reader</h1>
+<h1 class="text-2xl font-sans font-bold mb-6 lg:mt-8">Reader</h1>
 
 <p class="mb-8 text-sm font-lato">
 	Import a {getLanguageOnClient().name} article from another website. You will get tools to translate

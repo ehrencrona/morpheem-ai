@@ -530,7 +530,7 @@
 		{/if}
 
 		{#if units.length > 0}
-			<div class="flex justify-end text-gray-1 mb-4 mt-12 lg:mt-0">
+			<div class="flex justify-end text-gray-1 mb-4">
 				<button
 					class="border border-light-gray flex justify-end items-center rounded-md text-xs"
 					on:click={() => (showUnits = true)}

@@ -33,7 +33,7 @@
 </script>
 
 {#if wordIndex == -1}
-	<h1 class="font-sans text-2xl font-bold mt-12 mb-8">2. Active vocabulary</h1>
+	<h1 class="font-sans text-2xl font-bold lg:mt-12 mb-8">2. Active vocabulary</h1>
 
 	<div class="max-w-[600px]">
 		<p class="mb-4">

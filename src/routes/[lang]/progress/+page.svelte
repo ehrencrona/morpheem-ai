@@ -48,7 +48,7 @@
 	};
 </script>
 
-<h1 class="text-2xl font-sans font-bold mb-4 mt-8">Your Progress</h1>
+<h1 class="text-2xl font-sans font-bold mb-4 lg:mt-8">Your Progress</h1>
 
 <p class="mb-4 text-sm font-lato">
 	{#if data.activity.length > 0}

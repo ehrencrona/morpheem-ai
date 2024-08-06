@@ -153,13 +153,7 @@ async function lemmatizeBatch(
 		
 		becomes
 		
-		niesamowicie (niesamowicie) cię (ty) kocham (kochać)
-		
-		To jest przykład
-		
-		becomes
-		
-		to (ten) jest (być) przykład (przykład)`,
+		niesamowicie (niesamowicie) cię (ty) kocham (kochać)`,
 		fr: `"Y a-t-il des chaises"
 		
 		becomes
