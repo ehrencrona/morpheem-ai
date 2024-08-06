@@ -1,6 +1,6 @@
 <script lang="ts">
-	import type { Clause } from '../../../ai/splitIntoClauses';
 	import CloseSvg from '../../../components/CloseSvg.svelte';
+	import { Clause } from '../../../db/types';
 
 	export let clause: Clause;
 	export let onRemove: (() => void) | undefined = undefined;

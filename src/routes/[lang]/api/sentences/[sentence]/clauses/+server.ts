@@ -1,6 +1,5 @@
 import { json, type ServerLoad } from '@sveltejs/kit';
 import {
-	Clause,
 	splitIntoClauses,
 	splitIntoClausesAndTranslate
 } from '../../../../../../ai/splitIntoClauses';
@@ -13,6 +12,7 @@ import {
 import { Language } from '../../../../../../logic/types';
 import { logError } from '$lib/logError';
 import { addEnglishToSentence } from '../../../../../../logic/translate';
+import { Clause } from '../../../../../../db/types';
 
 export type ClausesResponse = Awaited<ReturnType<typeof getClauses>>;
 

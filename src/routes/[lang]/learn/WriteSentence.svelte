@@ -6,7 +6,6 @@
 	import { onMount } from 'svelte';
 	import { slide } from 'svelte/transition';
 	import { CodedError } from '../../../CodedError';
-	import type { Clause } from '../../../ai/splitIntoClauses';
 	import Speak from '../../../components/Speak.svelte';
 	import Spinner from '../../../components/Spinner.svelte';
 	import SpinnerButton from '../../../components/SpinnerButton.svelte';
@@ -17,6 +16,7 @@
 	import type { WriteEvaluation } from '../../../logic/evaluateWrite';
 	import type { Fragment } from '../../../logic/isomorphic/translationToFragments';
 	import { translationToFragments } from '../../../logic/isomorphic/translationToFragments';
+	import { isSeparator, toWordsWithSeparators } from '../../../logic/toWordStrings';
 	import type { ExerciseKnowledge, Language, WordKnowledge } from '../../../logic/types';
 	import { getLanguageOnClient } from '../api/api-call';
 	import { fetchClauses } from '../api/sentences/[sentence]/clauses/client';
@@ -30,7 +30,6 @@
 	import ClauseCardDumb from './ClauseCardDumb.svelte';
 	import WordCard from './WordCard.svelte';
 	import { getCorrectedParts } from './getCorrectedParts';
-	import { isSeparator, toWordsWithSeparators } from '../../../logic/toWordStrings';
 
 	export let word: { id: number; word: string; level: number } | undefined;
 	export let onNext: () => Promise<any>;
@@ -47,7 +46,7 @@
 	export let translation: Translation | undefined;
 
 	let fragments: Fragment[] | undefined;
-	let revealedClauses: Clause[] = [];
+	let revealedClauses: DB.Clause[] = [];
 
 	/** The target language sentence if translate. */
 	export let correctSentence: string | undefined;

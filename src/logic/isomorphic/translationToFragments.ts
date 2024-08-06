@@ -1,5 +1,5 @@
-import { Clause } from '../../ai/splitIntoClauses';
 import { isSeparator, toWordsWithSeparators } from '../toWordStrings';
+import type { Clause } from '../../db/types';
 
 export interface Fragment {
 	fragment: string;

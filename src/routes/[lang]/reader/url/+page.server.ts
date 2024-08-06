@@ -16,18 +16,16 @@ export const load: ServerLoad = async ({ locals: { language, userId }, url }) =>
 
 	const atPage = (parseInt(url.searchParams.get('page') || `1`) || 1) - 1;
 
-	if (articleUrl.includes('rt.com/')) {
-		await new Promise((resolve) => setTimeout(resolve, 1000));
-
-		return [genericError];
-	}
-
 	try {
 		console.log(`Reading article ${articleUrl} (user ${userId})...`);
 
 		const article = await extract(articleUrl);
 
-		if (article) {
+		if (articleUrl.includes('rt.com/')) {
+			await new Promise((resolve) => setTimeout(resolve, 1000));
+
+			pages = [genericError];
+		} else if (article) {
 			title = article.title;
 
 			let currentPage: Paragraph[] = [];

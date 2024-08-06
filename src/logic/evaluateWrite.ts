@@ -2,7 +2,6 @@ import { exerciseToString } from '$lib/exerciseToString';
 import { logError } from '$lib/logError';
 import { z } from 'zod';
 import { CorrectedPart, evaluateWrite as evaluateWriteAi } from '../ai/evaluateWrite';
-import { Clause } from '../ai/splitIntoClauses';
 import { getAggregateKnowledgeForUserWords } from '../db/knowledge';
 import { getInflections, getLemmasOfWord } from '../db/lemmas';
 import * as DB from '../db/types';
@@ -281,7 +280,7 @@ function revealedClausesToUserExercises({
 	sentence,
 	language
 }: {
-	revealedClauses: Clause[];
+	revealedClauses: DB.Clause[];
 	sentence: string;
 	language: Language;
 }) {

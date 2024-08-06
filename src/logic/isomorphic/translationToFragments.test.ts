@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
-import { Clause } from '../../ai/splitIntoClauses';
 import { translationToFragments } from './translationToFragments';
+import { Clause } from '../../db/types';
 
 test('translationToFragments Dutch', async () => {
 	const sentence = {
