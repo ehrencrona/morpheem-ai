@@ -24,7 +24,7 @@ const formExamples: Record<LanguageCode, string> = {
 };
 
 const idiomExample: Record<LanguageCode, string> = {
-	pl: 'gwóźdź programu - highlight of the show',
+	pl: 'stanowisko pracy - workplace',
 	fr: 'coup de grâce - finishing blow',
 	es: 'estar en las nubes - to be daydreaming',
 	ko: '바람을 타다 - to be stood up',
