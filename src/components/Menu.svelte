@@ -104,8 +104,12 @@
 		</div>
 	{/if}
 
-	<nav class="hidden lg:block w-[200px]">
-		<ul class="mt-6 xl:ml-4">
+	<nav class="hidden lg:block w-[200px] mt-6 xl:ml-4">
+		<div class="px-5 mb-6">
+			<img src="/morpheem-logo-square.png" class="w-8 h-8" alt="Logo" />
+		</div>
+
+		<ul>
 			{#each links as link}
 				<li class="px-2 mb-2 text-base">
 					<a
