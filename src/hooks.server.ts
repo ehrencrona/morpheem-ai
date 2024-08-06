@@ -89,7 +89,7 @@ let lastThrottleTime = 0;
 let logCount = 0;
 
 export const handleError: HandleServerError = async ({ error, event, status, message }) => {
-	const errorId = /* random string */ Math.random().toString(36).substring(7);
+	const errorId = randomString();
 
 	if (
 		isLoggingEnabled &&
@@ -113,3 +113,7 @@ export const handleError: HandleServerError = async ({ error, event, status, mes
 		errorId
 	};
 };
+
+function randomString() {
+	return Math.random().toString(36).substring(7);
+}

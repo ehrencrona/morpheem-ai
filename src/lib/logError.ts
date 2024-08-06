@@ -1,6 +1,5 @@
 import { captureException } from '@sentry/browser';
 import { writable } from 'svelte/store';
-import { z } from 'zod';
 
 export const errorStore = writable<any>(null);
 
@@ -11,6 +10,8 @@ export function cloneError(e: any, message: string) {
 	const clonedError = new Error(message);
 
 	Object.assign(clonedError, e);
+
+	clonedError.message = message;
 
 	// Copy the stack property, which is non-enumerable by default
 	clonedError.stack = e.stack;
