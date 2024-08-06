@@ -119,50 +119,6 @@ export async function translateWordInContext(
 	};
 }
 
-export async function translateWordForCloze(
-	wordString: string,
-	sentence: { sentence: string; english: string },
-	language: Language
-) {
-	let doTransliterate = !language.isLatin;
-
-	const response = await askForJson({
-		messages: [
-			{
-				role: 'user',
-				content:
-					`In the ${language.name} sentence "${sentence.sentence}", what does "${wordString}" mean? ` +
-					`For names (of people, companies, products), just repeat the name and add "name" to the form.\n` +
-					`Also provide the form of the word in the sentence e.g. ${formExamples[language.code]}.\n` +
-					(doTransliterate
-						? `\nAnd the transliteration in Latin script.${transliterationInstructions[language.code] || ''}\n`
-						: '') +
-					`Respond with JSON in the format { definition: string, form:string${doTransliterate ? `, transliteration: string` : ''} }.`
-				// 	: //	`The ${language.name} sentence "${sentence.sentence}" translates to "${sentence.english}". What part(s) of the English sentence corresponds to the word "${lemma}"? Answer only with the fragment of the sentence (i.e. no need to capitalize it).`
-				// 		`What is the English translation of the ${language.name} word "${wordString}"? Only answer with the definition (as a fragment; no final full stop).`) +
-				// `\n` +
-				// `On a third line, provide the form of the word in the sentence e.g. ${formExamples[language.code]}.` +
-			}
-		],
-		temperature: 0.5,
-		logResponse: true,
-		model: 'claude-3-5-sonnet-20240620',
-		schema: z.object({
-			definition: z.string(),
-			form: z.string(),
-			transliteration: z.string().optional()
-		})
-	});
-
-	//	const lines = definition.split('\n');
-
-	return {
-		english: response.definition,
-		form: response.form,
-		transliteration: response.transliteration
-	};
-}
-
 export async function translateSentences(
 	sentences: string[],
 	opts: {
