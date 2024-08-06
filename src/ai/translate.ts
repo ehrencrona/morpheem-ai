@@ -17,10 +17,20 @@ const formExamples: Record<LanguageCode, string> = {
 	pl: `"genitive plural, feminine", "2nd person plural, past, imperfective" or "past participle"`,
 	fr: `"feminine", "plural", or "past participle"`,
 	es: `"feminine", "plural", or "past participle"`,
-	ko: `"subject", "topic" or "imperative, polite"`,
+	ko: `"subject", "from" or "imperative, polite"`,
 	ru: `"genitive plural, feminine", "2nd person plural, past, imperfective" or "past participle"`,
 	nl: `"plural, het", "past participle" or "de"`,
 	sv: `"plural, ett", or "past participle"`
+};
+
+const idiomExample: Record<LanguageCode, string> = {
+	pl: 'gwóźdź programu - highlight of the show',
+	fr: 'coup de grâce - finishing blow',
+	es: 'estar en las nubes - to be daydreaming',
+	ko: '바람을 타다 - to be stood up',
+	ru: 'без ума от кого-то - to be crazy about someone',
+	nl: 'voor aap staan - to be made a fool of',
+	sv: 'att slå huvudet på spiken - to hit the nail on the head'
 };
 
 const transliterationInstructions: Record<string, string> = {
@@ -33,8 +43,8 @@ export async function translateWordOutOfContext(wordString: string, language: La
 			{
 				role: 'user',
 				content:
-					`Print the English translation of the ${language.name} "${wordString}" in the style of bilingual dictionary entry. Print only the entry itself; no introduction. No initial capital, no final period, do not repeat the word itself.\n` +
-					`On a second line, provide the form of the word in the sentence e.g. ${formExamples[language.code]}.` +
+					`Print the English translation of the ${language.name} "${wordString}" in the style of a bilingual dictionary entry. Print only the entry itself; no introduction. No initial capital, no final period, do not repeat the word itself.\n` +
+					`On a second line, provide the form${language.code == 'ko' ? '/particle' : ''} of the word in the sentence e.g. ${formExamples[language.code]}.` +
 					(!language.isLatin
 						? `\nOn a second line, provide the transliteration in Latin script.${transliterationInstructions[language.code] || ''}`
 						: '')
@@ -66,14 +76,14 @@ export async function translateWordInContext(
 			{
 				role: 'user',
 				content:
-					`In the ${language.name} sentence "${sentence.sentence}", what is the most relevant English translation of "${wordString}"? ` +
+					`For the ${language.name} sentence "${sentence.sentence}", give the most single relevant English dictionary entry of "${wordString}".\n` +
 					`For non-semantic names, just repeat the name as the translation.\n` +
-					`If "${wordString}" is part of an idiom that modifies its meaning, return the idiom in ${language.name} and English (if not, do not return it).\n` +
+					`If "${wordString}" is part of an idiom or set phrase, use the literal translation but also return the idiom in ${language.name} and English (e.g "${idiomExample[language.code]}"). Only for idioms, not e.g. phrasal verbs.\n` +
 					`Also provide the form of the word in the sentence e.g. ${formExamples[language.code]}. For names, add "name" to the form.\n` +
 					(doTransliterate
 						? `\nAlso give the transliteration in Latin script.${transliterationInstructions[language.code] || ''}\n`
 						: '') +
-					`Respond with JSON in the format { definition: string, form:string${doTransliterate ? `, transliteration: string` : ''}, idiom?: string }.`
+					`Return JSON: { definition: string, form:string${doTransliterate ? `, transliteration: string` : ''}, idiom?: string }.`
 			}
 		],
 		temperature: 0,
@@ -90,7 +100,7 @@ export async function translateWordInContext(
 	let expression: { expression: string; english: string } | undefined;
 
 	if (response.idiom) {
-		const [targetLanguage, english] = response.idiom.split(' - ');
+		const [targetLanguage, english] = response.idiom.split(/ [-/=] /);
 
 		if (targetLanguage && english) {
 			expression = { expression: targetLanguage, english };

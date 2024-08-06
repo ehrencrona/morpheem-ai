@@ -26,18 +26,18 @@ it('translates sentences', async () => {
 
 it('handles expressions', async () => {
 	const res = await translateWordInContext(
-		'wrażenie',
+		'groch',
 		{
-			sentence: 'Mebel z litego drewna sprawia wrażenie solidnego i trwałego.'
+			sentence: 'Próbowałem przekonać go do zmiany zdania, ale to było jak rzucać grochem o ścianę.'
 		},
 		POLISH
 	);
 
 	expect(res).toMatchObject({
-		english: 'impression',
+		english: 'pea',
 		expression: {
-			english: 'to give the impression',
-			expression: 'sprawiać wrażenie'
+			english: "to bang one's head against a brick wall",
+			expression: 'rzucać grochem o ścianę'
 		}
 	});
 });
@@ -60,6 +60,18 @@ it('handles expressions 2', async () => {
 	});
 });
 
+it('does not add unnecessary expression', async () => {
+	const res = await translateWordInContext(
+		'dbać',
+		{
+			sentence: 'Ona zawsze dba o swoje zdrowie.'
+		},
+		POLISH
+	);
+
+	expect(res.expression).toBe(undefined);
+});
+
 // not so sure this is relevant. answering with either gender should be fine.
 it.skip('adds context when translating words', async () => {
 	const res = await translateWordInContext(
@@ -73,7 +85,7 @@ it.skip('adds context when translating words', async () => {
 	expect(res.english).toEqual('she invited');
 });
 
-it('handles wynosić', async () => {
+it.only('handles wynosić', async () => {
 	const res = await translateWordInContext(
 		'wynosił',
 		{
@@ -82,7 +94,8 @@ it('handles wynosić', async () => {
 		POLISH
 	);
 
-	expect(res.english).toEqual('he left');
+	expect(res.expression?.expression).toEqual('wynosić się');
+	expect(res.expression?.english).toContain('to leave');
 });
 
 it('translates words out of context', async () => {
