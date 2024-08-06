@@ -347,7 +347,7 @@
 		} catch (e: any) {
 			if (e instanceof CodedError && e.code == 'wrongLemma') {
 				knowledge = knowledge.filter((k) => wordId != k.wordId);
-			} else {
+			} else if (isAdmin) {
 				logError(e);
 			}
 

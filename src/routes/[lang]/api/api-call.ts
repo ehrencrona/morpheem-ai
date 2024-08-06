@@ -16,13 +16,15 @@ export async function apiCall(path: string, options: RequestInit) {
 			throw new Error(`While calling ${path}: ${e}`);
 		}
 	} else {
-		let message = await response.text();
+		const message =
+			{
+				500: 'Server error',
+				401: 'Unauthorized',
+				403: 'Forbidden',
+				404: 'Not found'
+			}[response.status] || 'Unknown error';
 
-		if (message.includes('<body')) {
-			message = `status ${response.status}`;
-		}
-
-		throw new Error(`While calling ${path}: ${message}`);
+		throw new Error(`${message} while calling ${path}.`);
 	}
 }
 
