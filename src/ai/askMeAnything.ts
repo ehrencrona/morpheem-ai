@@ -73,9 +73,8 @@ export async function askMeAnythingRead({
 			{
 				role: 'system',
 				content:
-					`The user is studying ${language.name} and encountered the sentence "${sentence}"${word ? ` while studying the word "${word}"` : ''}${confusedWord ? ` which they confused with "${confusedWord}"` : ''}. ` +
-					`The user now has a question (about ${language.name}, the sentence or the word${confusedWord ? 's' : ''}). ` +
-					`Briefly but helpfully and friendly answer the question (in English). The English translation of the sentence has been shown; no need to repeat it.`
+					`I am studying ${language.name} and encountered the sentence "${sentence}"${word ? ` while studying the word "${word}"` : ''}${confusedWord ? ` which I confused with "${confusedWord}"` : ''}. ` +
+					`Answer my question briefly but helpfully. Do not repeat the English translation of the sentence.`
 			},
 			...(translation
 				? ([
