@@ -4,10 +4,11 @@ import {
 	getRawKnowledgeForUser
 } from '../../../../db/knowledge';
 import { knowledgeTypeToExercise } from '../../../../db/knowledgeTypes';
-import { getForms } from '../../../../db/lemmas';
+import { getForms, getLemmasOfWord } from '../../../../db/lemmas';
 import { getMnemonic } from '../../../../db/mnemonics';
 import { getSentencesWithWord } from '../../../../db/sentences';
 import * as DB from '../../../../db/types';
+import { getWordRelations } from '../../../../db/wordRelations';
 import { getAllWordTranslations } from '../../../../db/wordTranslations';
 import { getWordById, getWordByLemma } from '../../../../db/words';
 import {
@@ -21,8 +22,6 @@ import {
 	now
 } from '../../../../logic/isomorphic/knowledge';
 import { AlphaBeta } from '../../../../logic/types';
-import { findRelatedWords } from '../../../../logic/relatedWords';
-import { getWordRelations } from '../../../../db/wordRelations';
 
 export const load: ServerLoad = async ({ params, locals: { language, userId, isAdmin } }) => {
 	const wordId = parseInt(params.id!);
@@ -30,11 +29,18 @@ export const load: ServerLoad = async ({ params, locals: { language, userId, isA
 	if (isNaN(wordId)) {
 		let word: DB.Word;
 
+		const wordString = params.id!.toLowerCase();
+
 		try {
-			word = await getWordByLemma(params.id!, language);
+			word = await getWordByLemma(wordString, language);
 		} catch (e) {
-			console.log(e);
-			return error(404, 'Word not found');
+			word = (await getLemmasOfWord(wordString, language))[0];
+
+			if (!word) {
+				console.log(e);
+
+				return error(404, 'Word not found');
+			}
 		}
 
 		redirect(302, `/${language.code}/words/${word.id}`);
