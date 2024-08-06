@@ -4,9 +4,15 @@ import {
 	splitIntoClauses,
 	splitIntoClausesAndTranslate
 } from '../../../../../../ai/splitIntoClauses';
-import { getSentence, storeEnglish } from '../../../../../../db/sentences';
+import {
+	getSentence,
+	storeEnglish,
+	getClauses as getClausesFromDb,
+	storeClauses
+} from '../../../../../../db/sentences';
 import { Language } from '../../../../../../logic/types';
 import { logError } from '$lib/logError';
+import { addEnglishToSentence } from '../../../../../../logic/translate';
 
 export type ClausesResponse = Awaited<ReturnType<typeof getClauses>>;
 
@@ -21,18 +27,26 @@ export const GET: ServerLoad = async ({ params, locals: { language } }) => {
 };
 
 async function getClauses(sentenceId: number, language: Language) {
-	const sentence = await getSentence(sentenceId, language);
+	let sentence = await getSentence(sentenceId, language);
 
 	let clauses: Clause[] = [];
 	let english: string = '';
 
-	if (sentence.english) {
-		clauses = await splitIntoClauses(sentence, language);
-		english = sentence.english;
-	} else {
-		({ translation: english, clauses } = await splitIntoClausesAndTranslate(sentence, language));
+	clauses = (await getClausesFromDb(sentenceId, language)) || [];
 
-		storeEnglish({ english }, { sentenceId: sentence.id, language }).catch(logError);
+	if (clauses.length) {
+		({ english } = await addEnglishToSentence(sentence, language));
+	} else {
+		if (sentence.english) {
+			clauses = await splitIntoClauses(sentence, language);
+			english = sentence.english;
+		} else {
+			({ translation: english, clauses } = await splitIntoClausesAndTranslate(sentence, language));
+
+			storeEnglish({ english }, { sentenceId: sentence.id, language }).catch(logError);
+		}
+
+		storeClauses(clauses, sentenceId, language).catch(logError);
 	}
 
 	return {

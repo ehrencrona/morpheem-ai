@@ -1,7 +1,7 @@
 import { error } from '@sveltejs/kit';
 import { Language, SentenceWord } from '../logic/types';
 import { db } from './client';
-import type { Sentence } from './types';
+import type { Clause, Sentence } from './types';
 
 export function toSentence(row: {
 	id: number;
@@ -222,6 +222,33 @@ export async function storeEnglish(
 		.withSchema(language.schema)
 		.updateTable('sentences')
 		.set({ english, transliteration })
+		.where('id', '=', sentenceId)
+		.execute();
+}
+
+export async function getClauses(
+	sentenceId: number,
+	language: Language
+): Promise<Clause[] | undefined> {
+	return ((
+		await db
+			.withSchema(language.schema)
+			.selectFrom('sentences')
+			.select(['clauses'])
+			.where('id', '=', sentenceId)
+			.executeTakeFirstOrThrow()
+	).clauses || undefined) as Clause[] | undefined;
+}
+
+export async function storeClauses(
+	clauses: Clause[] | undefined,
+	sentenceId: number,
+	language: Language
+) {
+	await db
+		.withSchema(language.schema)
+		.updateTable('sentences')
+		.set({ clauses: clauses ? JSON.stringify(clauses) : null })
 		.where('id', '=', sentenceId)
 		.execute();
 }

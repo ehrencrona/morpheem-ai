@@ -1,12 +1,7 @@
 import { z } from 'zod';
 import { Language, LanguageCode } from '../logic/types';
 import { askForJson } from './askForJson';
-import { Sentence } from '../db/types';
-
-export interface Clause {
-	sentence: string;
-	english: string;
-}
+import { Clause, Sentence } from '../db/types';
 
 const examples: Record<LanguageCode, string> = {
 	pl: `"Nie mogę skupić się, gdy wokół mnie jest bałagan."

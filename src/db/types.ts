@@ -73,3 +73,8 @@ export interface AggKnowledgeForUser extends Scoreable {
 	wordType: WordType | undefined;
 	source: ExerciseSource;
 }
+
+export interface Clause {
+	sentence: string;
+	english: string;
+}
