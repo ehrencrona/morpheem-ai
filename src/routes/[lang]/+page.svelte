@@ -597,6 +597,7 @@
 					: undefined}
 				correctSentence={current.sentence.sentence}
 				fetchTranslation={getTranslation}
+				{isAdmin}
 			/>
 		{:else if current.exercise == 'translate'}
 			<WriteSentence
@@ -616,6 +617,7 @@
 					: undefined}
 				correctSentence={current.sentence.sentence}
 				fetchTranslation={getTranslation}
+				{isAdmin}
 			/>
 		{:else if (current.exercise == 'cloze' || current.exercise == 'cloze-inflection') && current.wordObject}
 			<Cloze

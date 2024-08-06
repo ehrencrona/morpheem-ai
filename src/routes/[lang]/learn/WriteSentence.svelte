@@ -42,6 +42,8 @@
 	export let exerciseId: number | null;
 	export let source: ExerciseSource;
 
+	export let isAdmin: boolean;
+
 	/** The sentence to translate if translate, otherwise the writing idea. */
 	export let translation: Translation | undefined;
 
@@ -243,7 +245,7 @@
 					}
 			: undefined;
 
-		store({ feedback, entered, unknownWords }).catch(logError);
+		store({ feedback, entered, unknownWords }).catch((e) => isAdmin && logError(e));
 
 		// send the user exercise and word here since there is otherwise a risk
 		// we get the exercise again before the storing completes
@@ -437,7 +439,10 @@
 		{/if}
 
 		{#if unknownWords.length > 0 || isLoadingUnknown}
-			<div class="grid grid-cols-1 md:grid-cols-2 w-full gap-x-4 mt-8 items-stretch" transition:slide>
+			<div
+				class="grid grid-cols-1 md:grid-cols-2 w-full gap-x-4 mt-8 items-stretch"
+				transition:slide
+			>
 				{#each unknownWords as word}
 					<WordCard
 						{word}

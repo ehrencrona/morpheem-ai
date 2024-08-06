@@ -18,13 +18,6 @@
 	export let onDone: (sentence: DB.Sentence) => Promise<any>;
 
 	let feedback: WriteEvaluation | undefined;
-	//  = {
-	// 	isCorrect: false,
-	// 	feedback: 'here is a lot of text from claude',
-	// 	correctedSentence: 'This is what you should have written.',
-	// 	userExercises: [],
-	// 	correctedParts: [{ correction: 'should', userWrote: 'could', severity: 1 }]
-	// };
 	let entered: string = '';
 
 	let input: HTMLInputElement;
