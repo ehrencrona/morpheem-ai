@@ -123,8 +123,8 @@
 </div>
 
 {#if expression}
-	<div class="w-full md:max-w-[600px] mb-4">
-		<div class="font-medium mb-1 flex bg-blue-3 text-[#fff] px-3 py-2 rounded-t-md items-baseline">
+	<div class="w-full md:max-w-[600px] flex flex-col {addBottomMargin ? 'mb-4' : ''}">
+		<div class="font-medium flex bg-blue-3 text-[#fff] px-3 py-2 rounded-t-md items-baseline">
 			<span class="text-base flex-1 font-sans">
 				{expression.expression}
 			</span>
@@ -140,7 +140,7 @@
 			{/if}
 		</div>
 
-		<div class="bg-light-gray rounded-b-md px-3 pb-3">
+		<div class="bg-light-gray rounded-b-md px-3 pt-1 pb-3 flex-1 flex flex-col">
 			<div class="text-balance font-lato mt-2">
 				{expression.english}
 			</div>
