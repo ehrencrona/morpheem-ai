@@ -29,7 +29,9 @@ export function logError(error: any, context?: string) {
 	logCount++;
 
 	let isWorthLogging =
-		error.message != 'Failed to fetch' &&
+		!error.message.includes('Failed to fetch') &&
+		// these are logged on server
+		!error.message.includes('Server error') &&
 		error.code != 'sentenceMissing' &&
 		typeof document !== 'undefined' &&
 		document.location.hostname !== 'localhost';
