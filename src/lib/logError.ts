@@ -29,9 +29,13 @@ export function logError(error: any, context?: string) {
 	logCount++;
 
 	let isWorthLogging =
-		!error.message.includes('Failed to fetch') &&
-		// these are logged on server
-		!error.message.includes('Server error') &&
+		![
+			'Failed to fetch',
+			// these are logged on server
+			'Server error',
+			// this seems to be the audio player on safari
+			'The operation is not supported.'
+		].some((s) => error.message.includes(s)) &&
 		error.code != 'sentenceMissing' &&
 		typeof document !== 'undefined' &&
 		document.location.hostname !== 'localhost';
