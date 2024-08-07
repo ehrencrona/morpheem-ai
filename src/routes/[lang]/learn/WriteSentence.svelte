@@ -61,6 +61,7 @@
 	let showChars: number = 0;
 	let unknownWords: UnknownWordResponse[] = [];
 	let isLoadingUnknown = false;
+	let isFetchingEvaluation = false;
 
 	let lookedUpWord: UnknownWordResponse | undefined;
 
@@ -146,22 +147,28 @@
 			logError(`Had no translation when fetching write evaluation`);
 		}
 
-		feedback = await fetchWriteEvaluation(
-			exercise == 'write'
-				? {
-						exercise,
-						entered,
-						word: word!.word,
-						english: lookedUpWord!.english
-					}
-				: {
-						exercise,
-						english: translation?.english || '',
-						correct: sentence.sentence,
-						entered,
-						revealedClauses
-					}
-		);
+		isFetchingEvaluation = true;
+
+		try {
+			feedback = await fetchWriteEvaluation(
+				exercise == 'write'
+					? {
+							exercise,
+							entered,
+							word: word!.word,
+							english: lookedUpWord!.english
+						}
+					: {
+							exercise,
+							english: translation?.english || '',
+							correct: sentence.sentence,
+							entered,
+							revealedClauses
+						}
+			);
+		} finally {
+			isFetchingEvaluation = false;
+		}
 
 		console.log(
 			`Feedback on "${entered}":\nCorrected sentence: ${feedback.correctedSentence}\n` +
@@ -362,8 +369,11 @@
 				type="text"
 				bind:value={entered}
 				bind:this={input}
-				class="bg-blue-1 rounded-sm block w-full p-2 text-sans text-lg mb-6"
+				class="bg-blue-1 rounded-sm block w-full p-2 text-sans text-lg mb-6 {isFetchingEvaluation
+					? ' text-darker-gray'
+					: ''}"
 				lang={getLanguageOnClient().code}
+				disabled={isFetchingEvaluation}
 			/>
 
 			{#if showChars > 0 && !isRevealed}
