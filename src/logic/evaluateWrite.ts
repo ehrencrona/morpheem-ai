@@ -330,7 +330,8 @@ function revealedClausesToUserExercises({
 					level: 20,
 					exercise: 'phrase-cloze',
 					sentenceId: -1,
-					phrase: c.sentence,
+					// strip final punctuation
+					phrase: c.sentence.trim().replace(/[,.;!?]$/, ''),
 					hint: c.english,
 					isKnown: false,
 					severity: 2
