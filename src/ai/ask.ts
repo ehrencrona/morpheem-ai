@@ -156,7 +156,8 @@ export async function ask<T>({
 				messages,
 				temperature: temperature + (1 - temperature) / 2,
 				max_tokens,
-				retriesLeft: retriesLeft - 1
+				retriesLeft: retriesLeft - 1,
+				format
 			});
 		} else {
 			throw error(isOverloaded ? 529 : 502, message);
