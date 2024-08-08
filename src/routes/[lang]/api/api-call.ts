@@ -22,6 +22,7 @@ export async function apiCall(path: string, options: RequestInit) {
 				401: 'Unauthorized',
 				403: 'Forbidden',
 				404: 'Not found',
+				502: 'LLM error',
 				529: 'Server overloaded'
 			}[response.status] || 'Unknown error';
 

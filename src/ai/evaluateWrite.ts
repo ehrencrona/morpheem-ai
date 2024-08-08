@@ -46,14 +46,12 @@ export async function evaluateWrite(
 						exercise.exercise == 'translate'
 							? " The user's sentence does not need to match the expected answer, only the English prompt provided."
 							: exercise.exercise == 'writer'
-								? `The user may leave parts of the sentence in English or another language because they did not know them in ${language.name}. Translate these.`
+								? `The user may leave parts of the sentence in English or another language because they did not know them in ${language.name}. Correct these to ${language.name}.`
 								: ''
 					} ` +
-					`Then briefly but friendly give feedback, explaining why the corrections had to be applied. Write in English. ` +
-					`For grammatical errors, explain why the error in grammatical terms. ` +
-					`Also return a list of your corrections, in the exact same way they are written in the corrected sentence together with what the user wrote (when applicable) and the English translation of (only) the correction (if applicable). ` +
+					`Then briefly but friendly give feedback, explaining why the corrections had to be applied. Write in English. Use grammatical terminology. ` +
+					`Also return a list of your corrections, in the exact same way they are written in the corrected sentence together with what the user wrote (when applicable) and the English translation of (only) the correction. ` +
 					`If a word is missing, include some context around the word in the correction. ` +
-					`This will be used to highlight what was corrected. ` +
 					`If the whole sentence was changed, break the corrections down into clauses. ` +
 					`Categorize the severity of each error as 2 (wrong meaning), 1 (minor: a wrong inflection or a suboptimal word choice) or 0 (a typo or punctation). ` +
 					`Return JSON in the format { correctedSentence: string, feedback: string, correctedParts: { userWrote: string?, correction: string, english: string?, severity: number }[] }`
