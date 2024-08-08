@@ -7,12 +7,17 @@
 	import SpinnerButton from '../../../components/SpinnerButton.svelte';
 	import * as DB from '../../../db/types';
 	import type { PhraseEvaluation } from '../../../ai/evaluatePhraseCloze';
-	import { isSeparator, toWordsWithSeparators } from '../../../logic/toWordStrings';
+	import {
+		isSeparator,
+		toSeparatedWords,
+		toWordsWithSeparators
+	} from '../../../logic/toWordStrings';
 	import type { Language } from '../../../logic/types';
 	import type { Translation } from '../api/sentences/[sentence]/english/client';
 	import type { UnknownWordResponse } from '../api/word/unknown/+server';
 	import WordCard from './WordCard.svelte';
 	import { getLanguageOnClient } from '../api/api-call';
+	import { replaceIgnoreCase } from '$lib/replaceIgnoreCase';
 
 	export let sentence: DB.Sentence;
 	export let phrase: string;
@@ -35,15 +40,14 @@
 	export let onReveal: () => Promise<any>;
 	export let onTranslate: () => Promise<any>;
 	export let onAnswer: (wordString: string) => Promise<void>;
-	export let phraseBoundary: {
-		from: number;
-		to: number;
-	};
 	let showTransliteration = getShowTransliteration();
 
 	let answered = '';
 
-	$: wordsWithSeparators = toWordsWithSeparators(sentence.sentence, language);
+	$: separatedWords = toSeparatedWords(
+		replaceIgnoreCase(sentence.sentence, phrase, 'xyxyx'),
+		language
+	);
 
 	function clear() {
 		answered = '';
@@ -55,7 +59,7 @@
 	}
 
 	onMount(() => {
-		input.focus();
+		input?.focus();
 	});
 
 	let input: HTMLInputElement;
@@ -80,58 +84,45 @@
 
 <form on:submit={onSubmit}>
 	<div class="font-sans text-3xl lg:text-4xl leading-snug mb-8 mt-8 font-medium">
-		{#each wordsWithSeparators as wordString, index}
-			{#if index >= phraseBoundary.from && index <= phraseBoundary.to}
-				{#if index == phraseBoundary.from}
-					{#if evaluation}
-						<span
-							class={['correct', 'alternate'].includes(evaluation.outcome)
-								? 'text-green'
-								: evaluation.outcome == 'typo'
-									? 'text-orange'
-									: 'text-red'}
-							>{#each toWordsWithSeparators(evaluation.correctedAlternate || phrase, language) as word, index}{#if isSeparator(word)}{word}{:else}<span
-										style="cursor: pointer"
-										role="button"
-										tabindex={index}
-										class={unknown.find((r) => (r.inflected || r.word) == word)
-											? 'border-b-2 border-green border-dotted'
-											: 'hover:underline decoration-green'}
-										on:click|preventDefault={() => onClickedWord(word)}>{word}</span
-									>{/if}{/each}</span
-						>
-					{:else}
-						<div class="inline-flex flex-col -mb-1">
-							<span class="whitespace-nowrap">
-								<input
-									type="text"
-									class="w-full border-b-4 border-b-red bg-blue-1 relative px-1 max-w-[90vw]"
-									size={phrase.length}
-									bind:value={answered}
-									autocapitalize="off"
-									bind:this={input}
-									lang={getLanguageOnClient().code}
-								/>
-							</span>
-							<span class="text-xs font-lato text-right">
-								<span class="-mt-1">{hint}</span>
-							</span>
-						</div>
-					{/if}
-				{/if}
-			{:else if !isSeparator(wordString)}
-				<span
-					style="cursor: pointer"
-					role="button"
-					tabindex={index}
-					class={unknown.find((r) => (r.inflected || r.word) == wordString)
-						? 'border-b-2 border-blue-3 border-dotted'
-						: 'hover:underline decoration-yellow'}
-					on:click={() => onClickedWord(wordString)}>{wordString}</span
-				>
-			{:else}
-				{wordString}
-			{/if}
+		{#each separatedWords as wordTokens}
+			<span class="whitespace-nowrap">
+				{#each wordTokens.tokens as wordString, i}{#if wordString == 'xyxyx'}{#if evaluation}<span
+								class={['correct', 'alternate'].includes(evaluation.outcome)
+									? 'text-green'
+									: evaluation.outcome == 'typo'
+										? 'text-orange'
+										: 'text-red'}
+								>{#each toWordsWithSeparators(evaluation.correctedAlternate || phrase, language) as word}{#if isSeparator(word)}{word}{:else}<button
+											type="button"
+											class="inline {unknown.find((r) => (r.inflected || r.word) == word)
+												? 'border-b-2 border-green border-dotted'
+												: 'hover:underline decoration-green'}"
+											on:click|preventDefault={() => onClickedWord(word)}>{word}</button
+										>{/if}{/each}</span
+							>{:else}<div class="inline-flex flex-col -mb-1">
+								<span class="whitespace-nowrap">
+									<input
+										type="text"
+										class="w-full border-b-4 border-b-red bg-blue-1 relative px-1 max-w-[90vw]"
+										size={phrase.length}
+										bind:value={answered}
+										autocapitalize="off"
+										bind:this={input}
+										lang={getLanguageOnClient().code}
+									/>
+								</span>
+								<span class="text-xs font-lato text-right">
+									<span class="-mt-1">{hint}</span>
+								</span>
+							</div>{/if}{:else if !isSeparator(wordString)}<button
+							type="button"
+							class="inline {unknown.find((r) => (r.inflected || r.word) == wordString)
+								? 'border-b-2 border-blue-3 border-dotted'
+								: 'hover:underline decoration-yellow'}"
+							on:click={() => onClickedWord(wordString)}>{wordString}</button
+						>{:else}{wordString}{/if}{/each}</span
+			>
+			<span> </span>
 		{/each}
 	</div>
 

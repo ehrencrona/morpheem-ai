@@ -2,14 +2,13 @@
 	import type { SendKnowledge } from '$lib/SendKnowledge';
 	import { addUnknown } from '$lib/addUnknown';
 	import { filterUndefineds } from '$lib/filterUndefineds';
-	import { findPhraseIndex } from '$lib/findPhraseIndex';
+	import { replaceIgnoreCase } from '$lib/replaceIgnoreCase';
 	import type { PhraseEvaluation } from '../../../ai/evaluatePhraseCloze';
 	import Speak from '../../../components/Speak.svelte';
 	import Tutorial from '../../../components/Tutorial.svelte';
 	import { KNOWLEDGE_TYPE_PHRASE_CLOZE } from '../../../db/knowledgeTypes';
 	import * as DB from '../../../db/types';
 	import { standardize } from '../../../logic/isomorphic/standardize';
-	import { toWordsWithSeparators } from '../../../logic/toWordStrings';
 	import type { Language, SentenceWord } from '../../../logic/types';
 	import { fetchPhraseClozeEvaluation } from '../../../routes/[lang]/api/phrase-cloze/client';
 	import type { Translation } from '../api/sentences/[sentence]/english/client';
@@ -31,26 +30,15 @@
 
 	export let onBrokenExercise: () => void;
 
-	$: wordsWithSeparators = toWordsWithSeparators(sentence.sentence, language);
-	$: phraseBoundary = findPhraseBoundary(wordsWithSeparators);
-
-	function findPhraseBoundary(wordsWithSeparators: string[]) {
-		const result = findPhraseIndex(phrase, wordsWithSeparators);
-
-		if (result) {
-			return result;
-		} else {
-			onBrokenExercise();
-
-			return { from: 0, to: 0 };
-		}
-	}
-
 	let isFetchingEvaluation = false;
 	let unknown: UnknownWordResponse[] = [];
 
 	$: if (sentence.id) {
 		unknown = [];
+	}
+
+	$: if (!sentence.sentence.toLowerCase().includes(phrase.toLowerCase())) {
+		onBrokenExercise();
 	}
 
 	async function onUnknown(word: string) {
@@ -113,11 +101,7 @@
 			isFetchingEvaluation = true;
 
 			const gotEvaluation: PhraseEvaluation = await fetchPhraseClozeEvaluation({
-				cloze: toWordsWithSeparators(sentence.sentence, language).reduce(
-					(cloze, word, i) =>
-						cloze + (i >= phraseBoundary.from && i <= phraseBoundary.to ? '___' : word),
-					''
-				),
+				cloze: replaceIgnoreCase(sentence.sentence, phrase, '___'),
 				answered,
 				correctAnswer: phrase,
 				hint
@@ -176,7 +160,6 @@
 	{sentence}
 	{phrase}
 	{hint}
-	{phraseBoundary}
 	{evaluation}
 	onNext={storeAndContinue}
 	{onUnknown}

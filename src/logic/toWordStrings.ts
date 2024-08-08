@@ -123,6 +123,38 @@ export function toWordsWithSeparators(sentence: string, language: { code: Langua
 	}
 }
 
+export function toSeparatedWords(
+	sentence: string,
+	language: { code: LanguageCode | 'en' }
+): { tokens: string[]; tokenIndex: number }[] {
+	let result: { tokens: string[]; tokenIndex: number }[] = [];
+	let currentTokens: string[] = [];
+	let tokenIndex = 0;
+
+	toWordsWithSeparators(sentence, language).forEach((token, index) => {
+		if (token.endsWith(' ')) {
+			if (token.length > 1) {
+				currentTokens.push(token.slice(0, -1));
+			}
+
+			if (currentTokens.length > 0) {
+				result.push({ tokens: currentTokens, tokenIndex });
+				tokenIndex = index + 1;
+
+				currentTokens = [];
+			}
+		} else {
+			currentTokens.push(token);
+		}
+	});
+
+	if (currentTokens.length > 0) {
+		result.push({ tokens: currentTokens, tokenIndex });
+	}
+
+	return result;
+}
+
 export function isSeparator(word: string) {
 	return (
 		(word.match(/[^\p{L}'-]+/u) ||
