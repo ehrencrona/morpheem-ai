@@ -23,16 +23,13 @@ export async function askForJson<T>({
 }) {
 	let response = await ask({
 		// https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/prefill-claudes-response
-		messages:
-			model == 'claude-3-5-sonnet-20240620'
-				? [
-						...messages,
-						{
-							role: 'assistant',
-							content: '{'
-						}
-					]
-				: messages,
+		messages: [
+			...messages,
+			{
+				role: 'assistant',
+				content: '{'
+			}
+		],
 		model,
 		format: 'json_object',
 		temperature,
@@ -41,7 +38,7 @@ export async function askForJson<T>({
 		logResponse
 	});
 
-	if (model == 'claude-3-5-sonnet-20240620' && !response.trim().startsWith('{')) {
+	if (!response.trim().startsWith('{')) {
 		response = '{' + response;
 	}
 

@@ -52,10 +52,6 @@ export async function ask<T>({
 		model = 'gpt-4o';
 
 		console.warn('Claude is overloaded. Switching to GPT-4.');
-
-		if (messages[messages.length - 1].content == '{') {
-			messages.pop();
-		}
 	}
 
 	if (logRequest) {
