@@ -65,7 +65,7 @@
 
 	let lookedUpWord: UnknownWordResponse | undefined;
 
-	let input: HTMLInputElement;
+	let input: HTMLElement;
 
 	$: sentenceId = sentence?.id;
 	$: isRevealed = word && (showChars > 2 || showChars > word.word.length - 1);
@@ -365,16 +365,28 @@
 				</p>
 			{/if}
 
-			<input
-				type="text"
-				bind:value={entered}
-				bind:this={input}
-				class="bg-blue-1 rounded-sm block w-full p-2 text-sans text-lg mb-6 {isFetchingEvaluation
-					? ' text-darker-gray'
-					: ''}"
-				lang={getLanguageOnClient().code}
-				disabled={isFetchingEvaluation}
-			/>
+			{#if exercise == 'translate' && sentence.sentence.length > (typeof window != 'undefined' && window.innerWidth > 768 ? 60 : 30)}
+				<textarea
+					bind:value={entered}
+					bind:this={input}
+					class="bg-blue-1 rounded-sm block w-full p-2 text-sans text-lg mb-6 {isFetchingEvaluation
+						? ' text-darker-gray'
+						: ''}"
+					lang={getLanguageOnClient().code}
+					disabled={isFetchingEvaluation}
+				></textarea>
+			{:else}
+				<input
+					type="text"
+					bind:value={entered}
+					bind:this={input}
+					class="bg-blue-1 rounded-sm block w-full p-2 text-sans text-lg mb-6 {isFetchingEvaluation
+						? ' text-darker-gray'
+						: ''}"
+					lang={getLanguageOnClient().code}
+					disabled={isFetchingEvaluation}
+				/>
+			{/if}
 
 			{#if showChars > 0 && !isRevealed}
 				<div class="text-xs font-lato mb-6">
