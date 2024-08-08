@@ -35,7 +35,7 @@ export function logError(error: any, context?: string) {
 			'Server error',
 			// this seems to be the audio player on safari
 			'The operation is not supported.'
-		].some((s) => error.message.includes(s)) &&
+		].some((s) => error.message?.includes(s)) &&
 		error.code != 'sentenceMissing' &&
 		typeof document !== 'undefined' &&
 		document.location.hostname !== 'localhost';
