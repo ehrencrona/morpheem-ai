@@ -45,6 +45,19 @@ export async function ask<T>({
 
 	const requestId = requestCount++;
 
+	if (
+		model == 'claude-3-5-sonnet-20240620' &&
+		Date.now() - lastTimeClaudeOverloaded < 15 * 60 * 1000
+	) {
+		model = 'gpt-4o';
+
+		console.warn('Claude is overloaded. Switching to GPT-4.');
+
+		if (messages[messages.length - 1].content == '{') {
+			messages.pop();
+		}
+	}
+
 	if (logRequest) {
 		console.debug(
 			messages
@@ -62,19 +75,6 @@ export async function ask<T>({
 		temperature,
 		max_tokens
 	};
-
-	if (
-		model == 'claude-3-5-sonnet-20240620' &&
-		Date.now() - lastTimeClaudeOverloaded < 15 * 60 * 1000
-	) {
-		model = 'gpt-4o';
-
-		console.warn('Claude is overloaded. Switching to GPT-4.');
-
-		if (messages[messages.length - 1].content == '{') {
-			messages.pop();
-		}
-	}
 
 	try {
 		if (['llama3-70b-8192', 'llama3-8b-8192', 'mixtral-8x7b-32768'].includes(model)) {
