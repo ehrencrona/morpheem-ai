@@ -21,7 +21,8 @@ export async function apiCall(path: string, options: RequestInit) {
 				500: 'Server error',
 				401: 'Unauthorized',
 				403: 'Forbidden',
-				404: 'Not found'
+				404: 'Not found',
+				529: 'Server overloaded'
 			}[response.status] || 'Unknown error';
 
 		throw new Error(`${message} while calling ${path}.`);

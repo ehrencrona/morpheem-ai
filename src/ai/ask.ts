@@ -1,6 +1,7 @@
 import { groq } from './groq-client';
 import { openai } from './openai-client';
 import { anthropic } from './anthropic-client';
+import { error } from '@sveltejs/kit';
 
 export type Model =
 	| 'gpt-4o-mini'
@@ -123,13 +124,15 @@ export async function ask<T>({
 		}
 
 		return response;
-	} catch (error) {
-		const message = `${requestId}. Failed to prompt for ${format}: ${error}`;
+	} catch (e) {
+		const message = `${requestId}. Failed to prompt for ${format}: ${e}`;
+
+		let isOverloaded = message.includes('529');
 
 		if (retriesLeft > 0) {
 			console.error(message + ' Retrying...');
 
-			if (message.includes('529')) {
+			if (isOverloaded) {
 				await new Promise((resolve) => setTimeout(resolve, 2000));
 			}
 
@@ -141,7 +144,7 @@ export async function ask<T>({
 				retriesLeft: retriesLeft - 1
 			});
 		} else {
-			throw new Error(message);
+			throw error(isOverloaded ? 529 : 502, message);
 		}
 	}
 }
