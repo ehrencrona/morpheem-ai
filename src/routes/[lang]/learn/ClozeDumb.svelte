@@ -121,7 +121,7 @@
 </script>
 
 <form on:submit={onSubmit}>
-	<div class="font-sans text-3xl lg:text-4xl leading-snug mb-8 mt-8 font-medium">
+	<div class="font-sans text-3xl lg:text-4xl mb-8 mt-8 font-medium">
 		{#each separatedWords as wordTokens}
 			<span class="whitespace-nowrap">
 				{#each wordTokens.tokens as wordString, index}
@@ -133,9 +133,17 @@
 										: evaluation.outcome == 'typo'
 											? 'text-orange'
 											: 'text-red'}>{evaluation.alternateWord?.conjugated || wordString}</span
-								>{:else}<div class="inline-flex flex-col -mb-1">
-									<span class="whitespace-nowrap">
-										{wordString.slice(0, showChars)}<input
+								>{:else}<div class="inline-flex flex-col content-stretch -mb-1">
+									<div class="flex">
+										<div>
+											{#if showChars}
+												{wordString.slice(0, showChars)}
+											{:else}
+												<!-- this is recognized as the baseline with which to vertically align the box -->
+												&ZeroWidthSpace;
+											{/if}
+										</div>
+										<input
 											type="text"
 											class="w-full border-b-4 border-b-red bg-blue-1 relative px-1 max-w-[90vw]"
 											size={wordString.length - showChars}
@@ -144,7 +152,7 @@
 											bind:this={input}
 											lang={getLanguageOnClient().code}
 										/>
-									</span>
+									</div>
 									<span class="text-xs font-lato text-right">
 										{#if unknownWord}
 											<span class="-mt-1">"{unknownWord.english}"</span>
