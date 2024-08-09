@@ -77,7 +77,7 @@ export async function translateWordInContext(
 				role: 'user',
 				content:
 					`For the ${language.name} sentence "${sentence.sentence}", give the single most relevant English dictionary entry of "${wordString}". Do not give multiple options.\n` +
-					`For non-semantic names, just repeat the name as the translation.\n` +
+					`For non-semantic names, just repeat the name as the translation. Align the translation in number, person, tense etc with the original.\n` +
 					`If "${wordString}" is part of an idiom or set phrase, use the literal translation but also return the idiom in ${language.name} and English (e.g "${idiomExample[language.code]}"). Only for idioms, not e.g. phrasal verbs.\n` +
 					`Also provide the form of the word in the sentence e.g. ${formExamples[language.code]}. For names, add "name" to the form.\n` +
 					(doTransliterate

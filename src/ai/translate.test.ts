@@ -1,6 +1,6 @@
 import { expect, it } from 'vitest';
 import { translateSentences, translateWordInContext, translateWordOutOfContext } from './translate';
-import { FRENCH, KOREAN, POLISH, SPANISH } from '../constants';
+import { FRENCH, KOREAN, POLISH, SPANISH, SWEDISH } from '../constants';
 
 it('translates sentences', async () => {
 	expect(
@@ -86,6 +86,16 @@ it('handles wynosić', async () => {
 
 	expect(res.expression?.expression).toEqual('wynosić się');
 	expect(res.expression?.english).toContain('to leave');
+});
+
+it.only('aligns translation in person and tense', async () => {
+	expect(
+		(await translateWordInContext('kör', { sentence: 'Han kör bilen.' }, SWEDISH)).english
+	).toEqual('drives');
+
+	expect(
+		(await translateWordInContext('körde', { sentence: 'Hon körde bil.' }, SWEDISH)).english
+	).toEqual('drove');
 });
 
 it('translates words out of context', async () => {
