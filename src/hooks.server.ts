@@ -72,7 +72,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 		sv: SWEDISH
 	}[languageCode];
 
-	event.locals.language = language; // || POLISH;
+	event.locals.language = language!; // || POLISH;
 
 	let startTime = Date.now();
 
@@ -102,9 +102,9 @@ export const handleError: HandleServerError = async ({ error, event, status, mes
 		captureException(error, {
 			extra: { event, errorId, status }
 		});
-
-		error = cloneError(error, `${message} (error ID: ${errorId})`);
 	}
+
+	error = cloneError(error, `${message} (error ID: ${errorId})`);
 
 	console.error(error);
 
