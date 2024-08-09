@@ -1,6 +1,6 @@
 import { expect, it } from 'vitest';
 import { translateSentences, translateWordInContext, translateWordOutOfContext } from './translate';
-import { KOREAN, POLISH, SPANISH } from '../constants';
+import { FRENCH, KOREAN, POLISH, SPANISH } from '../constants';
 
 it('translates sentences', async () => {
 	expect(
@@ -23,6 +23,9 @@ it('translates sentences', async () => {
 
 // Para que lo sepas, no voy a ir a la fiesta.
 // para should probably be "so"
+
+// Elle a eu un conflit avec son collègue au travail.
+// "son" should be "her"
 
 it('handles expressions', async () => {
 	const res = await translateWordInContext(
@@ -72,20 +75,7 @@ it('does not add unnecessary expression', async () => {
 	expect(res.expression).toBe(undefined);
 });
 
-// not so sure this is relevant. answering with either gender should be fine.
-it.skip('adds context when translating words', async () => {
-	const res = await translateWordInContext(
-		'zaprosiła',
-		{
-			sentence: 'Zaprosiła go na obiad do swojego ulubionego lokalu'
-		},
-		POLISH
-	);
-
-	expect(res.english).toEqual('she invited');
-});
-
-it.only('handles wynosić', async () => {
+it('handles wynosić', async () => {
 	const res = await translateWordInContext(
 		'wynosił',
 		{

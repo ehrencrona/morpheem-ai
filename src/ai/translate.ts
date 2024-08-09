@@ -76,7 +76,7 @@ export async function translateWordInContext(
 			{
 				role: 'user',
 				content:
-					`For the ${language.name} sentence "${sentence.sentence}", give the single most relevant English dictionary entry of "${wordString}".\n` +
+					`For the ${language.name} sentence "${sentence.sentence}", give the single most relevant English dictionary entry of "${wordString}". Do not give multiple options.\n` +
 					`For non-semantic names, just repeat the name as the translation.\n` +
 					`If "${wordString}" is part of an idiom or set phrase, use the literal translation but also return the idiom in ${language.name} and English (e.g "${idiomExample[language.code]}"). Only for idioms, not e.g. phrasal verbs.\n` +
 					`Also provide the form of the word in the sentence e.g. ${formExamples[language.code]}. For names, add "name" to the form.\n` +
@@ -111,12 +111,37 @@ export async function translateWordInContext(
 		}
 	}
 
+	console.log(
+		`Translated the ${language.name} "${wordString}" to "${response.definition}" in the context of "${getContextOf(wordString, sentence.sentence)}"`
+	);
+
 	return {
 		english: response.definition,
 		form: response.form,
 		transliteration: response.transliteration,
 		expression
 	};
+}
+
+function getContextOf(word: string, sentence: string) {
+	const index = sentence.indexOf(word);
+
+	if (index === -1) {
+		return sentence;
+	}
+
+	const contextLength = 20;
+
+	return (
+		(contextLength > index ? '' : '...') +
+		sentence
+			.substring(
+				Math.max(0, index - contextLength),
+				Math.min(sentence.length, index + word.length + contextLength)
+			)
+			.trim() +
+		(index + word.length + contextLength < sentence.length ? '...' : '')
+	);
 }
 
 export async function translateSentences(
