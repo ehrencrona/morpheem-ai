@@ -18,7 +18,7 @@ export const load = (async ({ locals, url }) => {
 	const userId = locals.user.num;
 
 	const [exercises, knowledge, writtenSentences, readSentences, activity] = await Promise.all([
-		getUserExercises(userId, language, 'last_time desc', 20),
+		getUserExercises({ userId, language, orderBy: 'last_time desc', limit: 20 }),
 		getRecentKnowledge({
 			userId,
 			language

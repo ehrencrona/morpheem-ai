@@ -27,6 +27,12 @@ it('translates sentences', async () => {
 // Elle a eu un conflit avec son collègue au travail.
 // "son" should be "her"
 
+// Dziecko potrzebuje pomocy przy ubieraniu butów.
+// ubieranu: putting on
+
+// Mój dom stoi przy ulicy Kwiatowej.
+// Kwiatowej: of flowers
+
 it('handles expressions', async () => {
 	const res = await translateWordInContext(
 		'groch',

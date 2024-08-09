@@ -1,7 +1,7 @@
 import { filterUndefineds } from '$lib/filterUndefineds';
 import { logError } from '$lib/logError';
 import { dateToTime } from '../logic/isomorphic/knowledge';
-import { Language } from '../logic/types';
+import { ExerciseType, Language } from '../logic/types';
 import { db } from './client';
 import { exerciseToKnowledgeType, knowledgeTypeToExercise } from './knowledgeTypes';
 import { UserExercise } from './types';
@@ -162,12 +162,19 @@ export async function getUserExercise(
 	}
 }
 
-export async function getUserExercises(
-	userId: number,
-	language: Language,
-	orderBy?: 'last_time desc',
-	limit?: number
-): Promise<(UserExercise & { id: number })[]> {
+export async function getUserExercises({
+	userId,
+	language,
+	orderBy,
+	limit,
+	exercise
+}: {
+	userId: number;
+	language: Language;
+	orderBy?: 'last_time desc';
+	limit?: number;
+	exercise?: ExerciseType;
+}): Promise<(UserExercise & { id: number })[]> {
 	let query = db
 		.withSchema(language.code)
 		.selectFrom('user_exercises')
@@ -189,6 +196,10 @@ export async function getUserExercises(
 
 	if (orderBy == 'last_time desc') {
 		query = query.orderBy('last_time desc');
+	}
+
+	if (exercise) {
+		query = query.where('exercise_type', '=', exerciseToKnowledgeType(exercise));
 	}
 
 	if (limit != null) {
@@ -245,7 +256,6 @@ export async function deleteUserExercise(id: number, userId: number, language: L
 		.execute();
 }
 
-
 export async function deleteUserExercises(ids: number[], userId: number, language: Language) {
 	if (ids.length === 0) {
 		return;
@@ -258,4 +268,3 @@ export async function deleteUserExercises(ids: number[], userId: number, languag
 		.where('user_id', '=', userId)
 		.execute();
 }
-

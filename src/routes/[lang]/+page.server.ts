@@ -24,7 +24,7 @@ export const load: ServerLoad = async ({
 		getUserSettings(user.num, language).then((res) => res?.unit || null)
 	]);
 
-	const userExercises = await getUserExercises(user.num, language);
+	const userExercises = await getUserExercises({ userId: user.num, language });
 
 	// intentionally async
 	cullUserExercises(userExercises, { userId: user.num, language }).catch(logError);

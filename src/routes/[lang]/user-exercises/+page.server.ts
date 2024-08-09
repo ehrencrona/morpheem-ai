@@ -10,7 +10,7 @@ export const load: ServerLoad = async ({ url, params, locals: { language, userId
 		return redirectToLogin(url);
 	}
 
-	const exercises = await getUserExercises(userId, language, 'last_time desc');
+	const exercises = await getUserExercises({ userId, language, orderBy: 'last_time desc' });
 
 	const sentences = await getSentencesByIds(
 		exercises.map((exercise) => exercise.sentenceId),

@@ -1,16 +1,21 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
-	import { sendClozes, sendGenerateCloze } from '../api/cloze/create/client';
-	import AddExercisesDumb from './AddExercisesDumb.svelte';
 	import { logError } from '$lib/logError';
 	import type { SendKnowledge } from '$lib/SendKnowledge';
+	import { onMount } from 'svelte';
+	import type { UserExerciseWithSentence } from '../../../db/types';
+	import type { Cloze } from '../../../logic/generateCloze';
+	import { sendClozes, sendGenerateCloze } from '../api/cloze/create/client';
+	import { sendGenerateTranslate } from '../api/write/create/client';
+	import GenerateClozeDumb from './GenerateClozeDumb.svelte';
+	import GenerateTranslateDumb from './GenerateTranslateDumb.svelte';
+
+	export let sendKnowledge: SendKnowledge;
+	export let translateExercises: UserExerciseWithSentence[];
 
 	const noOfExercises = 6;
 	let wasStored = false;
 
-	export let sendKnowledge: SendKnowledge;
-
-	let clozes: import('../../../logic/generateCloze').Cloze[] = [];
+	let clozes: Cloze[] = [];
 
 	const hardcodedSuggestions = [`learn words describing body parts`, `use the future tense`];
 
@@ -30,7 +35,7 @@
 		return [...new Set(array)];
 	}
 
-	const onGenerate = async (skill: string) => {
+	const onGenerateCloze = async (skill: string) => {
 		clozes = await sendGenerateCloze({ skill, noOfExercises });
 		wasStored = false;
 
@@ -61,13 +66,20 @@
 	};
 </script>
 
-<h1 class="text-2xl font-sans font-bold mb-4 lg:mt-8">Add Exercises</h1>
+<h1 class="text-2xl font-sans font-bold mb-4 lg:mt-8">Fill-in-the-blanks Exercises</h1>
 
-<AddExercisesDumb
+<GenerateClozeDumb
 	{clozes}
-	{onGenerate}
+	onGenerate={onGenerateCloze}
 	{onStore}
 	{onMore}
 	{wasStored}
 	suggestions={suggestions.slice(-6)}
+/>
+
+<h1 class="text-2xl font-sans font-bold mb-4 lg:mt-8">Translation Exercises</h1>
+
+<GenerateTranslateDumb
+	onGenerate={(sentence) => sendGenerateTranslate({ sentence })}
+	exercises={translateExercises}
 />

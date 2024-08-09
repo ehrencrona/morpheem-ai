@@ -17,10 +17,10 @@
 	<h1 class="text-xl mt-12 mb-4">Exercises</h1>
 
 	<div
-		class="grid gap-3 items-baseline grid-cols-[auto_1fr_auto_auto_auto] md:grid-cols-[auto_1fr_auto_auto_auto] text-sm md:text-base"
+		class="grid gap-3 items-baseline grid-cols-[auto_1fr_3fr_auto_auto] md:grid-cols-[auto_1fr_3fr_auto_auto] text-sm md:text-base"
 	>
 		{#each data.exercises as exercise}
-			<div class="text-xs font-lato">#{exercise.id}<br />{toPercent(exercise.level / 100)}</div>
+			<div class="text-xs">#{exercise.id}<br />{toPercent(exercise.level / 100)}</div>
 
 			<div>
 				{#if exercise.exercise == 'cloze' || exercise.exercise == 'cloze-inflection' || exercise.exercise == 'write'}
@@ -41,7 +41,7 @@
 
 				<a
 					href={`/${data.lang}/sentences/${exercise.sentenceId}`}
-					class="text-xs font-lato text-blue-3 underline">{exercise.sentence?.id}</a
+					class="text-xs text-blue-3 underline">#{exercise.sentence?.id}</a
 				>
 			</div>
 

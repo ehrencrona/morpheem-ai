@@ -60,6 +60,8 @@ export type Exercise = z.infer<typeof exerciseSchema>;
 
 export type UserExercise = Exercise & Scoreable;
 
+export type UserExerciseWithSentence = UserExercise & { sentence: Sentence };
+
 export type ExerciseSource = 'unstudied' | 'studied' | 'userExercise' | 'related';
 
 export type ScoreableExercise = Exercise &
