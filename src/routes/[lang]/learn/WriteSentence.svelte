@@ -372,6 +372,11 @@
 						: ''}"
 					lang={getLanguageOnClient().code}
 					disabled={isFetchingEvaluation}
+					on:keydown|preventDefault={(event) => {
+						if (event.key == 'Enter') {
+							onSubmit();
+						}
+					}}
 				></textarea>
 			{:else}
 				<input
