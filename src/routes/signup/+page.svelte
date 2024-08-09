@@ -2,6 +2,7 @@
 	import '../../app.css';
 	import { enhance } from '$app/forms';
 	import type { ActionData } from './$types';
+	import { page } from '$app/stores';
 
 	export let form: ActionData;
 </script>
@@ -53,7 +54,7 @@
 
 			<button class="text-blue-1 rounded-md px-6 py-1 m-2 ml-0 bg-blue-4 mt-6">Sign up</button>
 
-			<a href="/login" class="text-blue-4 underline ml-4">Log in</a>
+			<a href="/login{$page.url.search}" class="text-blue-4 underline ml-4">Log in</a>
 		</form>
 	</div>
 </div>
