@@ -367,7 +367,7 @@
 				<textarea
 					bind:value={entered}
 					bind:this={input}
-					class="bg-blue-1 rounded-sm block w-full p-2 text-sans text-lg mb-6 {isFetchingEvaluation
+					class="bg-blue-1 rounded-sm block w-full p-2 text-sans text-lg mb-6 transition-colors {isFetchingEvaluation
 						? ' text-darker-gray'
 						: ''}"
 					lang={getLanguageOnClient().code}
@@ -383,7 +383,7 @@
 					type="text"
 					bind:value={entered}
 					bind:this={input}
-					class="bg-blue-1 rounded-sm block w-full p-2 text-sans text-lg mb-6 {isFetchingEvaluation
+					class="bg-blue-1 rounded-sm block w-full p-2 text-sans text-lg mb-6 transition-colors {isFetchingEvaluation
 						? ' text-darker-gray'
 						: ''}"
 					lang={getLanguageOnClient().code}
