@@ -93,6 +93,7 @@
 		showIdea = false;
 		fragments = undefined;
 		revealedClauses = [];
+		isFetchingEvaluation = false;
 
 		if (exercise == 'write') {
 			lookupUnknownWord(word!.word)
